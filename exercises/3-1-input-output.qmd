@@ -82,16 +82,18 @@ D. Two sheets, `r paste(readxl::excel_sheets(corn_xls), collapse = " and ")`.
 4. Range of `Yield`: a code such as `-999`, or a number in the wrong units, shows up as an impossible value.
 5. The first row: shifted columns show up when compared with the first data line of the file.
 
-A request that gets all of this in one go:
+The blanks of the recommended request, filled in:
 
 ```text
-In my R project, data/corn_yields.csv is a csv file with a header row and
-161 data rows (Nebraska corn yields by county and irrigation status).
-Read it into a table called corn using readr, building the path with
-here::here(). Do not use setwd() or an absolute path. Then print the
-number of rows and columns, the type of every column, the number of
-missing values per column, the range of Yield, and the first row.
+- above the column names there is nothing
+- there are 161 data rows and 9 columns
+- one row is one county, one year, and one irrigation status
+- missing values are written as: none expected
+- ID columns that must stay text: FIPS
+- a believable range for Yield is 100 to 250
 ```
+
+In the HTML, every "expected, got" line should match.
 :::
 
 ## Task 3: Both sheets of the Excel file
@@ -136,6 +138,8 @@ B. The path. `C:/Users/maria/Downloads` exists only on Maria's computer.
 C. First, `-999` is not treated as missing, so the average is `r maria_mean` instead of `r good_mean`. Second, `read.csv()` reads `county_fips` as a number, so `08125` becomes `8125`. Nothing uses that column here, but the first time Maria joins this table to another one by county code, the Colorado counties will quietly fail to match.
 
 D. "Print the smallest and largest yield": a minimum of -999 is impossible. "Print the type of every column": `county_fips` should be text, because it is an ID, not a quantity.
+
+E. The AI usually spots the path and often the `-999`. It can only spot the `-999` because the code itself is visible to it; it has not seen the file. Whether it notices the lost leading zero varies. Either way, compare its list with yours, and treat its answer like any other: something to check, not something to accept.
 :::
 
 ## Task 6: Save and read back

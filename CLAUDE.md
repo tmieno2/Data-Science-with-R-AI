@@ -17,6 +17,29 @@ AI writes the code, so each deck teaches:
 Function names and arguments appear as samples to recognise, never as the
 subject of a slide.
 
+**The core principle of the course: work lives in a `.qmd`, and is judged by
+reading the rendered HTML.** The AI writes code into the student's `.qmd`,
+with one plain-English sentence above each chunk; the student renders and
+assesses the HTML, not the chat. Every recommended request ends with the same
+"closing instructions" (which `.qmd` and heading, a sentence above each chunk,
+`here::here()` paths, checks printed as "expected X, got Y", render to HTML).
+The canonical wording is the "Closing instructions" tab of the "Recommended
+requests" slide in `lectures/Chapter-3-DataWrangling/03-1-input-output.qmd`;
+reuse it word for word in later decks.
+
+Recommended requests carry `<...>` blanks for what only the student can know
+from looking at the data. Never fill them in for the student in a lecture.
+
+## Exercises
+
+In-class (flipped course). Each has two files:
+
+- `exercises/N-N-topic.qmd`: the web page, with setup, download links, and
+  collapsed answer boxes whose numbers are computed from the data at render.
+- `exercises/worksheets/ex-N-N.qmd`: the fill-in worksheet students download.
+  Excluded from the render and published as a resource by the web page. Task
+  wording lives only here, so it cannot drift from the page.
+
 ## Styling
 
 Lecture styling comes from `../_lecture-shared/`, copied into `lectures/` by

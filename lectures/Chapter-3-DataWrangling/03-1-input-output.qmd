@@ -200,6 +200,25 @@ A reader told nothing about sheets reads the **first** one only. If you wanted b
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
+## How you work with the AI in this course
+
+Every piece of work in this course lives in a **Quarto document** (`.qmd`), and you judge it by reading the **HTML file** it renders to.
+
+1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
+2. **The AI writes into your `.qmd`.** Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
+3. **You render** the `.qmd` to HTML.
+4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
+
+Why the HTML and not the chat window:
+
++ Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the work is reproducible; nothing depends on something typed into the Console and forgotten.
++ It puts each explanation, its code and its result in one place, in order.
++ It is what you hand in, and what anyone else will read.
+
+:::{.callout-note}
+Every request ends with the same few lines telling the AI to work this way. This deck calls them the **closing instructions**; the full text is under **Recommended requests** near the end.
+:::
+
 ## What to put in your request
 
 The AI already knows the functions. Your request supplies what it cannot know:
@@ -209,6 +228,7 @@ The AI already knows the functions. Your request supplies what it cannot know:
 3. **What you want back**: the name of the table, what one row is, and which type each key column should be
 4. **Your project's rules**: for example, use the tidyverse, build paths with `here::here()`, never `setwd()` or absolute paths
 5. **Ask for checks**: have it print the numbers you will check against (next section)
+6. **The closing instructions**: which `.qmd` and heading the code goes under, a sentence above each chunk, and render to HTML
 
 :::{.callout-tip title="Using an agent in your editor or terminal?"}
 An agent such as Claude Code can open the file and look for itself. Still write down what you expect (number of rows, types of key columns) **before** it runs, so you have something to compare against.
@@ -277,9 +297,13 @@ Write R code (tidyverse) that:
 - keeps FIPS as text so leading zeros survive
 - builds the path with here::here(), no setwd() and no absolute paths
 
-Then print: the number of rows from each sheet, the number of rows in
-corn, the type of every column, and the number of missing values in
-each column. Explain each line in one sentence.
+Then print: the number of rows from each sheet (I expect 161 each), the
+number of rows in corn (322), the type of every column, and the number
+of missing values in each column.
+
+Put the code in analysis/import.qmd under the heading "Read the corn
+data", with one plain-English sentence above each chunk saying what it
+does and why. Render the document to HTML.
 ```
 
 ### What came back
@@ -339,18 +363,18 @@ every column, the number of missing values in each column, the smallest and
 largest value of each numeric column, and the first row.
 ```
 
-Better still, tell it what you expect, so the output says which checks failed:
+Better still, tell it what you expect, so the HTML says which checks passed:
 
 ```text
 I expect 161 rows, 9 columns, no missing values, and Yield between 100 and
-250. Print a clear message for every expectation that is not met.
+250. Print each check as "<check>: expected <X>, got <Y>".
 ```
 
 The second version only works if you looked at the file first. That is the part you cannot hand off.
 
-### Reading the answer
+### Reading the HTML
 
-The AI writes the code. You read what it prints and compare it with what you expected:
+The AI writes the code. In the rendered HTML, you read what it printed and compare it with what you expected:
 
 ```{r}
 #| label: chk-all
@@ -484,6 +508,114 @@ The csv gave back text: the factor was lost. The rds gave back the factor.
 "Save `corn` as `data/corn_clean.rds` using `here::here()`, then read it back and tell me whether it matches the original exactly, and if not, which columns differ."
 :::
 
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at the file. The blanks are the part the AI cannot fill in for you. Every request ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request:
+
+```text
+Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
+heading "<Task 2>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at a file
+
+```text
+Without reading <data/corn_messy.csv> as a table, show me its first
+<5> raw lines and the total number of lines.
+
+Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
+heading "<Task 4b>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Render the document
+to HTML.
+```
+
+### Read a csv
+
+```text
+In my R project, <data/corn_yields.csv> is a csv file. I looked at it:
+- above the column names there is <nothing>
+- there are <161> data rows and <9> columns
+- one row is <one county, one year, one irrigation status>
+- missing values are written as <nothing / -999 / .>
+- ID columns that must stay text: <FIPS>
+- a believable range for <Yield> is <100 to 250>
+
+Read it into a table called <corn> using the tidyverse. Then check the
+number of rows and columns, the type of every column, the number of
+missing values in each column, the range of <Yield>, and the first row.
+
+Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
+heading "<Task 2>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+### Read an Excel workbook
+
+```text
+In my R project, <data/corn_yields.xls> is an Excel workbook with the
+sheets <corn_yields_08> and <corn_yields_09>. I want <both sheets,
+stacked into one table called corn>. Each sheet has <161> rows, and
+<Year> tells the sheets apart. ID columns that must stay text: <FIPS>.
+
+Then check the number of rows from each sheet and in total, the type of
+every column, the number of missing values in each column, and the
+values of <Year>.
+
+Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
+heading "<Task 3>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+### Save and read back
+
+```text
+Save the table <corn> as <data/corn_clean.rds>. Then read the file back
+and tell me, in one plain-English line, whether it matches the original
+exactly, and if not, which columns differ and how.
+
+Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
+heading "<Task 6>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Render the document
+to HTML.
+```
+
+### Explain code
+
+For code you did not write, or code you are not sure about:
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
 # Summary
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
@@ -498,4 +630,4 @@ The csv gave back text: the factor was lost. The rds gave back the factor.
 | What a correct result looks like: rows, types, ranges | The checking code |
 | Which format to save in, given who reads it next | The writer function |
 
-**Every import:** look at the file first and write down what you expect. Ask the AI to print the five checks, plus any check your knowledge of the data suggests. Then judge the output against what you wrote down.
+**Every import:** look at the file first and write down what you expect. Ask the AI to write the code and the five checks into your `.qmd`, plus any check your knowledge of the data suggests. Render it, and judge the HTML against what you wrote down.

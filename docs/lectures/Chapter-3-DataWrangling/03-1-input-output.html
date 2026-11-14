@@ -646,6 +646,32 @@
 <hr color="#EB811B" size="1px" width="796px">
 
 </section>
+<section id="how-you-work-with-the-ai-in-this-course" class="slide level2 scrollable">
+<h2>How you work with the AI in this course</h2>
+<p>Every piece of work in this course lives in a <strong>Quarto document</strong> (<code>.qmd</code>), and you judge it by reading the <strong>HTML file</strong> it renders to.</p>
+<ol type="1">
+<li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
+<li><strong>The AI writes into your <code>.qmd</code>.</strong> Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
+<li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
+<li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
+</ol>
+<p>Why the HTML and not the chat window:</p>
+<ul>
+<li>Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the work is reproducible; nothing depends on something typed into the Console and forgotten.</li>
+<li>It puts each explanation, its code and its result in one place, in order.</li>
+<li>It is what you hand in, and what anyone else will read.</li>
+</ul>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Every request ends with the same few lines telling the AI to work this way. This deck calls them the <strong>closing instructions</strong>; the full text is under <strong>Recommended requests</strong> near the end.</p>
+</div>
+</div>
+</div>
+</section>
 <section id="what-to-put-in-your-request" class="slide level2 scrollable">
 <h2>What to put in your request</h2>
 <p>The AI already knows the functions. Your request supplies what it cannot know:</p>
@@ -655,6 +681,7 @@
 <li><strong>What you want back</strong>: the name of the table, what one row is, and which type each key column should be</li>
 <li><strong>Your project’s rules</strong>: for example, use the tidyverse, build paths with <code>here::here()</code>, never <code>setwd()</code> or absolute paths</li>
 <li><strong>Ask for checks</strong>: have it print the numbers you will check against (next section)</li>
+<li><strong>The closing instructions</strong>: which <code>.qmd</code> and heading the code goes under, a sentence above each chunk, and render to HTML</li>
 </ol>
 <div title="Using an agent in your editor or terminal?">
 <div class="callout callout-tip no-icon callout-titled callout-style-default">
@@ -728,9 +755,13 @@
 <span id="cb17-7"><a></a>- keeps FIPS as text so leading zeros survive</span>
 <span id="cb17-8"><a></a>- builds the path with here::here(), no setwd() and no absolute paths</span>
 <span id="cb17-9"><a></a></span>
-<span id="cb17-10"><a></a>Then print: the number of rows from each sheet, the number of rows in</span>
-<span id="cb17-11"><a></a>corn, the type of every column, and the number of missing values in</span>
-<span id="cb17-12"><a></a>each column. Explain each line in one sentence.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb17-10"><a></a>Then print: the number of rows from each sheet (I expect 161 each), the</span>
+<span id="cb17-11"><a></a>number of rows in corn (322), the type of every column, and the number</span>
+<span id="cb17-12"><a></a>of missing values in each column.</span>
+<span id="cb17-13"><a></a></span>
+<span id="cb17-14"><a></a>Put the code in analysis/import.qmd under the heading "Read the corn</span>
+<span id="cb17-15"><a></a>data", with one plain-English sentence above each chunk saying what it</span>
+<span id="cb17-16"><a></a>does and why. Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-6-3">
 <p>A version of what an AI returns for the strong request. Read it line by line; you should be able to say what each line does:</p>
@@ -768,7 +799,7 @@
 <section id="checking-what-to-ask-for-and-why" class="slide level2">
 <h2>Checking: what to ask for, and why</h2>
 <div class="panel-tabset">
-<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The five checks</a></li><li><a href="#tabset-7-2">Asking for them</a></li><li><a href="#tabset-7-3">Reading the answer</a></li></ul>
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The five checks</a></li><li><a href="#tabset-7-2">Asking for them</a></li><li><a href="#tabset-7-3">Reading the HTML</a></li></ul>
 <div class="tab-content">
 <div id="tabset-7-1">
 <p>The AI can write the checking code. It cannot decide which checks your file needs, and it cannot know the right answers. Ask for these after every import:</p>
@@ -826,13 +857,13 @@
 <div class="sourceCode" id="cb19"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb19-1"><a></a>After reading the file, print: the number of rows and columns, the type of</span>
 <span id="cb19-2"><a></a>every column, the number of missing values in each column, the smallest and</span>
 <span id="cb19-3"><a></a>largest value of each numeric column, and the first row.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Better still, tell it what you expect, so the output says which checks failed:</p>
+<p>Better still, tell it what you expect, so the HTML says which checks passed:</p>
 <div class="sourceCode" id="cb20"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb20-1"><a></a>I expect 161 rows, 9 columns, no missing values, and Yield between 100 and</span>
-<span id="cb20-2"><a></a>250. Print a clear message for every expectation that is not met.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-2"><a></a>250. Print each check as "&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;".</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The second version only works if you looked at the file first. That is the part you cannot hand off.</p>
 </div>
 <div id="tabset-7-3">
-<p>The AI writes the code. You read what it prints and compare it with what you expected:</p>
+<p>The AI writes the code. In the rendered HTML, you read what it printed and compare it with what you expected:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
@@ -1019,6 +1050,100 @@ $yield_range
 </div>
 </section></section>
 <section>
+<section id="recommended-requests" class="title-slide slide level1 center">
+<h1>Recommended requests</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="requests-you-can-copy" class="slide level2">
+<h2>Requests you can copy</h2>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the file. The blanks are the part the AI cannot fill in for you. Every request ends with the closing instructions.</p>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Closing instructions</a></li><li><a href="#tabset-9-2">Look at a file</a></li><li><a href="#tabset-9-3">Read a csv</a></li><li><a href="#tabset-9-4">Read an Excel workbook</a></li><li><a href="#tabset-9-5">Save and read back</a></li><li><a href="#tabset-9-6">Explain code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<p>The lines that end every request:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb30-1"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
+<span id="cb30-2"><a></a>heading "&lt;Task 2&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb30-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb30-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb30-5"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
+</div>
+<div id="tabset-9-2">
+<div class="sourceCode" id="cb31"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb31-1"><a></a>Without reading &lt;data/corn_messy.csv&gt; as a table, show me its first</span>
+<span id="cb31-2"><a></a>&lt;5&gt; raw lines and the total number of lines.</span>
+<span id="cb31-3"><a></a></span>
+<span id="cb31-4"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
+<span id="cb31-5"><a></a>heading "&lt;Task 4b&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb31-6"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb31-7"><a></a>with here::here(); no setwd(), no absolute paths. Render the document</span>
+<span id="cb31-8"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-3">
+<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb32-1"><a></a>In my R project, &lt;data/corn_yields.csv&gt; is a csv file. I looked at it:</span>
+<span id="cb32-2"><a></a>- above the column names there is &lt;nothing&gt;</span>
+<span id="cb32-3"><a></a>- there are &lt;161&gt; data rows and &lt;9&gt; columns</span>
+<span id="cb32-4"><a></a>- one row is &lt;one county, one year, one irrigation status&gt;</span>
+<span id="cb32-5"><a></a>- missing values are written as &lt;nothing / -999 / .&gt;</span>
+<span id="cb32-6"><a></a>- ID columns that must stay text: &lt;FIPS&gt;</span>
+<span id="cb32-7"><a></a>- a believable range for &lt;Yield&gt; is &lt;100 to 250&gt;</span>
+<span id="cb32-8"><a></a></span>
+<span id="cb32-9"><a></a>Read it into a table called &lt;corn&gt; using the tidyverse. Then check the</span>
+<span id="cb32-10"><a></a>number of rows and columns, the type of every column, the number of</span>
+<span id="cb32-11"><a></a>missing values in each column, the range of &lt;Yield&gt;, and the first row.</span>
+<span id="cb32-12"><a></a></span>
+<span id="cb32-13"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
+<span id="cb32-14"><a></a>heading "&lt;Task 2&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb32-15"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb32-16"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb32-17"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-4">
+<div class="sourceCode" id="cb33"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb33-1"><a></a>In my R project, &lt;data/corn_yields.xls&gt; is an Excel workbook with the</span>
+<span id="cb33-2"><a></a>sheets &lt;corn_yields_08&gt; and &lt;corn_yields_09&gt;. I want &lt;both sheets,</span>
+<span id="cb33-3"><a></a>stacked into one table called corn&gt;. Each sheet has &lt;161&gt; rows, and</span>
+<span id="cb33-4"><a></a>&lt;Year&gt; tells the sheets apart. ID columns that must stay text: &lt;FIPS&gt;.</span>
+<span id="cb33-5"><a></a></span>
+<span id="cb33-6"><a></a>Then check the number of rows from each sheet and in total, the type of</span>
+<span id="cb33-7"><a></a>every column, the number of missing values in each column, and the</span>
+<span id="cb33-8"><a></a>values of &lt;Year&gt;.</span>
+<span id="cb33-9"><a></a></span>
+<span id="cb33-10"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
+<span id="cb33-11"><a></a>heading "&lt;Task 3&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb33-12"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb33-13"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb33-14"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-5">
+<div class="sourceCode" id="cb34"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb34-1"><a></a>Save the table &lt;corn&gt; as &lt;data/corn_clean.rds&gt;. Then read the file back</span>
+<span id="cb34-2"><a></a>and tell me, in one plain-English line, whether it matches the original</span>
+<span id="cb34-3"><a></a>exactly, and if not, which columns differ and how.</span>
+<span id="cb34-4"><a></a></span>
+<span id="cb34-5"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
+<span id="cb34-6"><a></a>heading "&lt;Task 6&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb34-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb34-8"><a></a>with here::here(); no setwd(), no absolute paths. Render the document</span>
+<span id="cb34-9"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-6">
+<p>For code you did not write, or code you are not sure about:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb35-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb35-2"><a></a>sentence. Then list:</span>
+<span id="cb35-3"><a></a>1. any line that would only work on the computer it was written on</span>
+<span id="cb35-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
+<span id="cb35-5"><a></a>   check would reveal it</span>
+<span id="cb35-6"><a></a></span>
+<span id="cb35-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
 <section id="summary" class="title-slide slide level1 center">
 <h1>Summary</h1>
 
@@ -1064,7 +1189,7 @@ $yield_range
 </tr>
 </tbody>
 </table>
-<p><strong>Every import:</strong> look at the file first and write down what you expect. Ask the AI to print the five checks, plus any check your knowledge of the data suggests. Then judge the output against what you wrote down.</p>
+<p><strong>Every import:</strong> look at the file first and write down what you expect. Ask the AI to write the code and the five checks into your <code>.qmd</code>, plus any check your knowledge of the data suggests. Render it, and judge the HTML against what you wrote down.</p>
 
 
 </section></section>
