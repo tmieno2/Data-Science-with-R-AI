@@ -54,24 +54,70 @@ Those four are your job. So today is about:
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
-## What importing is
+## How reading code is written
 
-A data file is a table saved on disk in some **format**. Importing means a function reads that file and builds a table inside R (a **data frame**) that you give a name to.
+A data file is a table saved on disk in some **format**. Reading it means a function opens the file and builds a table inside R (a **data frame**) that you give a name to. Whatever the format, and whichever function the AI picks, the code has the same shape.
 
-Every import line you will see has the same three parts:
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+table_name <- reader_function("path/to/file", option = value, ...)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `table_name <-` | The name the table will have inside R. `<-` stores the result under that name. | Needed to keep the result |
+| `reader_function` | The function that understands the file's format | Yes |
+| `"path/to/file"` | Where the file is, always the **first** input | **Yes, the only required input** |
+| `option = value` | Extra instructions about the layout and types | No; each has a default |
+
+A real line of this shape:
 
 ```{r}
 #| label: first-import
 corn <- read_csv("corn_yields.csv")
 ```
 
-| Part | Here | What it is |
-|---|---|---|
-| Name | `corn` | What you will call the table inside R. `<-` stores the result under that name. |
-| Reader | `read_csv` | The function that understands this file's format |
-| Path | `"corn_yields.csv"` | Where the file is |
+### Every reader has this shape
 
-The AI will pick the reader and fill in the details. You need to be able to look at a line like this and say which part is which.
+Readers differ in name and package, not in shape. The shortest call to each is the path and nothing else:
+
+| Format | Shortest call | Package |
+|---|---|---|
+| csv | `read_csv("corn.csv")` | readr (tidyverse) |
+| csv | `read.csv("corn.csv")` | built into R |
+| Excel | `read_excel("corn.xlsx")`, or `read_xls()`, `read_xlsx()` | readxl |
+| STATA | `read_dta("corn.dta")` | haven |
+| R's own | `readRDS("corn.rds")` | built into R |
+
+The help pages call the first input `file` for some readers and `path` for others. The name differs; its position, first, does not.
+
+### Options
+
+Everything after the path is optional and written as `name = value`. Each option you leave out takes its **default**, a value chosen by whoever wrote the function. Options you will see, grouped by what they tell the reader:
+
++ **Which part of the file**: `sheet = "corn_yields_08"` (Excel), `skip = 2` (ignore lines above the column names)
++ **What marks a missing value**: `na = c("", ".", "-999")` (for `read.csv()`, `na.strings =`)
++ **What type each column is**: `col_types = ...`, for example to keep an ID column as text
+
+:::{.callout-important}
+A default is a guess about your file. When the guess is wrong, R gives no error, and that is where the silent failures later in this deck come from. Knowing what your file looks like is how you know which options the AI must set.
+:::
+
+### Variations you will see
+
+AI-written code often wraps the same pattern in extra pieces. They change how the line looks, not what it does:
+
++ `readr::read_csv(...)`: the package name, then `::`, then the function. Uses the function without loading the whole package.
++ `read_csv(here::here("data", "corn.csv"))`: the path is built by another function instead of typed out (see Condition 1).
++ `path <- here::here("data", "corn.csv")` on one line, then `read_csv(path)` on the next: the path is stored first and used later.
++ `read_csv(...) |> some_other_step()`: the table is passed straight on to a next step (`|>`) before it is stored.
+
+:::
+
 
 ## What has to be true for an import to work
 
@@ -136,14 +182,14 @@ All three break as soon as the code runs somewhere else. Tell it where the file 
 
 ## Condition 2: the reader matches the format
 
-The file extension (the part after the last dot) tells you the format. You do not need to memorise the reader; tell the AI the extension and it will pick one. You do need to recognise them:
+The file extension (the part after the last dot) tells you the format. Tell the AI the extension and it will pick a reader from the list under "How reading code is written". What you need to know is what each format keeps, because that decides what can go wrong:
 
-| Extension | Format | Reader you will see | What the file remembers |
-|---|---|---|---|
-| `.csv` | plain text, any software opens it | `read_csv()` (readr) | Only text. Types are guessed on reading. |
-| `.xls`, `.xlsx` | Excel workbook | `read_excel()` (readxl) | Several **sheets** per file |
-| `.dta` | STATA | `read_dta()` (haven) | Types and variable labels |
-| `.rds` | R's own format | `readRDS()` (built in) | The exact R object, nothing guessed |
+| Extension | Format | What the file keeps |
+|---|---|---|
+| `.csv` | plain text, any software opens it | Only text. Types are guessed on reading. |
+| `.xls`, `.xlsx` | Excel workbook | Several **sheets** per file; a reader takes the first unless told otherwise |
+| `.dta` | STATA | Types and variable labels |
+| `.rds` | R's own format | The exact R object, nothing guessed |
 
 :::{.callout-note}
 A csv file stores everything as text, so the reader has to **guess** each column's type. That guessing is where conditions 3 and 4 go wrong.
@@ -458,14 +504,59 @@ D. Name both sheets, say whether you want both years or one, ask for `here::here
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
-## What exporting is
+## How writing code is written
 
-Exporting is importing in reverse: a function writes a table from R into a file. The line has the same parts, in the order object first, then path:
+Writing (exporting) is reading in reverse: a function takes a table from R and saves it as a file. Again, every writer has the same shape.
+
+::: {.panel-tabset}
+
+### The pattern
 
 ```{r}
 #| eval: false
-write_csv(corn, "corn_clean.csv")
+writer_function(table_name, "path/to/file", option = value, ...)
 ```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `writer_function` | The function that writes this format | Yes |
+| `table_name` | The table to save, always the **first** input | **Yes** |
+| `"path/to/file"` | Where to save it, always the **second** input | **Yes** |
+| `option = value` | Extra instructions, such as how to write missing values | No; each has a default |
+
+Two differences from reading:
+
++ There is no `table_name <-` in front. The result is a file on disk, not a new table in R.
++ If a file already exists at that path, it is **replaced without asking**. Writing to the same path as your raw data destroys the raw data.
+
+### Every writer has this shape
+
+| Format | Shortest call | Package |
+|---|---|---|
+| csv | `write_csv(corn, "corn.csv")` | readr (tidyverse) |
+| csv | `write.csv(corn, "corn.csv")` | built into R |
+| Excel | `write_xlsx(corn, "corn.xlsx")` | writexl |
+| STATA | `write_dta(corn, "corn.dta")` | haven |
+| R's own | `saveRDS(corn, "corn.rds")` | built into R |
+
+The same variations as for reading appear here too: `readr::write_csv(...)`, and the path built with `here::here(...)`.
+
+### A default that surprises
+
+Defaults matter when writing too. The built-in `write.csv()` adds a column of row numbers by default. Read the file back, and that column returns as an extra column:
+
+```{r}
+#| label: write-csv-rownames
+tmp <- file.path(tempdir(), "corn_base.csv")
+write.csv(corn, tmp)
+names(read.csv(tmp))
+```
+
+The extra first column, `X`, holds 1, 2, 3, and so on. Adding `row.names = FALSE` prevents it; `write_csv()` never adds it. When the AI writes `write.csv()`, check for that option.
+
+Notice also that `Data item` came back as `Data.item`. That one is a default of the reader: `read.csv()` replaces spaces in column names with dots, and `read_csv()` does not.
+
+### Choosing a format
 
 The decision that is yours is the **format**, and it depends on who reads the file next and what has to survive:
 
@@ -478,6 +569,9 @@ The decision that is yours is the **format**, and it depends on who reads the fi
 :::{.callout-note title="A reasonable default"}
 Keep **raw** data as you received it. Save **intermediate** results as rds, so types survive from one script to the next.
 :::
+
+:::
+
 
 ## Checking an export: the round trip
 
