@@ -4,5 +4,11 @@
     "items": [
       "/lectures/Chapter-3-DataWrangling/03-1-input-output.html"
     ]
+  },
+  {
+    "listing": "/exercises/index.html",
+    "items": [
+      "/exercises/3-1-input-output.html"
+    ]
   }
 ]

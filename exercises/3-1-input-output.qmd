@@ -1,0 +1,270 @@
+---
+title: "Ex-3-1: Getting Data In and Out, with an AI Assistant"
+abstract: "Data Wrangling"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+resources:
+  - data/corn_messy.csv
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the "What you should find" boxes, so they
+# always match the data. Students never see this chunk.
+library(readr)
+library(dplyr)
+corn_csv  <- "../lectures/Chapter-3-DataWrangling/corn_yields.csv"
+corn_xls  <- "../lectures/Chapter-3-DataWrangling/corn_yields.xls"
+messy_csv <- "data/corn_messy.csv"
+
+csv_lines <- length(readLines(corn_csv))
+corn <- read_csv(corn_csv, show_col_types = FALSE)
+
+y08 <- readxl::read_excel(corn_xls, sheet = 1)
+y09 <- readxl::read_excel(corn_xls, sheet = 2)
+
+messy_lines <- length(readLines(messy_csv))
+naive  <- suppressWarnings(read_csv(messy_csv, show_col_types = FALSE))
+good   <- read_csv(messy_csv, skip = 2, na = c("", ".", "-999"), show_col_types = FALSE)
+half   <- read_csv(messy_csv, skip = 2, na = c("", "."), show_col_types = FALSE)
+good_mean <- round(mean(good[["Yield (bu/ac)"]], na.rm = TRUE), 1)
+half_mean <- round(mean(half[["Yield (bu/ac)"]], na.rm = TRUE), 1)
+n_co <- sum(good$state == "CO")
+
+maria <- read.csv(messy_csv, skip = 2, na.strings = ".")
+maria_mean <- round(mean(maria[[5]], na.rm = TRUE), 1)
+```
+
+This is an in-class exercise. Before class, work through the lecture **03-1: Getting Data In and Out of R**. In class, you use an AI assistant to write the code, and your job is everything the AI cannot do: knowing what the files contain, asking for the right thing, and proving the result is right.
+
+# How every task works {#sec-how}
+
+Each task has four steps. Do them in this order.
+
+1. **Look.** Open the file and see what is in it, before anyone writes code.
+2. **Predict.** Write down what a correct result looks like: number of rows, columns, the type of each key column.
+3. **Ask.** Write a request to the AI. Run the code it gives you.
+4. **Check.** Compare the result with your prediction. If they disagree, find out which one is wrong.
+
+Four rules for the whole session:
+
+A. Write your prediction **before** you ask the AI. A prediction written after seeing the answer checks nothing.
+
+B. Keep a copy of every request you send. You will compare them at the end.
+
+C. Do not keep a line of code you cannot explain. If you do not know what a line does, ask the AI to explain it, then decide.
+
+D. You run the checks and you judge them. The AI can write the checking code, but only you know what the right answer is.
+
+Work in pairs if you like, but each of you keeps your own file.
+
+# Setup {#sec-setup}
+
+1. Clone <https://github.com/tmieno2/data-science-course-supplementary-datasets> if you have not already.
+2. Download [corn_messy.csv](data/corn_messy.csv). You will use it in @sec-messy.
+3. Make an R Project folder called `ch3-practice`, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+4. Copy `corn_yields.csv`, `corn_yields.xls` and `corn_messy.csv` into `ch3-practice/data`.
+5. Create `ch3-practice/analysis/ex-3-1.qmd`. This is where all your work goes. For each task, use this layout:
+
+````{verbatim}
+## Task title
+
+**Prediction:** (number of rows, number of columns, type of each key column)
+
+**My request to the AI:**
+
+```text
+(paste the exact request you sent)
+```
+
+**Code I kept:**
+
+```{r}
+(paste the code here)
+```
+
+**What the checks showed:** matches my prediction / does not, because ...
+````
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch3-practice` and nothing longer.
+:::
+
+# Look and predict, no AI {#sec-look}
+
+Do this task without the AI. It is the step the AI cannot do for you, because it cannot see your files.
+
+Open `corn_yields.csv` in a plain text editor (not Excel), and open `corn_yields.xls` in Excel or any spreadsheet program. Write down:
+
+A. How many lines the csv file has, and how many of those are data rows.
+
+B. The column names, and for each one, whether it holds numbers or text.
+
+C. What one row represents (one county? one county and year? something more?).
+
+D. How many sheets the Excel file has, and what they are called.
+
+::: {.callout-tip title="Counting lines"}
+Most text editors show line numbers. Or ask the AI: "How do I count the lines in a text file in R without reading it as a table?"
+:::
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r csv_lines` lines: one line of column names and `r csv_lines - 1` data rows.
+
+B. `r ncol(corn)` columns: `r paste(names(corn), collapse = ", ")`. `County_name`, `State_name`, `Commodity` and `Data item` are text; the rest are numbers. `Data item` has a space in its name.
+
+C. One county, one year, and one irrigation status (`Irrigated` is 0 or 1), so most counties appear twice.
+
+D. Two sheets, `r paste(readxl::excel_sheets(corn_xls), collapse = " and ")`.
+:::
+
+# Read the csv {#sec-csv}
+
+Ask the AI to read `corn_yields.csv` into a table called `corn`. Use the list from the lecture (the file, what is inside, what you want back, your project's rules, the checks to print). Then run these checks and compare with your prediction from @sec-look:
+
+1. Number of rows and columns
+2. The type of every column
+3. The number of missing values in each column
+4. The smallest and largest `Yield`
+5. The first row, compared by eye with the first data line of the file
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r nrow(corn)` rows and `r ncol(corn)` columns, no missing values, and yields from `r min(corn$Yield)` to `r max(corn$Yield)` bushels per acre. If your numbers differ, find out whether the code or your prediction is wrong before moving on.
+
+A request that gets all of this in one go looks something like:
+
+```text
+In my R project, data/corn_yields.csv is a csv file with a header row and
+161 data rows (Nebraska corn yields by county and irrigation status).
+Read it into a table called corn using readr, building the path with
+here::here(). Do not use setwd() or an absolute path. Then print the
+number of rows and columns, the type of every column, the number of
+missing values per column, the range of Yield, and the first row.
+```
+:::
+
+# Read both sheets of the Excel file {#sec-excel}
+
+**Predict first.** If you read both sheets and stack them into one table, how many rows should it have? Which column should tell the two halves apart?
+
+Now ask the AI to read both sheets of `corn_yields.xls` and stack them into one table. Check the row count and the values of `Year`.
+
+Then one more check that no function will think of for you. Yields change from year to year, because the weather does. Ask the AI for code that tests whether each county's yield is the same in both years.
+
+What did you find? What would you do about it before using this data in an analysis?
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r nrow(y08)` + `r nrow(y09)` = `r nrow(y08) + nrow(y09)` rows. `Year` is `r unique(y08$Year)` in one sheet and `r unique(y09$Year)` in the other.
+
+Every county has exactly the same yield in both years (`identical()` returns `r identical(y08$Yield, y09$Yield)`). That cannot be real data. The code is fine; the file is wrong. No change to the code fixes this. The right move is to stop and ask whoever produced the file, and not to analyse year-to-year changes until you have an answer.
+
+This is the point of the task: the row count and the types all passed. Only a check based on what you know about corn yields caught the problem.
+:::
+
+# A messy file {#sec-messy}
+
+Real data rarely arrives clean. `corn_messy.csv` is closer to what you will download from a government website.
+
+## Ask badly, on purpose
+
+Skip the Look step for once. Send the AI only this:
+
+```text
+Read corn_messy.csv into R.
+```
+
+Run what it gives you. Write down everything that looks wrong: errors, warnings, odd column names, odd row counts.
+
+## Look, then ask properly
+
+Now look at the file. Open it in a text editor, or ask the AI for code that prints the first five raw lines without reading the file as a table. Write down:
+
+A. What is above the column names?
+
+B. How are missing yields written?
+
+C. Which column holds IDs, and do any of them start with 0?
+
+D. How many data rows are there?
+
+Write a new request that tells the AI all of this, and says what you want back: county codes kept as text, yield as a number, and missing values as real missing values (`NA`).
+
+## Check
+
+Predict, then check: the number of rows, the type of `county_fips` and of the yield column, how many yields are missing, and the smallest and largest yield.
+
+::: {.callout-note collapse="true" title="What you should find"}
+**The short request.** Plain `read_csv()` treats the first title line as the column names, so you get `r nrow(naive)` rows and only `r ncol(naive)` columns with sentence fragments for names, plus a warning about parsing problems. Base R's `read.csv()` stops with an error instead. Either way the problem is visible, which is the good case.
+
+**The file.** Two lines of description sit above the column names. Missing yields are written two ways, `-999` and `.`, and the second description line says so. `county_fips` holds 5-digit county codes, and the `r n_co` Colorado codes start with `08`. There are `r messy_lines` lines, so `r messy_lines - 3` data rows.
+
+**A correct result.** `r nrow(good)` rows, `r ncol(good)` columns, `county_fips` is text with the leading zeros kept, yield is a number, `r sum(is.na(good[["Yield (bu/ac)"]]))` yields are missing, and the rest run from `r min(good[["Yield (bu/ac)"]], na.rm = TRUE)` to `r max(good[["Yield (bu/ac)"]], na.rm = TRUE)`. Average yield: `r good_mean`.
+
+**The silent trap.** If your request mentioned `.` but not `-999`, the yield column is still a number, nothing errors, and the average comes out at `r half_mean`. The range check catches it: a yield of -999 bushels per acre is impossible.
+:::
+
+# Read someone else's AI code {#sec-read}
+
+Do this with a neighbour, without running anything. Maria sent the AI the same short request and kept this:
+
+```{r}
+#| eval: false
+corn <- read.csv("C:/Users/maria/Downloads/corn_messy.csv", skip = 2, na.strings = ".")
+names(corn)[5] <- "yield"
+mean(corn$yield, na.rm = TRUE)
+```
+
+A. Say in plain words what each line does.
+
+B. Which problem will stop this code from running on your computer?
+
+C. Two problems give wrong results **without** an error. Find them.
+
+D. For each problem, which check from this exercise would have caught it?
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Read the file, skipping the two description lines and treating `.` as missing; rename the fifth column to `yield`; average the yields, ignoring missing ones.
+
+B. The path. `C:/Users/maria/Downloads` exists only on Maria's computer.
+
+C. First, `-999` is not treated as missing, so the average is `r maria_mean` instead of `r good_mean`. Second, `read.csv()` reads `county_fips` as a number, so `08125` becomes `8125`. Nothing uses that column here, but the first time Maria joins this table to another one by county code, the Colorado counties will quietly fail to match.
+
+D. The range check (smallest yield is -999) catches the first. The type check (`county_fips` is a number, not text) catches the second.
+:::
+
+# Save and read back {#sec-export}
+
+Ask the AI to:
+
+1. Add a column `state_name` to your clean table from @sec-messy, holding "Colorado" or "Nebraska", stored as a **factor** (a column of categories with a fixed set of allowed values).
+2. Save the table twice into `data/`: once as csv, once as rds.
+3. Read both files back and compare each with the original using `all.equal()`.
+
+**Predict first:** which of the two files gives you back exactly what you saved? What will be different about the other one?
+
+::: {.callout-note collapse="true" title="What you should find"}
+The rds file comes back identical: `all.equal()` returns `TRUE`. The csv file comes back with `state_name` as plain text rather than a factor, because a csv stores only text and the reader has to guess types again. This is why the lecture recommends rds for results you will read back into R.
+
+For the csv, `all.equal()` prints several lines starting with `Attributes:` before the one that matters, `Component "state_name": 'current' is not a factor`. The `Attributes` lines are about hidden bookkeeping that `read_csv()` attaches to every table it reads, not about your data. The lines that name a column are the ones to read. If the output confuses you, paste it into the AI and ask which lines are about the data itself.
+:::
+
+# The last check: does it run anywhere? {#sec-portable}
+
+1. Restart R (Session, Restart R) and render `ex-3-1.qmd`. Rendering starts a fresh R session, so it fails if your file relies on something you did by hand in the Console.
+2. Zip your whole `ch3-practice` folder and give it to your neighbour. They open the project and render your file **without changing anything**.
+
+If it fails on their computer, the error message tells you which path or step depended on your machine. Ask the AI to fix that line, explaining what went wrong, and try again.
+
+# Wrap-up {#sec-wrapup}
+
+Answer these in your `ex-3-1.qmd`, a few sentences each.
+
+A. Put your request from @sec-csv next to your second request from @sec-messy. What did you include the second time that you did not include the first time?
+
+B. Which check caught a real problem today? Would you have noticed the problem without it?
+
+C. Name one thing the AI could not have known without you telling it.

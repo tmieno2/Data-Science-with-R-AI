@@ -11,6 +11,8 @@ website:
     right:
       - text: Lecture Notes
         href: lectures/index.qmd
+      - text: Exercises
+        href: exercises/index.qmd
 
 format:
   html:
