@@ -93,7 +93,7 @@ So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `sf`, `tidyverse` and `here` packages if you have not already.
++ This lecture uses the `sf`, `tidyverse` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + This lecture assumes lecture 09-1 (vector basics) and lecture 09-4 (spatial relations: intersects, within, within a distance), and the merges of lecture 03-3.
 + The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
 
@@ -380,7 +380,7 @@ Those are the shares of the watershed in each county: the smallest is `r smalles
 
 ## Working with AI on your own research
 
-The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For a join, judging the HTML means reading the row counts and the map, since a join that runs is not yet a join that matched the right rows. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk and renders it, and you judge the HTML. For a join, judging the HTML means reading the row counts and the map, since a join that runs is not yet a join that matched the right rows. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
 
 ## Before you ask: three numbers to write down
 

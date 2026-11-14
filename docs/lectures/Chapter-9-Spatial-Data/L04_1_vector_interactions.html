@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -406,7 +406,7 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Ask your AI assistant to install the <code>sf</code>, <code>tidyverse</code> and <code>here</code> packages if you have not already.</li>
+<li>This lecture uses the <code>sf</code>, <code>tidyverse</code> and <code>here</code> packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).</li>
 <li>This lecture assumes lecture 09-1 (vector basics): what a layer, a feature and a CRS (coordinate reference system) are, and the four checks for a single layer.</li>
 <li>The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with <code>here::here()</code> (lecture 03-1).</li>
 </ul>
@@ -1002,7 +1002,7 @@ was `intersects'
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2">
 <h2>Working with AI on your own research</h2>
-<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk, you render, and you judge the HTML. With spatial data the last step matters more than usual: a map in the HTML shows at a glance whether the features kept are the ones you meant, which no chat reply can. Every request for code ends with the <strong>closing instructions</strong> of lecture 03-1, under <strong>Recommended requests</strong>.</p>
+<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk and renders it, and you judge the HTML. With spatial data the last step matters more than usual: a map in the HTML shows at a glance whether the features kept are the ones you meant, which no chat reply can. Every request for code ends with the <strong>closing instructions</strong> of lecture 03-1, under <strong>Recommended requests</strong>.</p>
 </section>
 <section id="look-at-both-layers-before-you-ask" class="slide level2">
 <h2>Look at both layers before you ask</h2>
@@ -1291,7 +1291,7 @@ invalid pieces: expected 0, got 0</code></pre>
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the layers. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Closing instructions</a></li><li><a href="#tabset-13-2">Look at two layers</a></li><li><a href="#tabset-13-3">Keep features by a relation</a></li><li><a href="#tabset-13-4">Features near something</a></li><li><a href="#tabset-13-5">Cut and measure</a></li><li><a href="#tabset-13-6">Explain code</a></li></ul>
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Closing instructions</a></li><li><a href="#tabset-13-2">Keep features by a relation</a></li><li><a href="#tabset-13-3">Features near something</a></li><li><a href="#tabset-13-4">Cut and measure</a></li><li><a href="#tabset-13-5">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-13-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1304,81 +1304,67 @@ invalid pieces: expected 0, got 0</code></pre>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
 <div id="tabset-13-2">
-<div class="sourceCode" id="cb39"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb39-1"><a></a>In my R project, &lt;path to the first layer&gt; and &lt;path to the second</span>
-<span id="cb39-2"><a></a>layer&gt; are vector layers. Read both. For each, print the CRS, the number</span>
-<span id="cb39-3"><a></a>of features, the geometry type, the bounding box and the number of</span>
-<span id="cb39-4"><a></a>invalid shapes. Then draw one map with both layers together, the second</span>
-<span id="cb39-5"><a></a>layer's outline on top.</span>
+<div class="sourceCode" id="cb39"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb39-1"><a></a>Using the layers &lt;layer you keep features from&gt; and &lt;layer you test</span>
+<span id="cb39-2"><a></a>against&gt;, both in EPSG &lt;code&gt;, keep the features of the first that</span>
+<span id="cb39-3"><a></a>&lt;the relation in plain words: have any part inside / lie entirely inside</span>
+<span id="cb39-4"><a></a>/ share a boundary with&gt; the second, whole, in a layer called &lt;name&gt;.</span>
+<span id="cb39-5"><a></a>I expect about &lt;number&gt; of &lt;number&gt; features to be kept.</span>
 <span id="cb39-6"><a></a></span>
-<span id="cb39-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb39-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb39-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb39-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb39-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb39-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-7"><a></a>Then check: the number of features before and after, the number of</span>
+<span id="cb39-8"><a></a>invalid shapes in each layer, and draw a map of all features with the</span>
+<span id="cb39-9"><a></a>kept ones filled and the second layer's outline on top. Also print</span>
+<span id="cb39-10"><a></a>&lt;a feature you know the answer for&gt; and whether it was kept.</span>
+<span id="cb39-11"><a></a></span>
+<span id="cb39-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb39-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb39-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb39-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb39-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb39-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-13-3">
-<div class="sourceCode" id="cb40"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb40-1"><a></a>Using the layers &lt;layer you keep features from&gt; and &lt;layer you test</span>
-<span id="cb40-2"><a></a>against&gt;, both in EPSG &lt;code&gt;, keep the features of the first that</span>
-<span id="cb40-3"><a></a>&lt;the relation in plain words: have any part inside / lie entirely inside</span>
-<span id="cb40-4"><a></a>/ share a boundary with&gt; the second, whole, in a layer called &lt;name&gt;.</span>
-<span id="cb40-5"><a></a>I expect about &lt;number&gt; of &lt;number&gt; features to be kept.</span>
+<div class="sourceCode" id="cb40"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb40-1"><a></a>Using the layers &lt;layer of features&gt; and &lt;layer of places&gt;, find the</span>
+<span id="cb40-2"><a></a>features within &lt;distance&gt; &lt;km or m&gt; of any place. Do the distance work</span>
+<span id="cb40-3"><a></a>in a CRS in metres, &lt;EPSG code, or "suggest one for my area"&gt;, and print</span>
+<span id="cb40-4"><a></a>the CRS and its units. Keep the features whole, in a layer called &lt;name&gt;.</span>
+<span id="cb40-5"><a></a>I expect about &lt;number&gt;.</span>
 <span id="cb40-6"><a></a></span>
-<span id="cb40-7"><a></a>Then check: the number of features before and after, the number of</span>
-<span id="cb40-8"><a></a>invalid shapes in each layer, and draw a map of all features with the</span>
-<span id="cb40-9"><a></a>kept ones filled and the second layer's outline on top. Also print</span>
-<span id="cb40-10"><a></a>&lt;a feature you know the answer for&gt; and whether it was kept.</span>
-<span id="cb40-11"><a></a></span>
-<span id="cb40-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb40-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb40-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb40-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb40-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb40-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb40-7"><a></a>Then check: the number of features before and after, and draw a map of</span>
+<span id="cb40-8"><a></a>the zone around the places, the kept features, and the others in grey.</span>
+<span id="cb40-9"><a></a></span>
+<span id="cb40-10"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb40-11"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb40-12"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb40-13"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb40-14"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb40-15"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-13-4">
-<div class="sourceCode" id="cb41"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb41-1"><a></a>Using the layers &lt;layer of features&gt; and &lt;layer of places&gt;, find the</span>
-<span id="cb41-2"><a></a>features within &lt;distance&gt; &lt;km or m&gt; of any place. Do the distance work</span>
-<span id="cb41-3"><a></a>in a CRS in metres, &lt;EPSG code, or "suggest one for my area"&gt;, and print</span>
-<span id="cb41-4"><a></a>the CRS and its units. Keep the features whole, in a layer called &lt;name&gt;.</span>
-<span id="cb41-5"><a></a>I expect about &lt;number&gt;.</span>
-<span id="cb41-6"><a></a></span>
-<span id="cb41-7"><a></a>Then check: the number of features before and after, and draw a map of</span>
-<span id="cb41-8"><a></a>the zone around the places, the kept features, and the others in grey.</span>
-<span id="cb41-9"><a></a></span>
-<span id="cb41-10"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb41-11"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb41-12"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb41-13"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb41-14"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb41-15"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb41-1"><a></a>Cut &lt;layer to cut&gt; at the boundaries of &lt;layer to cut by&gt;, keeping the</span>
+<span id="cb41-2"><a></a>columns of both, in a layer called &lt;name&gt;. Then compute the &lt;length in</span>
+<span id="cb41-3"><a></a>km or area in km2&gt; of each piece, in a CRS in metres.</span>
+<span id="cb41-4"><a></a></span>
+<span id="cb41-5"><a></a>Then check: the number of pieces, the number of invalid pieces, and</span>
+<span id="cb41-6"><a></a>that the pieces add up to &lt;the total you expect, and where it comes</span>
+<span id="cb41-7"><a></a>from&gt;. Draw a map of the pieces.</span>
+<span id="cb41-8"><a></a></span>
+<span id="cb41-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb41-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb41-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb41-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb41-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb41-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-13-5">
-<div class="sourceCode" id="cb42"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb42-1"><a></a>Cut &lt;layer to cut&gt; at the boundaries of &lt;layer to cut by&gt;, keeping the</span>
-<span id="cb42-2"><a></a>columns of both, in a layer called &lt;name&gt;. Then compute the &lt;length in</span>
-<span id="cb42-3"><a></a>km or area in km2&gt; of each piece, in a CRS in metres.</span>
-<span id="cb42-4"><a></a></span>
-<span id="cb42-5"><a></a>Then check: the number of pieces, the number of invalid pieces, and</span>
-<span id="cb42-6"><a></a>that the pieces add up to &lt;the total you expect, and where it comes</span>
-<span id="cb42-7"><a></a>from&gt;. Draw a map of the pieces.</span>
+<div class="sourceCode" id="cb42"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb42-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb42-2"><a></a>sentence. Then list:</span>
+<span id="cb42-3"><a></a>1. which spatial relation each line uses, and whether it keeps whole</span>
+<span id="cb42-4"><a></a>   features or cuts them</span>
+<span id="cb42-5"><a></a>2. every distance, and the units it is in given the CRS at that line</span>
+<span id="cb42-6"><a></a>3. any line that could give a wrong result without an error, and what</span>
+<span id="cb42-7"><a></a>   check would reveal it</span>
 <span id="cb42-8"><a></a></span>
-<span id="cb42-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb42-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb42-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb42-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb42-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb42-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-13-6">
-<div class="sourceCode" id="cb43"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb43-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb43-2"><a></a>sentence. Then list:</span>
-<span id="cb43-3"><a></a>1. which spatial relation each line uses, and whether it keeps whole</span>
-<span id="cb43-4"><a></a>   features or cuts them</span>
-<span id="cb43-5"><a></a>2. every distance, and the units it is in given the CRS at that line</span>
-<span id="cb43-6"><a></a>3. any line that could give a wrong result without an error, and what</span>
-<span id="cb43-7"><a></a>   check would reveal it</span>
-<span id="cb43-8"><a></a></span>
-<span id="cb43-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb42-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

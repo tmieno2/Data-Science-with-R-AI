@@ -523,7 +523,7 @@ Here the 2009 sheet's `Yield` column was renamed `yield`, the kind of difference
 
 ## Working with AI on your own research
 
-The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For reshaping and merging, judging the HTML is mostly reading row counts, which you can do only if you wrote down the numbers you expected before asking. Every request for code ends with the **closing instructions**, under **Recommended requests**.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk and renders it, and you judge the HTML. For reshaping and merging, judging the HTML is mostly reading row counts, which you can do only if you wrote down the numbers you expected before asking. Every request for code ends with the **closing instructions**, under **Recommended requests**.
 
 ## Look at both tables before you ask
 
@@ -699,7 +699,7 @@ E. Rows of `yields` and of the result (more rows after a left join), and repeate
 
 ## Requests you can copy
 
-Copy one, then replace every `<...>` with what **you** found by looking at your tables. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.
+Copy one, then replace every `<...>` with what **you** found by looking at your tables. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions. For code you did not write, use the "Explain code" request from lecture 03-1.
 
 ::: {.panel-tabset}
 
@@ -820,20 +820,6 @@ plain-English sentence saying what it does and why. Build every path
 with here::here(); no setwd(), no absolute paths. Print each check on
 its own line as "name of check: expected X, got Y". Render the document
 to HTML.
-```
-
-### Explain code
-
-For code you did not write, or code you are not sure about:
-
-```text
-Explain this R code to me. For each line, write one plain-English
-sentence. Then list:
-1. any line that would only work on the computer it was written on
-2. any line that could give a wrong result without an error, and what
-   check would reveal it
-
-<paste the code here>
 ```
 
 :::

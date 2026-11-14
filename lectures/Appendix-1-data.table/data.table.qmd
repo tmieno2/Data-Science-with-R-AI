@@ -41,7 +41,7 @@ You will not learn to write data.table code. You will learn:
 
 ### Directions
 
-+ Ask your AI assistant to install the `data.table`, `dplyr` and `nycflights13` packages if you have not already.
++ This lecture uses the `data.table`, `dplyr` and `nycflights13` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + The examples use the table `flights` from the nycflights13 package: one row per flight that left a New York City airport in 2013, `r format(nrow(flights), big.mark = ",")` rows. It comes with the package, so this deck reads no data files.
 
 :::
@@ -266,7 +266,7 @@ The same way of working as in every other lecture (lecture 02-1, "Working with A
 
 1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
 2. **The AI writes into a Quarto document** (`.qmd`), with one plain-English sentence above each code chunk.
-3. **You render** the `.qmd` to HTML.
+3. **The AI renders** the `.qmd` to HTML.
 4. **You read the HTML** and decide whether the work is right.
 
 For data.table code, the sentence above each chunk matters more than usual: it is your translation of a dense bracket into words. Check that the bracket does what the sentence says, using the pattern from "How data.table code is written".
@@ -506,15 +506,6 @@ Then list every line that changes a table in place (:=, or a function
 whose name starts with set), and which table it changes.
 
 <paste the code here>
-```
-
-### Should I use data.table?
-
-```text
-My table <table name> has about <number> rows and <number> columns.
-The step <the step that is slow> takes about <how long>. Would
-data.table, dtplyr or something else make it faster, by roughly how
-much, and what would I give up? Do not write code yet.
 ```
 
 :::

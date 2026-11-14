@@ -69,7 +69,7 @@ A download can succeed and still hold less than you asked for, or something othe
 
 ### Directions
 
-+ Ask your AI assistant to install the `sf`, `terra`, `tidyterra`, `tigris`, `rnassqs`, `prism`, `tidyverse` and `here` packages if you have not already.
++ This lecture uses the `sf`, `terra`, `tidyterra`, `tigris`, `rnassqs`, `prism`, `tidyverse` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + This lecture assumes lectures 09-1 (vector basics) and 09-2 (raster basics).
 + The files used on these slides were downloaded once and sit in the same folder as the slides, so a path here is just the file name. The download code is shown on each slide.
 
@@ -99,7 +99,7 @@ Write these five down before asking. They are also what you check the download a
 
 ### Why
 
-In the way of working of this course, the AI writes code into a `.qmd` and you render it, which runs every chunk again. A chunk that downloads would download again at every render. That is slow, it puts load on a public server, and worse, the data can change between renders: sources revise recent values, and you would not know your numbers had moved.
+In the way of working of this course, the AI writes code into a `.qmd` and renders it, which runs every chunk again. A chunk that downloads would download again at every render. That is slow, it puts load on a public server, and worse, the data can change between renders: sources revise recent values, and you would not know your numbers had moved.
 
 There is also a hard limit: PRISM refuses a file downloaded more than twice in a day, so a `.qmd` that downloads at every render stops working by its third render.
 
@@ -405,7 +405,7 @@ At 30 m, a whole state is hundreds of millions of cells. Ask for the smallest ar
 
 ## Working with AI on your own research
 
-The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For a download, that adds one rule: the download runs once and is saved, and every render reads the saved file (previous section). Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk and renders it, and you judge the HTML. For a download, that adds one rule: the download runs once and is saved, and every render reads the saved file (previous section). Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
 
 ## What to put in your request
 
@@ -630,21 +630,6 @@ to HTML.
 ```
 
 A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
-
-### Find a variable name
-
-```text
-Using rnassqs, list the NASS data items (short_desc) for the commodity
-<commodity> that contain all of these words: <words>. Read my key with
-Sys.getenv("NASS_API_KEY"); never write the key. Print the matches.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
 
 ### Boundaries
 

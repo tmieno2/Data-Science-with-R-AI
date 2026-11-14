@@ -100,7 +100,7 @@ Those are your job. So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `sf`, `tidyverse` and `here` packages if you have not already.
++ This lecture uses the `sf`, `tidyverse` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + This lecture assumes lecture 09-1 (vector basics): what a layer, a feature and a CRS (coordinate reference system) are, and the four checks for a single layer.
 + The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
 
@@ -429,7 +429,7 @@ Two triangles of area 1 each, and an area of 0. Files drawn by hand or converted
 
 ## Working with AI on your own research
 
-The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. With spatial data the last step matters more than usual: a map in the HTML shows at a glance whether the features kept are the ones you meant, which no chat reply can. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk and renders it, and you judge the HTML. With spatial data the last step matters more than usual: a map in the HTML shows at a glance whether the features kept are the ones you meant, which no chat reply can. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
 
 ## Look at both layers before you ask
 
@@ -707,23 +707,6 @@ to HTML.
 ```
 
 A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
-
-### Look at two layers
-
-```text
-In my R project, <path to the first layer> and <path to the second
-layer> are vector layers. Read both. For each, print the CRS, the number
-of features, the geometry type, the bounding box and the number of
-invalid shapes. Then draw one map with both layers together, the second
-layer's outline on top.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
 
 ### Keep features by a relation
 

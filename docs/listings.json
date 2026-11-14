@@ -2,6 +2,7 @@
   {
     "listing": "/lectures/index.html",
     "items": [
+      "/lectures/Chapter-1-Introduction/01-0-setup-vscode-ai.html",
       "/lectures/Chapter-1-Introduction/01-Introduction.html",
       "/lectures/Chapter-2-Quarto/02-0-Github-sublime-merge.html",
       "/lectures/Chapter-2-Quarto/02-1-Quarto-introduction.html",
@@ -13,6 +14,7 @@
       "/lectures/Chapter-3-DataWrangling/03-3-reshape-merge.html",
       "/lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html",
       "/lectures/Chapter-4-Data-Visualization/04-2-showing-more.html",
+      "/lectures/Chapter-4-Data-Visualization/04-3-figures-for-a-place.html",
       "/lectures/Chapter-5-function-loop-parallel/05-1-function-loop-parallel.html",
       "/lectures/Chapter-6-HowCodeProject/06-1-code_project_RStudio.html",
       "/lectures/Chapter-6-HowCodeProject/06-2-version-control.html",
@@ -33,6 +35,7 @@
   {
     "listing": "/exercises/index.html",
     "items": [
+      "/exercises/1-0-setup.html",
       "/exercises/1-1-introduction.html",
       "/exercises/2-0-clone-a-repository.html",
       "/exercises/2-1-quarto-introduction.html",
@@ -44,6 +47,7 @@
       "/exercises/3-3-reshape-merge.html",
       "/exercises/4-1-data-visualization-basics.html",
       "/exercises/4-2-showing-more.html",
+      "/exercises/4-3-figures-for-a-place.html",
       "/exercises/5-1-function-loop-parallel.html",
       "/exercises/6-1-code-project.html",
       "/exercises/6-2-version-control.html",

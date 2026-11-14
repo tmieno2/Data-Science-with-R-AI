@@ -89,7 +89,7 @@ This deck shows the code of the `flextable` package. Lecture 08-3 shows the same
 
 ### Directions
 
-+ Ask your AI assistant to install the `flextable` and `gt` packages if you have not already. Installing is a one-time step per computer.
++ This lecture uses the `flextable` and `gt` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + The data on these slides is `countrypops`, which comes with the `gt` package, so there is no file to download.
 
 :::
@@ -607,7 +607,7 @@ C. Compute growth from each region's total population; order the regions by it; 
 
 ## Working with AI on your own research
 
-Tables follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document (`.qmd`) with one plain-English sentence above each chunk, you render it to HTML, and you judge the HTML.
+Tables follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document (`.qmd`) with one plain-English sentence above each chunk and renders it to HTML, and you judge the HTML.
 
 For tables, judging the HTML matters even more:
 
@@ -768,7 +768,8 @@ Make a finished table with one row per <what one row of the table is>, ordered
 by <the order>, with the columns <the columns, in order, with how any
 computed column is computed>. Use <flextable or gt>. Check that the
 table has <number> rows, and that <one value> is <the value you
-computed yourself>.
+computed yourself>. Print the number of observations behind each value,
+and add it as a column if it varies.
 
 <the table standard>
 
@@ -817,23 +818,6 @@ below. Before the new table, list each change you made in one line.
 <paste the code here>
 
 <the table standard>
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
-### Check a table against the data
-
-```text
-For the table made under the heading "<heading>" from <the table or
-file>, check: the number of rows (I expect <number>); <one value>
-(I computed <the value> myself); and the number of observations behind
-each value in <column>. Print the observation counts as a column of the
-table if they vary.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one

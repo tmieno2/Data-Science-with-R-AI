@@ -266,7 +266,7 @@ with_avg |>
 
 ## Working with AI on your own research
 
-The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For wrangling, judging the HTML means reading the chain of steps: does each sentence say what you asked for, and does the code under it do what the sentence says? Every request for code ends with the **closing instructions**, under **Recommended requests**.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk and renders it, and you judge the HTML. For wrangling, judging the HTML means reading the chain of steps: does each sentence say what you asked for, and does the code under it do what the sentence says? Every request for code ends with the **closing instructions**, under **Recommended requests**.
 
 ## Look at the values before you ask
 
@@ -505,7 +505,7 @@ D. Say that `Irrigated` is 1 for irrigated, ask for the five irrigated rows with
 
 ## Requests you can copy
 
-Copy one, then replace every `<...>` with what **you** found by looking at your table. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.
+Copy one, then replace every `<...>` with what **you** found by looking at your table. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions. For code you did not write, use the "Explain code" request from lecture 03-1.
 
 ::: {.panel-tabset}
 
@@ -599,36 +599,6 @@ plain-English sentence saying what it does and why. Build every path
 with here::here(); no setwd(), no absolute paths. Print each check on
 its own line as "name of check: expected X, got Y". Render the document
 to HTML.
-```
-
-### Sort
-
-```text
-Sort the table <table name> by <column>, <largest first or smallest
-first>, and show the first <number> rows. Then check: the first row
-should have the <largest or smallest> <column>, which I expect to be
-<value, if you know it>; print the first and last values of <column>.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
-### Explain code
-
-For code you did not write, or code you are not sure about:
-
-```text
-Explain this R code to me. For each line, write one plain-English
-sentence. Then list:
-1. any line that would only work on the computer it was written on
-2. any line that could give a wrong result without an error, and what
-   check would reveal it
-
-<paste the code here>
 ```
 
 :::

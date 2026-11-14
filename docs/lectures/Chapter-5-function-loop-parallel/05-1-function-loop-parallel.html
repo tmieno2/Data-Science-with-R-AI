@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -407,7 +407,7 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Ask your AI assistant to install the <code>tidyverse</code>, <code>future.apply</code> and <code>here</code> packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).</li>
+<li>This lecture uses the <code>tidyverse</code>, <code>future.apply</code> and <code>here</code> packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).</li>
 <li>The three small data files used on these slides, <code>yields_2016.csv</code>, <code>yields_2017.csv</code> and <code>yields_2018.csv</code>, sit in the same folder as the slides, so paths on the slides are bare file names. In your own project, paths are built with <code>here::here()</code> (lecture 03-1).</li>
 </ul>
 </div>
@@ -732,7 +732,7 @@
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>same results: expected TRUE, got TRUE
-seconds, one value at a time: 0.392
+seconds, one value at a time: 0.369
 seconds, whole column at once: 0.002</code></pre>
 </div>
 </div>
@@ -1044,12 +1044,12 @@ seconds, whole column at once: 0.002</code></pre>
   job   how        seconds
   &lt;chr&gt; &lt;chr&gt;        &lt;dbl&gt;
 1 fast  sequential   0.001
-2 fast  parallel     0.344
-3 slow  sequential   2.82 
-4 slow  parallel     0.944</code></pre>
+2 fast  parallel     0.337
+3 slow  sequential   2.75 
+4 slow  parallel     0.903</code></pre>
 </div>
 </div>
-<p>The fast job took 0.344 seconds in parallel against 0.001 sequentially: slower. The slow job took 0.944 seconds in parallel against 2.82 sequentially. Numbers differ by computer; the direction does not.</p>
+<p>The fast job took 0.337 seconds in parallel against 0.001 sequentially: slower. The slow job took 0.903 seconds in parallel against 2.75 sequentially. Numbers differ by computer; the direction does not.</p>
 </div>
 <div id="tabset-8-3">
 <ul>
@@ -1259,7 +1259,7 @@ seconds, whole column at once: 0.002</code></pre>
 <ol type="1">
 <li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
 <li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>), with one plain-English sentence above each chunk saying what it does and why.</li>
-<li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
+<li><strong>The AI renders</strong> the <code>.qmd</code> to HTML.</li>
 <li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
 </ol>
 <div class="callout callout-note no-icon callout-titled callout-style-default">
@@ -1650,7 +1650,7 @@ counties listed twice in a year: expected 0, got 0</code></pre>
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at your inputs. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-15" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-15-1">Closing instructions</a></li><li><a href="#tabset-15-2">Look at the inputs</a></li><li><a href="#tabset-15-3">Write and test a function</a></li><li><a href="#tabset-15-4">Loop and combine</a></li><li><a href="#tabset-15-5">Run in parallel</a></li><li><a href="#tabset-15-6">Explain code</a></li></ul>
+<ul id="tabset-15" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-15-1">Closing instructions</a></li><li><a href="#tabset-15-2">Write and test a function</a></li><li><a href="#tabset-15-3">Loop and combine</a></li><li><a href="#tabset-15-4">Run in parallel</a></li><li><a href="#tabset-15-5">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-15-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1663,82 +1663,70 @@ counties listed twice in a year: expected 0, got 0</code></pre>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
 <div id="tabset-15-2">
-<div class="sourceCode" id="cb66"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb66-1"><a></a>Without changing anything, list the files in &lt;path to the folder&gt; whose</span>
-<span id="cb66-2"><a></a>names match &lt;the pattern in the file names&gt;. For each file, print its</span>
-<span id="cb66-3"><a></a>number of data rows and its column names.</span>
+<div class="sourceCode" id="cb66"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb66-1"><a></a>Write a function called &lt;function name&gt; that takes &lt;the inputs, and</span>
+<span id="cb66-2"><a></a>what each one is&gt; and returns &lt;what one result is: one number, or one</span>
+<span id="cb66-3"><a></a>row with the columns ...&gt;. The steps are: &lt;the steps in words&gt;.</span>
 <span id="cb66-4"><a></a></span>
-<span id="cb66-5"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb66-6"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb66-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb66-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb66-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb66-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb66-5"><a></a>Test it on &lt;an input whose answer you know&gt;, for which the answer is</span>
+<span id="cb66-6"><a></a>&lt;the answer you worked out by hand&gt;.</span>
+<span id="cb66-7"><a></a></span>
+<span id="cb66-8"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb66-9"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb66-10"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb66-11"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb66-12"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb66-13"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-15-3">
-<div class="sourceCode" id="cb67"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb67-1"><a></a>Write a function called &lt;function name&gt; that takes &lt;the inputs, and</span>
-<span id="cb67-2"><a></a>what each one is&gt; and returns &lt;what one result is: one number, or one</span>
-<span id="cb67-3"><a></a>row with the columns ...&gt;. The steps are: &lt;the steps in words&gt;.</span>
-<span id="cb67-4"><a></a></span>
-<span id="cb67-5"><a></a>Test it on &lt;an input whose answer you know&gt;, for which the answer is</span>
-<span id="cb67-6"><a></a>&lt;the answer you worked out by hand&gt;.</span>
-<span id="cb67-7"><a></a></span>
-<span id="cb67-8"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb67-9"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb67-10"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb67-11"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb67-12"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb67-13"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb67"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb67-1"><a></a>Run the function &lt;function name&gt; once for each of &lt;the inputs: which</span>
+<span id="cb67-2"><a></a>files, groups or values, and how many&gt;. Each input is identified by</span>
+<span id="cb67-3"><a></a>&lt;a column, or only its file name&gt;; add a column &lt;column name&gt; to each</span>
+<span id="cb67-4"><a></a>result saying which input it came from. Combine the results into one</span>
+<span id="cb67-5"><a></a>table called &lt;table name&gt;.</span>
+<span id="cb67-6"><a></a></span>
+<span id="cb67-7"><a></a>Check the number of results (expected &lt;number&gt;), the rows and columns</span>
+<span id="cb67-8"><a></a>of &lt;table name&gt; (expected &lt;number&gt; and &lt;number&gt;), the values of</span>
+<span id="cb67-9"><a></a>&lt;column name&gt;, and the smallest and largest &lt;column&gt; for each input</span>
+<span id="cb67-10"><a></a>(believable: &lt;lowest&gt; to &lt;highest&gt;).</span>
+<span id="cb67-11"><a></a></span>
+<span id="cb67-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb67-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb67-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb67-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb67-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb67-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-15-4">
-<div class="sourceCode" id="cb68"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb68-1"><a></a>Run the function &lt;function name&gt; once for each of &lt;the inputs: which</span>
-<span id="cb68-2"><a></a>files, groups or values, and how many&gt;. Each input is identified by</span>
-<span id="cb68-3"><a></a>&lt;a column, or only its file name&gt;; add a column &lt;column name&gt; to each</span>
-<span id="cb68-4"><a></a>result saying which input it came from. Combine the results into one</span>
-<span id="cb68-5"><a></a>table called &lt;table name&gt;.</span>
-<span id="cb68-6"><a></a></span>
-<span id="cb68-7"><a></a>Check the number of results (expected &lt;number&gt;), the rows and columns</span>
-<span id="cb68-8"><a></a>of &lt;table name&gt; (expected &lt;number&gt; and &lt;number&gt;), the values of</span>
-<span id="cb68-9"><a></a>&lt;column name&gt;, and the smallest and largest &lt;column&gt; for each input</span>
-<span id="cb68-10"><a></a>(believable: &lt;lowest&gt; to &lt;highest&gt;).</span>
-<span id="cb68-11"><a></a></span>
-<span id="cb68-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb68-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb68-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb68-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb68-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb68-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb68"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb68-1"><a></a>The loop over &lt;the inputs&gt; is slow: about &lt;how long&gt; in total. Each</span>
+<span id="cb68-2"><a></a>repetition &lt;does or does not&gt; use random numbers and does not use any</span>
+<span id="cb68-3"><a></a>other repetition's result. Run it in parallel with future_lapply() and</span>
+<span id="cb68-4"><a></a>&lt;number&gt; workers, with each repetition returning its result.</span>
+<span id="cb68-5"><a></a></span>
+<span id="cb68-6"><a></a>First run a small case, &lt;number&gt; inputs, under plan(sequential) and</span>
+<span id="cb68-7"><a></a>then in parallel, and check that the results are identical (expected</span>
+<span id="cb68-8"><a></a>TRUE) (if the repetitions use random numbers, use future.seed = TRUE and</span>
+<span id="cb68-9"><a></a>call set.seed() with the same number before each run). Also check the</span>
+<span id="cb68-10"><a></a>number of results (expected &lt;number&gt;). Then time the full loop both</span>
+<span id="cb68-11"><a></a>ways and print both times.</span>
+<span id="cb68-12"><a></a></span>
+<span id="cb68-13"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb68-14"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb68-15"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb68-16"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb68-17"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb68-18"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-15-5">
-<div class="sourceCode" id="cb69"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb69-1"><a></a>The loop over &lt;the inputs&gt; is slow: about &lt;how long&gt; in total. Each</span>
-<span id="cb69-2"><a></a>repetition &lt;does or does not&gt; use random numbers and does not use any</span>
-<span id="cb69-3"><a></a>other repetition's result. Run it in parallel with future_lapply() and</span>
-<span id="cb69-4"><a></a>&lt;number&gt; workers, with each repetition returning its result.</span>
-<span id="cb69-5"><a></a></span>
-<span id="cb69-6"><a></a>First run a small case, &lt;number&gt; inputs, under plan(sequential) and</span>
-<span id="cb69-7"><a></a>then in parallel, and check that the results are identical (expected</span>
-<span id="cb69-8"><a></a>TRUE) (if the repetitions use random numbers, use future.seed = TRUE and</span>
-<span id="cb69-9"><a></a>call set.seed() with the same number before each run). Also check the</span>
-<span id="cb69-10"><a></a>number of results (expected &lt;number&gt;). Then time the full loop both</span>
-<span id="cb69-11"><a></a>ways and print both times.</span>
-<span id="cb69-12"><a></a></span>
-<span id="cb69-13"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb69-14"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb69-15"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb69-16"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb69-17"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb69-18"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-15-6">
 <p>For code you did not write, or code you are not sure about:</p>
-<div class="sourceCode" id="cb70"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb70-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb70-2"><a></a>sentence. Then list:</span>
-<span id="cb70-3"><a></a>1. what the inputs, the steps for one input, and the combined result are</span>
-<span id="cb70-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
-<span id="cb70-5"><a></a>   check would reveal it</span>
-<span id="cb70-6"><a></a>3. whether the repetitions are independent, so that it could be run in</span>
-<span id="cb70-7"><a></a>   parallel</span>
-<span id="cb70-8"><a></a></span>
-<span id="cb70-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb69"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb69-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb69-2"><a></a>sentence. Then list:</span>
+<span id="cb69-3"><a></a>1. what the inputs, the steps for one input, and the combined result are</span>
+<span id="cb69-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
+<span id="cb69-5"><a></a>   check would reveal it</span>
+<span id="cb69-6"><a></a>3. whether the repetitions are independent, so that it could be run in</span>
+<span id="cb69-7"><a></a>   parallel</span>
+<span id="cb69-8"><a></a></span>
+<span id="cb69-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

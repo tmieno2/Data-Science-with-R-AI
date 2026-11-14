@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -407,7 +407,7 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Ask your AI assistant to install the <code>tidyverse</code>, <code>here</code> and <code>gt</code> packages if you have not already. The <code>tidyverse</code> includes <code>lubridate</code> (dates) and <code>stringr</code> (text).</li>
+<li>This lecture uses the <code>tidyverse</code>, <code>here</code> and <code>gt</code> packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1). The <code>tidyverse</code> includes <code>lubridate</code> (dates) and <code>stringr</code> (text).</li>
 <li>The examples use <code>pizzaplace</code>, a table that comes with the <code>gt</code> package: a year of orders from a pizza shop, one row per pizza sold, 49,574 rows. Its columns include <code>date</code> (the day of the order), <code>name</code> (the pizza, such as <code>thai_ckn</code>) and <code>price</code>. On these slides the table is called <code>pizza</code>.</li>
 </ul>
 </div>
@@ -1077,7 +1077,7 @@
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2">
 <h2>Working with AI on your own research</h2>
-<p>Dates and text follow the same way of working as everything else (lecture 02-1, “Working with AI on your own research”): you ask, the AI writes into a Quarto document with one plain-English sentence above each chunk, you render, and you judge the HTML.</p>
+<p>Dates and text follow the same way of working as everything else (lecture 02-1, “Working with AI on your own research”): you ask, the AI writes into a Quarto document with one plain-English sentence above each chunk and renders it, and you judge the HTML.</p>
 <p>For dates and text, the HTML matters because the failures are silent. A warning that some values failed to parse is one line in the chat that scrolls away; in the HTML it sits under the chunk that caused it, next to the check that counts the missing values.</p>
 <p>Every request that asks for code ends with the <strong>closing instructions</strong>, the same lines as in 03-1. The full text is under <strong>Recommended requests</strong>.</p>
 </section>
@@ -1489,7 +1489,7 @@ rows: expected 49574, got 49574</code></pre>
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the data. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-16" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-16-1">Closing instructions</a></li><li><a href="#tabset-16-2">Look at a column</a></li><li><a href="#tabset-16-3">Convert dates</a></li><li><a href="#tabset-16-4">Clean a text column</a></li><li><a href="#tabset-16-5">Find rows by a search pattern</a></li><li><a href="#tabset-16-6">Explain code</a></li></ul>
+<ul id="tabset-16" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-16-1">Closing instructions</a></li><li><a href="#tabset-16-2">Convert dates</a></li><li><a href="#tabset-16-3">Clean a text column</a></li><li><a href="#tabset-16-4">Find rows by a search pattern</a></li><li><a href="#tabset-16-5">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-16-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1502,77 +1502,64 @@ rows: expected 49574, got 49574</code></pre>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
 <div id="tabset-16-2">
-<div class="sourceCode" id="cb88"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb88-1"><a></a>In the table &lt;table name&gt;, show me &lt;number&gt; values of the column</span>
-<span id="cb88-2"><a></a>&lt;column&gt; from the start, the middle and the end of the table, and every</span>
-<span id="cb88-3"><a></a>distinct value of &lt;text column&gt; with the number of rows that have it,</span>
-<span id="cb88-4"><a></a>most common first. Do not change anything.</span>
-<span id="cb88-5"><a></a></span>
-<span id="cb88-6"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb88-7"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb88-8"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb88-9"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb88-10"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb88-11"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb88"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb88-1"><a></a>The table &lt;table name&gt; has a text column &lt;column&gt;, written &lt;the order</span>
+<span id="cb88-2"><a></a>of year, month and day&gt;, for example &lt;one value from the column&gt;. The</span>
+<span id="cb88-3"><a></a>data should cover &lt;first date&gt; to &lt;last date&gt;. Convert it into a date</span>
+<span id="cb88-4"><a></a>column using the tidyverse, keeping the original text in a column</span>
+<span id="cb88-5"><a></a>&lt;name for the text column&gt;.</span>
+<span id="cb88-6"><a></a></span>
+<span id="cb88-7"><a></a>Check: the number of dates that failed to parse (I expect &lt;number&gt;),</span>
+<span id="cb88-8"><a></a>the first and last date, the number of rows in each month, and</span>
+<span id="cb88-9"><a></a>&lt;number&gt; rows showing the text beside the parsed date.</span>
+<span id="cb88-10"><a></a></span>
+<span id="cb88-11"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb88-12"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb88-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb88-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb88-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb88-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-16-3">
-<div class="sourceCode" id="cb89"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb89-1"><a></a>The table &lt;table name&gt; has a text column &lt;column&gt;, written &lt;the order</span>
-<span id="cb89-2"><a></a>of year, month and day&gt;, for example &lt;one value from the column&gt;. The</span>
-<span id="cb89-3"><a></a>data should cover &lt;first date&gt; to &lt;last date&gt;. Convert it into a date</span>
-<span id="cb89-4"><a></a>column using the tidyverse, keeping the original text in a column</span>
-<span id="cb89-5"><a></a>&lt;name for the text column&gt;.</span>
-<span id="cb89-6"><a></a></span>
-<span id="cb89-7"><a></a>Check: the number of dates that failed to parse (I expect &lt;number&gt;),</span>
-<span id="cb89-8"><a></a>the first and last date, the number of rows in each month, and</span>
-<span id="cb89-9"><a></a>&lt;number&gt; rows showing the text beside the parsed date.</span>
-<span id="cb89-10"><a></a></span>
-<span id="cb89-11"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb89-12"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb89-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb89-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb89-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb89-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb89"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb89-1"><a></a>In the table &lt;table name&gt;, the column &lt;column&gt; holds &lt;what it holds&gt;.</span>
+<span id="cb89-2"><a></a>I looked at its distinct values and found these differences in</span>
+<span id="cb89-3"><a></a>spelling: &lt;what differs: case, spaces, punctuation, other words&gt;. Make</span>
+<span id="cb89-4"><a></a>a new column &lt;new column name&gt; in which each &lt;thing&gt; is written one</span>
+<span id="cb89-5"><a></a>way, &lt;the way you want, such as all lower case&gt;. Keep the original</span>
+<span id="cb89-6"><a></a>column.</span>
+<span id="cb89-7"><a></a></span>
+<span id="cb89-8"><a></a>Check: the distinct values with their counts before and after (I</span>
+<span id="cb89-9"><a></a>expect &lt;number&gt; after), the number of rows before and after, and every</span>
+<span id="cb89-10"><a></a>original spelling next to what it became.</span>
+<span id="cb89-11"><a></a></span>
+<span id="cb89-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb89-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb89-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb89-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb89-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb89-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-16-4">
-<div class="sourceCode" id="cb90"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb90-1"><a></a>In the table &lt;table name&gt;, the column &lt;column&gt; holds &lt;what it holds&gt;.</span>
-<span id="cb90-2"><a></a>I looked at its distinct values and found these differences in</span>
-<span id="cb90-3"><a></a>spelling: &lt;what differs: case, spaces, punctuation, other words&gt;. Make</span>
-<span id="cb90-4"><a></a>a new column &lt;new column name&gt; in which each &lt;thing&gt; is written one</span>
-<span id="cb90-5"><a></a>way, &lt;the way you want, such as all lower case&gt;. Keep the original</span>
-<span id="cb90-6"><a></a>column.</span>
+<div class="sourceCode" id="cb90"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb90-1"><a></a>In the table &lt;table name&gt;, I want the rows where &lt;column&gt; means &lt;what</span>
+<span id="cb90-2"><a></a>you are looking for&gt;. Write the search pattern so that it matches &lt;values it</span>
+<span id="cb90-3"><a></a>must match&gt; and does not match &lt;values it must not match&gt;.</span>
+<span id="cb90-4"><a></a></span>
+<span id="cb90-5"><a></a>Check: every distinct value of &lt;column&gt; that the search pattern matched, every</span>
+<span id="cb90-6"><a></a>distinct value it did not match, and the number of rows matched.</span>
 <span id="cb90-7"><a></a></span>
-<span id="cb90-8"><a></a>Check: the distinct values with their counts before and after (I</span>
-<span id="cb90-9"><a></a>expect &lt;number&gt; after), the number of rows before and after, and every</span>
-<span id="cb90-10"><a></a>original spelling next to what it became.</span>
-<span id="cb90-11"><a></a></span>
-<span id="cb90-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb90-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb90-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb90-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb90-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb90-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb90-8"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb90-9"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb90-10"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb90-11"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb90-12"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb90-13"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-16-5">
-<div class="sourceCode" id="cb91"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb91-1"><a></a>In the table &lt;table name&gt;, I want the rows where &lt;column&gt; means &lt;what</span>
-<span id="cb91-2"><a></a>you are looking for&gt;. Write the search pattern so that it matches &lt;values it</span>
-<span id="cb91-3"><a></a>must match&gt; and does not match &lt;values it must not match&gt;.</span>
-<span id="cb91-4"><a></a></span>
-<span id="cb91-5"><a></a>Check: every distinct value of &lt;column&gt; that the search pattern matched, every</span>
-<span id="cb91-6"><a></a>distinct value it did not match, and the number of rows matched.</span>
-<span id="cb91-7"><a></a></span>
-<span id="cb91-8"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb91-9"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb91-10"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb91-11"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb91-12"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb91-13"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-16-6">
-<div class="sourceCode" id="cb92"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb92-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb92-2"><a></a>sentence. For every date format and every search pattern in it, say exactly</span>
-<span id="cb92-3"><a></a>which text it would and would not match. Then list any line that could</span>
-<span id="cb92-4"><a></a>give a wrong result without an error, and what check would reveal it.</span>
-<span id="cb92-5"><a></a></span>
-<span id="cb92-6"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb91"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb91-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb91-2"><a></a>sentence. For every date format and every search pattern in it, say exactly</span>
+<span id="cb91-3"><a></a>which text it would and would not match. Then list any line that could</span>
+<span id="cb91-4"><a></a>give a wrong result without an error, and what check would reveal it.</span>
+<span id="cb91-5"><a></a></span>
+<span id="cb91-6"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

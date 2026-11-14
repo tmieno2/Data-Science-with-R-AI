@@ -114,7 +114,7 @@ So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `sf`, `terra`, `tidyterra`, `tidyverse` and `here` packages if you have not already. `terra` is the package for rasters; `tidyterra` lets ggplot draw them.
++ This lecture uses the `sf`, `terra`, `tidyterra`, `tidyverse` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1). `terra` is the package for rasters; `tidyterra` lets ggplot draw them.
 + This lecture assumes lecture 09-1 (vector basics) and lecture 09-2 (raster basics): what a cell, a layer and a CRS (coordinate reference system) are.
 + The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
 
@@ -430,7 +430,7 @@ So a county with one missing cell gets NA from `fun = mean`, and with `na.rm = T
 
 ## Working with AI on your own research
 
-The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For an extraction, judging the HTML means putting the map of the results next to the map of the raster: the same pattern should appear in both. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk and renders it, and you judge the HTML. For an extraction, judging the HTML means putting the map of the results next to the map of the raster: the same pattern should appear in both. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
 
 ## Look at both before you ask
 
@@ -679,25 +679,6 @@ to HTML.
 
 A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
 
-### Look at a raster and a layer
-
-```text
-In my R project, <path to the raster> is a raster and <path to the
-vector layer> is a vector layer. For the raster, print its CRS, cell
-size, extent, number of layers, layer names, and smallest and largest
-value. For the layer, print its CRS, number of features and bounding
-box. Then print whether every feature lies entirely inside the raster's
-rectangle, and draw one map with the raster and the features' outlines
-on top.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
 ### Values at points
 
 ```text
@@ -736,25 +717,6 @@ polygons with no value, the number not entirely inside the raster's
 rectangle, the smallest number of cells in a polygon, and the range of
 the results. Draw a map of the polygons filled by the result next to a
 map of the raster.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
-### Crop and mask for a map
-
-```text
-Crop <path to the raster> to the area of <path to the polygon layer>,
-then set every cell outside the polygons to missing, and draw a map of
-the result with the polygons' outlines on top, missing cells
-transparent, and a legend titled "<title with units>".
-
-Then check: the CRS of both, and the number of cells with a value before
-and after.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one

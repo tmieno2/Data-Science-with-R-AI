@@ -1,0 +1,536 @@
+---
+title: "01-0: Setting Up: VS Code, an AI Agent, R, Python and Quarto"
+abstract: "Chapter 1: R Introduction"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+In this course an AI agent writes most of the code, and we work in a way we recommend for your own research too: the agent writes its code into a **Quarto document** (a `.qmd` file) and renders it to an HTML page, and you judge the work by reading that page. Lecture 02-1 explains how Quarto works. It is not the only way to work with AI, but it is a good one, and every exercise in this course practises it.
+
+This lecture sets up the computer for that way of working. By the end you will have:
+
+1. **VS Code**, the program where all of it happens
+2. **An AI agent** inside VS Code: Claude Code or OpenAI's Codex
+3. **R, Python and Quarto**, installed by the agent at your request, and checked by you
+4. **A project folder** that the agent and R both recognise
+
+You will not learn the install commands. The agent knows them. What it cannot know is your computer, what you want installed, and whether the result works; those are your part:
+
+1. **The concept**: what each piece is for, and what an agent is allowed to do
+2. **Asking AI**: the setup requests, with blanks for what only you know
+3. **Checking**: two checks whose correct answers are stated in advance
+
+### Directions
+
++ You need a computer on which you can install software, and an account for one of the two agents (slide "Install an agent extension"). Sort out the account first; it is the step most likely to hold you up.
++ Do the steps in the order of the slides. The setup checklist page, **Ex-1-0**, lists them again with the checks.
++ To move around these slides: click the three stacked horizontal lines in the bottom-left corner for the table of contents, or press the `o` key to see every slide at once.
+
+### Screens change
+
+VS Code and the agents are updated every few weeks. Menu names, icons and the plans each company offers move faster than these slides. Where this deck names a button, it was checked against the company's own documentation in November 2026.
+
+If your screen does not match a slide, follow your screen, and tell the instructor so the slide can be fixed. What does not change is the concept: what each piece is for, what to approve, and what the checks should show.
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## One window for the whole loop
+
+::: {.panel-tabset}
+
+### What is in the window
+
+**VS Code** (Visual Studio Code, a free editor from Microsoft) holds everything the research loop needs in one window:
+
+| Part of the window | What it shows |
+|---|---|
+| **Explorer** (left side) | The files and folders of your project |
+| **Editor** (middle) | The file you are reading, such as a `.qmd` |
+| **Preview** (beside the editor) | The rendered HTML page |
+| **Terminal panel** (bottom) | A **terminal**: a place where typed commands run. A render's messages, and its errors, appear here |
+| **Agent panel** (side) | The conversation with Claude Code or Codex |
+
+*Screenshot to add: the VS Code window with a project open in the Explorer, a `.qmd` in the editor, its HTML in the preview beside it, the Terminal panel at the bottom, and the agent panel at the side, each part labelled.*
+
+### An agent, not a chat window
+
+A **chat window** (claude.ai or chatgpt.com in a browser) sees only what you paste into it. It cannot open your files, run anything, or render your document.
+
+An **agent** (an AI that works inside a folder on your computer) can:
+
++ **read the files** of your project, so it sees your actual `.qmd` and data, not your description of them
++ **change files**: write code into the `.qmd`, create files
++ **run commands** in a terminal: install software, render the document, read the error
+
+That is why the setup in this lecture can be done by the agent. It is also why the next part of this deck is about what you let it do.
+
+:::{.callout-note}
+The way of working stays the same with either kind of AI: the AI writes the code into a `.qmd` and renders it, and you judge the HTML, not the chat. Lecture 02-1 teaches it in full on the slide "Working with AI on your own research".
+:::
+
+:::
+
+## What has to be on your computer, and why
+
+For Quarto to run R and Python code, these pieces must be installed and must be able to find one another:
+
+| Piece | What it is | Needed for |
+|---|---|---|
+| **R** | The program that runs R code | Every R code chunk (a block of code inside a `.qmd`) |
+| **Python** | The program that runs Python code | Python chunks, when you need one |
+| **Quarto** | The program that renders a `.qmd` into HTML. VS Code needs it installed separately | Every render |
+| **The Quarto extension for VS Code** | Adds the Preview button and `.qmd` support to VS Code | Rendering from inside VS Code |
+| `rmarkdown` and `knitr` (R packages) | The part of R that Quarto uses to run R chunks | Any `.qmd` with an R chunk |
+| `here` (R package) | Builds file paths that start from the project folder | Paths in your code (lecture 03-1) |
+| `reticulate` (R package) | Lets R run Python chunks | A `.qmd` with both R and Python chunks |
+| `jupyter` (Python package) | The part of Python that Quarto uses to run Python chunks | A `.qmd` with only Python chunks |
+
+**Which one runs your document:** if a `.qmd` has at least one R chunk, Quarto runs the whole document through R (with `knitr`), and any Python chunk in it goes through `reticulate`. If it has no R chunk, Quarto runs the Python chunks with `jupyter`.
+
+:::{.callout-note}
+This course writes its code in R. Python is set up so that Quarto can run it when you need it; you will not learn Python here.
+:::
+
+# Installing VS Code and an agent
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Install VS Code
+
+These first steps are done by hand: the agent lives inside VS Code, so it cannot install VS Code for you.
+
+::: {.panel-tabset}
+
+### macOS
+
+1. Download VS Code from [code.visualstudio.com](https://code.visualstudio.com).
+2. Open the downloaded `.dmg` file.
+3. Drag **Visual Studio Code** into the **Applications** folder, then open it from there.
+
+Opening it straight from the Downloads folder also works, but it then stays in Downloads, where it is easy to delete by mistake.
+
+### Windows
+
+1. Download VS Code from [code.visualstudio.com](https://code.visualstudio.com). The **User setup** is the recommended one; it does not need administrator rights.
+2. Run the installer. On the **Select Additional Tasks** step, keep **Add to PATH** ticked (it lets commands typed in a terminal find VS Code).
+3. Open VS Code.
+
+### It worked if
+
+VS Code opens and shows its welcome page.
+
+:::
+
+## Make and open the project folder
+
+Each project (a course, a thesis chapter, a paper) lives in **one folder**. Make an empty folder for this course's work, for example a folder `data-science` in your Documents folder. Choose a folder that is **not inside OneDrive or iCloud Drive**: a folder kept in step with the cloud can hold a file that is listed but not yet downloaded, which breaks a render.
+
+Open it in VS Code with **File, Open Folder**. The first time you open a folder, VS Code asks whether you trust its files. For your own project folder, say yes. Claude Code does not work in a folder you have not trusted.
+
+:::{.callout-important title="It worked if"}
+The name at the top of VS Code's Explorer is the name of your project folder.
+:::
+
+The slide "One folder per project" explains what the agent and R do with this folder.
+
+## Install an agent extension
+
+An **extension** is an add-on that gives VS Code a new ability. Install **one** of the two agents below; this course treats them as interchangeable. In the same Extensions view, also install **Quarto**, published by **Quarto**: it adds the **Preview** button that renders a `.qmd` (tab "It worked if").
+
+::: {.panel-tabset}
+
+### Claude Code
+
+1. In VS Code, open the **Extensions** view: the icon of four squares in the bar down the left side, or **Cmd + Shift + X** (Mac) / **Ctrl + Shift + X** (Windows).
+2. Search for **Claude Code**. Install **Claude Code for VS Code**, published by **Anthropic**.
+3. Open it: the **Spark icon** (a small star shape) at the top right of the editor, which appears when a file is open, or **✻ Claude Code** at the bottom right of the window.
+4. Click **Sign in**, approve in the browser window that opens, and come back to VS Code.
+
+*Screenshot to add: the Extensions view with "Claude Code" searched, showing the Claude Code for VS Code entry by Anthropic.*
+
+On Windows, Claude Code runs its commands in PowerShell (the Windows terminal). If Git for Windows is installed, it uses that instead. Either works for this course.
+
+### Codex (ChatGPT)
+
+1. In VS Code, open the **Extensions** view: the icon of four squares in the bar down the left side, or **Cmd + Shift + X** (Mac) / **Ctrl + Shift + X** (Windows).
+2. Search for **Codex**. Install **Codex – OpenAI's coding agent**, published by **OpenAI**.
+3. Open it: the Codex icon in the bar on the left. If you cannot see it, press **Cmd + Shift + P** (Mac) / **Ctrl + Shift + P** (Windows) and run **Codex: Open Codex Sidebar**.
+4. Sign in with your ChatGPT account.
+
+*Screenshot to add: the Extensions view with "Codex" searched, showing the Codex entry by OpenAI.*
+
+Codex runs on Windows directly; it does not need WSL (a Linux system inside Windows).
+
+### The account
+
+| Agent | Account it needs |
+|---|---|
+| Claude Code | A paid Claude plan (Pro, Max, Ultra, Team or Enterprise) or a Claude Console account (pay per use). **The free Claude plan does not include Claude Code.** |
+| Codex | A ChatGPT Plus plan or higher (Pro, Business, Edu, Enterprise). OpenAI's pricing page lists the Free and Go plans for its desktop app only, not for the VS Code extension |
+
+Plans differ in how much use they allow per day and per week. There are deliberately no prices on this slide: they change, and a wrong price is worse than none. See [claude.com/pricing](https://claude.com/pricing) and OpenAI's [Codex pricing page](https://developers.openai.com/codex/pricing).
+
+Before paying, ask your advisor or department whether they already have an account you can use.
+
+### It worked if
+
+With your project folder open (previous slide), type into the agent panel:
+
+```text
+What can you see in this folder?
+```
+
+It worked if the agent answers without a sign-in message and describes your project folder (which is empty so far). Then open or create any `.qmd` file: a **Preview** button at the top right of the editor shows the Quarto extension is installed.
+
+:::{.callout-important title="What the agent sends"}
+Everything the agent reads, including your data files, is sent to Anthropic's or OpenAI's servers. Do not open a folder holding data you are not allowed to share (data under a confidentiality agreement, a manuscript you are reviewing) until you know your account's terms allow it.
+:::
+
+:::
+
+# What the agent may do
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## How the agent asks for approval
+
+An agent proposes an action (run a command, change a file) and, depending on its **permission mode** (the setting that decides which actions it must ask you about first), either waits for your approval or goes ahead.
+
+::: {.panel-tabset}
+
+### Choose the mode
+
+While you are learning, choose the mode that asks most often. Each request for approval shows you what the agent was about to do, and that is how you learn what it does.
+
+| Agent | Mode to choose | What it asks about |
+|---|---|---|
+| Claude Code | **Manual** | Asks before most actions that change files, run commands, or use the internet. Reading files does not need approval |
+| Codex | **Ask for approval** | Asks before changing files outside the project folder and before using the internet |
+
+Claude Code starts in a mode called **Auto**, in which a separate AI model reviews most actions and approves them without asking you. Switch it to **Manual**: click the mode name at the bottom of the box where you type. In Codex, the same choice sits in the permissions control below the box where you type.
+
+*Screenshot to add: the Claude Code mode menu open, with Manual selected; and the Codex permissions menu open, with Ask for approval selected.*
+
+### What a file change looks like
+
+When an agent changes a file, VS Code shows the old and new versions **side by side**: removed lines marked in red, added lines in green. This view is called a **diff** (short for difference).
+
++ Claude Code in Manual mode shows the diff **before** the change is made, and waits for you to accept or reject it.
++ Codex shows its changes for you to keep or undo.
+
+Read the diff, not the agent's summary of it. The summary says what the agent meant to do; the diff is what is now in your file.
+
+*Screenshot to add: a diff of a `.qmd` in VS Code, with one removed line in red and two added lines in green, and the accept and reject buttons.*
+
+:::
+
+## What to approve, what to read first, what to refuse
+
+| The agent asks to | What to do |
+|---|---|
+| Install a program or package **you asked for** | Read the name; approve if it is on your list |
+| Change a file **your request was about** | Read the diff, then approve or reject |
+| Run a script downloaded from the internet (a line containing `curl` or `irm` followed by a web address) | Read the web address first: approve only if it is the official site of what you asked to install |
+| Change a settings file of your computer that you did not ask about | Ask the agent what the change does and why, before approving |
+| Run a command that starts with `sudo` (macOS), or that needs administrator rights (Windows) | Approve only if you understand what it installs. The slide "What only you can tell it" says how to give your password. **Never type a password into the agent panel** |
+| Delete files (commands with `rm`, `del` or `Remove-Item`) | **Never approve without knowing exactly which files and why** |
+| Change anything outside your project folder, or your raw data files | **Never approve without understanding it.** Ask what it is for |
+
+:::{.callout-important}
+If an approval request offers to stop asking about that kind of action from now on, decline while you are learning. A request you understand takes two seconds to approve; an action you never saw cannot be checked.
+:::
+
+## Your turn: four approval requests
+
+You asked the agent to install the R packages `rmarkdown` and `knitr`. It then asks to run each of these, one at a time:
+
+```text
+A.  Rscript -e 'install.packages(c("rmarkdown", "knitr"))'
+
+B.  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+
+C.  rm -rf data
+
+D.  Edit data/yields.csv: replace every "." with "NA"
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+For each: approve, read first, or refuse? What would you ask the agent?
+
+### Answers
+
+A. **Approve.** It installs the two packages you asked for, and nothing else.
+
+B. **Read first.** It downloads a script from the internet and runs it. The address belongs to Homebrew (a widely used program that installs other programs on a Mac), so it is the official installer. But you did not ask for Homebrew: ask the agent why it needs it, and approve only if the answer makes sense.
+
+C. **Refuse.** `rm -rf data` deletes the folder `data` and everything in it, without asking again and without a way back. Nothing in your request needed it. Ask the agent why it proposed it.
+
+D. **Refuse.** It edits a data file, which your request was not about. A raw data file is never changed; a change to the data belongs in the `.qmd`, where the reader sees it.
+
+:::
+
+# The project folder
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## One folder per project
+
+::: {.panel-tabset}
+
+### Open a folder, not a file
+
+Each project lives in **one folder**, with everything in it: data, `.qmd` files, outputs. You opened it with **File, Open Folder** (slide "Make and open the project folder").
+
++ The agent works on **the folder you opened**. It reads, changes and runs things there.
++ Open a subfolder by mistake and the agent sees only that subfolder.
++ For a new project, make a new folder and open it; do not put two projects in one folder.
+
+### How R finds the project folder
+
+Lecture 03-1 builds every file path with `here::here()`, which starts from the **project folder**, whichever subfolder the `.qmd` is in. To do that, the `here` package starts at the folder R is working in and moves up, one folder at a time, until it finds a folder that contains a **marker** (a file or folder that says "this is the top of a project").
+
+`here` accepts several markers, among them:
+
+| Marker | Made by |
+|---|---|
+| A file named `.here` | You, or the agent: an empty file made only for this purpose |
+| A file ending in `.Rproj` | RStudio, which this course does not use |
+| A file `_quarto.yml` | A Quarto website or book project |
+| A folder `.git` | git, the version control program (lecture 06-2) |
+| A folder `.vscode` with a `settings.json` in it | VS Code, when you change a setting for one folder |
+
+The nearest folder holding **any** marker wins. In VS Code there is no `.Rproj` file, so the project setup creates an empty `.here` file at the top of the project folder.
+
+:::{.callout-note}
+Files whose names start with a dot, such as `.here`, are hidden by Finder and File Explorer. VS Code's Explorer shows them.
+:::
+
+### The instruction file
+
+An **instruction file** is a plain-text file at the top of the project folder that the agent reads at the start of every session, without being asked. It holds what the agent cannot know by looking at the files:
+
++ what the project is about, in two sentences
++ which files must never be changed (for example, the raw data)
++ facts about the data: units, what one row is, codes for missing values
+
+Its name is **`AGENTS.md`**. Codex reads `AGENTS.md`. Claude Code reads it too, but only when the project has no `CLAUDE.md` (Claude Code's own name for the same file), and only from Claude Code version 2.1.277 on. So one `AGENTS.md` serves both agents.
+
+Keep it short, and write each rule as a plain instruction ("Never change any file in `data/raw/`"). The agent treats it as information, not as a lock: it can still miss a rule, which is why you still read every diff.
+
+:::
+
+# Asking the agent to set up
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What only you can tell it
+
+The agent knows how to install R, Python and Quarto on every common system, and it finds out which system your computer runs (check that it got it right when it says). What it does not know:
+
+1. **What you want installed**: the list on the slide "What has to be on your computer, and why". Without the list, it installs what it guesses a data scientist needs.
+2. **That you want to approve each step**, with a one-sentence reason, so the approval requests mean something to you.
+3. **That the pieces must find one another**: the Python where `jupyter` goes must be the one Quarto uses, and `reticulate` must use it too. If nothing tells it otherwise, `reticulate` builds a separate Python of its own. Two Pythons on one computer is the most common cause of a setup that looks finished and then fails.
+4. **How you will check it**: `quarto check` (a command that reports which pieces Quarto can find) and the test documents of the setup checklist page.
+
+:::{.callout-tip title="Your password"}
+On a Mac, a command that needs your password must be run by you: **Terminal, New Terminal**, paste the command the agent gave you, and type the password there. On Windows, a window asks whether to allow the change; allow it only for a program on your list. Never type a password into the agent panel.
+:::
+
+## Requests you can copy
+
+Copy one into the agent panel and replace every `<...>` with what only **you** know. Do the project setup once for each new project (first, with the folder open), and the computer setup once per computer.
+
+::: {.panel-tabset}
+
+### Set up a project folder
+
+```text
+Set up the folder open in VS Code as a project folder. Create an empty
+file named .here at its top, so that here::here() finds this folder.
+Create a file AGENTS.md at its top, with these rules for you to follow:
+
+- This project is about <what the project is, in one or two sentences>.
+- Never change any file in <folder that holds the raw data>.
+- <a fact about the data you could not see by opening it>
+
+Do not create any other file. Show me both files when done.
+```
+
+### Set up this computer
+
+```text
+Set up this computer so that Quarto documents can run R and Python code.
+Find out which operating system this computer runs and tell me. Then
+install whatever is missing from this list, and leave alone anything
+already installed that works:
+
+1. R
+2. Python 3
+3. The Quarto command line program
+4. The R packages rmarkdown, knitr, here and reticulate
+5. The Python package jupyter, installed in the same Python that Quarto
+   finds
+
+Make R's reticulate package use that same Python, so that Python chunks
+in a document that also has R chunks run with it.
+
+Before each step, tell me in one sentence what it installs and why, and
+wait for my approval. If a step needs my administrator password, tell me
+the command to run in the terminal myself. When everything is done, run
+quarto check and show me its full output.
+```
+
+:::
+
+# Checking the setup
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Check 1: `quarto check`
+
+The agent says it is done. That is a report, not a check. Quit VS Code completely and reopen it (so it sees the newly installed programs), then run `quarto check` yourself: **Terminal, New Terminal**, type `quarto check`, press Enter. Read the output section by section.
+
+::: {.panel-tabset}
+
+### What to look for
+
+| Section of the output | It worked if |
+|---|---|
+| `Checking Quarto installation` | `OK`, with a version number |
+| `Checking Python 3 installation` | `OK`, **and** the line `Jupyter:` followed by a version number |
+| `Checking Jupyter engine render` | `OK` (Quarto rendered a test document through Jupyter). This line appears only when Jupyter is found |
+| `Checking R installation` | `OK`, and lines `knitr:` and `rmarkdown:` each followed by a version number |
+| `Checking Knitr engine render` | `OK` (Quarto rendered a test document through R) |
+
+Note the `Path:` line in the Python section: it is the Python Quarto uses. Check 2 compares against it.
+
+### What a failure looks like
+
+This is real output from a computer on which Python is installed but `jupyter` is not (cut down to the Python section):
+
+```text
+[✓] Checking Python 3 installation....OK
+      Version: 3.15.0
+      Path: /opt/homebrew/opt/python@3.15/bin/python3.15
+      Jupyter: (None)
+
+      Jupyter is not available in this Python installation.
+      Install with python3 -m pip install jupyter
+```
+
+The section still says `OK`, because Python itself was found. Only the `Jupyter: (None)` line shows the problem, and the line `Checking Jupyter engine render` is missing. Read every line of a section, not only its tick.
+
+:::
+
+## Check 2: render the test documents
+
+`quarto check` says the pieces are installed. Only a render shows that they work together. The setup checklist page, Ex-1-0, has two short test documents to download into your project folder.
+
+::: {.panel-tabset}
+
+### What each one shows
+
+**The R and Python test** has two R checks, the project folder's path, and one Python chunk. Its HTML should show:
+
+```text
+R runs: expected 55, got 55
+.here file in the project folder: expected TRUE, got TRUE
+project folder: <the folder you opened in VS Code>
+Python runs: expected 55, got 55
+Python used: <the same path as quarto check's Python Path line>
+```
+
+**The Python-only test** has no R chunk, so Quarto runs it with `jupyter`. Its HTML should show:
+
+```text
+Python runs through Jupyter: expected 55, got 55
+Python used: <the same path as quarto check's Python Path line>
+```
+
+### Why these answers
+
++ `55` is the sum of the numbers 1 to 10: an answer known before rendering, so a wrong or missing number means the language did not run.
++ `TRUE` means `here` found the `.here` file, so paths built with `here::here()` start in the right folder.
++ The `Python used` path must match `quarto check`. If it does not, R is using a different Python from the one that has `jupyter`, and a package installed in one is missing in the other.
+
+:::
+
+# The Quarto loop in VS Code
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Render, read the HTML, read the error
+
+::: {.panel-tabset}
+
+### Render
+
+With a `.qmd` open in the editor, click **Preview** at the top right of the editor, or press **Cmd + Shift + K** (Mac) / **Ctrl + Shift + K** (Windows).
+
+Quarto renders the document and shows the HTML in a panel beside the `.qmd`. The HTML file itself is written next to the `.qmd`, so you can also open it in a web browser.
+
+*Screenshot to add: a `.qmd` open in VS Code with the Preview button circled, and its rendered HTML in the panel beside it.*
+
+The agent can render too: it runs the render in its own terminal and tells you the result. Either way, **you** read the HTML.
+
+### Where errors appear
+
+The render runs in the **Terminal panel** at the bottom of VS Code, and prints its messages there. If a chunk fails, the last lines say which:
+
+```text
+Error:
+! object 'farms' not found
+Quitting from report.qmd:6-9 [count-farms]
+```
+
+The line starting with `!` is R's own error; `Quitting from` names the file, the lines and the chunk. When a render fails, no new HTML is written, so the preview still shows the **old** page. Look at the Terminal panel before trusting the preview.
+
+*Screenshot to add: the Terminal panel after a failed render, with the error lines visible and the out-of-date preview beside the editor.*
+
+### Send the error to the agent
+
+The agent may not have seen your render. Copy the error lines into the agent panel, and say that the fix must go into the `.qmd`. Then render again yourself: the document is fixed when it renders, not when the agent says it is.
+
+Lecture 02-1 covers rendering and its errors in full.
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the agent can do
+
+| You need to understand | The agent can do |
+|---|---|
+| What each piece is for: R, Python, Quarto, the Quarto extension, `rmarkdown` and `knitr`, `reticulate`, `jupyter`, `here` | Install them (all but VS Code, the agent and the Quarto extension, which you install) |
+| That an agent changes files and runs commands, and which requests to approve, read first, or refuse | Propose the commands and the changes |
+| That the project is one folder, opened in VS Code, with a `.here` file and an `AGENTS.md` at its top | Create both files |
+| What `quarto check` and the test documents should show | Run them |
+| That a failed render leaves the old HTML in place, and the error is in the Terminal panel | Fix the `.qmd` |
+
+**Every setup:** say what you want installed and that you want to approve each step; then check it yourself with `quarto check` and a render, against answers you know in advance.

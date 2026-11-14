@@ -48,7 +48,7 @@ Those are your job. So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `tidyverse`, `here` and `gt` packages if you have not already. The `tidyverse` includes `lubridate` (dates) and `stringr` (text).
++ This lecture uses the `tidyverse`, `here` and `gt` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1). The `tidyverse` includes `lubridate` (dates) and `stringr` (text).
 + The examples use `pizzaplace`, a table that comes with the `gt` package: a year of orders from a pizza shop, one row per pizza sold, `r format(nrow(pizza), big.mark = ",")` rows. Its columns include `date` (the day of the order), `name` (the pizza, such as `thai_ckn`) and `price`. On these slides the table is called `pizza`.
 
 :::
@@ -475,7 +475,7 @@ On a column where most values have one `_`, the first version looks right on eve
 
 ## Working with AI on your own research
 
-Dates and text follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document with one plain-English sentence above each chunk, you render, and you judge the HTML.
+Dates and text follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document with one plain-English sentence above each chunk and renders it, and you judge the HTML.
 
 For dates and text, the HTML matters because the failures are silent. A warning that some values failed to parse is one line in the chat that scrolls away; in the HTML it sits under the chunk that caused it, next to the check that counts the missing values.
 
@@ -786,22 +786,6 @@ to HTML.
 ```
 
 A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
-
-### Look at a column
-
-```text
-In the table <table name>, show me <number> values of the column
-<column> from the start, the middle and the end of the table, and every
-distinct value of <text column> with the number of rows that have it,
-most common first. Do not change anything.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
 
 ### Convert dates
 

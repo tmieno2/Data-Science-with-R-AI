@@ -130,7 +130,7 @@ So today is about:
 ### Directions
 
 + Lectures 04-1 (communicating with figures), 09-1 (vector data) and 09-2 (raster data) come first.
-+ Ask your AI assistant to install `sf`, `terra`, `tidyterra` and `tidyverse` if you have not already.
++ This lecture uses the `sf`, `terra`, `tidyterra` and `tidyverse` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + The data on these slides is about Nebraska: county boundaries, corn harvested acres by county for 2020 to 2023, irrigation wells, and daily precipitation. The files sit in the same folder as the slides.
 
 :::
@@ -635,7 +635,7 @@ C. Something like: "The message: irrigation wells are concentrated along the Pla
 
 ## Working with AI on your own research
 
-Maps follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document, you render, and you judge the HTML.
+Maps follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document and renders it, and you judge the HTML.
 
 For maps, the HTML matters even more:
 

@@ -46,7 +46,7 @@ Those four are your job. So today is about:
 ### Directions
 
 + Clone [this repository](https://github.com/tmieno2/data-science-course-supplementary-datasets), which holds the datasets used here
-+ Ask your AI assistant to install the `tidyverse`, `haven` and `here` packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).
++ This lecture uses the `tidyverse`, `haven` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 
 :::
 
@@ -258,7 +258,7 @@ Importing follows the way of working with AI from lecture 02-1 ("Working with AI
 
 1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
 2. **The AI writes into a Quarto document** (`.qmd`), with one plain-English sentence above each chunk saying what it does and why.
-3. **You render** the `.qmd` to HTML.
+3. **The AI renders** the `.qmd` to HTML.
 4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
 
 :::{.callout-note}

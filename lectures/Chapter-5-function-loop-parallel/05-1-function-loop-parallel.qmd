@@ -47,7 +47,7 @@ Those are your job. So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `tidyverse`, `future.apply` and `here` packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).
++ This lecture uses the `tidyverse`, `future.apply` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + The three small data files used on these slides, `yields_2016.csv`, `yields_2017.csv` and `yields_2018.csv`, sit in the same folder as the slides, so paths on the slides are bare file names. In your own project, paths are built with `here::here()` (lecture 03-1).
 
 :::
@@ -616,7 +616,7 @@ Functions and loops follow the way of working with AI from lecture 02-1 ("Workin
 
 1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
 2. **The AI writes into a Quarto document** (`.qmd`), with one plain-English sentence above each chunk saying what it does and why.
-3. **You render** the `.qmd` to HTML.
+3. **The AI renders** the `.qmd` to HTML.
 4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
 
 :::{.callout-note}
@@ -951,21 +951,6 @@ to HTML.
 ```
 
 A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
-
-### Look at the inputs
-
-```text
-Without changing anything, list the files in <path to the folder> whose
-names match <the pattern in the file names>. For each file, print its
-number of data rows and its column names.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
 
 ### Write and test a function
 

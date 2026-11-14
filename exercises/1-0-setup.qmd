@@ -1,0 +1,154 @@
+---
+title: "Ex-1-0: Setup Checklist, VS Code, an AI Agent, R, Python and Quarto"
+abstract: "R Introduction"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - worksheets/1-0-test-r-and-python.qmd
+  - worksheets/1-0-test-python-only.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# The answer every test document prints, computed here so the page and the
+# test documents cannot disagree.
+expected_sum <- sum(1:10)
+```
+
+This is a setup checklist, not an exercise: lecture **01-0: Setting Up: VS Code, an AI Agent, R, Python and Quarto** has only one task, and this page is it. Do it before the first class; every later lecture needs it. Each step ends with how to tell it worked.
+
+# 1. Install VS Code
+
+Download it from [code.visualstudio.com](https://code.visualstudio.com) and install it (on a Mac, drag it into the Applications folder; on Windows, use the User setup and keep **Add to PATH** ticked).
+
+::: {.callout-important title="It worked if"}
+VS Code opens and shows its welcome page.
+:::
+
+# 2. Make and open the project folder
+
+Make an empty folder for this course's work, for example `data-science` in your Documents folder. Choose a folder that is **not inside OneDrive or iCloud Drive**. In VS Code: **File, Open Folder**, choose it, and say yes when VS Code asks whether you trust its files.
+
+Write its full path here, or in a note you keep:
+
+> My project folder:
+
+::: {.callout-important title="It worked if"}
+The top of VS Code's Explorer shows your project folder's name, not a subfolder's.
+:::
+
+# 3. Install one agent and the Quarto extension, and set up the project folder
+
+In VS Code's **Extensions** view (Cmd + Shift + X on a Mac, Ctrl + Shift + X on Windows), install **one** of:
+
++ **Claude Code for VS Code**, by Anthropic. Needs a paid Claude plan or a Claude Console account; the free Claude plan does not include it.
++ **Codex – OpenAI's coding agent**, by OpenAI. Needs a ChatGPT Plus plan or higher (Pro, Business, Edu, Enterprise); OpenAI's [pricing page](https://developers.openai.com/codex/pricing) lists the Free and Go plans for its desktop app only.
+
+In the same view, also install **Quarto**, published by Quarto.
+
+Open the agent and sign in. Claude Code: the Spark icon at the top right of the editor (it appears when a file is open), or **✻ Claude Code** at the bottom right of the window. Codex: the Codex icon in the bar on the left.
+
+Then set the mode that asks most often: in Claude Code, click the mode name under the box where you type and choose **Manual**; in Codex, choose **Ask for approval** in the permissions control below the box where you type.
+
+::: {.callout-warning title="What the agent sends"}
+Everything the agent reads, including your data files, is sent to Anthropic's or OpenAI's servers. Do not open a folder holding data you are not allowed to share (data under a confidentiality agreement, a manuscript you are reviewing) until you know your account's terms allow it.
+:::
+
+Now copy the **Set up a project folder** request from the slide "Requests you can copy" in lecture 01-0 into the agent panel, and fill in its blanks:
+
++ What the project is: "the exercises of a data science course".
++ The raw data rule: the raw data folder is `data/raw`; never change files in it.
++ Leave out the third line (a fact about the data) until you have data.
+
+Approve the two files it creates.
+
+::: {.callout-important title="It worked if"}
+1. You type `What can you see in this folder?` in the agent panel and get an answer about your project folder, not a sign-in message.
+2. The mode shown under the box where you type is **Manual** (Claude Code) or **Ask for approval** (Codex).
+3. Any `.qmd` file you open shows a **Preview** button at the top right of the editor.
+4. The Explorer lists two files at the top of the project folder: `.here` (empty) and `AGENTS.md` (your rules).
+5. Start a new conversation and ask `What rules does this project's instruction file give you?` It lists your rules. (Claude Code reads `AGENTS.md` only when the folder has no `CLAUDE.md`, and only from version 2.1.277.)
+:::
+
+# 4. Have the agent set up R, Python and Quarto
+
+Copy the **Set up this computer** request from the same slide and send it. When the agent names your operating system, check that it is right. Approve each step after reading what it installs (the slide "What to approve, what to read first, what to refuse"). This step takes the longest: R, Python and Quarto are large downloads.
+
+When it is done, quit VS Code completely and reopen it, then run `quarto check`: **Terminal, New Terminal**, type `quarto check`, press Enter. Read the output yourself.
+
+::: {.callout-important title="It worked if"}
+In the output of `quarto check`:
+
+1. `Checking Quarto installation` says `OK`.
+2. `Checking Python 3 installation` says `OK`, **and** its `Jupyter:` line shows a version number, not `(None)`.
+3. `Checking Jupyter engine render` says `OK`.
+4. `Checking R installation` says `OK`, with `knitr:` and `rmarkdown:` each followed by a version number.
+5. `Checking Knitr engine render` says `OK`.
+
+Write down the `Path:` line of the Python section; step 5 compares against it:
+
+> Python path from quarto check:
+:::
+
+# 5. Render the two test documents
+
+Make a folder `analysis` inside your project folder. Download both test documents into it:
+
++ [1-0-test-r-and-python.qmd](worksheets/1-0-test-r-and-python.qmd)
++ [1-0-test-python-only.qmd](worksheets/1-0-test-python-only.qmd)
+
+Open each in VS Code and click **Preview** at the top right of the editor (or Cmd + Shift + K on a Mac, Ctrl + Shift + K on Windows). Do not edit them.
+
+::: {.callout-important title="It worked if"}
+The HTML of **1-0-test-r-and-python** shows:
+
+1. R runs: expected `r expected_sum`, got `r expected_sum`
+2. `.here file in the project folder: expected TRUE, got TRUE`
+3. `project folder:` followed by the path you wrote down in step 2, **not** the `analysis` folder
+4. Python runs: expected `r expected_sum`, got `r expected_sum`
+5. `Python used:` followed by the same path as the Python `Path:` line of `quarto check` in step 4
+
+The HTML of **1-0-test-python-only** shows:
+
+6. Python runs through Jupyter: expected `r expected_sum`, got `r expected_sum`
+7. `Python used:` followed by the same path as in step 4
+:::
+
+::: {.callout-note collapse="true" title="What the test documents contain"}
+The R and Python test:
+
+```{r}
+#| label: show-test-r-python
+#| echo: false
+#| comment: ""
+cat(readLines("worksheets/1-0-test-r-and-python.qmd"), sep = "\n")
+```
+
+The Python-only test:
+
+```{r}
+#| label: show-test-python
+#| echo: false
+#| comment: ""
+cat(readLines("worksheets/1-0-test-python-only.qmd"), sep = "\n")
+```
+:::
+
+::: {.callout-note collapse="true" title="If it did not work"}
+For any of these, copy the error lines from the Terminal panel into the agent panel, say which check failed and what it printed, and ask for the fix. Then render again yourself.
+
++ **`quarto check` says Quarto is not found** (`command not found` on a Mac, `not recognized` on Windows): close the terminal, open a new one, and try again. A terminal opened before the install does not know about it. If it still fails, restart VS Code.
++ **`Jupyter: (None)`**: `jupyter` is missing from the Python that Quarto uses. It may have been installed into a different Python. Send the agent the whole Python section of `quarto check`.
++ **The R and Python test stops at the Python chunk with `Installation of Python not found, Python bindings not loaded`**: `reticulate` could not find a Python to use. Ask the agent to make `reticulate` use the Python that `quarto check` reports.
++ **`Python used` shows a different path from `quarto check`**: R and Quarto use two different Pythons. A path containing `uv` means `reticulate` made its own Python. Ask the agent to set `RETICULATE_PYTHON` in your `.Renviron` file (a file of settings R reads when it starts) to the Python of `quarto check`.
++ **`expected TRUE, got FALSE`, or `project folder:` shows the wrong folder**: the `.here` file is missing or in the wrong place. It must be at the top of the project folder, not inside `analysis`. Also check that no folder between the two holds a `_quarto.yml` file, a `.git` folder or a `.vscode` folder, which `here` would take as the project folder instead.
++ **`there is no package called 'here'`** (or `rmarkdown`, or `knitr`): the package is not installed. Ask the agent to install it.
++ **Codex installed, but its panel does not respond (Windows)**: OpenAI's documentation suggests installing Visual Studio Build Tools with the C++ workload, then fully restarting VS Code.
+:::
+
+# 6. Leave it set up
+
+Do not uninstall or move anything you installed today, and keep the project folder where it is. Every later lecture starts from this setup. When you start a new project of your own, make a new folder, open it in VS Code, and send the **Set up a project folder** request again; the computer setup is needed only once.

@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -407,7 +407,7 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Ask your AI assistant to install the <code>here</code> and <code>quarto</code> packages if you have not already.</li>
+<li>This lecture uses the <code>here</code> and <code>quarto</code> packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).</li>
 <li>Lecture 03-1 introduced paths and <code>here::here()</code> for reading one file. This lecture builds on its slide “Condition 1: R can find the file”.</li>
 <li>The examples on these slides use a small project that is built in a temporary folder each time the slides are made, from <code>corn_yields.csv</code> (the corn data from 03-1). Every output shown is real. In the code that runs these examples, paths start from <code>proj</code>, the temporary project’s folder, instead of <code>here::here()</code>, and <code>render_step()</code> is a small function written for these slides that renders one <code>.qmd</code> in its own R session, as <code>quarto render</code> in a terminal does, and reports whether it worked.</li>
 </ul>
@@ -997,7 +997,7 @@ average irrigated yield: expected 181.6 got 181.6</code></pre>
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2">
 <h2>Working with AI on your own research</h2>
-<p>The way of working from lecture 02-1 (“Working with AI on your own research”) fits a project laid out like this one: you ask for one step, naming what it reads, what it writes and which checks to print; the AI writes into that step’s <code>.qmd</code>, with one plain-English sentence above each chunk; you render the step and read the HTML.</p>
+<p>The way of working from lecture 02-1 (“Working with AI on your own research”) fits a project laid out like this one: you ask for one step, naming what it reads, what it writes and which checks to print; the AI writes into that step’s <code>.qmd</code>, with one plain-English sentence above each chunk, and renders it; you read the HTML.</p>
 <p>What the layout adds:</p>
 <ul>
 <li>Each step’s <code>.qmd</code> and its HTML are a record of one job, small enough to read in a few minutes.</li>
@@ -1181,15 +1181,17 @@ Clean
 </div>
 <div id="tabset-11-2">
 <div class="sourceCode" id="cb27"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb27-1"><a></a>Check my project. Search every .qmd and .R file for setwd(), and for</span>
-<span id="cb27-2"><a></a>paths starting with C:/, /Users/ or ~/. Then, for every file in</span>
-<span id="cb27-3"><a></a>data/processed/ and results/, name the step that writes it.</span>
-<span id="cb27-4"><a></a></span>
-<span id="cb27-5"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb27-6"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb27-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb27-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb27-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb27-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb27-2"><a></a>paths starting with C:/, /Users/ or ~/. Record a fingerprint (md5) of</span>
+<span id="cb27-3"><a></a>every file in data/raw/, render every step, and compare the</span>
+<span id="cb27-4"><a></a>fingerprints. For every file in data/processed/ and results/, name the</span>
+<span id="cb27-5"><a></a>step that writes it.</span>
+<span id="cb27-6"><a></a></span>
+<span id="cb27-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb27-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb27-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb27-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb27-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb27-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-11-3">
 <p>The example project, with one more step added the way the weak request on the previous slide would have written it:</p>
@@ -1266,9 +1268,9 @@ Clean
 </section>
 <section id="requests-you-can-copy" class="slide level2">
 <h2>Requests you can copy</h2>
-<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know about your project. Every request for code ends with the closing instructions.</p>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know about your project. Every request for code ends with the closing instructions. The request for the project checks is in the tab “Asking for them” on the slide “Checking: what to ask for, and why”.</p>
 <div class="panel-tabset">
-<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Closing instructions</a></li><li><a href="#tabset-13-2">Set up a project</a></li><li><a href="#tabset-13-3">Write one step</a></li><li><a href="#tabset-13-4">Run every step</a></li><li><a href="#tabset-13-5">Check the project</a></li><li><a href="#tabset-13-6">Explain code</a></li></ul>
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Closing instructions</a></li><li><a href="#tabset-13-2">Set up a project</a></li><li><a href="#tabset-13-3">Write one step</a></li><li><a href="#tabset-13-4">Run every step</a></li><li><a href="#tabset-13-5">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-13-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1323,27 +1325,13 @@ Clean
 <span id="cb36-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-13-5">
-<div class="sourceCode" id="cb37"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb37-1"><a></a>Check my project. Search every .qmd and .R file for setwd(), and for</span>
-<span id="cb37-2"><a></a>paths starting with C:/, /Users/ or ~/. Record a fingerprint (md5) of</span>
-<span id="cb37-3"><a></a>every file in data/raw/, render every step, and compare the</span>
-<span id="cb37-4"><a></a>fingerprints. For every file in data/processed/ and results/, name the</span>
-<span id="cb37-5"><a></a>step that writes it.</span>
+<div class="sourceCode" id="cb37"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb37-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb37-2"><a></a>sentence. Then list:</span>
+<span id="cb37-3"><a></a>1. any line that would only work on the computer it was written on</span>
+<span id="cb37-4"><a></a>2. any line that writes to a file it, or an earlier step, read from</span>
+<span id="cb37-5"><a></a>3. any object it uses that it never reads from a file or makes itself</span>
 <span id="cb37-6"><a></a></span>
-<span id="cb37-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb37-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb37-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb37-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb37-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb37-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-13-6">
-<div class="sourceCode" id="cb38"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb38-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb38-2"><a></a>sentence. Then list:</span>
-<span id="cb38-3"><a></a>1. any line that would only work on the computer it was written on</span>
-<span id="cb38-4"><a></a>2. any line that writes to a file it, or an earlier step, read from</span>
-<span id="cb38-5"><a></a>3. any object it uses that it never reads from a file or makes itself</span>
-<span id="cb38-6"><a></a></span>
-<span id="cb38-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb37-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

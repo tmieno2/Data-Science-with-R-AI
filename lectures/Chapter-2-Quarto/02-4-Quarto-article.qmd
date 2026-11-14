@@ -353,7 +353,7 @@ The journal's instructions decide. A Word file edited by a coauthor is no longer
 
 ## The same way of working, for an article
 
-The way of working with AI from lecture 02-1 applies to every chunk of an article: the AI writes into the `.qmd`, with one plain-English sentence above each chunk, and you render and judge the output. Two things differ:
+The way of working with AI from lecture 02-1 applies to every chunk of an article: the AI writes into the `.qmd`, with one plain-English sentence above each chunk, and renders it, and you judge the output. Two things differ:
 
 + **With the code hidden, the sentences above the chunks are for you.** Ask for each as a comment on the chunk's first line (a line starting with `#`). It then shows with the code in the HTML version, where the code is shown for checking, and stays out of the Word or PDF version.
 + **The AI never supplies references.** It may format, sort and insert entries **you** give it. It may suggest what to search for. It does not write a `.bib` entry from memory.

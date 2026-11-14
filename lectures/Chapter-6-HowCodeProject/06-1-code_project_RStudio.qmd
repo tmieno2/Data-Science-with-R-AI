@@ -107,7 +107,7 @@ Those four are your job. So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `here` and `quarto` packages if you have not already.
++ This lecture uses the `here` and `quarto` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + Lecture 03-1 introduced paths and `here::here()` for reading one file. This lecture builds on its slide "Condition 1: R can find the file".
 + The examples on these slides use a small project that is built in a temporary folder each time the slides are made, from `corn_yields.csv` (the corn data from 03-1). Every output shown is real. In the code that runs these examples, paths start from `proj`, the temporary project's folder, instead of `here::here()`, and `render_step()` is a small function written for these slides that renders one `.qmd` in its own R session, as `quarto render` in a terminal does, and reports whether it worked.
 
@@ -470,7 +470,7 @@ Both files came back, with the same number in them. Run this test once in the mi
 
 ## Working with AI on your own research
 
-The way of working from lecture 02-1 ("Working with AI on your own research") fits a project laid out like this one: you ask for one step, naming what it reads, what it writes and which checks to print; the AI writes into that step's `.qmd`, with one plain-English sentence above each chunk; you render the step and read the HTML.
+The way of working from lecture 02-1 ("Working with AI on your own research") fits a project laid out like this one: you ask for one step, naming what it reads, what it writes and which checks to print; the AI writes into that step's `.qmd`, with one plain-English sentence above each chunk, and renders it; you read the HTML.
 
 What the layout adds:
 
@@ -620,8 +620,10 @@ Check 5 finds files made by hand: a file that no step writes is a hidden action.
 
 ```text
 Check my project. Search every .qmd and .R file for setwd(), and for
-paths starting with C:/, /Users/ or ~/. Then, for every file in
-data/processed/ and results/, name the step that writes it.
+paths starting with C:/, /Users/ or ~/. Record a fingerprint (md5) of
+every file in data/raw/, render every step, and compare the
+fingerprints. For every file in data/processed/ and results/, name the
+step that writes it.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one
@@ -704,7 +706,7 @@ E. Name the step and its one job, the files it reads (`data/processed/` for the 
 
 ## Requests you can copy
 
-Copy one, then replace every `<...>` with what **you** know about your project. Every request for code ends with the closing instructions.
+Copy one, then replace every `<...>` with what **you** know about your project. Every request for code ends with the closing instructions. The request for the project checks is in the tab "Asking for them" on the slide "Checking: what to ask for, and why".
 
 ::: {.panel-tabset}
 
@@ -765,23 +767,6 @@ fails. run-all.R is a plain R script. Then write the check, as code in
 the Quarto document named below: delete everything in data/processed/
 and results/, run run-all.R, and list the files that came back. I
 expect <the files that should come back>.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
-### Check the project
-
-```text
-Check my project. Search every .qmd and .R file for setwd(), and for
-paths starting with C:/, /Users/ or ~/. Record a fingerprint (md5) of
-every file in data/raw/, render every step, and compare the
-fingerprints. For every file in data/processed/ and results/, name the
-step that writes it.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one

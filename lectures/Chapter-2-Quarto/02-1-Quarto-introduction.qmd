@@ -17,6 +17,8 @@ format:
 #| include: false
 library(readr)
 library(dplyr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
 ```
 
 # How this lecture works
@@ -29,7 +31,7 @@ library(dplyr)
 
 ### The plan
 
-In this course, and in your own research, an AI assistant writes most of the R code. Where that code lives, and how you judge it, is what this lecture is about: the code goes into a **Quarto document** (a file ending in `.qmd`), and you judge the work by reading the HTML page that the document produces.
+In this course an AI agent writes most of the R code. Where that code lives, and how you judge it, is what this lecture is about. The way of working we recommend, and practise in every exercise: the code goes into a **Quarto document** (a file ending in `.qmd`), and you judge the work by reading the HTML page that the document produces.
 
 The AI can write a Quarto document. What it cannot do is:
 
@@ -46,9 +48,9 @@ Those three are your job. So today is about:
 
 ### Directions
 
-+ Open RStudio. It comes with Quarto, so there is nothing else to install. If RStudio asks to install the `rmarkdown` or `knitr` packages the first time you render, say yes.
-+ Ask your AI assistant to install the `tidyverse` and `here` packages if you have not already (see the packages slide in Chapter 1).
-+ To follow along, make a new document: **File, New File, Quarto Document**, then click **Create**.
++ Open your course folder in VS Code, with your AI agent in the side panel, as set up in lecture 01-0.
++ This lecture uses the R packages `tidyverse` and `here`. If they are not installed yet, ask the agent to install them.
++ You will make one small `.qmd` file yourself, on the slide "How a .qmd file is written". Everything else you read and judge.
 
 :::
 
@@ -56,7 +58,9 @@ Those three are your job. So today is about:
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
-## Why research is written in a Quarto document
+## Why we recommend a Quarto document
+
+Research can be done without Quarto: many researchers keep their code in R scripts (plain files of R code) and copy the results into a paper. We recommend writing the analysis in a Quarto document instead, and this course works that way, for the reasons on this slide.
 
 ::: {.panel-tabset}
 
@@ -66,11 +70,11 @@ The usual way of reporting an analysis is to run code in one place and copy the 
 
 + **Numbers drift.** The data changes, the code is rerun, and the number typed into the report is not updated.
 + **Nobody can see how a number was made.** The report shows the result, not the steps that led to it.
-+ **The steps get lost.** Code typed at the Console and never saved cannot be run again, by you or anyone else.
++ **The steps get lost.** Code run once in a terminal or a chat and never saved cannot be run again, by you or anyone else.
 
 ### What Quarto does
 
-A Quarto document is one plain-text file that holds both the sentences and the code. **Rendering** it (clicking the **Render** button in RStudio) runs the code and writes an HTML page in which each piece of code sits next to its result and the sentence that explains it.
+A Quarto document is one plain-text file that holds both the sentences and the code. **Rendering** it (the agent runs the render, or you click **Preview** in VS Code) runs the code and writes an HTML page in which each piece of code sits next to its result and the sentence that explains it.
 
 + The `.qmd` file is the **source**: you, or the AI, edit it.
 + The `.html` file is the **output**: you read it, and you send it to whoever needs to see the work.
@@ -132,7 +136,7 @@ The headings matter beyond looks: they are how you tell the AI where to put its 
 
 ### A real file
 
-A short report that follows the pattern. The next tab shows what rendering makes of it.
+A short report that follows the pattern. In the next tab you render it and see what rendering makes of it.
 
 `````{verbatim}
 ---
@@ -163,7 +167,7 @@ mean(fields$yield)
 The average yield is `r mean(fields$yield)` bushels per acre.
 `````
 
-### What the HTML shows
+### Render it yourself
 
 ```{r}
 #| label: make-fields
@@ -175,18 +179,151 @@ fields <- data.frame(
 )
 ```
 
-Below the title and the heading "Average yield", the reader sees each sentence, then the code under it, then its result:
+:::{.callout-note title="In class"}
+The instructor does steps 1 to 3 on the screen first. Then you do them on your own computer.
+:::
 
-Compute the average yield across the four fields.
+In your own work the agent renders. Here you render once by hand, so that you see what rendering does.
+
+1. In your course folder, make a new file `field-yields.qmd` and paste the file from the previous tab into it. Save it.
+2. Render it: click **Preview** at the top right of the editor, or press **Cmd + Shift + K** (Mac) / **Ctrl + Shift + K** (Windows), as in lecture 01-0.
+3. Read the HTML that opens beside the editor. Under the title and the heading "Average yield", each sentence is followed by its code, then by the code's result. The first chunk prints nothing, so only its code appears. In the last sentence, the `` `r ` `` part has become a number; slide "How inline R is written" explains how.
+
+If the HTML shows something else, or no HTML appears, read the messages in the Terminal panel at the bottom of VS Code (lecture 01-0, "Render, read the HTML, read the error").
+
+:::
+
+## What a code chunk can put on the page
+
+When a document is rendered, each chunk's result appears in the HTML right below its code. For every chunk you decide what the reader sees: the code, the result, both, or neither.
+
+::: {.panel-tabset}
+
+### A printed result
+
+Whatever R prints appears under the code. Below, the first box is the code; the box under it is what R printed when the document was rendered.
 
 ```{r}
-#| label: average-yield
+#| label: show-number
 mean(fields$yield)
 ```
 
-The average yield is `r mean(fields$yield)` bushels per acre.
+The `[1]` at the start is R's way of numbering the printed values; this result is a single number.
 
-The first chunk made a table and printed nothing, so the reader sees only its code (not repeated on this slide). In the last sentence, the number was computed when the document was rendered, not typed.
+### A table
+
+Printing a table puts its rows in the page:
+
+```{r}
+#| label: show-table
+fields
+```
+
+This is R's plain printout. The AI can also turn a table into a formatted one, with column headings and units (Chapter 8).
+
+### A figure
+
+A chunk that makes a figure puts the figure in the page:
+
+```{r}
+#| label: show-figure
+#| fig-height: 4
+ggplot(fields, aes(x = field, y = yield)) +
+  geom_col() +
+  labs(x = NULL, y = "Yield (bushels per acre)")
+```
+
+### What you can choose
+
+For each chunk:
+
+| The reader sees | Code | Result | Typical use | Written as |
+|---|---|---|---|---|
+| Both | shown | shown | Most steps of an analysis | nothing: the default |
+| The result, with the code one click away | behind a button | shown | A report for readers who may want to check the code | `code-fold: true` |
+| The result only | not shown | shown | A figure or table for readers who do not read code | `echo: false` |
+| The code only | shown | not run | Example code, or code that should not run at this render | `eval: false` |
+| Nothing | not shown | not shown, but **the code still runs** | Loading packages at the top of the document | `include: false` |
+| Both, without R's notes | shown | shown, minus messages and warnings | A chunk whose packages print startup notes | `message: false`, `warning: false` |
+
+The last column is how the AI writes each choice into the chunk (next slide); recognise it, there is no need to memorise it. A choice can also be set once for every chunk in the document.
+
+The next three tabs show the three choices that hide something.
+
+### Code folded
+
+<details><summary>How this chunk is written in the .qmd</summary>
+
+````{verbatim}
+```{r}
+#| code-fold: true
+ggplot(fields, aes(x = field, y = yield)) +
+  geom_col() +
+  labs(x = NULL, y = "Yield (bushels per acre)")
+```
+````
+
+</details>
+
+What the reader sees: the figure, and a button above it. Click the button to see the code.
+
+```{r}
+#| label: demo-fold
+#| code-fold: true
+#| fig-height: 4
+ggplot(fields, aes(x = field, y = yield)) +
+  geom_col() +
+  labs(x = NULL, y = "Yield (bushels per acre)")
+```
+
+### Result only
+
+<details><summary>How this chunk is written in the .qmd</summary>
+
+````{verbatim}
+```{r}
+#| echo: false
+ggplot(fields, aes(x = field, y = yield)) +
+  geom_col() +
+  labs(x = NULL, y = "Yield (bushels per acre)")
+```
+````
+
+</details>
+
+What the reader sees: the figure, and no sign of the code that made it.
+
+```{r}
+#| label: demo-echo-false
+#| echo: false
+#| fig-height: 4
+ggplot(fields, aes(x = field, y = yield)) +
+  geom_col() +
+  labs(x = NULL, y = "Yield (bushels per acre)")
+```
+
+### Nothing shown
+
+<details><summary>How this chunk is written in the .qmd</summary>
+
+````{verbatim}
+```{r}
+#| include: false
+fields_shown <- filter(fields, acres >= 40)
+```
+````
+
+</details>
+
+Between this sentence and the next one there is a chunk with that option. It ran, and it made a table `fields_shown` without the East field (35 acres).
+
+```{r}
+#| label: demo-include-false
+#| include: false
+fields_shown <- filter(fields, acres >= 40)
+```
+
+The page shows no trace of it. Only the `.qmd` does, which is why "Checking the result" asks you to open the `.qmd` as well as the HTML.
 
 :::
 
@@ -198,7 +335,7 @@ The first chunk made a table and printed nothing, so the reader sees only its co
 
 When you click **Render**, Quarto:
 
-1. **Starts a new R session** (a fresh, empty R, separate from the one at your RStudio Console)
+1. **Starts a new R session** (a fresh, empty R, separate from any R the agent or you already had running)
 2. **Runs every chunk, in order, from the top**, with the folder that holds the `.qmd` as the working directory (the folder R treats as "here")
 3. **Puts the text, the code and the results together**
 4. **Writes the HTML file** next to the `.qmd`, and opens it
@@ -207,9 +344,9 @@ If any chunk stops with an error, the render stops there and no new HTML is writ
 
 ### Only what is in the document exists
 
-The new R session in step 1 knows nothing about your Console. A table you made by typing at the Console, or a package you loaded there, does not exist for the render.
+The new R session in step 1 knows nothing about any other R session. A table made by code run outside the document (by the agent in its own terminal, or by you at an R **Console**, the window where R runs typed lines one at a time), or a package loaded there, does not exist for the render.
 
-Suppose you typed `farms <- read_csv("farms.csv")` at the Console, and the document has a chunk labelled `count-farms` with `nrow(farms)` in it. Clicking the chunk's green run button works, because that button runs the chunk at your Console. Rendering stops with:
+Suppose the agent ran `farms <- read_csv("farms.csv")` in its terminal to look at the data, and the document has a chunk labelled `count-farms` with `nrow(farms)` in it. Run in that same session, the chunk works, because `farms` exists there. Rendering stops with:
 
 ```text
 Error:
@@ -217,7 +354,7 @@ Error:
 Quitting from report.qmd:6-9 [count-farms]
 ```
 
-The fix is never to type more at the Console. It is to put the line that makes `farms` into a chunk above `count-farms`.
+The fix is never to run more code outside the document. It is to put the line that makes `farms` into a chunk above `count-farms`.
 
 ### Order matters
 
@@ -227,9 +364,9 @@ While you work, you can run chunks by hand in any order, so a document can seem 
 
 ### The folder
 
-During the render, R's working directory is the folder the `.qmd` is saved in, not necessarily your project folder (the folder RStudio opens as an R Project, marked by a `.Rproj` file; lecture 03-1). A path such as `"data/farms.csv"` is looked up starting from that folder.
+During the render, R's working directory is the folder the `.qmd` is saved in, not necessarily your project folder (the folder you open in VS Code; lecture 03-1). A path such as `"data/farms.csv"` is looked up starting from that folder.
 
-So a path that works at the Console can fail inside a `.qmd` saved in a subfolder. The fix is `here::here()`, which builds a path starting from the project folder wherever the `.qmd` is. Lecture 03-1 explains paths in full; for now, recognise `here::here("data", "farms.csv")` as "the file `farms.csv` in the `data` folder of this project".
+So a path that works outside the document can fail inside a `.qmd` saved in a subfolder. The fix is `here::here()`, which builds a path starting from the project folder wherever the `.qmd` is. Lecture 03-1 explains paths in full; for now, recognise `here::here("data", "farms.csv")` as "the file `farms.csv` in the `data` folder of this project".
 
 :::
 
@@ -240,17 +377,91 @@ So a path that works at the Console can fail inside a `.qmd` saved in a subfolde
 Rendering tests that every time: it starts from nothing and builds every result from the document alone. So if a document renders:
 
 + every step is written down in it, in the order it runs
-+ nothing depends on something typed at the Console and forgotten
++ nothing depends on code run outside the document and forgotten
 + every number computed in it comes from the data, through the code you can read
 
 :::{.callout-important title="What rendering does not tell you"}
 A document that renders is complete, not necessarily **right**. The code can run and still do the wrong thing, a sentence can describe something the code does not do, and a chunk option can keep a step out of view. That is why you read the HTML (see "Checking the result").
 
-If a chunk has `cache: true`, a render reuses its result from an earlier render even when the data has changed. Before the final render, delete the folder ending in `_cache` next to the `.qmd`.
+A cached chunk (next slide) is the one exception to "starts from nothing": it can show a result from an earlier render.
 :::
 
-:::{.callout-tip title="A habit before you render"}
-**Session, Restart R**, then **Run, Run All** (the menu of the Run button above the editor). This runs every chunk at your Console as a render would, so you find a missing step before rendering.
+## Caching: a shorter render for slow chunks
+
+::: {.panel-tabset}
+
+### The problem
+
+Every render runs every chunk again, from the top (slide "What rendering does"). Most chunks take less than a second. Some take minutes: reading a very large file, fitting a model to millions of rows, running a simulation.
+
+In a document with such a chunk, every render takes minutes, even one that only fixes a typo in a sentence. That cost adds up fast when the agent works for you, because it renders after every change it makes.
+
+### What caching is
+
+**Caching** a chunk means saving what it made, so later renders can load it instead of running the chunk again. You switch it on per chunk with the option `cache: true`:
+
+`````{verbatim}
+```{r}
+#| label: fit-model
+#| cache: true
+model <- lm(yield ~ nitrogen, data = trials)
+```
+`````
+
++ **First render**: the chunk runs as usual. Everything it made (here, `model`) and everything it printed is saved to a folder next to the `.qmd`, named after the document plus `_cache` (for `report.qmd`, the folder `report_cache`).
++ **Later renders**: the chunk does not run. The saved results are loaded from that folder, which takes a moment instead of minutes.
+
+The HTML looks the same either way. Nothing on the page says whether a result was computed now or loaded from an earlier render.
+
+### When it shows old results
+
+Before loading the saved results, the render checks one thing: **has the chunk itself changed** (its code, or one of its options that affects results)? If yes, it runs the chunk again and saves the new results. If no, it loads the saved ones.
+
+It does not look outside the chunk. So it loads the old results, with no warning, when:
+
++ **the data file the chunk reads has changed**, for example a corrected or extended version of `trials.csv`
++ **a chunk above it has changed a table it uses**, for example a chunk that drops bad rows now drops different ones
+
+We tested this: a cached chunk printed the sum of a column in a data file. After 100 was added to the file, the next render still printed the old sum.
+
+This is what makes caching risky: the page looks right and is out of date.
+
+### Making it safe
+
+Two chunk options tell the render what else to check, and one command clears everything:
+
+| What | What it does |
+|---|---|
+| `cache-extra: !expr tools::md5sum(here::here("data", "trials.csv"))` | Run the chunk again when the **contents of this file** change. `tools::md5sum()` turns a file's contents into a short code; any change to the file changes the code |
+| `dependson: "clean-trials"` | Run the chunk again whenever the chunk labelled `clean-trials` runs again. That chunk must be cached too |
+| `quarto render report.qmd --cache-refresh` | Run **every** cached chunk again this once, and save new results. Deleting the `_cache` folder does the same |
+
+So a cached chunk is safe when every file it reads is named in `cache-extra`, and every cached chunk whose tables it uses is named in `dependson`.
+
+### Another way: save the result to a file
+
+For a very slow step, or a download, there is a plainer way: one step runs once and **saves its result to a file** (for example an `.rds` file, R's format for saving one object), and the document reads that file.
+
++ The saved file is visible in your project folder, and you decide when to make it again.
++ The document renders fast, because reading a saved result is quick.
+
+Caching suits a chunk inside the document that takes seconds to minutes. Saving to a file suits a step that takes hours, or one that downloads data. Chapter 6 shows how a project is split into such steps.
+
+### Asking the AI
+
+The agent can see that a render was slow, and it may switch caching on by itself. What it cannot know:
+
++ **which data files may still change**: a file you will receive again, correct, or extend
++ **whether this is the final render**, the one whose numbers go into your paper
+
+So when you ask for caching, name the files each slow chunk reads, and ask for `cache-extra` on them (request "Speed up a slow chunk" under "Requests you can copy"). Before the final render, ask for a render with `--cache-refresh`.
+
+### Checking
+
+1. **It saves time.** Render twice. The second render should be much faster, and a `_cache` folder should be next to the `.qmd`.
+2. **It is safe.** Open the `.qmd`. For every chunk with `cache: true`: is every file it reads named in `cache-extra`, and every cached chunk it uses named in `dependson`?
+3. **The numbers are current.** Render once with `--cache-refresh`. Every number in the HTML should be the same as in the render before. A number that changed was out of date.
+
 :::
 
 # Reading a .qmd file
@@ -341,39 +552,14 @@ R code
 |---|---|---|
 | ` ```{r} ` and ` ``` ` | The start and end of the chunk; `r` says the code is R | Yes |
 | `#| label: ...` | A name for the chunk: unique in the document, no spaces | No, but an error message then names the chunk by its label |
-| `#| option: value` | One chunk option per line, right below the first line, with no blank line in between | No; each has a default |
+| `#| option: value` | One **chunk option** per line, right below the first line, with no blank line in between. The options are the choices on the slide "What a code chunk can put on the page" | No; each has a default |
 | R code | Runs when the document is rendered | Yes |
-
-### Options you will see
-
-| Option | What it controls | Default |
-|---|---|---|
-| `echo` | Whether the code is **shown** in the HTML | `true` |
-| `eval` | Whether the code is **run** at all | `true` |
-| `include: false` | Runs the code but shows **nothing**: no code, no result | shows everything |
-| `message`, `warning` | Whether messages and warnings from the code are shown | `true` |
-| `code-fold: true` | Hides the code behind a button the reader can click | not folded |
-| `fig-cap` | A caption under a figure | none |
-| `error: true` | Lets the render continue past an error, printing the error in the page | `false`: stop |
-
-The same options can be set for every chunk at once under `execute:` in the YAML header. An option written in a chunk overrides the one in the header.
-
-### What the reader sees
-
-The options that matter most for judging a document are the ones that decide what the reader can see:
-
-| Chunk options | Code runs? | Code shown? | Result shown? |
-|---|---|---|---|
-| none | yes | yes | yes |
-| `code-fold: true` | yes | behind a button | yes |
-| `echo: false` | yes | **no** | yes |
-| `include: false` | yes | **no** | **no** |
-| `eval: false` | **no** | yes | nothing to show |
-
-The rows marked **no** are the ones to notice. A chunk with `include: false` can still change the data; the reader of the HTML sees no trace of it.
 
 ### Variations you will see
 
++ `execute:` in the YAML header, with options under it: sets those options for every chunk. An option written in a chunk overrides it for that chunk.
++ `#| fig-cap: "..."`: a caption under a figure.
++ `#| error: true`: the render continues past an error in this chunk and prints the error in the page, instead of stopping.
 + `#| echo: false` and `{r, echo = FALSE}` (options inside the braces): the second is an older way of writing the same thing. Both work.
 + `#| label: fig-yield` with `#| fig-cap: "..."`: a label that starts with `fig-` makes a numbered figure that the text can refer to (lecture 02-4).
 + A chunk with only `library(...)` lines and `include: false` at the top of the document: a **setup chunk**. It loads packages without filling the page with them.
@@ -426,7 +612,7 @@ A typed "`r mean(fields$yield)` bushels per acre" would now be wrong, and nothin
 
 ### Read the message
 
-Quarto prints the error in the **Background Jobs** tab of RStudio. Read the last lines first:
+Quarto prints the error in the terminal where the render ran: the agent's, when the agent rendered (it shows the lines in its reply), or the **Terminal panel** at the bottom of VS Code, when you clicked Preview. Read the last lines first:
 
 ```text
 Error:
@@ -441,20 +627,21 @@ Quitting from report.qmd:6-9 [count-farms]
 
 | The error says | What it usually means |
 |---|---|
-| `object '...' not found` | The table or value is made at your Console or further down the document, not in a chunk above this one |
-| `could not find function "..."` | The package is loaded at your Console but not in the document, or the name is misspelled |
+| `object '...' not found` | The table or value is made outside the document or further down it, not in a chunk above this one |
+| `could not find function "..."` | The package is loaded outside the document but not in it, or the name is misspelled |
 | `cannot open file '...'` or `does not exist` | The path is wrong from the `.qmd`'s folder (Lecture 03-1) |
 | `Render failed due to invalid YAML` | A mistake in the header: usually indentation, or a missing colon |
 
 ### What to send the AI
 
-The AI did not see your render. Send it:
+If the agent rendered, it saw the error and will usually try a fix. If you rendered, the agent did not see it. Send it:
 
 1. the error lines, copied exactly
 2. the chunk the error names
 3. the folder the `.qmd` is in, if the error is about a file
+4. that the fix must go into the document, not be run outside it, which would hide the problem until the next render
 
-Then render again yourself. "Fixed" means the document renders, not that the AI says it is fixed.
+Either way, have it render again. "Fixed" means the document renders, not that the AI says it is fixed.
 
 :::
 
@@ -468,12 +655,12 @@ This is the way of working with AI that you should take into your own research. 
 
 1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
 2. **The AI writes into a Quarto document** (`.qmd`). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
-3. **You render** the `.qmd` to HTML.
+3. **The AI renders** the `.qmd` to HTML.
 4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
 
 Why this matters for research, and why you judge the HTML rather than the chat window:
 
-+ Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on something typed into the Console and forgotten.
++ Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on code run outside the document and forgotten.
 + The HTML is a record of what was done to the data and why, with each explanation next to its code and its result. You can reread it months later, and your advisor or a coauthor can review your analysis by reading it, without running anything.
 + The chat disappears; the `.qmd` and its HTML stay with your project.
 
@@ -505,7 +692,7 @@ A chat assistant cannot open or render your files: paste its chunks into your `.
 What is the average yield of my fields?
 ```
 
-A typical reply is a number in the chat window, or a chunk of code you run at the Console. Either way, the number is not in your document, no one can see how it was made, and the next time the data changes, nothing updates it.
+A typical reply is a number in the chat window, or code it ran outside your document. Either way, the number is not in your document, no one can see how it was made, and the next time the data changes, nothing updates it.
 
 ### Strong
 
@@ -556,7 +743,7 @@ The AI cannot see the rendered page the way your reader does. Check these every 
 
 | | Check | Why | What only you can supply |
 |---|---|---|---|
-| 1 | It renders | A render starts from nothing, so it proves nothing depends on your Console | Doing it, and reading the render's message |
+| 1 | It renders | A render starts from nothing, so it proves nothing depends on code run outside the document | Doing it, and reading the render's message |
 | 2 | Every chunk has a sentence above it, and the code does what the sentence says | The sentence is what a reader trusts; a wrong one misleads | Reading both |
 | 3 | Every "expected X, got Y" line matches | The checks are where a silent mistake shows up | The expected values, from knowing your data |
 | 4 | No step that changes the data is hidden | A hidden chunk changes the results without a trace in the HTML | Opening the `.qmd` and looking at the chunk options |
@@ -686,22 +873,9 @@ its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
-### Report a number in a sentence
-
-```text
-Using the table <table name>, compute <what to compute>. Write one
-sentence reporting it, with the number written as inline R rounded to
-<number> decimals, never typed. Check <a check you know the answer to>.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
 ### Show every step
+
+Also for a `.qmd` you did not write, before you trust its HTML:
 
 ```text
 Go through <path to your .qmd>. For every chunk with include: false or
@@ -718,19 +892,14 @@ its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
-### Fix a failed render
+### Speed up a slow chunk
 
 ```text
-My Quarto document <path to your .qmd> fails to render. The error is:
-
-<paste the error lines exactly>
-
-The chunk it names is:
-
-<paste the chunk>
-
-Explain in one plain-English sentence why it fails when rendered, then
-fix it inside the document, not at the Console.
+In <path to your .qmd>, the chunk "<chunk label>" takes about <time> to
+run. Cache it with cache: true. It reads these files: <files>. Make its
+cache depend on the contents of each file with cache-extra and
+tools::md5sum(). If it uses tables made by other cached chunks, name
+them in dependson. Render twice and tell me how long each render took.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one
@@ -740,19 +909,7 @@ its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
-### Explain a document
-
-For a `.qmd` you did not write:
-
-```text
-Explain this Quarto document to me. For each chunk, say in one
-plain-English sentence what it does, whether it runs, and whether its
-code and its result appear in the HTML. Then list:
-1. any chunk that changes the data without being visible in the HTML
-2. any number in a sentence that is typed rather than computed
-
-<paste the document here>
-```
+Before the final render: "Render <path to your .qmd> with --cache-refresh, and tell me every number in the HTML that changed."
 
 :::
 
@@ -766,6 +923,7 @@ code and its result appear in the HTML. Then list:
 |---|---|
 | What rendering does: a new R session, every chunk from the top, in the `.qmd`'s folder | The chunks |
 | Why a document that renders is reproducible, and why that does not make it right | The YAML header |
+| What caching saves, and when it shows old results | The cache options |
 | What the reader sees under each chunk option, and which steps must stay visible | The chunk options |
 | Which numbers belong in sentences, and that they must be computed | The inline R |
 | How to read a render error and what to send back | The fix |

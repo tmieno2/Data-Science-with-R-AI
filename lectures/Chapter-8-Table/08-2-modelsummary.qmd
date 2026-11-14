@@ -57,7 +57,7 @@ This deck assumes lecture 08-1 (the message, the display table, the table standa
 
 ### Directions
 
-+ Ask your AI assistant to install the `modelsummary` package if you have not already.
++ This lecture uses the `modelsummary` package. Install it if you do not have it yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + The data on these slides is `airquality`, which comes with R, so there is no file to download.
 
 :::
@@ -474,7 +474,7 @@ D. Check 1 (headers against formulas) catches the swapped headers. Check 4 (ever
 
 ## Working with AI on your own research
 
-Regression tables follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document (`.qmd`) with one plain-English sentence above each chunk, you render it to HTML, and you judge the HTML.
+Regression tables follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document (`.qmd`) with one plain-English sentence above each chunk and renders it to HTML, and you judge the HTML.
 
 For regression tables this matters because:
 

@@ -212,39 +212,6 @@ If Sublime Merge opened the repository but you cannot find the folder: with the 
 
 :::
 
-# Recommended requests
-
-<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
-
-## Requests you can copy
-
-::: {.panel-tabset}
-
-### Clone a repository
-
-For an agent that can run commands:
-
-```text
-Clone the repository <URL copied from the GitHub page> into the folder
-<full path of the folder it should go into>. Do not change any file in
-it. When done, tell me the full path of the new folder and list the
-files at its top level.
-```
-
-### A clone failed
-
-```text
-I tried to clone <URL copied from the GitHub page> into <full path of
-the folder it should go into>, and got this message:
-
-<paste the message exactly>
-
-Explain in one plain-English sentence what it means, and what I should
-do. Do not delete any folder.
-```
-
-:::
-
 # Summary
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>

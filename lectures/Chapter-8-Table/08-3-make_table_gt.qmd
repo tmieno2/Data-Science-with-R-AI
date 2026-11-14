@@ -65,7 +65,7 @@ Lecture 08-1 was about designing a table for a message. This lecture is about ge
 
 ### Directions
 
-+ Ask your AI assistant to install the `gt`, `flextable` and `officer` packages if you have not already.
++ This lecture uses the `gt`, `flextable` and `officer` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 + The data is the same as in 08-1: `countrypops`, which comes with `gt`.
 
 :::
@@ -278,10 +278,6 @@ Everything from 08-1's "What to put in a table request" (the data, the message, 
 :::{.callout-tip}
 Ask for the table to be printed in the HTML **and** saved to the file, from the same code. Then the HTML is the record, and the file is what goes into the paper.
 :::
-
-# Recommended requests
-
-<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
 ## Requests you can copy
 

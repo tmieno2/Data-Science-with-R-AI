@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -406,7 +406,7 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Ask your AI assistant to install the <code>sf</code>, <code>tidyverse</code> and <code>here</code> packages if you have not already. <code>sf</code> is the package for vector data in R.</li>
+<li>This lecture uses the <code>sf</code>, <code>tidyverse</code> and <code>here</code> packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1). <code>sf</code> is the package for vector data in R.</li>
 <li>The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with <code>here::here()</code> (lecture 03-1).</li>
 </ul>
 </div>
@@ -752,6 +752,7 @@ Geodetic CRS:  NAD83</code></pre>
 <li>A csv cannot hold a shape. <code>write_csv()</code> on a layer writes the shapes as long lines of text that nothing reads back as shapes. Save layers as <code>.gpkg</code> (or <code>.rds</code> if only R will read them).</li>
 <li><code>st_write()</code> refuses to replace an existing file unless told to (<code>delete_dsn = TRUE</code>), unlike the writers in lecture 03-1.</li>
 </ul>
+<p>To check a save, read the file back and compare its CRS, number of features and column names with the original.</p>
 </div>
 </div>
 </div>
@@ -1072,15 +1073,9 @@ range for longlat data</code></pre>
 <hr color="#EB811B" size="1px" width="796px">
 
 </section>
-<section id="working-with-ai-on-your-own-research" class="slide level2 scrollable">
+<section id="working-with-ai-on-your-own-research" class="slide level2">
 <h2>Working with AI on your own research</h2>
-<p>The way of working from lecture 02-1, “Working with AI on your own research”, applies unchanged:</p>
-<ol type="1">
-<li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
-<li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
-<li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
-<li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
-</ol>
+<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> (Quarto document) with one plain-English sentence above each chunk and renders it to HTML, and you judge the HTML.</p>
 <p>For spatial data the HTML matters even more, because two of the four checks are a printed bounding box and a quick map, and you judge both by eye. The rendered document puts each map next to the code that made it and the numbers that describe it, and it stays with your project after the chat is gone.</p>
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -1374,7 +1369,7 @@ wells latitude: expected 40 to 43, got 40 to 41.7 </code></pre>
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the files and their documentation. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Closing instructions</a></li><li><a href="#tabset-14-2">Read a layer</a></li><li><a href="#tabset-14-3">Coordinates to a layer</a></li><li><a href="#tabset-14-4">A missing CRS</a></li><li><a href="#tabset-14-5">Areas or distances</a></li><li><a href="#tabset-14-6">Save and read back</a></li><li><a href="#tabset-14-7">Explain code</a></li></ul>
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Closing instructions</a></li><li><a href="#tabset-14-2">Read a layer</a></li><li><a href="#tabset-14-3">Coordinates to a layer</a></li><li><a href="#tabset-14-4">Areas or distances</a></li><li><a href="#tabset-14-5">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-14-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1389,19 +1384,20 @@ wells latitude: expected 40 to 43, got 40 to 41.7 </code></pre>
 <div id="tabset-14-2">
 <div class="sourceCode" id="cb47"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb47-1"><a></a>In my R project, &lt;path to the file&gt; is a &lt;format&gt; file with one row per</span>
 <span id="cb47-2"><a></a>&lt;what one row is&gt;. Its documentation says the CRS is &lt;CRS name, EPSG</span>
-<span id="cb47-3"><a></a>code&gt;. Read it into a layer called &lt;layer name&gt;.</span>
-<span id="cb47-4"><a></a></span>
-<span id="cb47-5"><a></a>Then check the CRS (I expect EPSG &lt;code&gt;), the number of features (I</span>
-<span id="cb47-6"><a></a>expect &lt;number&gt;), the geometry type (I expect &lt;type&gt;), and the bounding</span>
-<span id="cb47-7"><a></a>box (I expect longitude between &lt;west&gt; and &lt;east&gt; and latitude between</span>
-<span id="cb47-8"><a></a>&lt;south&gt; and &lt;north&gt;). Draw a quick map of the layer on its own.</span>
-<span id="cb47-9"><a></a></span>
-<span id="cb47-10"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb47-11"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb47-12"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb47-13"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb47-14"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb47-15"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb47-3"><a></a>code&gt;. Read it into a layer called &lt;layer name&gt;. If the file has no</span>
+<span id="cb47-4"><a></a>CRS, label it with that CRS without changing any coordinate.</span>
+<span id="cb47-5"><a></a></span>
+<span id="cb47-6"><a></a>Then check the CRS (I expect EPSG &lt;code&gt;), the number of features (I</span>
+<span id="cb47-7"><a></a>expect &lt;number&gt;), the geometry type (I expect &lt;type&gt;), and the bounding</span>
+<span id="cb47-8"><a></a>box (I expect longitude between &lt;west&gt; and &lt;east&gt; and latitude between</span>
+<span id="cb47-9"><a></a>&lt;south&gt; and &lt;north&gt;). Draw a quick map of the layer on its own.</span>
+<span id="cb47-10"><a></a></span>
+<span id="cb47-11"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb47-12"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb47-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb47-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb47-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb47-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-14-3">
 <div class="sourceCode" id="cb48"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb48-1"><a></a>In my R project, &lt;path to the csv&gt; has one row per &lt;what one row is&gt;</span>
@@ -1424,13 +1420,13 @@ wells latitude: expected 40 to 43, got 40 to 41.7 </code></pre>
 <span id="cb48-18"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-14-4">
-<div class="sourceCode" id="cb49"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb49-1"><a></a>The layer &lt;layer name&gt; has no CRS. Its documentation says its</span>
-<span id="cb49-2"><a></a>coordinates are &lt;CRS name, EPSG code&gt;. Label it with that CRS without</span>
-<span id="cb49-3"><a></a>changing any coordinate.</span>
-<span id="cb49-4"><a></a></span>
-<span id="cb49-5"><a></a>Then check the CRS (I expect EPSG &lt;code&gt;) and the bounding box (I expect</span>
-<span id="cb49-6"><a></a>longitude between &lt;west&gt; and &lt;east&gt; and latitude between &lt;south&gt; and</span>
-<span id="cb49-7"><a></a>&lt;north&gt;).</span>
+<div class="sourceCode" id="cb49"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb49-1"><a></a>Using the layer &lt;layer name&gt;, add a column &lt;column name&gt; with the</span>
+<span id="cb49-2"><a></a>&lt;area of each feature, or distance from each feature to the nearest</span>
+<span id="cb49-3"><a></a>feature of another layer&gt; in &lt;units&gt;. Print the CRS of every layer</span>
+<span id="cb49-4"><a></a>used, and the units of the result.</span>
+<span id="cb49-5"><a></a></span>
+<span id="cb49-6"><a></a>Check: &lt;a total or a value you know, such as the total area against the</span>
+<span id="cb49-7"><a></a>known area of the state&gt;.</span>
 <span id="cb49-8"><a></a></span>
 <span id="cb49-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
 <span id="cb49-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
@@ -1440,43 +1436,15 @@ wells latitude: expected 40 to 43, got 40 to 41.7 </code></pre>
 <span id="cb49-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-14-5">
-<div class="sourceCode" id="cb50"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb50-1"><a></a>Using the layer &lt;layer name&gt;, add a column &lt;column name&gt; with the</span>
-<span id="cb50-2"><a></a>&lt;area of each feature, or distance from each feature to the nearest</span>
-<span id="cb50-3"><a></a>feature of another layer&gt; in &lt;units&gt;. Print the CRS of every layer</span>
-<span id="cb50-4"><a></a>used, and the units of the result.</span>
-<span id="cb50-5"><a></a></span>
-<span id="cb50-6"><a></a>Check: &lt;a total or a value you know, such as the total area against the</span>
-<span id="cb50-7"><a></a>known area of the state&gt;.</span>
+<div class="sourceCode" id="cb50"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb50-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb50-2"><a></a>sentence. Then list:</span>
+<span id="cb50-3"><a></a>1. any line that would only work on the computer it was written on</span>
+<span id="cb50-4"><a></a>2. for each layer, what CRS it ends up in, and whether that CRS is</span>
+<span id="cb50-5"><a></a>   known or guessed</span>
+<span id="cb50-6"><a></a>3. any line that could give a wrong result without an error, and which</span>
+<span id="cb50-7"><a></a>   check would reveal it</span>
 <span id="cb50-8"><a></a></span>
-<span id="cb50-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb50-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb50-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb50-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb50-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb50-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-14-6">
-<div class="sourceCode" id="cb51"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb51-1"><a></a>Save the layer &lt;layer name&gt; as &lt;path for the new file, ending in .gpkg&gt;.</span>
-<span id="cb51-2"><a></a>Then read the file back and check that the CRS, the number of features</span>
-<span id="cb51-3"><a></a>and the column names match the original.</span>
-<span id="cb51-4"><a></a></span>
-<span id="cb51-5"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb51-6"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb51-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb51-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb51-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb51-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-14-7">
-<div class="sourceCode" id="cb52"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb52-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb52-2"><a></a>sentence. Then list:</span>
-<span id="cb52-3"><a></a>1. any line that would only work on the computer it was written on</span>
-<span id="cb52-4"><a></a>2. for each layer, what CRS it ends up in, and whether that CRS is</span>
-<span id="cb52-5"><a></a>   known or guessed</span>
-<span id="cb52-6"><a></a>3. any line that could give a wrong result without an error, and which</span>
-<span id="cb52-7"><a></a>   check would reveal it</span>
-<span id="cb52-8"><a></a></span>
-<span id="cb52-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb50-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

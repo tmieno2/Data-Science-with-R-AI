@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -1102,7 +1102,7 @@ index d8cc48b..bc72b0c 100644
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2 scrollable">
 <h2>Working with AI on your own research</h2>
-<p>The way of working from lecture 02-1, “Working with AI on your own research” (the AI writes into a <code>.qmd</code>, you render and read the HTML) gains three habits once the project has a history:</p>
+<p>The way of working from lecture 02-1, “Working with AI on your own research” (the AI writes into a <code>.qmd</code> and renders it, and you read the HTML) gains three habits once the project has a history:</p>
 <ol type="1">
 <li><strong>Commit before the AI starts.</strong> Then every change it makes shows up in <code>git diff</code>, and any of it can be undone.</li>
 <li><strong>Read the diff after it finishes,</strong> as well as the HTML. The HTML shows what the code produced; the diff shows every line it touched, including in files you did not ask about.</li>
@@ -1417,7 +1417,7 @@ index bc72b0c..495df63 100644
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know. Every request that has the AI run a command that changes something ends with the git safety instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Git safety instructions</a></li><li><a href="#tabset-14-2">Start a repository</a></li><li><a href="#tabset-14-3">Commit one change</a></li><li><a href="#tabset-14-4">Push</a></li><li><a href="#tabset-14-5">Try something on a branch</a></li><li><a href="#tabset-14-6">Merge conflict</a></li><li><a href="#tabset-14-7">Pull request</a></li><li><a href="#tabset-14-8">Undo a change</a></li><li><a href="#tabset-14-9">Explain commands</a></li></ul>
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Git safety instructions</a></li><li><a href="#tabset-14-2">Start a repository</a></li><li><a href="#tabset-14-3">Commit one change</a></li><li><a href="#tabset-14-4">Push</a></li><li><a href="#tabset-14-5">Work on a branch</a></li><li><a href="#tabset-14-6">Merge conflict</a></li><li><a href="#tabset-14-7">Undo a change</a></li><li><a href="#tabset-14-8">Explain commands</a></li></ul>
 <div class="tab-content">
 <div id="tabset-14-1">
 <p>The lines that end every request in which the AI may run a command that changes your files, your history or GitHub. Requests that only read (status, diff, log) may leave them out.</p>
@@ -1469,14 +1469,17 @@ index bc72b0c..495df63 100644
 <div class="sourceCode" id="cb29"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb29-1"><a></a>Make a branch called &lt;branch name&gt; and switch to it. I want to try</span>
 <span id="cb29-2"><a></a>&lt;the change you are unsure about&gt;. Commit there as you go. When I say</span>
 <span id="cb29-3"><a></a>so, show me git diff main...&lt;branch name&gt; (three dots: only what</span>
-<span id="cb29-4"><a></a>changed on the branch since it split from main), and merge into main</span>
-<span id="cb29-5"><a></a>(git merge --no-edit) only if I agree.</span>
-<span id="cb29-6"><a></a></span>
-<span id="cb29-7"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
-<span id="cb29-8"><a></a>show me the command, say in one plain-English sentence what it does,</span>
-<span id="cb29-9"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
-<span id="cb29-10"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
-<span id="cb29-11"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-4"><a></a>changed on the branch since it split from main). Then do only what I</span>
+<span id="cb29-5"><a></a>choose: merge it into main (git merge --no-edit), or push the branch</span>
+<span id="cb29-6"><a></a>to GitHub and open a pull request into main, with a title that says</span>
+<span id="cb29-7"><a></a>what the branch does and a description of why, and give me the link.</span>
+<span id="cb29-8"><a></a>Never merge a pull request yourself.</span>
+<span id="cb29-9"><a></a></span>
+<span id="cb29-10"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb29-11"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb29-12"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb29-13"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb29-14"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-14-6">
 <div class="sourceCode" id="cb30"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb30-1"><a></a>Merging &lt;the branch being merged in&gt; into &lt;the branch you are on&gt;</span>
@@ -1493,35 +1496,24 @@ index bc72b0c..495df63 100644
 <span id="cb30-12"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-14-7">
-<div class="sourceCode" id="cb31"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb31-1"><a></a>Push the branch &lt;branch name&gt; to GitHub and open a pull request into</span>
-<span id="cb31-2"><a></a>main, with a title that says what the branch does and a description of</span>
-<span id="cb31-3"><a></a>why. Then give me the link. Do not merge it.</span>
-<span id="cb31-4"><a></a></span>
-<span id="cb31-5"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
-<span id="cb31-6"><a></a>show me the command, say in one plain-English sentence what it does,</span>
-<span id="cb31-7"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
-<span id="cb31-8"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
-<span id="cb31-9"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb31"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb31-1"><a></a>I want to undo &lt;the uncommitted changes to a file, or the commit whose</span>
+<span id="cb31-2"><a></a>message is ...&gt;. First show me git status and exactly what will change,</span>
+<span id="cb31-3"><a></a>and say in one plain-English sentence what will be lost. If it is</span>
+<span id="cb31-4"><a></a>already committed, undo it by adding a new commit; never rewrite the</span>
+<span id="cb31-5"><a></a>history.</span>
+<span id="cb31-6"><a></a></span>
+<span id="cb31-7"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb31-8"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb31-9"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb31-10"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb31-11"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-14-8">
-<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb32-1"><a></a>I want to undo &lt;the uncommitted changes to a file, or the commit whose</span>
-<span id="cb32-2"><a></a>message is ...&gt;. First show me git status and exactly what will change,</span>
-<span id="cb32-3"><a></a>and say in one plain-English sentence what will be lost. If it is</span>
-<span id="cb32-4"><a></a>already committed, undo it by adding a new commit; never rewrite the</span>
-<span id="cb32-5"><a></a>history.</span>
-<span id="cb32-6"><a></a></span>
-<span id="cb32-7"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
-<span id="cb32-8"><a></a>show me the command, say in one plain-English sentence what it does,</span>
-<span id="cb32-9"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
-<span id="cb32-10"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
-<span id="cb32-11"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-14-9">
-<div class="sourceCode" id="cb33"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb33-1"><a></a>Explain these git commands to me. For each, write one plain-English</span>
-<span id="cb33-2"><a></a>sentence saying what it does, and whether it changes my files, my</span>
-<span id="cb33-3"><a></a>history, GitHub, or nothing. Then list any that could lose work.</span>
-<span id="cb33-4"><a></a></span>
-<span id="cb33-5"><a></a>&lt;paste the commands here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb32-1"><a></a>Explain these git commands to me. For each, write one plain-English</span>
+<span id="cb32-2"><a></a>sentence saying what it does, and whether it changes my files, my</span>
+<span id="cb32-3"><a></a>history, GitHub, or nothing. Then list any that could lose work.</span>
+<span id="cb32-4"><a></a></span>
+<span id="cb32-5"><a></a>&lt;paste the commands here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

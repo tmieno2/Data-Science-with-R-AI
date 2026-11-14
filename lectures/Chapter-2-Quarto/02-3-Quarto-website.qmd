@@ -188,7 +188,7 @@ yields <- readr::read_csv(here::here("data", "yields.csv"))
 
 ## The same way of working, for a website
 
-The way of working with AI from lecture 02-1 applies to every page: the AI writes into a `.qmd`, with one plain-English sentence above each chunk, and you render and judge the rendered pages, not the chat. Two things are added for a site:
+The way of working with AI from lecture 02-1 applies to every page: the AI writes into a `.qmd`, with one plain-English sentence above each chunk, and renders it, and you judge the rendered pages, not the chat. Two things are added for a site:
 
 + **The structure is a decision, made before any code.** Which pages, what is on each, in what order in the menu. Write it down as a list, the **site map**, and give it to the AI.
 + **You judge the site by using it**: starting from the home page and clicking, as a visitor would.
@@ -368,21 +368,6 @@ order in the menu at the top:
 Leave out <files or folders that must not become pages>. Every page
 reads the data it needs itself. On the page that reads the data, check
 <checks you know the answer to>.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
-### Add a page
-
-```text
-Add a page to my Quarto website: <file name>, titled "<title>", which
-shows <what it shows>. Put it in the menu after "<the menu entry it
-follows>". Do not change any other page.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one

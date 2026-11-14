@@ -397,9 +397,9 @@ index f43e415..9caffee 100644
  
  Save the cleaned table for the next step.</code></pre>
 <p><code>git log --oneline</code> then shows 3 commits (your identifiers will differ, because they depend on your name and the time):</p>
-<pre class="text"><code>29e9698 Say where the data comes from
-d2cdb26 Drop yields of 100 bu/ac or less
-b068512 Start the project</code></pre>
+<pre class="text"><code>5fd6cc9 Say where the data comes from
+d38ba53 Drop yields of 100 bu/ac or less
+d0f7426 Start the project</code></pre>
 </div>
 </div>
 </div>
@@ -465,15 +465,15 @@ corn &lt;- dplyr::filter(corn, Yield &gt; 150)
 <p>The line between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> is on <code>main</code>, the branch you are on (120). The line between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; try-cutoff-150</code> is on the branch you are merging in (150).</p>
 <p>Which to keep is a research decision. In this data, a cutoff of 100 keeps 161 of 161 rows, 120 keeps 158, and 150 keeps 134. The two sides of the conflict are 120 and 150, but you may also write a third version, such as going back to 100. Nothing in the data says any of these yields is an error, and the lowest non-irrigated yield is 103. So the cutoff that drops nothing, 100, is the easiest to defend; any higher cutoff needs a documented reason. Either way, the commit message records the reason.</p>
 <p>After you keep one and commit, <code>git log --oneline --graph</code> shows the two lines of work joining. The answers here kept 120, to show the merge; your identifiers, messages and choice may differ:</p>
-<pre class="text"><code>*   9a9dd0f Keep the 120 bu/ac cutoff
+<pre class="text"><code>*   e584a06 Keep the 120 bu/ac cutoff
 |\  
-| * f77fd3e Try a cutoff of 150 bu/ac
-* | a9713bb Use a cutoff of 120 bu/ac
+| * e4b7faa Try a cutoff of 150 bu/ac
+* | 04beea4 Use a cutoff of 120 bu/ac
 |/  
-* ebd66e8 Answer Tasks 1 to 4
-* 29e9698 Say where the data comes from
-* d2cdb26 Drop yields of 100 bu/ac or less
-* b068512 Start the project</code></pre>
+* aec7270 Answer Tasks 1 to 4
+* 5fd6cc9 Say where the data comes from
+* d38ba53 Drop yields of 100 bu/ac or less
+* d0f7426 Start the project</code></pre>
 </div>
 </div>
 </div>

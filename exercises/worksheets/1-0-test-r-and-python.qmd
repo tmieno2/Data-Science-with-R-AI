@@ -1,0 +1,33 @@
+---
+title: "Setup test: R and Python"
+format:
+  html:
+    embed-resources: true
+---
+
+This document checks that Quarto can run R and Python code on your computer. Each check prints the answer it expects and the answer it got. Save it in a subfolder of your project, such as `analysis/`, and render it.
+
+R adds the numbers 1 to 10.
+
+```{r}
+#| label: r-check
+cat("R runs: expected 55, got", sum(1:10), "\n")
+```
+
+The `here` package looks for the project folder: the nearest folder, at or above this one, that holds the `.here` file.
+
+```{r}
+#| label: here-check
+cat(".here file in the project folder: expected TRUE, got",
+    file.exists(here::here(".here")), "\n")
+cat("project folder:", here::here(), "\n")
+```
+
+Python adds the numbers 1 to 10, then prints the path of the Python program that ran it.
+
+```{python}
+#| label: python-check
+import sys
+print("Python runs: expected 55, got", sum(range(1, 11)))
+print("Python used:", sys.executable)
+```

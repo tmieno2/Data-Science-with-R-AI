@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -406,7 +406,7 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Ask your AI assistant to install the <code>sf</code>, <code>terra</code>, <code>tidyterra</code>, <code>tigris</code>, <code>rnassqs</code>, <code>prism</code>, <code>tidyverse</code> and <code>here</code> packages if you have not already.</li>
+<li>This lecture uses the <code>sf</code>, <code>terra</code>, <code>tidyterra</code>, <code>tigris</code>, <code>rnassqs</code>, <code>prism</code>, <code>tidyverse</code> and <code>here</code> packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).</li>
 <li>This lecture assumes lectures 09-1 (vector basics) and 09-2 (raster basics).</li>
 <li>The files used on these slides were downloaded once and sit in the same folder as the slides, so a path here is just the file name. The download code is shown on each slide.</li>
 </ul>
@@ -483,7 +483,7 @@
 <ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Why</a></li><li><a href="#tabset-2-2">What that looks like</a></li><li><a href="#tabset-2-3">Keys</a></li></ul>
 <div class="tab-content">
 <div id="tabset-2-1">
-<p>In the way of working of this course, the AI writes code into a <code>.qmd</code> and you render it, which runs every chunk again. A chunk that downloads would download again at every render. That is slow, it puts load on a public server, and worse, the data can change between renders: sources revise recent values, and you would not know your numbers had moved.</p>
+<p>In the way of working of this course, the AI writes code into a <code>.qmd</code> and renders it, which runs every chunk again. A chunk that downloads would download again at every render. That is slow, it puts load on a public server, and worse, the data can change between renders: sources revise recent values, and you would not know your numbers had moved.</p>
 <p>There is also a hard limit: PRISM refuses a file downloaded more than twice in a day, so a <code>.qmd</code> that downloads at every render stops working by its third render.</p>
 <p>So a download is split in two:</p>
 <ol type="1">
@@ -910,7 +910,7 @@ range: expected 0 to a few hundred mm, got 0 to 159.3</code></pre>
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2">
 <h2>Working with AI on your own research</h2>
-<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk, you render, and you judge the HTML. For a download, that adds one rule: the download runs once and is saved, and every render reads the saved file (previous section). Every request for code ends with the <strong>closing instructions</strong> of lecture 03-1, under <strong>Recommended requests</strong>.</p>
+<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk and renders it, and you judge the HTML. For a download, that adds one rule: the download runs once and is saved, and every render reads the saved file (previous section). Every request for code ends with the <strong>closing instructions</strong> of lecture 03-1, under <strong>Recommended requests</strong>.</p>
 </section>
 <section id="what-to-put-in-your-request" class="slide level2 scrollable">
 <h2>What to put in your request</h2>
@@ -1172,7 +1172,7 @@ Value range: expected 100 to 250, got 120 to 207</code></pre>
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with your own decisions. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Find a variable name</a></li><li><a href="#tabset-12-3">Boundaries</a></li><li><a href="#tabset-12-4">Statistics from NASS</a></li><li><a href="#tabset-12-5">Daily weather from PRISM</a></li><li><a href="#tabset-12-6">Explain code</a></li></ul>
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Boundaries</a></li><li><a href="#tabset-12-3">Statistics from NASS</a></li><li><a href="#tabset-12-4">Daily weather from PRISM</a></li><li><a href="#tabset-12-5">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-12-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1185,81 +1185,69 @@ Value range: expected 100 to 250, got 120 to 207</code></pre>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
 <div id="tabset-12-2">
-<div class="sourceCode" id="cb38"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb38-1"><a></a>Using rnassqs, list the NASS data items (short_desc) for the commodity</span>
-<span id="cb38-2"><a></a>&lt;commodity&gt; that contain all of these words: &lt;words&gt;. Read my key with</span>
-<span id="cb38-3"><a></a>Sys.getenv("NASS_API_KEY"); never write the key. Print the matches.</span>
-<span id="cb38-4"><a></a></span>
-<span id="cb38-5"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb38-6"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb38-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb38-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb38-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb38-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb38-1"><a></a>Download the &lt;counties, states, or other boundaries&gt; of &lt;area&gt; for the</span>
+<span id="cb38-2"><a></a>year &lt;year&gt;, generalised (cb = TRUE), with tigris. Save them to &lt;path</span>
+<span id="cb38-3"><a></a>for the saved file, ending in .gpkg&gt;, and only download if that file</span>
+<span id="cb38-4"><a></a>does not exist. Then read them from the file.</span>
+<span id="cb38-5"><a></a></span>
+<span id="cb38-6"><a></a>Then check: the number of features (I expect &lt;number&gt;), the CRS, which</span>
+<span id="cb38-7"><a></a>&lt;states or areas&gt; are present, and draw a map.</span>
+<span id="cb38-8"><a></a></span>
+<span id="cb38-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb38-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb38-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb38-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb38-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb38-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-12-3">
-<div class="sourceCode" id="cb39"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb39-1"><a></a>Download the &lt;counties, states, or other boundaries&gt; of &lt;area&gt; for the</span>
-<span id="cb39-2"><a></a>year &lt;year&gt;, generalised (cb = TRUE), with tigris. Save them to &lt;path</span>
-<span id="cb39-3"><a></a>for the saved file, ending in .gpkg&gt;, and only download if that file</span>
-<span id="cb39-4"><a></a>does not exist. Then read them from the file.</span>
-<span id="cb39-5"><a></a></span>
-<span id="cb39-6"><a></a>Then check: the number of features (I expect &lt;number&gt;), the CRS, which</span>
-<span id="cb39-7"><a></a>&lt;states or areas&gt; are present, and draw a map.</span>
+<div class="sourceCode" id="cb39"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb39-1"><a></a>Download from USDA-NASS Quick Stats the &lt;SURVEY or CENSUS&gt; data item</span>
+<span id="cb39-2"><a></a>"&lt;exact data item&gt;" at &lt;COUNTY or STATE&gt; level for &lt;states&gt;, &lt;first</span>
+<span id="cb39-3"><a></a>year&gt; to &lt;last year&gt;, using rnassqs. Read my key with</span>
+<span id="cb39-4"><a></a>Sys.getenv("NASS_API_KEY"); never write the key. Save the result to</span>
+<span id="cb39-5"><a></a>&lt;path for the saved file&gt;, and only download if that file does not</span>
+<span id="cb39-6"><a></a>exist. Then read it from the file, and make Value a number, printing</span>
+<span id="cb39-7"><a></a>how many values became missing.</span>
 <span id="cb39-8"><a></a></span>
-<span id="cb39-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb39-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb39-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb39-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb39-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb39-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb39-9"><a></a>Then check: which states and years arrived (I expect all of them), the</span>
+<span id="cb39-10"><a></a>number of rows per state and year (at most &lt;number of counties&gt;), the</span>
+<span id="cb39-11"><a></a>rows that are not a single county, the units, and the range of Value</span>
+<span id="cb39-12"><a></a>(I expect &lt;lowest&gt; to &lt;highest&gt;).</span>
+<span id="cb39-13"><a></a></span>
+<span id="cb39-14"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb39-15"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb39-16"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb39-17"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb39-18"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb39-19"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-12-4">
-<div class="sourceCode" id="cb40"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb40-1"><a></a>Download from USDA-NASS Quick Stats the &lt;SURVEY or CENSUS&gt; data item</span>
-<span id="cb40-2"><a></a>"&lt;exact data item&gt;" at &lt;COUNTY or STATE&gt; level for &lt;states&gt;, &lt;first</span>
-<span id="cb40-3"><a></a>year&gt; to &lt;last year&gt;, using rnassqs. Read my key with</span>
-<span id="cb40-4"><a></a>Sys.getenv("NASS_API_KEY"); never write the key. Save the result to</span>
-<span id="cb40-5"><a></a>&lt;path for the saved file&gt;, and only download if that file does not</span>
-<span id="cb40-6"><a></a>exist. Then read it from the file, and make Value a number, printing</span>
-<span id="cb40-7"><a></a>how many values became missing.</span>
-<span id="cb40-8"><a></a></span>
-<span id="cb40-9"><a></a>Then check: which states and years arrived (I expect all of them), the</span>
-<span id="cb40-10"><a></a>number of rows per state and year (at most &lt;number of counties&gt;), the</span>
-<span id="cb40-11"><a></a>rows that are not a single county, the units, and the range of Value</span>
-<span id="cb40-12"><a></a>(I expect &lt;lowest&gt; to &lt;highest&gt;).</span>
-<span id="cb40-13"><a></a></span>
-<span id="cb40-14"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb40-15"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb40-16"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb40-17"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb40-18"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb40-19"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb40-1"><a></a>Download daily PRISM &lt;ppt, tmax, tmin or tmean&gt; from &lt;first date&gt; to</span>
+<span id="cb40-2"><a></a>&lt;last date&gt; into &lt;folder for the downloads&gt;, only if the files are not</span>
+<span id="cb40-3"><a></a>there yet. Read every .bil file (names ending in .bil) as one raster</span>
+<span id="cb40-4"><a></a>with one layer per day, then crop it to &lt;the area, or the layer that</span>
+<span id="cb40-5"><a></a>defines it&gt;.</span>
+<span id="cb40-6"><a></a></span>
+<span id="cb40-7"><a></a>Then check: the number of layers (I expect &lt;number of days&gt;), the dates</span>
+<span id="cb40-8"><a></a>in the layer names, the CRS, the cell size, and the range of values in</span>
+<span id="cb40-9"><a></a>&lt;units&gt; (I expect &lt;lowest&gt; to &lt;highest&gt;). Draw a map of the first day.</span>
+<span id="cb40-10"><a></a></span>
+<span id="cb40-11"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb40-12"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb40-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb40-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb40-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb40-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-12-5">
-<div class="sourceCode" id="cb41"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb41-1"><a></a>Download daily PRISM &lt;ppt, tmax, tmin or tmean&gt; from &lt;first date&gt; to</span>
-<span id="cb41-2"><a></a>&lt;last date&gt; into &lt;folder for the downloads&gt;, only if the files are not</span>
-<span id="cb41-3"><a></a>there yet. Read every .bil file (names ending in .bil) as one raster</span>
-<span id="cb41-4"><a></a>with one layer per day, then crop it to &lt;the area, or the layer that</span>
-<span id="cb41-5"><a></a>defines it&gt;.</span>
-<span id="cb41-6"><a></a></span>
-<span id="cb41-7"><a></a>Then check: the number of layers (I expect &lt;number of days&gt;), the dates</span>
-<span id="cb41-8"><a></a>in the layer names, the CRS, the cell size, and the range of values in</span>
-<span id="cb41-9"><a></a>&lt;units&gt; (I expect &lt;lowest&gt; to &lt;highest&gt;). Draw a map of the first day.</span>
-<span id="cb41-10"><a></a></span>
-<span id="cb41-11"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb41-12"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb41-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb41-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb41-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb41-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-12-6">
-<div class="sourceCode" id="cb42"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb42-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb42-2"><a></a>sentence. Then list:</span>
-<span id="cb42-3"><a></a>1. what each download asks for: which data, area, and years or dates</span>
-<span id="cb42-4"><a></a>2. what will happen each time the document is rendered</span>
-<span id="cb42-5"><a></a>3. any line that could give a wrong result without an error, and what</span>
-<span id="cb42-6"><a></a>   check would reveal it</span>
-<span id="cb42-7"><a></a></span>
-<span id="cb42-8"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb41-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb41-2"><a></a>sentence. Then list:</span>
+<span id="cb41-3"><a></a>1. what each download asks for: which data, area, and years or dates</span>
+<span id="cb41-4"><a></a>2. what will happen each time the document is rendered</span>
+<span id="cb41-5"><a></a>3. any line that could give a wrong result without an error, and what</span>
+<span id="cb41-6"><a></a>   check would reveal it</span>
+<span id="cb41-7"><a></a></span>
+<span id="cb41-8"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

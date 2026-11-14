@@ -1,0 +1,17 @@
+---
+title: "Setup test: Python through Jupyter"
+format:
+  html:
+    embed-resources: true
+---
+
+This document has no R code, so Quarto runs it with Jupyter instead of R. It checks that Jupyter is installed in the Python that Quarto finds.
+
+Python adds the numbers 1 to 10, then prints the path of the Python program that ran it.
+
+```{python}
+#| label: python-check
+import sys
+print("Python runs through Jupyter: expected 55, got", sum(range(1, 11)))
+print("Python used:", sys.executable)
+```

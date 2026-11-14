@@ -56,7 +56,7 @@ Those are your job. So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `sf`, `tidyverse` and `here` packages if you have not already. `sf` is the package for vector data in R.
++ This lecture uses the `sf`, `tidyverse` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1). `sf` is the package for vector data in R.
 + The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
 
 :::
@@ -234,6 +234,8 @@ The extension picks the format. Two things to know:
 
 + A csv cannot hold a shape. `write_csv()` on a layer writes the shapes as long lines of text that nothing reads back as shapes. Save layers as `.gpkg` (or `.rds` if only R will read them).
 + `st_write()` refuses to replace an existing file unless told to (`delete_dsn = TRUE`), unlike the writers in lecture 03-1.
+
+To check a save, read the file back and compare its CRS, number of features and column names with the original.
 
 :::
 
@@ -428,12 +430,7 @@ The fix here is `st_set_crs()`, with the CRS from the data's documentation, beca
 
 ## Working with AI on your own research
 
-The way of working from lecture 02-1, "Working with AI on your own research", applies unchanged:
-
-1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
-2. **The AI writes into a Quarto document** (`.qmd`). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
-3. **You render** the `.qmd` to HTML.
-4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` (Quarto document) with one plain-English sentence above each chunk and renders it to HTML, and you judge the HTML.
 
 For spatial data the HTML matters even more, because two of the four checks are a printed bounding box and a quick map, and you judge both by eye. The rendered document puts each map next to the code that made it and the numbers that describe it, and it stays with your project after the chat is gone.
 
@@ -729,7 +726,8 @@ A chat assistant cannot render: paste its chunks into your `.qmd` and render it 
 ```text
 In my R project, <path to the file> is a <format> file with one row per
 <what one row is>. Its documentation says the CRS is <CRS name, EPSG
-code>. Read it into a layer called <layer name>.
+code>. Read it into a layer called <layer name>. If the file has no
+CRS, label it with that CRS without changing any coordinate.
 
 Then check the CRS (I expect EPSG <code>), the number of features (I
 expect <number>), the geometry type (I expect <type>), and the bounding
@@ -767,25 +765,6 @@ its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
-### A missing CRS
-
-```text
-The layer <layer name> has no CRS. Its documentation says its
-coordinates are <CRS name, EPSG code>. Label it with that CRS without
-changing any coordinate.
-
-Then check the CRS (I expect EPSG <code>) and the bounding box (I expect
-longitude between <west> and <east> and latitude between <south> and
-<north>).
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
 ### Areas or distances
 
 ```text
@@ -796,21 +775,6 @@ used, and the units of the result.
 
 Check: <a total or a value you know, such as the total area against the
 known area of the state>.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
-### Save and read back
-
-```text
-Save the layer <layer name> as <path for the new file, ending in .gpkg>.
-Then read the file back and check that the CRS, the number of features
-and the column names match the original.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one

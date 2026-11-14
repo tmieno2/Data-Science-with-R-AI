@@ -58,7 +58,7 @@ Those are your job. So today is about:
 
 ### Directions
 
-+ Ask your AI assistant to install the `terra` and `tidyterra` packages if you have not already. `terra` reads and computes on rasters; `tidyterra` lets `ggplot2` draw them.
++ This lecture uses the `terra` and `tidyterra` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1). `terra` reads and computes on rasters; `tidyterra` lets `ggplot2` draw them.
 + The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
 
 :::
@@ -212,6 +212,8 @@ writeRaster(raster, "path/to/file.tif")
 
 The extension picks the format. `overwrite = TRUE` is needed to replace an existing file. A raster cannot go into a csv without losing the grid.
 
+To check a save, read the file back and compare its CRS, extent, layer names, smallest and largest values and number of missing cells with the original.
+
 :::
 
 ## Doing things with a raster
@@ -345,12 +347,7 @@ values(aggregate(landcover, fact = 2, fun = "modal"))
 
 ## Working with AI on your own research
 
-The way of working from lecture 02-1, "Working with AI on your own research", applies unchanged:
-
-1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
-2. **The AI writes into a Quarto document** (`.qmd`). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
-3. **You render** the `.qmd` to HTML.
-4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` (Quarto document) with one plain-English sentence above each chunk and renders it to HTML, and you judge the HTML.
 
 A raster's printout, its value ranges and a quick map are checks you judge by eye. In the HTML they sit next to the code that produced them, and the document records which no-data value and scale you told the AI to use, and why.
 
@@ -648,22 +645,6 @@ to HTML.
 
 A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
 
-### Look at a raster
-
-```text
-Without changing any value, read <path to the file> and print what R
-reports about it: rows, columns, layers, resolution, extent, CRS, the
-name of each layer, and the smallest and largest value of each layer.
-Draw a quick map of the first layer.
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
 ### Read a raster
 
 ```text
@@ -702,22 +683,6 @@ and why.
 Check: the resolution and extent before and after, and the smallest and
 largest value before and after (for codes, the list of distinct values
 before and after; I expect the same codes).
-
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
-```
-
-### Save and read back
-
-```text
-Save the raster <raster name> as <path for the new file, ending in
-.tif>. Then read the file back and check that the CRS, the extent, the
-layer names, the smallest and largest value of each layer and the
-number of missing cells all match the original.
 
 Put the code in my Quarto document <path to your .qmd>, under the
 heading "<heading>", as R code chunks. Above each chunk, write one

@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -407,9 +407,9 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Open RStudio. It comes with Quarto, so there is nothing else to install. If RStudio asks to install the <code>rmarkdown</code> or <code>knitr</code> packages the first time you render, say yes.</li>
-<li>Ask your AI assistant to install the <code>tidyverse</code> and <code>here</code> packages if you have not already (see the packages slide in Chapter 1).</li>
-<li>To follow along, make a new document: <strong>File, New File, Quarto Document</strong>, then click <strong>Create</strong>.</li>
+<li>Open your course folder in VS Code, with your AI agent in the side panel, as set up in lecture 01-0.</li>
+<li>This lecture uses the R packages <code>tidyverse</code> and <code>here</code>. If they are not installed yet, ask the agent to install them.</li>
+<li>You will make one small <code>.qmd</code> file yourself, on the slide “How a .qmd file is written”. Everything else you read and judge.</li>
 </ul>
 </div>
 </div>
@@ -435,11 +435,11 @@
 <ul>
 <li><strong>Numbers drift.</strong> The data changes, the code is rerun, and the number typed into the report is not updated.</li>
 <li><strong>Nobody can see how a number was made.</strong> The report shows the result, not the steps that led to it.</li>
-<li><strong>The steps get lost.</strong> Code typed at the Console and never saved cannot be run again, by you or anyone else.</li>
+<li><strong>The steps get lost.</strong> Code run once in a terminal or a chat and never saved cannot be run again, by you or anyone else.</li>
 </ul>
 </div>
 <div id="tabset-2-2">
-<p>A Quarto document is one plain-text file that holds both the sentences and the code. <strong>Rendering</strong> it (clicking the <strong>Render</strong> button in RStudio) runs the code and writes an HTML page in which each piece of code sits next to its result and the sentence that explains it.</p>
+<p>A Quarto document is one plain-text file that holds both the sentences and the code. <strong>Rendering</strong> it (the agent runs the render, or you click <strong>Preview</strong> in VS Code) runs the code and writes an HTML page in which each piece of code sits next to its result and the sentence that explains it.</p>
 <ul>
 <li>The <code>.qmd</code> file is the <strong>source</strong>: you, or the AI, edit it.</li>
 <li>The <code>.html</code> file is the <strong>output</strong>: you read it, and you send it to whoever needs to see the work.</li>
@@ -459,11 +459,11 @@
 </div>
 </div>
 </section>
-<section id="how-a-.qmd-file-is-written" class="slide level2">
+<section id="how-a-.qmd-file-is-written" class="slide level2 scrollable">
 <h2>How a .qmd file is written</h2>
 <p>Every <code>.qmd</code> file, short or long, written by you or by an AI, follows the same pattern.</p>
 <div class="panel-tabset">
-<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The pattern</a></li><li><a href="#tabset-3-2">The text part</a></li><li><a href="#tabset-3-3">A real file</a></li><li><a href="#tabset-3-4">What the HTML shows</a></li></ul>
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The pattern</a></li><li><a href="#tabset-3-2">The text part</a></li><li><a href="#tabset-3-3">A real file</a></li><li><a href="#tabset-3-4">Render it yourself</a></li></ul>
 <div class="tab-content">
 <div id="tabset-3-1">
 <div class="sourceCode" id="cb1"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a></a>---</span>
@@ -566,7 +566,7 @@
 <p>The headings matter beyond looks: they are how you tell the AI where to put its code (“under the heading …”).</p>
 </div>
 <div id="tabset-3-3">
-<p>A short report that follows the pattern. The next tab shows what rendering makes of it.</p>
+<p>A short report that follows the pattern. In the next tab you render it and see what rendering makes of it.</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb2-1"><a></a>---</span>
 <span id="cb2-2"><a></a>title: "Field yields"</span>
 <span id="cb2-3"><a></a>format: html</span>
@@ -595,16 +595,205 @@
 <span id="cb2-26"><a></a>The average yield is `r mean(fields$yield)` bushels per acre.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-3-4">
-<p>Below the title and the heading “Average yield”, the reader sees each sentence, then the code under it, then its result:</p>
-<p>Compute the average yield across the four fields.</p>
+<div title="In class">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>In class</strong></p>
+</div>
+<div class="callout-content">
+<p>The instructor does steps 1 to 3 on the screen first. Then you do them on your own computer.</p>
+</div>
+</div>
+</div>
+</div>
+<p>In your own work the agent renders. Here you render once by hand, so that you see what rendering does.</p>
+<ol type="1">
+<li>In your course folder, make a new file <code>field-yields.qmd</code> and paste the file from the previous tab into it. Save it.</li>
+<li>Render it: click <strong>Preview</strong> at the top right of the editor, or press <strong>Cmd + Shift + K</strong> (Mac) / <strong>Ctrl + Shift + K</strong> (Windows), as in lecture 01-0.</li>
+<li>Read the HTML that opens beside the editor. Under the title and the heading “Average yield”, each sentence is followed by its code, then by the code’s result. The first chunk prints nothing, so only its code appears. In the last sentence, the <code>`r `</code> part has become a number; slide “How inline R is written” explains how.</li>
+</ol>
+<p>If the HTML shows something else, or no HTML appears, read the messages in the Terminal panel at the bottom of VS Code (lecture 01-0, “Render, read the HTML, read the error”).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-a-code-chunk-can-put-on-the-page" class="slide level2">
+<h2>What a code chunk can put on the page</h2>
+<p>When a document is rendered, each chunk’s result appears in the HTML right below its code. For every chunk you decide what the reader sees: the code, the result, both, or neither.</p>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">A printed result</a></li><li><a href="#tabset-4-2">A table</a></li><li><a href="#tabset-4-3">A figure</a></li><li><a href="#tabset-4-4">What you can choose</a></li><li><a href="#tabset-4-5">Code folded</a></li><li><a href="#tabset-4-6">Result only</a></li><li><a href="#tabset-4-7">Nothing shown</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<p>Whatever R prints appears under the code. Below, the first box is the code; the box under it is what R printed when the document was rendered.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">mean</span>(fields<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 188.5</code></pre>
 </div>
 </div>
-<p>The average yield is 188.5 bushels per acre.</p>
-<p>The first chunk made a table and printed nothing, so the reader sees only its code (not repeated on this slide). In the last sentence, the number was computed when the document was rendered, not typed.</p>
+<p>The <code>[1]</code> at the start is R’s way of numbering the printed values; this result is a single number.</p>
+</div>
+<div id="tabset-4-2">
+<p>Printing a table puts its rows in the page:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>fields</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  field acres yield
+1 North    40   182
+2 South    80   201
+3  East    35   175
+4  West   120   196</code></pre>
+</div>
+</div>
+<p>This is R’s plain printout. The AI can also turn a table into a formatted one, with column headings and units (Chapter 8).</p>
+</div>
+<div id="tabset-4-3">
+<p>A chunk that makes a figure puts the figure in the page:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a></a><span class="fu">ggplot</span>(fields, <span class="fu">aes</span>(<span class="at">x =</span> field, <span class="at">y =</span> yield)) <span class="sc">+</span></span>
+<span id="cb7-2"><a></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb7-3"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Yield (bushels per acre)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="02-1-Quarto-introduction_files/figure-revealjs/show-figure-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-4-4">
+<p>For each chunk:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>The reader sees</th>
+<th>Code</th>
+<th>Result</th>
+<th>Typical use</th>
+<th>Written as</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Both</td>
+<td>shown</td>
+<td>shown</td>
+<td>Most steps of an analysis</td>
+<td>nothing: the default</td>
+</tr>
+<tr class="even">
+<td>The result, with the code one click away</td>
+<td>behind a button</td>
+<td>shown</td>
+<td>A report for readers who may want to check the code</td>
+<td><code>code-fold: true</code></td>
+</tr>
+<tr class="odd">
+<td>The result only</td>
+<td>not shown</td>
+<td>shown</td>
+<td>A figure or table for readers who do not read code</td>
+<td><code>echo: false</code></td>
+</tr>
+<tr class="even">
+<td>The code only</td>
+<td>shown</td>
+<td>not run</td>
+<td>Example code, or code that should not run at this render</td>
+<td><code>eval: false</code></td>
+</tr>
+<tr class="odd">
+<td>Nothing</td>
+<td>not shown</td>
+<td>not shown, but <strong>the code still runs</strong></td>
+<td>Loading packages at the top of the document</td>
+<td><code>include: false</code></td>
+</tr>
+<tr class="even">
+<td>Both, without R’s notes</td>
+<td>shown</td>
+<td>shown, minus messages and warnings</td>
+<td>A chunk whose packages print startup notes</td>
+<td><code>message: false</code>, <code>warning: false</code></td>
+</tr>
+</tbody>
+</table>
+<p>The last column is how the AI writes each choice into the chunk (next slide); recognise it, there is no need to memorise it. A choice can also be set once for every chunk in the document.</p>
+<p>The next three tabs show the three choices that hide something.</p>
+</div>
+<div id="tabset-4-5">
+<details>
+<summary>
+How this chunk is written in the .qmd
+</summary>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb8-1"><a></a>```{r}</span>
+<span id="cb8-2"><a></a>#| code-fold: true</span>
+<span id="cb8-3"><a></a>ggplot(fields, aes(x = field, y = yield)) +</span>
+<span id="cb8-4"><a></a>  geom_col() +</span>
+<span id="cb8-5"><a></a>  labs(x = NULL, y = "Yield (bushels per acre)")</span>
+<span id="cb8-6"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p>What the reader sees: the figure, and a button above it. Click the button to see the code.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">ggplot</span>(fields, <span class="fu">aes</span>(<span class="at">x =</span> field, <span class="at">y =</span> yield)) <span class="sc">+</span></span>
+<span id="cb9-2"><a></a>  <span class="fu">geom_col</span>() <span class="sc">+</span></span>
+<span id="cb9-3"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Yield (bushels per acre)"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="02-1-Quarto-introduction_files/figure-revealjs/demo-fold-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-4-6">
+<details>
+<summary>
+How this chunk is written in the .qmd
+</summary>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb10-1"><a></a>```{r}</span>
+<span id="cb10-2"><a></a>#| echo: false</span>
+<span id="cb10-3"><a></a>ggplot(fields, aes(x = field, y = yield)) +</span>
+<span id="cb10-4"><a></a>  geom_col() +</span>
+<span id="cb10-5"><a></a>  labs(x = NULL, y = "Yield (bushels per acre)")</span>
+<span id="cb10-6"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p>What the reader sees: the figure, and no sign of the code that made it.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="02-1-Quarto-introduction_files/figure-revealjs/demo-echo-false-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-4-7">
+<details>
+<summary>
+How this chunk is written in the .qmd
+</summary>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb11-1"><a></a>```{r}</span>
+<span id="cb11-2"><a></a>#| include: false</span>
+<span id="cb11-3"><a></a>fields_shown &lt;- filter(fields, acres &gt;= 40)</span>
+<span id="cb11-4"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<p>Between this sentence and the next one there is a chunk with that option. It ran, and it made a table <code>fields_shown</code> without the East field (35 acres).</p>
+<p>The page shows no trace of it. Only the <code>.qmd</code> does, which is why “Checking the result” asks you to open the <code>.qmd</code> as well as the HTML.</p>
 </div>
 </div>
 </div>
@@ -612,33 +801,33 @@
 <section id="what-rendering-does" class="slide level2 scrollable">
 <h2>What rendering does</h2>
 <div class="panel-tabset">
-<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The four steps</a></li><li><a href="#tabset-4-2">Only what is in the document exists</a></li><li><a href="#tabset-4-3">Order matters</a></li><li><a href="#tabset-4-4">The folder</a></li></ul>
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The four steps</a></li><li><a href="#tabset-5-2">Only what is in the document exists</a></li><li><a href="#tabset-5-3">Order matters</a></li><li><a href="#tabset-5-4">The folder</a></li></ul>
 <div class="tab-content">
-<div id="tabset-4-1">
+<div id="tabset-5-1">
 <p>When you click <strong>Render</strong>, Quarto:</p>
 <ol type="1">
-<li><strong>Starts a new R session</strong> (a fresh, empty R, separate from the one at your RStudio Console)</li>
+<li><strong>Starts a new R session</strong> (a fresh, empty R, separate from any R the agent or you already had running)</li>
 <li><strong>Runs every chunk, in order, from the top</strong>, with the folder that holds the <code>.qmd</code> as the working directory (the folder R treats as “here”)</li>
 <li><strong>Puts the text, the code and the results together</strong></li>
 <li><strong>Writes the HTML file</strong> next to the <code>.qmd</code>, and opens it</li>
 </ol>
 <p>If any chunk stops with an error, the render stops there and no new HTML is written. The HTML from the last successful render stays where it was, so after a failed render the page you open is out of date. Check the render’s message before reading the page.</p>
 </div>
-<div id="tabset-4-2">
-<p>The new R session in step 1 knows nothing about your Console. A table you made by typing at the Console, or a package you loaded there, does not exist for the render.</p>
-<p>Suppose you typed <code>farms &lt;- read_csv("farms.csv")</code> at the Console, and the document has a chunk labelled <code>count-farms</code> with <code>nrow(farms)</code> in it. Clicking the chunk’s green run button works, because that button runs the chunk at your Console. Rendering stops with:</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb5-1"><a></a>Error:</span>
-<span id="cb5-2"><a></a>! object 'farms' not found</span>
-<span id="cb5-3"><a></a>Quitting from report.qmd:6-9 [count-farms]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The fix is never to type more at the Console. It is to put the line that makes <code>farms</code> into a chunk above <code>count-farms</code>.</p>
+<div id="tabset-5-2">
+<p>The new R session in step 1 knows nothing about any other R session. A table made by code run outside the document (by the agent in its own terminal, or by you at an R <strong>Console</strong>, the window where R runs typed lines one at a time), or a package loaded there, does not exist for the render.</p>
+<p>Suppose the agent ran <code>farms &lt;- read_csv("farms.csv")</code> in its terminal to look at the data, and the document has a chunk labelled <code>count-farms</code> with <code>nrow(farms)</code> in it. Run in that same session, the chunk works, because <code>farms</code> exists there. Rendering stops with:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb12-1"><a></a>Error:</span>
+<span id="cb12-2"><a></a>! object 'farms' not found</span>
+<span id="cb12-3"><a></a>Quitting from report.qmd:6-9 [count-farms]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The fix is never to run more code outside the document. It is to put the line that makes <code>farms</code> into a chunk above <code>count-farms</code>.</p>
 </div>
-<div id="tabset-4-3">
+<div id="tabset-5-3">
 <p>Step 2 runs the chunks once, from top to bottom. A chunk can use only what the chunks <strong>above</strong> it made.</p>
 <p>While you work, you can run chunks by hand in any order, so a document can seem to work when it does not: a chunk near the top that uses a table made further down works if you happened to run the lower chunk first. The render does not; it stops at the first chunk that needs something not yet made.</p>
 </div>
-<div id="tabset-4-4">
-<p>During the render, R’s working directory is the folder the <code>.qmd</code> is saved in, not necessarily your project folder (the folder RStudio opens as an R Project, marked by a <code>.Rproj</code> file; lecture 03-1). A path such as <code>"data/farms.csv"</code> is looked up starting from that folder.</p>
-<p>So a path that works at the Console can fail inside a <code>.qmd</code> saved in a subfolder. The fix is <code>here::here()</code>, which builds a path starting from the project folder wherever the <code>.qmd</code> is. Lecture 03-1 explains paths in full; for now, recognise <code>here::here("data", "farms.csv")</code> as “the file <code>farms.csv</code> in the <code>data</code> folder of this project”.</p>
+<div id="tabset-5-4">
+<p>During the render, R’s working directory is the folder the <code>.qmd</code> is saved in, not necessarily your project folder (the folder you open in VS Code; lecture 03-1). A path such as <code>"data/farms.csv"</code> is looked up starting from that folder.</p>
+<p>So a path that works outside the document can fail inside a <code>.qmd</code> saved in a subfolder. The fix is <code>here::here()</code>, which builds a path starting from the project folder wherever the <code>.qmd</code> is. Lecture 03-1 explains paths in full; for now, recognise <code>here::here("data", "farms.csv")</code> as “the file <code>farms.csv</code> in the <code>data</code> folder of this project”.</p>
 </div>
 </div>
 </div>
@@ -649,7 +838,7 @@
 <p>Rendering tests that every time: it starts from nothing and builds every result from the document alone. So if a document renders:</p>
 <ul>
 <li>every step is written down in it, in the order it runs</li>
-<li>nothing depends on something typed at the Console and forgotten</li>
+<li>nothing depends on code run outside the document and forgotten</li>
 <li>every number computed in it comes from the data, through the code you can read</li>
 </ul>
 <div title="What rendering does not tell you">
@@ -660,20 +849,96 @@
 </div>
 <div class="callout-content">
 <p>A document that renders is complete, not necessarily <strong>right</strong>. The code can run and still do the wrong thing, a sentence can describe something the code does not do, and a chunk option can keep a step out of view. That is why you read the HTML (see “Checking the result”).</p>
-<p>If a chunk has <code>cache: true</code>, a render reuses its result from an earlier render even when the data has changed. Before the final render, delete the folder ending in <code>_cache</code> next to the <code>.qmd</code>.</p>
+<p>A cached chunk (next slide) is the one exception to “starts from nothing”: it can show a result from an earlier render.</p>
 </div>
 </div>
 </div>
 </div>
-<div title="A habit before you render">
-<div class="callout callout-tip no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>A habit before you render</strong></p>
+</section>
+<section id="caching-a-shorter-render-for-slow-chunks" class="slide level2 scrollable">
+<h2>Caching: a shorter render for slow chunks</h2>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">The problem</a></li><li><a href="#tabset-6-2">What caching is</a></li><li><a href="#tabset-6-3">When it shows old results</a></li><li><a href="#tabset-6-4">Making it safe</a></li><li><a href="#tabset-6-5">Another way: save the result to a file</a></li><li><a href="#tabset-6-6">Asking the AI</a></li><li><a href="#tabset-6-7">Checking</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<p>Every render runs every chunk again, from the top (slide “What rendering does”). Most chunks take less than a second. Some take minutes: reading a very large file, fitting a model to millions of rows, running a simulation.</p>
+<p>In a document with such a chunk, every render takes minutes, even one that only fixes a typo in a sentence. That cost adds up fast when the agent works for you, because it renders after every change it makes.</p>
 </div>
-<div class="callout-content">
-<p><strong>Session, Restart R</strong>, then <strong>Run, Run All</strong> (the menu of the Run button above the editor). This runs every chunk at your Console as a render would, so you find a missing step before rendering.</p>
+<div id="tabset-6-2">
+<p><strong>Caching</strong> a chunk means saving what it made, so later renders can load it instead of running the chunk again. You switch it on per chunk with the option <code>cache: true</code>:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb13-1"><a></a>```{r}</span>
+<span id="cb13-2"><a></a>#| label: fit-model</span>
+<span id="cb13-3"><a></a>#| cache: true</span>
+<span id="cb13-4"><a></a>model &lt;- lm(yield ~ nitrogen, data = trials)</span>
+<span id="cb13-5"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>First render</strong>: the chunk runs as usual. Everything it made (here, <code>model</code>) and everything it printed is saved to a folder next to the <code>.qmd</code>, named after the document plus <code>_cache</code> (for <code>report.qmd</code>, the folder <code>report_cache</code>).</li>
+<li><strong>Later renders</strong>: the chunk does not run. The saved results are loaded from that folder, which takes a moment instead of minutes.</li>
+</ul>
+<p>The HTML looks the same either way. Nothing on the page says whether a result was computed now or loaded from an earlier render.</p>
 </div>
+<div id="tabset-6-3">
+<p>Before loading the saved results, the render checks one thing: <strong>has the chunk itself changed</strong> (its code, or one of its options that affects results)? If yes, it runs the chunk again and saves the new results. If no, it loads the saved ones.</p>
+<p>It does not look outside the chunk. So it loads the old results, with no warning, when:</p>
+<ul>
+<li><strong>the data file the chunk reads has changed</strong>, for example a corrected or extended version of <code>trials.csv</code></li>
+<li><strong>a chunk above it has changed a table it uses</strong>, for example a chunk that drops bad rows now drops different ones</li>
+</ul>
+<p>We tested this: a cached chunk printed the sum of a column in a data file. After 100 was added to the file, the next render still printed the old sum.</p>
+<p>This is what makes caching risky: the page looks right and is out of date.</p>
+</div>
+<div id="tabset-6-4">
+<p>Two chunk options tell the render what else to check, and one command clears everything:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>What</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>cache-extra: !expr tools::md5sum(here::here("data", "trials.csv"))</code></td>
+<td>Run the chunk again when the <strong>contents of this file</strong> change. <code>tools::md5sum()</code> turns a file’s contents into a short code; any change to the file changes the code</td>
+</tr>
+<tr class="even">
+<td><code>dependson: "clean-trials"</code></td>
+<td>Run the chunk again whenever the chunk labelled <code>clean-trials</code> runs again. That chunk must be cached too</td>
+</tr>
+<tr class="odd">
+<td><code>quarto render report.qmd --cache-refresh</code></td>
+<td>Run <strong>every</strong> cached chunk again this once, and save new results. Deleting the <code>_cache</code> folder does the same</td>
+</tr>
+</tbody>
+</table>
+<p>So a cached chunk is safe when every file it reads is named in <code>cache-extra</code>, and every cached chunk whose tables it uses is named in <code>dependson</code>.</p>
+</div>
+<div id="tabset-6-5">
+<p>For a very slow step, or a download, there is a plainer way: one step runs once and <strong>saves its result to a file</strong> (for example an <code>.rds</code> file, R’s format for saving one object), and the document reads that file.</p>
+<ul>
+<li>The saved file is visible in your project folder, and you decide when to make it again.</li>
+<li>The document renders fast, because reading a saved result is quick.</li>
+</ul>
+<p>Caching suits a chunk inside the document that takes seconds to minutes. Saving to a file suits a step that takes hours, or one that downloads data. Chapter 6 shows how a project is split into such steps.</p>
+</div>
+<div id="tabset-6-6">
+<p>The agent can see that a render was slow, and it may switch caching on by itself. What it cannot know:</p>
+<ul>
+<li><strong>which data files may still change</strong>: a file you will receive again, correct, or extend</li>
+<li><strong>whether this is the final render</strong>, the one whose numbers go into your paper</li>
+</ul>
+<p>So when you ask for caching, name the files each slow chunk reads, and ask for <code>cache-extra</code> on them (request “Speed up a slow chunk” under “Requests you can copy”). Before the final render, ask for a render with <code>--cache-refresh</code>.</p>
+</div>
+<div id="tabset-6-7">
+<ol type="1">
+<li><strong>It saves time.</strong> Render twice. The second render should be much faster, and a <code>_cache</code> folder should be next to the <code>.qmd</code>.</li>
+<li><strong>It is safe.</strong> Open the <code>.qmd</code>. For every chunk with <code>cache: true</code>: is every file it reads named in <code>cache-extra</code>, and every cached chunk it uses named in <code>dependson</code>?</li>
+<li><strong>The numbers are current.</strong> Render once with <code>--cache-refresh</code>. Every number in the HTML should be the same as in the render before. A number that changed was out of date.</li>
+</ol>
 </div>
 </div>
 </div>
@@ -691,15 +956,15 @@
 <section id="how-the-yaml-header-is-written" class="slide level2">
 <h2>How the YAML header is written</h2>
 <div class="panel-tabset">
-<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The pattern</a></li><li><a href="#tabset-5-2">Settings you will see</a></li><li><a href="#tabset-5-3">When the indentation is wrong</a></li></ul>
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The pattern</a></li><li><a href="#tabset-7-2">Settings you will see</a></li><li><a href="#tabset-7-3">When the indentation is wrong</a></li></ul>
 <div class="tab-content">
-<div id="tabset-5-1">
+<div id="tabset-7-1">
 <p>Every line of the header is a setting, written as a name, a colon and a value:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb6-1"><a></a>---</span>
-<span id="cb6-2"><a></a>name: value</span>
-<span id="cb6-3"><a></a>group:</span>
-<span id="cb6-4"><a></a>  name: value</span>
-<span id="cb6-5"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb14-1"><a></a>---</span>
+<span id="cb14-2"><a></a>name: value</span>
+<span id="cb14-3"><a></a>group:</span>
+<span id="cb14-4"><a></a>  name: value</span>
+<span id="cb14-5"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -727,19 +992,19 @@
 </tbody>
 </table>
 </div>
-<div id="tabset-5-2">
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb7-1"><a></a>---</span>
-<span id="cb7-2"><a></a>title: "Field yields"</span>
-<span id="cb7-3"><a></a>author: "Your Name"</span>
-<span id="cb7-4"><a></a>date: today</span>
-<span id="cb7-5"><a></a>format:</span>
-<span id="cb7-6"><a></a>  html:</span>
-<span id="cb7-7"><a></a>    toc: true</span>
-<span id="cb7-8"><a></a>    embed-resources: true</span>
-<span id="cb7-9"><a></a>    code-fold: true</span>
-<span id="cb7-10"><a></a>execute:</span>
-<span id="cb7-11"><a></a>  warning: false</span>
-<span id="cb7-12"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-7-2">
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb15-1"><a></a>---</span>
+<span id="cb15-2"><a></a>title: "Field yields"</span>
+<span id="cb15-3"><a></a>author: "Your Name"</span>
+<span id="cb15-4"><a></a>date: today</span>
+<span id="cb15-5"><a></a>format:</span>
+<span id="cb15-6"><a></a>  html:</span>
+<span id="cb15-7"><a></a>    toc: true</span>
+<span id="cb15-8"><a></a>    embed-resources: true</span>
+<span id="cb15-9"><a></a>    code-fold: true</span>
+<span id="cb15-10"><a></a>execute:</span>
+<span id="cb15-11"><a></a>  warning: false</span>
+<span id="cb15-12"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -783,14 +1048,14 @@
 </tbody>
 </table>
 </div>
-<div id="tabset-5-3">
+<div id="tabset-7-3">
 <p><code>toc</code> belongs to <code>html</code>, so it must be indented further than <code>html:</code>. Here it is not:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb8-1"><a></a>---</span>
-<span id="cb8-2"><a></a>title: "Field yields"</span>
-<span id="cb8-3"><a></a>format:</span>
-<span id="cb8-4"><a></a>  html:</span>
-<span id="cb8-5"><a></a>  toc: true</span>
-<span id="cb8-6"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb16-1"><a></a>---</span>
+<span id="cb16-2"><a></a>title: "Field yields"</span>
+<span id="cb16-3"><a></a>format:</span>
+<span id="cb16-4"><a></a>  html:</span>
+<span id="cb16-5"><a></a>  toc: true</span>
+<span id="cb16-6"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Quarto refuses to render, names the line, and prints <code>Render failed due to invalid YAML</code>. When the AI changes a header and the render then fails at once, the header is the first place to look.</p>
 </div>
 </div>
@@ -799,14 +1064,14 @@
 <section id="how-a-code-chunk-is-written" class="slide level2">
 <h2>How a code chunk is written</h2>
 <div class="panel-tabset">
-<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">The pattern</a></li><li><a href="#tabset-6-2">Options you will see</a></li><li><a href="#tabset-6-3">What the reader sees</a></li><li><a href="#tabset-6-4">Variations you will see</a></li></ul>
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">The pattern</a></li><li><a href="#tabset-8-2">Variations you will see</a></li></ul>
 <div class="tab-content">
-<div id="tabset-6-1">
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb9-1"><a></a>```{r}</span>
-<span id="cb9-2"><a></a>#| label: name-of-chunk</span>
-<span id="cb9-3"><a></a>#| option: value</span>
-<span id="cb9-4"><a></a>R code</span>
-<span id="cb9-5"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-8-1">
+<div class="sourceCode" id="cb17"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb17-1"><a></a>```{r}</span>
+<span id="cb17-2"><a></a>#| label: name-of-chunk</span>
+<span id="cb17-3"><a></a>#| option: value</span>
+<span id="cb17-4"><a></a>R code</span>
+<span id="cb17-5"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -833,7 +1098,7 @@
 </tr>
 <tr class="odd">
 <td><code>#| option: value</code></td>
-<td>One chunk option per line, right below the first line, with no blank line in between</td>
+<td>One <strong>chunk option</strong> per line, right below the first line, with no blank line in between. The options are the choices on the slide “What a code chunk can put on the page”</td>
 <td>No; each has a default</td>
 </tr>
 <tr class="even">
@@ -844,108 +1109,11 @@
 </tbody>
 </table>
 </div>
-<div id="tabset-6-2">
-<table class="caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead>
-<tr class="header">
-<th>Option</th>
-<th>What it controls</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td><code>echo</code></td>
-<td>Whether the code is <strong>shown</strong> in the HTML</td>
-<td><code>true</code></td>
-</tr>
-<tr class="even">
-<td><code>eval</code></td>
-<td>Whether the code is <strong>run</strong> at all</td>
-<td><code>true</code></td>
-</tr>
-<tr class="odd">
-<td><code>include: false</code></td>
-<td>Runs the code but shows <strong>nothing</strong>: no code, no result</td>
-<td>shows everything</td>
-</tr>
-<tr class="even">
-<td><code>message</code>, <code>warning</code></td>
-<td>Whether messages and warnings from the code are shown</td>
-<td><code>true</code></td>
-</tr>
-<tr class="odd">
-<td><code>code-fold: true</code></td>
-<td>Hides the code behind a button the reader can click</td>
-<td>not folded</td>
-</tr>
-<tr class="even">
-<td><code>fig-cap</code></td>
-<td>A caption under a figure</td>
-<td>none</td>
-</tr>
-<tr class="odd">
-<td><code>error: true</code></td>
-<td>Lets the render continue past an error, printing the error in the page</td>
-<td><code>false</code>: stop</td>
-</tr>
-</tbody>
-</table>
-<p>The same options can be set for every chunk at once under <code>execute:</code> in the YAML header. An option written in a chunk overrides the one in the header.</p>
-</div>
-<div id="tabset-6-3">
-<p>The options that matter most for judging a document are the ones that decide what the reader can see:</p>
-<table class="caption-top">
-<thead>
-<tr class="header">
-<th>Chunk options</th>
-<th>Code runs?</th>
-<th>Code shown?</th>
-<th>Result shown?</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td>none</td>
-<td>yes</td>
-<td>yes</td>
-<td>yes</td>
-</tr>
-<tr class="even">
-<td><code>code-fold: true</code></td>
-<td>yes</td>
-<td>behind a button</td>
-<td>yes</td>
-</tr>
-<tr class="odd">
-<td><code>echo: false</code></td>
-<td>yes</td>
-<td><strong>no</strong></td>
-<td>yes</td>
-</tr>
-<tr class="even">
-<td><code>include: false</code></td>
-<td>yes</td>
-<td><strong>no</strong></td>
-<td><strong>no</strong></td>
-</tr>
-<tr class="odd">
-<td><code>eval: false</code></td>
-<td><strong>no</strong></td>
-<td>yes</td>
-<td>nothing to show</td>
-</tr>
-</tbody>
-</table>
-<p>The rows marked <strong>no</strong> are the ones to notice. A chunk with <code>include: false</code> can still change the data; the reader of the HTML sees no trace of it.</p>
-</div>
-<div id="tabset-6-4">
+<div id="tabset-8-2">
 <ul>
+<li><code>execute:</code> in the YAML header, with options under it: sets those options for every chunk. An option written in a chunk overrides it for that chunk.</li>
+<li><code>#| fig-cap: "..."</code>: a caption under a figure.</li>
+<li><code>#| error: true</code>: the render continues past an error in this chunk and prints the error in the page, instead of stopping.</li>
 <li><code>#| echo: false</code> and <code>{r, echo = FALSE}</code> (options inside the braces): the second is an older way of writing the same thing. Both work.</li>
 <li><code>#| label: fig-yield</code> with <code>#| fig-cap: "..."</code>: a label that starts with <code>fig-</code> makes a numbered figure that the text can refer to (lecture 02-4).</li>
 <li>A chunk with only <code>library(...)</code> lines and <code>include: false</code> at the top of the document: a <strong>setup chunk</strong>. It loads packages without filling the page with them.</li>
@@ -957,30 +1125,30 @@
 <section id="how-inline-r-is-written" class="slide level2">
 <h2>How inline R is written</h2>
 <div class="panel-tabset">
-<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The pattern</a></li><li><a href="#tabset-7-2">Why it matters</a></li><li><a href="#tabset-7-3">Variations you will see</a></li></ul>
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">The pattern</a></li><li><a href="#tabset-9-2">Why it matters</a></li><li><a href="#tabset-9-3">Variations you will see</a></li></ul>
 <div class="tab-content">
-<div id="tabset-7-1">
+<div id="tabset-9-1">
 <p>Inside a sentence, a backtick, the letter <code>r</code>, a space, an R expression and a closing backtick:</p>
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb10-1"><a></a>The average yield is `r mean(fields$yield)` bushels per acre.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb18-1"><a></a>The average yield is `r mean(fields$yield)` bushels per acre.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>When the document is rendered, the expression is run and its result replaces it. The reader of the HTML sees only the number:</p>
 <blockquote>
 <p>The average yield is 188.5 bushels per acre.</p>
 </blockquote>
 <p>It runs in the same R session as the chunks, so it can use anything made by a chunk above it.</p>
 </div>
-<div id="tabset-7-2">
+<div id="tabset-9-2">
 <p>A number typed into a sentence is a copy, made once. A number written with inline R is computed at every render, so it always matches the data and the code.</p>
 <p>If someone adds a fifth field to <code>fields</code> and renders again, the sentence changes by itself:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a>fields_5 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(fields, <span class="fu">data.frame</span>(<span class="at">field =</span> <span class="st">"Creek"</span>, <span class="at">acres =</span> <span class="dv">25</span>, <span class="at">yield =</span> <span class="dv">150</span>))</span>
-<span id="cb11-2"><a></a><span class="fu">mean</span>(fields_5<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a>fields_5 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(fields, <span class="fu">data.frame</span>(<span class="at">field =</span> <span class="st">"Creek"</span>, <span class="at">acres =</span> <span class="dv">25</span>, <span class="at">yield =</span> <span class="dv">150</span>))</span>
+<span id="cb19-2"><a></a><span class="fu">mean</span>(fields_5<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 180.8</code></pre>
 </div>
 </div>
 <p>A typed “188.5 bushels per acre” would now be wrong, and nothing would say so.</p>
 </div>
-<div id="tabset-7-3">
+<div id="tabset-9-3">
 <ul>
 <li><code>`r round(mean(fields$yield), 1)`</code>: rounded inside the sentence</li>
 <li>A value computed in a chunk, given a name, and only the name used inline: <code>`r avg_yield`</code>. Long calculations belong in a chunk, not in a sentence.</li>
@@ -993,19 +1161,19 @@
 <section id="when-a-render-fails" class="slide level2 scrollable">
 <h2>When a render fails</h2>
 <div class="panel-tabset">
-<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Read the message</a></li><li><a href="#tabset-8-2">Errors you will meet</a></li><li><a href="#tabset-8-3">What to send the AI</a></li></ul>
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">Read the message</a></li><li><a href="#tabset-10-2">Errors you will meet</a></li><li><a href="#tabset-10-3">What to send the AI</a></li></ul>
 <div class="tab-content">
-<div id="tabset-8-1">
-<p>Quarto prints the error in the <strong>Background Jobs</strong> tab of RStudio. Read the last lines first:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb13-1"><a></a>Error:</span>
-<span id="cb13-2"><a></a>! object 'farms' not found</span>
-<span id="cb13-3"><a></a>Quitting from report.qmd:6-9 [count-farms]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-10-1">
+<p>Quarto prints the error in the terminal where the render ran: the agent’s, when the agent rendered (it shows the lines in its reply), or the <strong>Terminal panel</strong> at the bottom of VS Code, when you clicked Preview. Read the last lines first:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb21-1"><a></a>Error:</span>
+<span id="cb21-2"><a></a>! object 'farms' not found</span>
+<span id="cb21-3"><a></a>Quitting from report.qmd:6-9 [count-farms]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li>The line starting with <code>!</code> is R’s own error.</li>
 <li><code>Quitting from</code> names the file, the lines, and the chunk’s label in square brackets.</li>
 </ul>
 </div>
-<div id="tabset-8-2">
+<div id="tabset-10-2">
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -1020,11 +1188,11 @@
 <tbody>
 <tr class="odd">
 <td><code>object '...' not found</code></td>
-<td>The table or value is made at your Console or further down the document, not in a chunk above this one</td>
+<td>The table or value is made outside the document or further down it, not in a chunk above this one</td>
 </tr>
 <tr class="even">
 <td><code>could not find function "..."</code></td>
-<td>The package is loaded at your Console but not in the document, or the name is misspelled</td>
+<td>The package is loaded outside the document but not in it, or the name is misspelled</td>
 </tr>
 <tr class="odd">
 <td><code>cannot open file '...'</code> or <code>does not exist</code></td>
@@ -1037,14 +1205,15 @@
 </tbody>
 </table>
 </div>
-<div id="tabset-8-3">
-<p>The AI did not see your render. Send it:</p>
+<div id="tabset-10-3">
+<p>If the agent rendered, it saw the error and will usually try a fix. If you rendered, the agent did not see it. Send it:</p>
 <ol type="1">
 <li>the error lines, copied exactly</li>
 <li>the chunk the error names</li>
 <li>the folder the <code>.qmd</code> is in, if the error is about a file</li>
+<li>that the fix must go into the document, not be run outside it, which would hide the problem until the next render</li>
 </ol>
-<p>Then render again yourself. “Fixed” means the document renders, not that the AI says it is fixed.</p>
+<p>Either way, have it render again. “Fixed” means the document renders, not that the AI says it is fixed.</p>
 </div>
 </div>
 </div>
@@ -1065,12 +1234,12 @@
 <ol type="1">
 <li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
 <li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
-<li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
+<li><strong>The AI renders</strong> the <code>.qmd</code> to HTML.</li>
 <li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
 </ol>
 <p>Why this matters for research, and why you judge the HTML rather than the chat window:</p>
 <ul>
-<li>Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on something typed into the Console and forgotten.</li>
+<li>Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on code run outside the document and forgotten.</li>
 <li>The HTML is a record of what was done to the data and why, with each explanation next to its code and its result. You can reread it months later, and your advisor or a coauthor can review your analysis by reading it, without running anything.</li>
 <li>The chat disappears; the <code>.qmd</code> and its HTML stay with your project.</li>
 </ul>
@@ -1111,35 +1280,35 @@
 <section id="a-weak-request-and-a-strong-one" class="slide level2">
 <h2>A weak request and a strong one</h2>
 <div class="panel-tabset">
-<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Weak</a></li><li><a href="#tabset-9-2">Strong</a></li><li><a href="#tabset-9-3">What came back</a></li></ul>
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Weak</a></li><li><a href="#tabset-11-2">Strong</a></li><li><a href="#tabset-11-3">What came back</a></li></ul>
 <div class="tab-content">
-<div id="tabset-9-1">
-<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb14-1"><a></a>What is the average yield of my fields?</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>A typical reply is a number in the chat window, or a chunk of code you run at the Console. Either way, the number is not in your document, no one can see how it was made, and the next time the data changes, nothing updates it.</p>
+<div id="tabset-11-1">
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb22-1"><a></a>What is the average yield of my fields?</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A typical reply is a number in the chat window, or code it ran outside your document. Either way, the number is not in your document, no one can see how it was made, and the next time the data changes, nothing updates it.</p>
 </div>
-<div id="tabset-9-2">
-<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb15-1"><a></a>My table fields has one row per field, with columns field, acres and</span>
-<span id="cb15-2"><a></a>yield (bushels per acre). Compute the average yield across all fields,</span>
-<span id="cb15-3"><a></a>and write one sentence reporting it, with the number written as inline</span>
-<span id="cb15-4"><a></a>R rounded to one decimal, not typed. Show the code; do not hide any</span>
-<span id="cb15-5"><a></a>chunk. Check the number of fields (I expect 4).</span>
-<span id="cb15-6"><a></a></span>
-<span id="cb15-7"><a></a>Put the code in my Quarto document analysis/report.qmd, under the</span>
-<span id="cb15-8"><a></a>heading "Average yield", as R code chunks. Above each chunk, write one</span>
-<span id="cb15-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb15-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb15-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb15-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-11-2">
+<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a></a>My table fields has one row per field, with columns field, acres and</span>
+<span id="cb23-2"><a></a>yield (bushels per acre). Compute the average yield across all fields,</span>
+<span id="cb23-3"><a></a>and write one sentence reporting it, with the number written as inline</span>
+<span id="cb23-4"><a></a>R rounded to one decimal, not typed. Show the code; do not hide any</span>
+<span id="cb23-5"><a></a>chunk. Check the number of fields (I expect 4).</span>
+<span id="cb23-6"><a></a></span>
+<span id="cb23-7"><a></a>Put the code in my Quarto document analysis/report.qmd, under the</span>
+<span id="cb23-8"><a></a>heading "Average yield", as R code chunks. Above each chunk, write one</span>
+<span id="cb23-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb23-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb23-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb23-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-9-3">
+<div id="tabset-11-3">
 <p>What the AI’s answer looks like in the rendered HTML: a sentence, then the chunk it describes, then the sentence with the number.</p>
 <p>Check that the table has the four fields expected, then compute the average yield.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">cat</span>(<span class="st">"number of fields: expected 4, got"</span>, <span class="fu">nrow</span>(fields), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">cat</span>(<span class="st">"number of fields: expected 4, got"</span>, <span class="fu">nrow</span>(fields), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>number of fields: expected 4, got 4 </code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>avg_yield <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(fields<span class="sc">$</span>yield), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a>avg_yield <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(fields<span class="sc">$</span>yield), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The average yield across the fields is 188.5 bushels per acre.</p>
 <p>In the <code>.qmd</code>, that last sentence reads <code>`r avg_yield`</code>, not a typed number. Opening the <code>.qmd</code> to confirm it is part of checking: the HTML looks the same either way.</p>
@@ -1160,9 +1329,9 @@
 <section id="what-to-check-in-the-html-and-why" class="slide level2">
 <h2>What to check in the HTML, and why</h2>
 <div class="panel-tabset">
-<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">The checks</a></li><li><a href="#tabset-10-2">What the HTML can hide</a></li><li><a href="#tabset-10-3">Sending the HTML</a></li></ul>
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">The checks</a></li><li><a href="#tabset-12-2">What the HTML can hide</a></li><li><a href="#tabset-12-3">Sending the HTML</a></li></ul>
 <div class="tab-content">
-<div id="tabset-10-1">
+<div id="tabset-12-1">
 <p>The AI cannot see the rendered page the way your reader does. Check these every time:</p>
 <table class="caption-top">
 <colgroup>
@@ -1183,7 +1352,7 @@
 <tr class="odd">
 <td>1</td>
 <td>It renders</td>
-<td>A render starts from nothing, so it proves nothing depends on your Console</td>
+<td>A render starts from nothing, so it proves nothing depends on code run outside the document</td>
 <td>Doing it, and reading the render’s message</td>
 </tr>
 <tr class="even">
@@ -1213,18 +1382,18 @@
 </tbody>
 </table>
 </div>
-<div id="tabset-10-2">
+<div id="tabset-12-2">
 <p>The HTML shows what the chunk options let it show. Here, a chunk with <code>include: false</code> dropped the smallest field before the average was computed. The reader sees only this:</p>
 <p>Compute the average yield across the fields.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">mean</span>(fields_shown<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="fu">mean</span>(fields_shown<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 193</code></pre>
 </div>
 </div>
 <p>Nothing on the page says that a field was dropped. Only the <code>.qmd</code> does, or a check of the number of fields printed in the HTML (expected 4, got 3). This is why check 4 means opening the <code>.qmd</code>, and why every chunk except the setup chunk should be shown or folded, never hidden (an article may also hide a chunk that only prints checks, lecture 02-4).</p>
 </div>
-<div id="tabset-10-3">
+<div id="tabset-12-3">
 <p>By default, rendering <code>report.qmd</code> writes <code>report.html</code> <strong>and</strong> a folder <code>report_files/</code> holding its figures and styling. The HTML only points at that folder.</p>
 <ul>
 <li>Send <code>report.html</code> on its own, and the reader sees it without its figures and styling.</li>
@@ -1238,37 +1407,37 @@
 <section id="your-turn-read-a-.qmd-before-rendering-it" class="slide level2">
 <h2>Your turn: read a .qmd before rendering it</h2>
 <p>An AI added this to a student’s report:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb21-1"><a></a>```{r}</span>
-<span id="cb21-2"><a></a>#| label: setup</span>
-<span id="cb21-3"><a></a>#| include: false</span>
-<span id="cb21-4"><a></a>library(dplyr)</span>
-<span id="cb21-5"><a></a>```</span>
-<span id="cb21-6"><a></a></span>
-<span id="cb21-7"><a></a>```{r}</span>
-<span id="cb21-8"><a></a>#| label: clean</span>
-<span id="cb21-9"><a></a>#| echo: false</span>
-<span id="cb21-10"><a></a>fields &lt;- filter(fields, yield &gt; 0)</span>
-<span id="cb21-11"><a></a>```</span>
-<span id="cb21-12"><a></a></span>
-<span id="cb21-13"><a></a>Compute the total acres.</span>
-<span id="cb21-14"><a></a></span>
-<span id="cb21-15"><a></a>```{r}</span>
-<span id="cb21-16"><a></a>#| label: total-acres</span>
-<span id="cb21-17"><a></a>#| eval: false</span>
-<span id="cb21-18"><a></a>sum(fields$acres)</span>
-<span id="cb21-19"><a></a>```</span>
-<span id="cb21-20"><a></a></span>
-<span id="cb21-21"><a></a>The fields cover 275 acres in total.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb29"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb29-1"><a></a>```{r}</span>
+<span id="cb29-2"><a></a>#| label: setup</span>
+<span id="cb29-3"><a></a>#| include: false</span>
+<span id="cb29-4"><a></a>library(dplyr)</span>
+<span id="cb29-5"><a></a>```</span>
+<span id="cb29-6"><a></a></span>
+<span id="cb29-7"><a></a>```{r}</span>
+<span id="cb29-8"><a></a>#| label: clean</span>
+<span id="cb29-9"><a></a>#| echo: false</span>
+<span id="cb29-10"><a></a>fields &lt;- filter(fields, yield &gt; 0)</span>
+<span id="cb29-11"><a></a>```</span>
+<span id="cb29-12"><a></a></span>
+<span id="cb29-13"><a></a>Compute the total acres.</span>
+<span id="cb29-14"><a></a></span>
+<span id="cb29-15"><a></a>```{r}</span>
+<span id="cb29-16"><a></a>#| label: total-acres</span>
+<span id="cb29-17"><a></a>#| eval: false</span>
+<span id="cb29-18"><a></a>sum(fields$acres)</span>
+<span id="cb29-19"><a></a>```</span>
+<span id="cb29-20"><a></a></span>
+<span id="cb29-21"><a></a>The fields cover 275 acres in total.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="panel-tabset">
-<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Questions</a></li><li><a href="#tabset-11-2">Answers</a></li></ul>
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Questions</a></li><li><a href="#tabset-13-2">Answers</a></li></ul>
 <div class="tab-content">
-<div id="tabset-11-1">
+<div id="tabset-13-1">
 <p>A. For each of the three chunks: does it run, is its code shown, is its result shown?</p>
 <p>B. What happens to the data that the reader of the HTML cannot see?</p>
 <p>C. Is “275 acres” computed? How would you tell from the HTML alone, and from the <code>.qmd</code>?</p>
 <p>D. What would you ask the AI to change?</p>
 </div>
-<div id="tabset-11-2">
+<div id="tabset-13-2">
 <p>A. <code>setup</code>: runs, nothing shown. <code>clean</code>: runs, code hidden (it prints nothing, so the reader sees nothing). <code>total-acres</code>: code shown, but <strong>not run</strong>, so no total is printed.</p>
 <p>B. The <code>clean</code> chunk drops every field with a yield of 0 or less, with no sentence and no code on the page.</p>
 <p>C. No.&nbsp;It is typed, and the chunk that would compute it never ran. From the HTML you cannot tell a typed number from a computed one; from the <code>.qmd</code> you can: no <code>`r `</code> in the sentence.</p>
@@ -1291,86 +1460,61 @@
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what only <strong>you</strong> know. Every request for code ends with the closing instructions. When a request changes a whole document, put the heading where new chunks go, or the document’s first heading.</p>
 <div class="panel-tabset">
-<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Start a document</a></li><li><a href="#tabset-12-3">Report a number in a sentence</a></li><li><a href="#tabset-12-4">Show every step</a></li><li><a href="#tabset-12-5">Fix a failed render</a></li><li><a href="#tabset-12-6">Explain a document</a></li></ul>
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Closing instructions</a></li><li><a href="#tabset-14-2">Start a document</a></li><li><a href="#tabset-14-3">Show every step</a></li><li><a href="#tabset-14-4">Speed up a slow chunk</a></li></ul>
 <div class="tab-content">
-<div id="tabset-12-1">
+<div id="tabset-14-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
-<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb22-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb22-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb22-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb22-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb22-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb22-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb30-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb30-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb30-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb30-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb30-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb30-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
-<div id="tabset-12-2">
-<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a></a>Create a Quarto document at &lt;path to the new .qmd&gt; with the title</span>
-<span id="cb23-2"><a></a>"&lt;title&gt;" and my name, &lt;your name&gt;, as author. It renders to a single</span>
-<span id="cb23-3"><a></a>HTML file with embedded resources and a table of contents. Add a setup</span>
-<span id="cb23-4"><a></a>chunk, hidden, that loads &lt;packages&gt;, and these headings, with no code</span>
-<span id="cb23-5"><a></a>under them yet: &lt;headings, in order&gt;.</span>
-<span id="cb23-6"><a></a></span>
-<span id="cb23-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb23-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb23-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb23-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb23-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb23-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-14-2">
+<div class="sourceCode" id="cb31"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb31-1"><a></a>Create a Quarto document at &lt;path to the new .qmd&gt; with the title</span>
+<span id="cb31-2"><a></a>"&lt;title&gt;" and my name, &lt;your name&gt;, as author. It renders to a single</span>
+<span id="cb31-3"><a></a>HTML file with embedded resources and a table of contents. Add a setup</span>
+<span id="cb31-4"><a></a>chunk, hidden, that loads &lt;packages&gt;, and these headings, with no code</span>
+<span id="cb31-5"><a></a>under them yet: &lt;headings, in order&gt;.</span>
+<span id="cb31-6"><a></a></span>
+<span id="cb31-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb31-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb31-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb31-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb31-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb31-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-12-3">
-<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb24-1"><a></a>Using the table &lt;table name&gt;, compute &lt;what to compute&gt;. Write one</span>
-<span id="cb24-2"><a></a>sentence reporting it, with the number written as inline R rounded to</span>
-<span id="cb24-3"><a></a>&lt;number&gt; decimals, never typed. Check &lt;a check you know the answer to&gt;.</span>
-<span id="cb24-4"><a></a></span>
-<span id="cb24-5"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb24-6"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb24-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb24-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb24-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb24-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-14-3">
+<p>Also for a <code>.qmd</code> you did not write, before you trust its HTML:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb32-1"><a></a>Go through &lt;path to your .qmd&gt;. For every chunk with include: false or</span>
+<span id="cb32-2"><a></a>echo: false, except the setup chunk that loads packages, tell me what it</span>
+<span id="cb32-3"><a></a>does. If it changes any table, make its code visible with code-fold:</span>
+<span id="cb32-4"><a></a>true and put a sentence above it. List every number typed into a</span>
+<span id="cb32-5"><a></a>sentence, and replace each with inline R.</span>
+<span id="cb32-6"><a></a></span>
+<span id="cb32-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb32-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb32-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb32-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb32-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb32-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-12-4">
-<div class="sourceCode" id="cb25"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb25-1"><a></a>Go through &lt;path to your .qmd&gt;. For every chunk with include: false or</span>
-<span id="cb25-2"><a></a>echo: false, except the setup chunk that loads packages, tell me what it</span>
-<span id="cb25-3"><a></a>does. If it changes any table, make its code visible with code-fold:</span>
-<span id="cb25-4"><a></a>true and put a sentence above it. List every number typed into a</span>
-<span id="cb25-5"><a></a>sentence, and replace each with inline R.</span>
-<span id="cb25-6"><a></a></span>
-<span id="cb25-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb25-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb25-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb25-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb25-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb25-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-12-5">
-<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb26-1"><a></a>My Quarto document &lt;path to your .qmd&gt; fails to render. The error is:</span>
-<span id="cb26-2"><a></a></span>
-<span id="cb26-3"><a></a>&lt;paste the error lines exactly&gt;</span>
-<span id="cb26-4"><a></a></span>
-<span id="cb26-5"><a></a>The chunk it names is:</span>
-<span id="cb26-6"><a></a></span>
-<span id="cb26-7"><a></a>&lt;paste the chunk&gt;</span>
-<span id="cb26-8"><a></a></span>
-<span id="cb26-9"><a></a>Explain in one plain-English sentence why it fails when rendered, then</span>
-<span id="cb26-10"><a></a>fix it inside the document, not at the Console.</span>
-<span id="cb26-11"><a></a></span>
-<span id="cb26-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb26-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb26-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb26-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb26-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb26-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-12-6">
-<p>For a <code>.qmd</code> you did not write:</p>
-<div class="sourceCode" id="cb27"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb27-1"><a></a>Explain this Quarto document to me. For each chunk, say in one</span>
-<span id="cb27-2"><a></a>plain-English sentence what it does, whether it runs, and whether its</span>
-<span id="cb27-3"><a></a>code and its result appear in the HTML. Then list:</span>
-<span id="cb27-4"><a></a>1. any chunk that changes the data without being visible in the HTML</span>
-<span id="cb27-5"><a></a>2. any number in a sentence that is typed rather than computed</span>
-<span id="cb27-6"><a></a></span>
-<span id="cb27-7"><a></a>&lt;paste the document here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-14-4">
+<div class="sourceCode" id="cb33"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb33-1"><a></a>In &lt;path to your .qmd&gt;, the chunk "&lt;chunk label&gt;" takes about &lt;time&gt; to</span>
+<span id="cb33-2"><a></a>run. Cache it with cache: true. It reads these files: &lt;files&gt;. Make its</span>
+<span id="cb33-3"><a></a>cache depend on the contents of each file with cache-extra and</span>
+<span id="cb33-4"><a></a>tools::md5sum(). If it uses tables made by other cached chunks, name</span>
+<span id="cb33-5"><a></a>them in dependson. Render twice and tell me how long each render took.</span>
+<span id="cb33-6"><a></a></span>
+<span id="cb33-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb33-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb33-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb33-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb33-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb33-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Before the final render: “Render &lt;path to your .qmd&gt; with –cache-refresh, and tell me every number in the HTML that changed.”</p>
 </div>
 </div>
 </div>
@@ -1408,14 +1552,18 @@
 <td>The YAML header</td>
 </tr>
 <tr class="odd">
+<td>What caching saves, and when it shows old results</td>
+<td>The cache options</td>
+</tr>
+<tr class="even">
 <td>What the reader sees under each chunk option, and which steps must stay visible</td>
 <td>The chunk options</td>
 </tr>
-<tr class="even">
+<tr class="odd">
 <td>Which numbers belong in sentences, and that they must be computed</td>
 <td>The inline R</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>How to read a render error and what to send back</td>
 <td>The fix</td>
 </tr>

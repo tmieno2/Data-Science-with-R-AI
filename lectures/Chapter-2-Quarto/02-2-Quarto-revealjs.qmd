@@ -56,7 +56,7 @@ This lecture does not list slide options. When you want one, ask the AI for the 
 ### Directions
 
 + Lecture 02-1 (Quarto documents and rendering) comes first; this lecture assumes it.
-+ Ask your AI assistant to install the `tidyverse` and `here` packages if you have not already.
++ This lecture uses the `tidyverse` and `here` packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1).
 
 :::
 
@@ -292,7 +292,7 @@ To make a PDF of the slides, open the deck in Chrome, press **e** to switch to p
 
 ## The same way of working, for a deck
 
-The way of working with AI from lecture 02-1 applies to decks unchanged: the AI writes into a `.qmd` (now with `format: revealjs`), with one plain-English sentence above each chunk, and you render it and judge the rendered deck, not the chat. Three things differ:
+The way of working with AI from lecture 02-1 applies to decks unchanged: the AI writes into a `.qmd` (now with `format: revealjs`), with one plain-English sentence above each chunk, the AI renders it, and you judge the rendered deck, not the chat. Three things differ:
 
 + **The sentences above the chunks are for you, not the audience.** With the code hidden, the audience never sees them; they are still how you check what each chunk does. Ask for them as speaker notes or as comments in the `.qmd`, so they do not fill the slides.
 + **The checks do not belong on the slides you present.** Ask for them on a last slide titled "Checks", after the final slide of the talk. You read it; you do not show it.
@@ -531,19 +531,6 @@ plain-English sentence saying what it does and why. Build every path
 with here::here(); no setwd(), no absolute paths. Print each check on
 its own line as "name of check: expected X, got Y". Render the document
 to HTML.
-```
-
-### Explain a deck
-
-For a deck you did not write:
-
-```text
-Explain this Quarto deck to me. List the slide titles in order. For
-each slide, say in one plain-English sentence what it shows, and
-whether any code, warning or long output appears on it. Then list any
-slide whose title is a topic rather than a sentence.
-
-<paste the .qmd here>
 ```
 
 :::

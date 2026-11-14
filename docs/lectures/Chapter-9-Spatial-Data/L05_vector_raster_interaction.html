@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -407,7 +407,7 @@
 </div>
 <div id="tabset-1-2">
 <ul>
-<li>Ask your AI assistant to install the <code>sf</code>, <code>terra</code>, <code>tidyterra</code>, <code>tidyverse</code> and <code>here</code> packages if you have not already. <code>terra</code> is the package for rasters; <code>tidyterra</code> lets ggplot draw them.</li>
+<li>This lecture uses the <code>sf</code>, <code>terra</code>, <code>tidyterra</code>, <code>tidyverse</code> and <code>here</code> packages. Install any you do not have yet; it is a one-time step per computer (see the packages slide in Chapter 1). <code>terra</code> is the package for rasters; <code>tidyterra</code> lets ggplot draw them.</li>
 <li>This lecture assumes lecture 09-1 (vector basics) and lecture 09-2 (raster basics): what a cell, a layer and a CRS (coordinate reference system) are.</li>
 <li>The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with <code>here::here()</code> (lecture 03-1).</li>
 </ul>
@@ -853,7 +853,7 @@
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2">
 <h2>Working with AI on your own research</h2>
-<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk, you render, and you judge the HTML. For an extraction, judging the HTML means putting the map of the results next to the map of the raster: the same pattern should appear in both. Every request for code ends with the <strong>closing instructions</strong> of lecture 03-1, under <strong>Recommended requests</strong>.</p>
+<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk and renders it, and you judge the HTML. For an extraction, judging the HTML means putting the map of the results next to the map of the raster: the same pattern should appear in both. Every request for code ends with the <strong>closing instructions</strong> of lecture 03-1, under <strong>Recommended requests</strong>.</p>
 </section>
 <section id="look-at-both-before-you-ask" class="slide level2">
 <h2>Look at both before you ask</h2>
@@ -1131,7 +1131,7 @@ ppt_mm range: expected 0 to 83.2 got 0 to 41.3</code></pre>
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the files. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Look at a raster and a layer</a></li><li><a href="#tabset-12-3">Values at points</a></li><li><a href="#tabset-12-4">Summaries over polygons</a></li><li><a href="#tabset-12-5">Crop and mask for a map</a></li><li><a href="#tabset-12-6">Explain code</a></li></ul>
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Values at points</a></li><li><a href="#tabset-12-3">Summaries over polygons</a></li><li><a href="#tabset-12-4">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-12-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1144,88 +1144,56 @@ ppt_mm range: expected 0 to 83.2 got 0 to 41.3</code></pre>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
 <div id="tabset-12-2">
-<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb28-1"><a></a>In my R project, &lt;path to the raster&gt; is a raster and &lt;path to the</span>
-<span id="cb28-2"><a></a>vector layer&gt; is a vector layer. For the raster, print its CRS, cell</span>
-<span id="cb28-3"><a></a>size, extent, number of layers, layer names, and smallest and largest</span>
-<span id="cb28-4"><a></a>value. For the layer, print its CRS, number of features and bounding</span>
-<span id="cb28-5"><a></a>box. Then print whether every feature lies entirely inside the raster's</span>
-<span id="cb28-6"><a></a>rectangle, and draw one map with the raster and the features' outlines</span>
-<span id="cb28-7"><a></a>on top.</span>
-<span id="cb28-8"><a></a></span>
-<span id="cb28-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb28-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb28-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb28-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb28-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb28-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb28-1"><a></a>In my R project, &lt;path to the raster&gt; holds &lt;what the values are, with</span>
+<span id="cb28-2"><a></a>units&gt;, one layer per &lt;what each layer is&gt;, in EPSG &lt;code&gt;. &lt;path to the</span>
+<span id="cb28-3"><a></a>point layer&gt; has &lt;number&gt; points, ID column &lt;the column that identifies</span>
+<span id="cb28-4"><a></a>each point&gt;. Add the raster's value at each point, one column per layer,</span>
+<span id="cb28-5"><a></a>to the point layer, in a layer called &lt;name&gt;. Transform the points to</span>
+<span id="cb28-6"><a></a>the raster's CRS first.</span>
+<span id="cb28-7"><a></a></span>
+<span id="cb28-8"><a></a>Then check: the number of rows before and after (I expect them equal),</span>
+<span id="cb28-9"><a></a>the number of points with a missing value (I expect &lt;number&gt;), the range</span>
+<span id="cb28-10"><a></a>of each new column, and draw a map of the points coloured by &lt;layer&gt;.</span>
+<span id="cb28-11"><a></a></span>
+<span id="cb28-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb28-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb28-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb28-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb28-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb28-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-12-3">
 <div class="sourceCode" id="cb29"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb29-1"><a></a>In my R project, &lt;path to the raster&gt; holds &lt;what the values are, with</span>
-<span id="cb29-2"><a></a>units&gt;, one layer per &lt;what each layer is&gt;, in EPSG &lt;code&gt;. &lt;path to the</span>
-<span id="cb29-3"><a></a>point layer&gt; has &lt;number&gt; points, ID column &lt;the column that identifies</span>
-<span id="cb29-4"><a></a>each point&gt;. Add the raster's value at each point, one column per layer,</span>
-<span id="cb29-5"><a></a>to the point layer, in a layer called &lt;name&gt;. Transform the points to</span>
-<span id="cb29-6"><a></a>the raster's CRS first.</span>
-<span id="cb29-7"><a></a></span>
-<span id="cb29-8"><a></a>Then check: the number of rows before and after (I expect them equal),</span>
-<span id="cb29-9"><a></a>the number of points with a missing value (I expect &lt;number&gt;), the range</span>
-<span id="cb29-10"><a></a>of each new column, and draw a map of the points coloured by &lt;layer&gt;.</span>
-<span id="cb29-11"><a></a></span>
-<span id="cb29-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb29-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb29-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb29-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb29-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb29-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb29-2"><a></a>units&gt;, in EPSG &lt;code&gt;. &lt;path to the polygon layer&gt; has &lt;number&gt;</span>
+<span id="cb29-3"><a></a>polygons, ID column &lt;the column that identifies each polygon&gt;. I want one</span>
+<span id="cb29-4"><a></a>row per polygon with the &lt;mean, sum, or other summary&gt; of &lt;which</span>
+<span id="cb29-5"><a></a>layers&gt;, weighting each cell by the share of it inside the polygon, and</span>
+<span id="cb29-6"><a></a>&lt;ignoring or keeping&gt; missing cells, in a table with the polygon's ID</span>
+<span id="cb29-7"><a></a>column. Match rows back by the ID column, not by position.</span>
+<span id="cb29-8"><a></a></span>
+<span id="cb29-9"><a></a>Then check: the number of rows (I expect &lt;number&gt;), the number of</span>
+<span id="cb29-10"><a></a>polygons with no value, the number not entirely inside the raster's</span>
+<span id="cb29-11"><a></a>rectangle, the smallest number of cells in a polygon, and the range of</span>
+<span id="cb29-12"><a></a>the results. Draw a map of the polygons filled by the result next to a</span>
+<span id="cb29-13"><a></a>map of the raster.</span>
+<span id="cb29-14"><a></a></span>
+<span id="cb29-15"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb29-16"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb29-17"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb29-18"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb29-19"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb29-20"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-12-4">
-<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb30-1"><a></a>In my R project, &lt;path to the raster&gt; holds &lt;what the values are, with</span>
-<span id="cb30-2"><a></a>units&gt;, in EPSG &lt;code&gt;. &lt;path to the polygon layer&gt; has &lt;number&gt;</span>
-<span id="cb30-3"><a></a>polygons, ID column &lt;the column that identifies each polygon&gt;. I want one</span>
-<span id="cb30-4"><a></a>row per polygon with the &lt;mean, sum, or other summary&gt; of &lt;which</span>
-<span id="cb30-5"><a></a>layers&gt;, weighting each cell by the share of it inside the polygon, and</span>
-<span id="cb30-6"><a></a>&lt;ignoring or keeping&gt; missing cells, in a table with the polygon's ID</span>
-<span id="cb30-7"><a></a>column. Match rows back by the ID column, not by position.</span>
+<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb30-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb30-2"><a></a>sentence. Then list:</span>
+<span id="cb30-3"><a></a>1. what one row of each result is, and how the values are matched back</span>
+<span id="cb30-4"><a></a>   to the features</span>
+<span id="cb30-5"><a></a>2. which cells count for each polygon, and what happens to missing cells</span>
+<span id="cb30-6"><a></a>3. any line that could give a wrong result without an error, and what</span>
+<span id="cb30-7"><a></a>   check would reveal it</span>
 <span id="cb30-8"><a></a></span>
-<span id="cb30-9"><a></a>Then check: the number of rows (I expect &lt;number&gt;), the number of</span>
-<span id="cb30-10"><a></a>polygons with no value, the number not entirely inside the raster's</span>
-<span id="cb30-11"><a></a>rectangle, the smallest number of cells in a polygon, and the range of</span>
-<span id="cb30-12"><a></a>the results. Draw a map of the polygons filled by the result next to a</span>
-<span id="cb30-13"><a></a>map of the raster.</span>
-<span id="cb30-14"><a></a></span>
-<span id="cb30-15"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb30-16"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb30-17"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb30-18"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb30-19"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb30-20"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-12-5">
-<div class="sourceCode" id="cb31"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb31-1"><a></a>Crop &lt;path to the raster&gt; to the area of &lt;path to the polygon layer&gt;,</span>
-<span id="cb31-2"><a></a>then set every cell outside the polygons to missing, and draw a map of</span>
-<span id="cb31-3"><a></a>the result with the polygons' outlines on top, missing cells</span>
-<span id="cb31-4"><a></a>transparent, and a legend titled "&lt;title with units&gt;".</span>
-<span id="cb31-5"><a></a></span>
-<span id="cb31-6"><a></a>Then check: the CRS of both, and the number of cells with a value before</span>
-<span id="cb31-7"><a></a>and after.</span>
-<span id="cb31-8"><a></a></span>
-<span id="cb31-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb31-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb31-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb31-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb31-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb31-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-12-6">
-<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb32-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb32-2"><a></a>sentence. Then list:</span>
-<span id="cb32-3"><a></a>1. what one row of each result is, and how the values are matched back</span>
-<span id="cb32-4"><a></a>   to the features</span>
-<span id="cb32-5"><a></a>2. which cells count for each polygon, and what happens to missing cells</span>
-<span id="cb32-6"><a></a>3. any line that could give a wrong result without an error, and what</span>
-<span id="cb32-7"><a></a>   check would reveal it</span>
-<span id="cb32-8"><a></a></span>
-<span id="cb32-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb30-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

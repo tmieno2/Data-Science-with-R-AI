@@ -538,7 +538,7 @@ git("log", "--oneline", "--graph", "--decorate")
 
 ## Working with AI on your own research
 
-The way of working from lecture 02-1, "Working with AI on your own research" (the AI writes into a `.qmd`, you render and read the HTML) gains three habits once the project has a history:
+The way of working from lecture 02-1, "Working with AI on your own research" (the AI writes into a `.qmd` and renders it, and you read the HTML) gains three habits once the project has a history:
 
 1. **Commit before the AI starts.** Then every change it makes shows up in `git diff`, and any of it can be undone.
 2. **Read the diff after it finishes,** as well as the HTML. The HTML shows what the code produced; the diff shows every line it touched, including in files you did not ask about.
@@ -822,14 +822,17 @@ and wait for me to say yes. Never run git push --force, git reset
 command, show me what git printed.
 ```
 
-### Try something on a branch
+### Work on a branch
 
 ```text
 Make a branch called <branch name> and switch to it. I want to try
 <the change you are unsure about>. Commit there as you go. When I say
 so, show me git diff main...<branch name> (three dots: only what
-changed on the branch since it split from main), and merge into main
-(git merge --no-edit) only if I agree.
+changed on the branch since it split from main). Then do only what I
+choose: merge it into main (git merge --no-edit), or push the branch
+to GitHub and open a pull request into main, with a title that says
+what the branch does and a description of why, and give me the link.
+Never merge a pull request yourself.
 
 Before you run any command that changes my files, my history or GitHub,
 show me the command, say in one plain-English sentence what it does,
@@ -847,20 +850,6 @@ For each conflicted file, show me the two versions of each conflicting
 part and explain in one plain-English sentence how they differ. Do not
 choose for me. When I tell you which to keep, edit the file, show me
 the result, and commit it.
-
-Before you run any command that changes my files, my history or GitHub,
-show me the command, say in one plain-English sentence what it does,
-and wait for me to say yes. Never run git push --force, git reset
---hard, git rebase, git commit --amend or git clean. After each
-command, show me what git printed.
-```
-
-### Pull request
-
-```text
-Push the branch <branch name> to GitHub and open a pull request into
-main, with a title that says what the branch does and a description of
-why. Then give me the link. Do not merge it.
 
 Before you run any command that changes my files, my history or GitHub,
 show me the command, say in one plain-English sentence what it does,

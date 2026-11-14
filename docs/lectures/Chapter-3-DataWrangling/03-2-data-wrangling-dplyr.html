@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -838,7 +838,7 @@
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2">
 <h2>Working with AI on your own research</h2>
-<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk, you render, and you judge the HTML. For wrangling, judging the HTML means reading the chain of steps: does each sentence say what you asked for, and does the code under it do what the sentence says? Every request for code ends with the <strong>closing instructions</strong>, under <strong>Recommended requests</strong>.</p>
+<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk and renders it, and you judge the HTML. For wrangling, judging the HTML means reading the chain of steps: does each sentence say what you asked for, and does the code under it do what the sentence says? Every request for code ends with the <strong>closing instructions</strong>, under <strong>Recommended requests</strong>.</p>
 </section>
 <section id="look-at-the-values-before-you-ask" class="slide level2">
 <h2>Look at the values before you ask</h2>
@@ -1128,9 +1128,9 @@ yield_t_ha for PHELPS: expected 12.81, got 12.81</code></pre>
 </section>
 <section id="requests-you-can-copy" class="slide level2">
 <h2>Requests you can copy</h2>
-<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at your table. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.</p>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at your table. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions. For code you did not write, use the “Explain code” request from lecture 03-1.</p>
 <div class="panel-tabset">
-<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Closing instructions</a></li><li><a href="#tabset-8-2">Look at the values</a></li><li><a href="#tabset-8-3">Keep rows</a></li><li><a href="#tabset-8-4">Create a column</a></li><li><a href="#tabset-8-5">Summarise by group</a></li><li><a href="#tabset-8-6">Sort</a></li><li><a href="#tabset-8-7">Explain code</a></li></ul>
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Closing instructions</a></li><li><a href="#tabset-8-2">Look at the values</a></li><li><a href="#tabset-8-3">Keep rows</a></li><li><a href="#tabset-8-4">Create a column</a></li><li><a href="#tabset-8-5">Summarise by group</a></li></ul>
 <div class="tab-content">
 <div id="tabset-8-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
@@ -1206,29 +1206,6 @@ yield_t_ha for PHELPS: expected 12.81, got 12.81</code></pre>
 <span id="cb46-13"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
 <span id="cb46-14"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
 <span id="cb46-15"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-8-6">
-<div class="sourceCode" id="cb47"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb47-1"><a></a>Sort the table &lt;table name&gt; by &lt;column&gt;, &lt;largest first or smallest</span>
-<span id="cb47-2"><a></a>first&gt;, and show the first &lt;number&gt; rows. Then check: the first row</span>
-<span id="cb47-3"><a></a>should have the &lt;largest or smallest&gt; &lt;column&gt;, which I expect to be</span>
-<span id="cb47-4"><a></a>&lt;value, if you know it&gt;; print the first and last values of &lt;column&gt;.</span>
-<span id="cb47-5"><a></a></span>
-<span id="cb47-6"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb47-7"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb47-8"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb47-9"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb47-10"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb47-11"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div id="tabset-8-7">
-<p>For code you did not write, or code you are not sure about:</p>
-<div class="sourceCode" id="cb48"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb48-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb48-2"><a></a>sentence. Then list:</span>
-<span id="cb48-3"><a></a>1. any line that would only work on the computer it was written on</span>
-<span id="cb48-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
-<span id="cb48-5"><a></a>   check would reveal it</span>
-<span id="cb48-6"><a></a></span>
-<span id="cb48-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
