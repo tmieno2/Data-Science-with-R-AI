@@ -69,8 +69,9 @@ missing values in each column, the range of Yield, and the first row.
 Put the code in my Quarto document analysis/ex-3-1.qmd, under the
 heading "Task 2", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check as
-"<check>: expected <X>, got <Y>". Render the document to HTML.
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 **Why each check.** One line per check: what could go wrong that this check would reveal?
@@ -112,8 +113,9 @@ values of <...>.
 Put the code in my Quarto document analysis/ex-3-1.qmd, under the
 heading "Task 3", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check as
-"<check>: expected <X>, got <Y>". Render the document to HTML.
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 **A check from knowing the data.** Think of one thing that must be true of real corn yields across two years, which a row count or a type check would never test.
@@ -126,11 +128,15 @@ Your answer:
 
 ```text
 Using the table corn_both, check whether <...>. Print the answer as one
-plain-English line.
+plain-English line. Add the code below the code already under the
+heading.
 
 Put the code in my Quarto document analysis/ex-3-1.qmd, under the
-heading "Task 3", below the code already there, with one plain-English
-sentence above each chunk. Render the document to HTML.
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 **The AI's code goes here:**
@@ -171,9 +177,11 @@ Without reading data/corn_messy.csv as a table, show me its first 5 raw
 lines and the total number of lines.
 
 Put the code in my Quarto document analysis/ex-3-1.qmd, under the
-heading "4b. Look at the file", as R code chunks. Above each chunk,
-write one plain-English sentence saying what it does and why. Build
-every path with here::here(). Render the document to HTML.
+heading "4b. Look at the file", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 **The AI's code goes here:**
@@ -221,10 +229,11 @@ of rows and columns, the type of every column, the number of missing
 values in each column, the range of the yield column, and the first row.
 
 Put the code in my Quarto document analysis/ex-3-1.qmd, under the
-heading "4c. Ask properly", as R code chunks. Above each chunk, write
-one plain-English sentence saying what it does and why. Build every
-path with here::here(); no setwd(), no absolute paths. Print each check
-as "<check>: expected <X>, got <Y>". Render the document to HTML.
+heading "4c. Ask properly", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 **Why each check.** For each, name the problem in this file that it would catch.
@@ -307,7 +316,8 @@ matches the original exactly, and if not, which columns differ and how.
 Put the code in my Quarto document analysis/ex-3-1.qmd, under the
 heading "Task 6", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Render the document
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 

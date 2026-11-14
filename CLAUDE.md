@@ -17,6 +17,13 @@ AI writes the code, so each deck teaches:
 Function names and arguments appear as samples to recognise, never as the
 subject of a slide.
 
+**Show the general shape before any single example.** Students will see many
+variants of the same kind of code from the AI, so a deck first presents the
+pattern they all share (for reading files: `table <- reader("path", option = value)`,
+where the path is the only required input), then a table of the common
+functions in that shape, then one real example. 03-1's slides "How reading
+code is written" and "How writing code is written" are the model.
+
 **The core principle: a research workflow, practised in the course.** Students
 should do their own research this way: the AI writes code into a `.qmd`, with
 one plain-English sentence above each chunk; the student renders it and

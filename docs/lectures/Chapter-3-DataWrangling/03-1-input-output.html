@@ -408,7 +408,7 @@
 <div id="tabset-1-2">
 <ul>
 <li>Clone <a href="https://github.com/tmieno2/data-science-course-supplementary-datasets">this repository</a>, which holds the datasets used here</li>
-<li>Ask your AI assistant to install the <code>tidyverse</code> and <code>haven</code> packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).</li>
+<li>Ask your AI assistant to install the <code>tidyverse</code>, <code>haven</code> and <code>here</code> packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).</li>
 </ul>
 </div>
 </div>
@@ -426,9 +426,9 @@
 </section>
 <section id="how-reading-code-is-written" class="slide level2">
 <h2>How reading code is written</h2>
-<p>A data file is a table saved on disk in some <strong>format</strong>. Reading it means a function opens the file and builds a table inside R (a <strong>data frame</strong>) that you give a name to. Whatever the format, and whichever function the AI picks, the code has the same shape.</p>
+<p>A data file is a table saved on disk in some <strong>format</strong>. Reading it means a function opens the file and builds a table inside R (R calls it a <strong>data frame</strong>; this deck says table) that you give a name to. Whatever the format, and whichever function the AI picks, the code follows the same pattern.</p>
 <div class="panel-tabset">
-<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">The pattern</a></li><li><a href="#tabset-2-2">Every reader has this shape</a></li><li><a href="#tabset-2-3">Options</a></li><li><a href="#tabset-2-4">Variations you will see</a></li></ul>
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">The pattern</a></li><li><a href="#tabset-2-2">Every reader follows the pattern</a></li><li><a href="#tabset-2-3">Options</a></li><li><a href="#tabset-2-4">Variations you will see</a></li></ul>
 <div class="tab-content">
 <div id="tabset-2-1">
 <div class="cell">
@@ -470,13 +470,14 @@
 </tr>
 </tbody>
 </table>
-<p>A real line of this shape:</p>
+<p>A real line that follows the pattern:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"corn_yields.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>On these slides the data files sit in the same folder as the slides, so a path is just the file name. In your own project, paths are built with <code>here::here()</code> (see Condition 1).</p>
 </div>
 <div id="tabset-2-2">
-<p>Readers differ in name and package, not in shape. The shortest call to each is the path and nothing else:</p>
+<p>Readers differ in name and package, not in pattern. The shortest call to each is the path and nothing else:</p>
 <table class="caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -553,7 +554,7 @@
 <section id="what-has-to-be-true-for-an-import-to-work" class="slide level2 scrollable">
 <h2>What has to be true for an import to work</h2>
 <div class="panel-tabset">
-<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The four conditions</a></li><li><a href="#tabset-3-2">Loud and silent failures</a></li></ul>
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The four conditions</a></li><li><a href="#tabset-3-2">Failures with and without an error</a></li></ul>
 <div class="tab-content">
 <div id="tabset-3-1">
 <ol type="1">
@@ -566,7 +567,7 @@
 <div id="tabset-3-2">
 <ul>
 <li>If condition 1 or 2 fails, R stops with an <strong>error</strong>. Annoying, but you know something is wrong.</li>
-<li>If condition 3 or 4 fails, R gives you a data frame with <strong>no error</strong>, and the data frame is wrong.</li>
+<li>If condition 3 or 4 fails, R gives you a table with <strong>no error</strong>, and the table is wrong. This deck calls these <strong>silent failures</strong>.</li>
 </ul>
 <div class="callout callout-important no-icon callout-titled callout-style-default">
 <div class="callout-body">
@@ -590,21 +591,20 @@
 <div id="tabset-4-1">
 <p>A <strong>path</strong> is the address of a file. There are two kinds:</p>
 <ul>
-<li><strong>Absolute path</strong>: starts at the top of the disk, for example <code>"/Users/taro/Documents/class/corn_yields.csv"</code>. It works only on the computer it was written on, because nobody else has those folders.</li>
-<li><strong>Relative path</strong>: starts from the folder R is currently in (the <strong>working directory</strong>), for example <code>"data/corn_yields.csv"</code>. It works on any computer that has the same project folder.</li>
+<li><p><strong>Absolute path</strong>: starts at the top of the disk, for example <code>"/Users/taro/Documents/class/corn_yields.csv"</code>. It works only on the computer it was written on, because nobody else has those folders.</p></li>
+<li><p><strong>Relative path</strong>: starts from the folder R is currently in (the <strong>working directory</strong>), for example <code>"data/corn_yields.csv"</code>. It works only if R is in the folder you expected, and that folder changes:</p></li>
+<li><p>At the Console: your project folder (if you opened an R Project, explained in the next tab)</p></li>
+<li><p>Inside a <code>.qmd</code> file: the folder the <code>.qmd</code> is saved in</p></li>
 </ul>
-<p>What R treats as the working directory:</p>
-<ul>
-<li>At the Console: your project folder (if you opened an R Project)</li>
-<li>Inside a <code>.qmd</code> file: the folder the <code>.qmd</code> is saved in</li>
-</ul>
+<p>So <code>"data/corn_yields.csv"</code> can work at the Console and fail when a <code>.qmd</code> in <code>analysis/</code> is rendered.</p>
 </div>
 <div id="tabset-4-2">
-<p>The safest path is one measured from the top of your project folder (the <strong>project root</strong>). The <code>here</code> package does that. Recognise it when you see it:</p>
+<p>An <strong>R Project</strong> is a folder that RStudio marks with a <code>.Rproj</code> file; you open the project by opening that file. The top of that folder is the <strong>project root</strong>.</p>
+<p>The safest path is one measured from the project root, whatever folder R is in. The <code>here</code> package does that: it finds the project root by looking for the <code>.Rproj</code> file. Recognise it when you see it:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"corn_yields.csv"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>This reads <code>data/corn_yields.csv</code> inside your project, whichever subfolder your code is in and whoever’s computer it runs on.</p>
+<p>This reads <code>data/corn_yields.csv</code> inside your project, whichever subfolder your code is in and whoever’s computer it runs on. To check it is set up, run <code>here::here()</code> on its own at the Console: it should print your project folder.</p>
 </div>
 <div id="tabset-4-3">
 <p>The AI cannot see your folders, so it <strong>guesses</strong> the path. Its guesses tend to be one of these:</p>
@@ -614,6 +614,7 @@
 <li><code>setwd(...)</code> to change the working directory first</li>
 </ul>
 <p>All three break as soon as the code runs somewhere else. Tell it where the file is (see “Asking AI” below).</p>
+<p>If R says the file does not exist, send the AI the exact error message, the folder your <code>.qmd</code> is in, and where the file is inside your project.</p>
 </div>
 </div>
 </div>
@@ -648,7 +649,7 @@
 <tr class="odd">
 <td><code>.dta</code></td>
 <td>STATA</td>
-<td>Types and variable labels</td>
+<td>Types, and a description stored with each column</td>
 </tr>
 <tr class="even">
 <td><code>.rds</code></td>
@@ -701,7 +702,7 @@
 <pre><code>[1] -225.3333</code></pre>
 </div>
 </div>
-<p>An average yield of -225.3 bushels per acre. Again no error. The reader has to be told that <code>-999</code> means missing.</p>
+<p>An average yield of -225.3 bushels per acre, which is impossible. Again no error. The reader has to be told that <code>-999</code> means missing.</p>
 </div>
 <div id="tabset-5-3">
 <p><code>corn_yields.xls</code> has two sheets:</p>
@@ -747,31 +748,7 @@
 <p><strong>Note</strong></p>
 </div>
 <div class="callout-content">
-<p>Every request ends with the same few lines telling the AI to work this way. This deck calls them the <strong>closing instructions</strong>; the full text is under <strong>Recommended requests</strong> near the end.</p>
-</div>
-</div>
-</div>
-</section>
-<section id="what-to-put-in-your-request" class="slide level2 scrollable">
-<h2>What to put in your request</h2>
-<p>The AI already knows the functions. Your request supplies what it cannot know:</p>
-<ol type="1">
-<li><strong>The file</strong>: its name, its format, and where it sits inside your project</li>
-<li><strong>What is inside</strong>: the first few lines, the sheet names, and anything unusual (IDs with leading zeros, codes for missing values)</li>
-<li><strong>What you want back</strong>: the name of the table, what one row is, and which type each key column should be</li>
-<li><strong>Your project’s rules</strong>: for example, use the tidyverse, build paths with <code>here::here()</code>, never <code>setwd()</code> or absolute paths</li>
-<li><strong>Ask for checks</strong>: have it print the numbers you will check against (next section)</li>
-<li><strong>The closing instructions</strong>: which <code>.qmd</code> and heading the code goes under, a sentence above each chunk, and render to HTML</li>
-</ol>
-<div title="Using an agent in your editor or terminal?">
-<div class="callout callout-tip no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>Using an agent in your editor or terminal?</strong></p>
-</div>
-<div class="callout-content">
-<p>An agent such as Claude Code can open the file and look for itself. Still write down what you expect (number of rows, types of key columns) <strong>before</strong> it runs, so you have something to compare against.</p>
-</div>
+<p>Every request that asks for code ends with the same few lines telling the AI to work this way. This deck calls them the <strong>closing instructions</strong>; the full text is under <strong>Recommended requests</strong> near the end.</p>
 </div>
 </div>
 </div>
@@ -811,6 +788,30 @@
 </div>
 </div>
 </section>
+<section id="what-to-put-in-your-request" class="slide level2 scrollable">
+<h2>What to put in your request</h2>
+<p>The AI already knows the functions. Your request supplies what it cannot know, most of it from looking at the file:</p>
+<ol type="1">
+<li><strong>The file</strong>: its name, its format, and where it sits inside your project</li>
+<li><strong>What is inside</strong>: the first few lines, the sheet names, and anything unusual (IDs with leading zeros, codes for missing values)</li>
+<li><strong>What you want back</strong>: the name of the table, what one row is, and which type each key column should be</li>
+<li><strong>Your project’s rules</strong>, if you have any beyond the closing instructions: for example, use the tidyverse</li>
+<li><strong>Ask for checks</strong>: have it print the numbers you will check against (next section)</li>
+<li><strong>The closing instructions</strong>: which <code>.qmd</code> and heading the code goes under, a sentence above each chunk, paths built with <code>here::here()</code>, checks printed as expected and got, and render to HTML</li>
+</ol>
+<div title="Using an agent in your editor or terminal?">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Using an agent in your editor or terminal?</strong></p>
+</div>
+<div class="callout-content">
+<p>An agent such as Claude Code can open the file and look for itself. Still write down what you expect (number of rows, types of key columns) <strong>before</strong> it runs, so you have something to compare against.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
 <section id="a-weak-request-and-a-strong-one" class="slide level2">
 <h2>A weak request and a strong one</h2>
 <div class="panel-tabset">
@@ -826,42 +827,49 @@
 <p>It runs on nobody’s computer as written, and if you fix the path, it still guesses every type.</p>
 </div>
 <div id="tabset-7-2">
+<p>An example for a workbook with one sheet per year:</p>
 <div class="sourceCode" id="cb18"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb18-1"><a></a>In my R project, the file data/corn_yields.xls is an Excel workbook with</span>
 <span id="cb18-2"><a></a>two sheets, corn_yields_08 and corn_yields_09 (one per year). Each row is</span>
-<span id="cb18-3"><a></a>one county, one year, and one irrigation status.</span>
-<span id="cb18-4"><a></a></span>
-<span id="cb18-5"><a></a>Write R code (tidyverse) that:</span>
-<span id="cb18-6"><a></a>- reads BOTH sheets and stacks them into one table called corn</span>
-<span id="cb18-7"><a></a>- keeps FIPS as text so leading zeros survive</span>
-<span id="cb18-8"><a></a>- builds the path with here::here(), no setwd() and no absolute paths</span>
-<span id="cb18-9"><a></a></span>
-<span id="cb18-10"><a></a>Then print: the number of rows from each sheet (I expect 161 each), the</span>
-<span id="cb18-11"><a></a>number of rows in corn (322), the type of every column, and the number</span>
-<span id="cb18-12"><a></a>of missing values in each column.</span>
-<span id="cb18-13"><a></a></span>
-<span id="cb18-14"><a></a>Put the code in analysis/import.qmd under the heading "Read the corn</span>
-<span id="cb18-15"><a></a>data", with one plain-English sentence above each chunk saying what it</span>
-<span id="cb18-16"><a></a>does and why. Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb18-3"><a></a>one county, one year, and one irrigation status. I want both sheets</span>
+<span id="cb18-4"><a></a>stacked into one table called corn, using the tidyverse, with FIPS kept</span>
+<span id="cb18-5"><a></a>as text so leading zeros survive.</span>
+<span id="cb18-6"><a></a></span>
+<span id="cb18-7"><a></a>Then check the number of rows from each sheet (I expect 161 each), the</span>
+<span id="cb18-8"><a></a>number of rows in corn (322), the type of every column, and the number</span>
+<span id="cb18-9"><a></a>of missing values in each column (I expect none).</span>
+<span id="cb18-10"><a></a></span>
+<span id="cb18-11"><a></a>Put the code in my Quarto document analysis/import.qmd, under the</span>
+<span id="cb18-12"><a></a>heading "Read the corn data", as R code chunks. Above each chunk, write</span>
+<span id="cb18-13"><a></a>one plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb18-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb18-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb18-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-7-3">
-<p>A version of what an AI returns for the strong request. Read it line by line; you should be able to say what each line does:</p>
+<p>What the AI’s answer looks like in the rendered HTML: a sentence, then the chunk it describes. Read each sentence and check that the code under it does what the sentence says.</p>
+<p>Read both sheets, keeping every column as text so that FIPS keeps its leading zeros.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">library</span>(readxl)</span>
 <span id="cb19-2"><a></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb19-3"><a></a></span>
 <span id="cb19-4"><a></a>path <span class="ot">&lt;-</span> here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"corn_yields.xls"</span>)</span>
-<span id="cb19-5"><a></a></span>
-<span id="cb19-6"><a></a>corn_08 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"corn_yields_08"</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span>
-<span id="cb19-7"><a></a>corn_09 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"corn_yields_09"</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span>
-<span id="cb19-8"><a></a></span>
-<span id="cb19-9"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(corn_08, corn_09) <span class="sc">|&gt;</span></span>
-<span id="cb19-10"><a></a>  <span class="fu">mutate</span>(<span class="at">Year =</span> <span class="fu">as.integer</span>(Year), <span class="at">Yield =</span> <span class="fu">as.numeric</span>(Yield))</span>
-<span id="cb19-11"><a></a></span>
-<span id="cb19-12"><a></a><span class="fu">c</span>(<span class="fu">nrow</span>(corn_08), <span class="fu">nrow</span>(corn_09), <span class="fu">nrow</span>(corn))</span>
-<span id="cb19-13"><a></a><span class="fu">glimpse</span>(corn)</span>
-<span id="cb19-14"><a></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(corn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb19-5"><a></a>corn_08 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"corn_yields_08"</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span>
+<span id="cb19-6"><a></a>corn_09 <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(path, <span class="at">sheet =</span> <span class="st">"corn_yields_09"</span>, <span class="at">col_types =</span> <span class="st">"text"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><code>bind_rows()</code> stacks one table on top of another; you will meet it properly later in this chapter.</p>
+<p>Stack the two sheets into one table, then turn <code>Year</code> and <code>Yield</code> back into numbers, since they were read as text.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">bind_rows</span>(corn_08, corn_09) <span class="sc">|&gt;</span></span>
+<span id="cb20-2"><a></a>  <span class="fu">mutate</span>(<span class="at">Year =</span> <span class="fu">as.integer</span>(Year), <span class="at">Yield =</span> <span class="fu">as.numeric</span>(Yield))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Print the checks: rows per sheet and in total, the type of every column, and missing values per column.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">cat</span>(<span class="st">"rows in 2008 sheet: expected 161, got"</span>, <span class="fu">nrow</span>(corn_08), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb21-2"><a></a><span class="fu">cat</span>(<span class="st">"rows in 2009 sheet: expected 161, got"</span>, <span class="fu">nrow</span>(corn_09), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb21-3"><a></a><span class="fu">cat</span>(<span class="st">"rows in corn: expected 322, got"</span>, <span class="fu">nrow</span>(corn), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb21-4"><a></a><span class="fu">sapply</span>(corn, class)</span>
+<span id="cb21-5"><a></a><span class="fu">cat</span>(<span class="st">"missing values: expected 0, got"</span>, <span class="fu">sum</span>(<span class="fu">is.na</span>(corn)), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Two things to notice. <code>library()</code> loads a package so its functions can be used, and <code>bind_rows()</code> stacks one table on top of another (you will meet it properly later in this chapter). And the type check would show that <code>State</code> and <code>Irrigated</code> are still text, because only <code>Year</code> and <code>Yield</code> were turned back into numbers. That is the type check doing its job: you would ask the AI to make those two numbers as well.</p>
 </div>
 </div>
 </div>
@@ -934,50 +942,43 @@
 </div>
 <div id="tabset-8-2">
 <p>One sentence at the end of your request does it:</p>
-<div class="sourceCode" id="cb20"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb20-1"><a></a>After reading the file, print: the number of rows and columns, the type of</span>
-<span id="cb20-2"><a></a>every column, the number of missing values in each column, the smallest and</span>
-<span id="cb20-3"><a></a>largest value of each numeric column, and the first row.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb22-1"><a></a>After reading the file, print: the number of rows and columns, the type of</span>
+<span id="cb22-2"><a></a>every column, the number of missing values in each column, the smallest and</span>
+<span id="cb22-3"><a></a>largest value of each numeric column, and the first row.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Better still, tell it what you expect, so the HTML says which checks passed:</p>
-<div class="sourceCode" id="cb21"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb21-1"><a></a>I expect 161 rows, 9 columns, no missing values, and Yield between 100 and</span>
-<span id="cb21-2"><a></a>250. Print each check as "&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;".</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>The second version only works if you looked at the file first. That is the part you cannot hand off.</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a></a>I expect &lt;number&gt; rows, &lt;number&gt; columns, &lt;ID columns&gt; as text, &lt;how many&gt;</span>
+<span id="cb23-2"><a></a>missing values, and &lt;column&gt; between &lt;lowest&gt; and &lt;highest&gt;. Print each</span>
+<span id="cb23-3"><a></a>check on its own line as "name of check: expected X, got Y".</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The second version only works if you looked at the file first. That part only you can do.</p>
 </div>
 <div id="tabset-8-3">
-<p>The AI writes the code. In the rendered HTML, you read what it printed and compare it with what you expected:</p>
+<p>For <code>corn_yields.csv</code>, the student expected 161 rows (from counting lines), 9 columns, <code>FIPS</code> as text, no missing values, and yields between 100 and 250. The AI wrote the code; in the rendered HTML, you read each line:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a><span class="fu">list</span>(</span>
-<span id="cb22-2"><a></a>  <span class="at">rows_and_columns  =</span> <span class="fu">dim</span>(corn),</span>
-<span id="cb22-3"><a></a>  <span class="at">column_types      =</span> <span class="fu">sapply</span>(corn, class),</span>
-<span id="cb22-4"><a></a>  <span class="at">missing_per_column =</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(corn)),</span>
-<span id="cb22-5"><a></a>  <span class="at">yield_range       =</span> <span class="fu">range</span>(corn<span class="sc">$</span>Yield)</span>
-<span id="cb22-6"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a><span class="fu">cat</span>(</span>
+<span id="cb24-2"><a></a>  <span class="fu">paste</span>(<span class="st">"rows: expected 161, got"</span>, <span class="fu">nrow</span>(corn)),</span>
+<span id="cb24-3"><a></a>  <span class="fu">paste</span>(<span class="st">"columns: expected 9, got"</span>, <span class="fu">ncol</span>(corn)),</span>
+<span id="cb24-4"><a></a>  <span class="fu">paste</span>(<span class="st">"type of FIPS: expected character, got"</span>, <span class="fu">class</span>(corn<span class="sc">$</span>FIPS)),</span>
+<span id="cb24-5"><a></a>  <span class="fu">paste</span>(<span class="st">"missing values: expected 0, got"</span>, <span class="fu">sum</span>(<span class="fu">is.na</span>(corn))),</span>
+<span id="cb24-6"><a></a>  <span class="fu">paste</span>(<span class="st">"Yield range: expected 100 to 250, got"</span>, <span class="fu">min</span>(corn<span class="sc">$</span>Yield), <span class="st">"to"</span>, <span class="fu">max</span>(corn<span class="sc">$</span>Yield)),</span>
+<span id="cb24-7"><a></a>  <span class="fu">paste</span>(<span class="st">"first row:"</span>, <span class="fu">paste</span>(<span class="fu">unlist</span>(corn[<span class="dv">1</span>, ]), <span class="at">collapse =</span> <span class="st">", "</span>)),</span>
+<span id="cb24-8"><a></a>  <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb24-9"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>$rows_and_columns
-[1] 161   9
-
-$column_types
-       Year       State        FIPS County_name  State_name   Commodity 
-  "numeric"   "numeric"   "numeric" "character" "character" "character" 
-  Data item   Irrigated       Yield 
-"character"   "numeric"   "numeric" 
-
-$missing_per_column
-       Year       State        FIPS County_name  State_name   Commodity 
-          0           0           0           0           0           0 
-  Data item   Irrigated       Yield 
-          0           0           0 
-
-$yield_range
-[1] 103 204</code></pre>
+<pre><code>rows: expected 161, got 161
+columns: expected 9, got 9
+type of FIPS: expected character, got numeric
+missing values: expected 0, got 0
+Yield range: expected 100 to 250, got 103 to 204
+first row: 2008, 31, 31019, BUFFALO, NEBRASKA, CORN, CORN, GRAIN - YIELD, MEASURED IN BU / ACRE, 0, 173</code></pre>
 </div>
 </div>
 <ul>
-<li>161 rows: the file has 162 lines, one of them column names. Matches.</li>
-<li><code>FIPS</code> is a number. Fine here, since every Nebraska code starts with 31, but in a national dataset this is the column that loses leading zeros.</li>
-<li>No missing values, and yields from 103 to 204 bushels per acre: believable.</li>
+<li>Rows, columns, missing values and the yield range match.</li>
+<li>The first row matches the second line of the file (shown under “Look at the file before you ask”).</li>
+<li><code>FIPS</code> came back as a number, not the text you expected. In this file every code starts with 31, so nothing was lost, but the check fails, and you would ask the AI to read <code>FIPS</code> as text.</li>
 </ul>
 </div>
 </div>
@@ -986,31 +987,38 @@ $yield_range
 <section id="checks-that-come-from-knowing-the-data" class="slide level2">
 <h2>Checks that come from knowing the data</h2>
 <p>The five checks apply to any file. The most useful checks come from what you know about <strong>this</strong> data, and no AI will think of them for you.</p>
-<p>The two sheets of <code>corn_yields.xls</code> are labelled 2008 and 2009. Yields change from year to year, because the weather does. So ask:</p>
-<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb24-1"><a></a>Read both sheets of corn_yields.xls and tell me whether each county's</span>
-<span id="cb24-2"><a></a>yield is the same in both years.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>In <code>corn_yields.csv</code>, most counties have two rows: one for irrigated corn and one for non-irrigated corn. Irrigated corn gets water that rain-fed corn does not, so in each county the irrigated yield should be the higher one. So ask:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb26-1"><a></a>Using the table corn, for each county with one irrigated and one</span>
+<span id="cb26-2"><a></a>non-irrigated row, check whether the irrigated yield is higher. Print</span>
+<span id="cb26-3"><a></a>how many counties pass and how many fail.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The AI’s code, and what it printed:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a>yield_08 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_08"</span>)</span>
-<span id="cb25-2"><a></a>yield_09 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_09"</span>)</span>
-<span id="cb25-3"><a></a></span>
-<span id="cb25-4"><a></a><span class="fu">identical</span>(yield_08<span class="sc">$</span>Yield, yield_09<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a>corn <span class="sc">|&gt;</span></span>
+<span id="cb27-2"><a></a>  <span class="fu">group_by</span>(FIPS) <span class="sc">|&gt;</span></span>
+<span id="cb27-3"><a></a>  <span class="fu">filter</span>(<span class="fu">n</span>() <span class="sc">==</span> <span class="dv">2</span>, <span class="fu">n_distinct</span>(Irrigated) <span class="sc">==</span> <span class="dv">2</span>) <span class="sc">|&gt;</span></span>
+<span id="cb27-4"><a></a>  <span class="fu">summarise</span>(<span class="at">irrigated_higher =</span> Yield[Irrigated <span class="sc">==</span> <span class="dv">1</span>] <span class="sc">&gt;</span> Yield[Irrigated <span class="sc">==</span> <span class="dv">0</span>]) <span class="sc">|&gt;</span></span>
+<span id="cb27-5"><a></a>  <span class="fu">count</span>(irrigated_higher)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] TRUE</code></pre>
+<pre><code># A tibble: 1 × 2
+  irrigated_higher     n
+  &lt;lgl&gt;            &lt;int&gt;
+1 TRUE                70</code></pre>
 </div>
 </div>
-<p><code>TRUE</code>: every county has exactly the same yield in both years. The code ran without error, and the row counts and types pass. The problem is in the file itself, and only a question based on what real yields look like found it.</p>
+<p>All 70 counties pass. A row count or a type check could never have tested this; only what you know about corn could.</p>
+<p>When a check like this fails, the code is usually not the problem: the file is. Stop, and ask whoever produced the file before you analyse it.</p>
 </section>
 <section id="your-turn-read-the-ais-code" class="slide level2">
 <h2>Your turn: read the AI’s code</h2>
 <p>A student asked an AI to “load corn_yields.xls and compute the average yield”, and got this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="fu">setwd</span>(<span class="st">"C:/Users/jsmith/Desktop/class"</span>)</span>
-<span id="cb27-2"><a></a><span class="fu">library</span>(readxl)</span>
-<span id="cb27-3"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>)</span>
-<span id="cb27-4"><a></a><span class="fu">mean</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a><span class="fu">setwd</span>(<span class="st">"C:/Users/jsmith/Desktop/class"</span>)</span>
+<span id="cb29-2"><a></a><span class="fu">library</span>(readxl)</span>
+<span id="cb29-3"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>)</span>
+<span id="cb29-4"><a></a><span class="fu">mean</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="panel-tabset">
 <ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Questions</a></li><li><a href="#tabset-9-2">Answers</a></li></ul>
@@ -1024,7 +1032,7 @@ $yield_range
 <div id="tabset-9-2">
 <p>A. Changes the working directory; loads readxl; reads the workbook into <code>corn</code>; averages the <code>Yield</code> column.</p>
 <p>B. Line 1. The folder <code>C:/Users/jsmith/...</code> exists only on jsmith’s computer.</p>
-<p>C. Line 3 reads only the <strong>first</strong> sheet, so the average covers 2008 only. Nothing says so.</p>
+<p>C. Line 3 reads only the <strong>first</strong> sheet, so <code>corn</code> holds 2008 only, and nothing says so. The average leaves out 2009.</p>
 <p>D. Name both sheets, say whether you want both years or one, ask for <code>here::here()</code> and no <code>setwd()</code>, and ask it to print the row count per sheet.</p>
 </div>
 </div>
@@ -1042,13 +1050,13 @@ $yield_range
 </section>
 <section id="how-writing-code-is-written" class="slide level2">
 <h2>How writing code is written</h2>
-<p>Writing (exporting) is reading in reverse: a function takes a table from R and saves it as a file. Again, every writer has the same shape.</p>
+<p>Writing (exporting) is reading in reverse: a function takes a table from R and saves it as a file. Again, every writer follows the same pattern.</p>
 <div class="panel-tabset">
-<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">The pattern</a></li><li><a href="#tabset-10-2">Every writer has this shape</a></li><li><a href="#tabset-10-3">A default that surprises</a></li><li><a href="#tabset-10-4">Choosing a format</a></li></ul>
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">The pattern</a></li><li><a href="#tabset-10-2">Every writer follows the pattern</a></li><li><a href="#tabset-10-3">A default that surprises</a></li><li><a href="#tabset-10-4">Choosing a format</a></li></ul>
 <div class="tab-content">
 <div id="tabset-10-1">
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a><span class="fu">writer_function</span>(table_name, <span class="st">"path/to/file"</span>, <span class="at">option =</span> value, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">writer_function</span>(table_name, <span class="st">"path/to/file"</span>, <span class="at">option =</span> value, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <table class="caption-top">
 <colgroup>
@@ -1134,9 +1142,9 @@ $yield_range
 <div id="tabset-10-3">
 <p>Defaults matter when writing too. The built-in <code>write.csv()</code> adds a column of row numbers by default. Read the file back, and that column returns as an extra column:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a>tmp <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn_base.csv"</span>)</span>
-<span id="cb29-2"><a></a><span class="fu">write.csv</span>(corn, tmp)</span>
-<span id="cb29-3"><a></a><span class="fu">names</span>(<span class="fu">read.csv</span>(tmp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a></a>tmp <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn_base.csv"</span>)</span>
+<span id="cb31-2"><a></a><span class="fu">write.csv</span>(corn, tmp)</span>
+<span id="cb31-3"><a></a><span class="fu">names</span>(<span class="fu">read.csv</span>(tmp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code> [1] "X"           "Year"        "State"       "FIPS"        "County_name"
  [6] "State_name"  "Commodity"   "Data.item"   "Irrigated"   "Yield"      </code></pre>
@@ -1164,7 +1172,7 @@ $yield_range
 <tr class="odd">
 <td>csv</td>
 <td>anyone, in any software, must be able to read it</td>
-<td>every type: dates, factors and text IDs come back as guesses</td>
+<td>every type: dates, factors (columns of categories) and text IDs come back as guesses</td>
 </tr>
 <tr class="even">
 <td>rds</td>
@@ -1197,21 +1205,21 @@ $yield_range
 <section id="checking-an-export-the-round-trip" class="slide level2">
 <h2>Checking an export: the round trip</h2>
 <p><strong>Why:</strong> a file can quietly keep less than you saved. The only way to know what it kept is to read it back.</p>
-<p><strong>What to ask:</strong> “Save the table, read it back, and compare it with the original.” Here <code>Irrigated</code> was first made a factor (a column of categories), then saved as csv and as rds:</p>
+<p><strong>What to ask:</strong> “Save the table, read it back, and compare it with the original.” Here <code>Irrigated</code> was first made a factor, then saved as csv and as rds:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a></a>corn_f <span class="ot">&lt;-</span> <span class="fu">mutate</span>(corn, <span class="at">Irrigated =</span> <span class="fu">factor</span>(Irrigated, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"no"</span>, <span class="st">"yes"</span>)))</span>
-<span id="cb31-2"><a></a></span>
-<span id="cb31-3"><a></a>csv_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.csv"</span>)</span>
-<span id="cb31-4"><a></a>rds_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.rds"</span>)</span>
-<span id="cb31-5"><a></a><span class="fu">write_csv</span>(corn_f, csv_file)</span>
-<span id="cb31-6"><a></a><span class="fu">saveRDS</span>(corn_f, rds_file)</span>
-<span id="cb31-7"><a></a></span>
-<span id="cb31-8"><a></a><span class="fu">c</span>(</span>
-<span id="cb31-9"><a></a>  <span class="at">from_csv =</span> <span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated),</span>
-<span id="cb31-10"><a></a>  <span class="at">from_rds =</span> <span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span>
-<span id="cb31-11"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a>corn_f <span class="ot">&lt;-</span> <span class="fu">mutate</span>(corn, <span class="at">Irrigated =</span> <span class="fu">factor</span>(Irrigated, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"no"</span>, <span class="st">"yes"</span>)))</span>
+<span id="cb33-2"><a></a></span>
+<span id="cb33-3"><a></a>csv_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.csv"</span>)</span>
+<span id="cb33-4"><a></a>rds_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.rds"</span>)</span>
+<span id="cb33-5"><a></a><span class="fu">write_csv</span>(corn_f, csv_file)</span>
+<span id="cb33-6"><a></a><span class="fu">saveRDS</span>(corn_f, rds_file)</span>
+<span id="cb33-7"><a></a></span>
+<span id="cb33-8"><a></a><span class="fu">c</span>(</span>
+<span id="cb33-9"><a></a>  <span class="at">from_csv =</span> <span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated),</span>
+<span id="cb33-10"><a></a>  <span class="at">from_rds =</span> <span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span>
+<span id="cb33-11"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>   from_csv    from_rds 
@@ -1219,18 +1227,7 @@ $yield_range
 </div>
 </div>
 <p>The csv gave back text: the factor was lost. The rds gave back the factor.</p>
-<div title="A full request">
-<div class="callout callout-tip no-icon callout-titled callout-style-default">
-<div class="callout-body">
-<div class="callout-title">
-<p><strong>A full request</strong></p>
-</div>
-<div class="callout-content">
-<p>“Save <code>corn</code> as <code>data/corn_clean.rds</code> using <code>here::here()</code>, then read it back and tell me whether it matches the original exactly, and if not, which columns differ.”</p>
-</div>
-</div>
-</div>
-</div>
+<p>The request is under <strong>Recommended requests</strong>, tab “Save and read back”.</p>
 </section></section>
 <section>
 <section id="recommended-requests" class="title-slide slide level1 center">
@@ -1244,84 +1241,91 @@ $yield_range
 </section>
 <section id="requests-you-can-copy" class="slide level2">
 <h2>Requests you can copy</h2>
-<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the file. The blanks are the part the AI cannot fill in for you. Every request ends with the closing instructions.</p>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the file. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
 <ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Closing instructions</a></li><li><a href="#tabset-11-2">Look at a file</a></li><li><a href="#tabset-11-3">Read a csv</a></li><li><a href="#tabset-11-4">Read an Excel workbook</a></li><li><a href="#tabset-11-5">Save and read back</a></li><li><a href="#tabset-11-6">Explain code</a></li></ul>
 <div class="tab-content">
 <div id="tabset-11-1">
-<p>The lines that end every request:</p>
-<div class="sourceCode" id="cb33"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb33-1"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
-<span id="cb33-2"><a></a>heading "&lt;Task 2&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb33-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb33-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb33-5"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb35-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb35-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb35-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb35-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb35-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb35-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
 <div id="tabset-11-2">
-<div class="sourceCode" id="cb34"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb34-1"><a></a>Without reading &lt;data/corn_messy.csv&gt; as a table, show me its first</span>
-<span id="cb34-2"><a></a>&lt;5&gt; raw lines and the total number of lines.</span>
-<span id="cb34-3"><a></a></span>
-<span id="cb34-4"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
-<span id="cb34-5"><a></a>heading "&lt;Task 4b&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb34-6"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb34-7"><a></a>with here::here(); no setwd(), no absolute paths. Render the document</span>
-<span id="cb34-8"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb36"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb36-1"><a></a>Without reading &lt;path to the file&gt; as a table, show me its first</span>
+<span id="cb36-2"><a></a>&lt;number&gt; raw lines and the total number of lines.</span>
+<span id="cb36-3"><a></a></span>
+<span id="cb36-4"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb36-5"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb36-6"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb36-7"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb36-8"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb36-9"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-11-3">
-<div class="sourceCode" id="cb35"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb35-1"><a></a>In my R project, &lt;data/corn_yields.csv&gt; is a csv file. I looked at it:</span>
-<span id="cb35-2"><a></a>- above the column names there is &lt;nothing&gt;</span>
-<span id="cb35-3"><a></a>- there are &lt;161&gt; data rows and &lt;9&gt; columns</span>
-<span id="cb35-4"><a></a>- one row is &lt;one county, one year, one irrigation status&gt;</span>
-<span id="cb35-5"><a></a>- missing values are written as &lt;nothing / -999 / .&gt;</span>
-<span id="cb35-6"><a></a>- ID columns that must stay text: &lt;FIPS&gt;</span>
-<span id="cb35-7"><a></a>- a believable range for &lt;Yield&gt; is &lt;100 to 250&gt;</span>
-<span id="cb35-8"><a></a></span>
-<span id="cb35-9"><a></a>Read it into a table called &lt;corn&gt; using the tidyverse. Then check the</span>
-<span id="cb35-10"><a></a>number of rows and columns, the type of every column, the number of</span>
-<span id="cb35-11"><a></a>missing values in each column, the range of &lt;Yield&gt;, and the first row.</span>
-<span id="cb35-12"><a></a></span>
-<span id="cb35-13"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
-<span id="cb35-14"><a></a>heading "&lt;Task 2&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb35-15"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb35-16"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb35-17"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb37"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb37-1"><a></a>In my R project, &lt;path to the file&gt; is a csv file. I looked at it:</span>
+<span id="cb37-2"><a></a>- above the column names there is &lt;what is there, or nothing&gt;</span>
+<span id="cb37-3"><a></a>- there are &lt;number&gt; data rows and &lt;number&gt; columns</span>
+<span id="cb37-4"><a></a>- one row is &lt;what one row is&gt;</span>
+<span id="cb37-5"><a></a>- missing values are written as &lt;how they are written&gt;</span>
+<span id="cb37-6"><a></a>- ID columns that must stay text: &lt;ID columns&gt;</span>
+<span id="cb37-7"><a></a>- a believable range for &lt;column&gt; is &lt;lowest&gt; to &lt;highest&gt;</span>
+<span id="cb37-8"><a></a></span>
+<span id="cb37-9"><a></a>Read it into a table called &lt;table name&gt; using the tidyverse. Then check</span>
+<span id="cb37-10"><a></a>the number of rows and columns, the type of every column, the number of</span>
+<span id="cb37-11"><a></a>missing values in each column, the range of &lt;column&gt;, and the first row.</span>
+<span id="cb37-12"><a></a></span>
+<span id="cb37-13"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb37-14"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb37-15"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb37-16"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb37-17"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb37-18"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-11-4">
-<div class="sourceCode" id="cb36"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb36-1"><a></a>In my R project, &lt;data/corn_yields.xls&gt; is an Excel workbook with the</span>
-<span id="cb36-2"><a></a>sheets &lt;corn_yields_08&gt; and &lt;corn_yields_09&gt;. I want &lt;both sheets,</span>
-<span id="cb36-3"><a></a>stacked into one table called corn&gt;. Each sheet has &lt;161&gt; rows, and</span>
-<span id="cb36-4"><a></a>&lt;Year&gt; tells the sheets apart. ID columns that must stay text: &lt;FIPS&gt;.</span>
-<span id="cb36-5"><a></a></span>
-<span id="cb36-6"><a></a>Then check the number of rows from each sheet and in total, the type of</span>
-<span id="cb36-7"><a></a>every column, the number of missing values in each column, and the</span>
-<span id="cb36-8"><a></a>values of &lt;Year&gt;.</span>
-<span id="cb36-9"><a></a></span>
-<span id="cb36-10"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
-<span id="cb36-11"><a></a>heading "&lt;Task 3&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb36-12"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb36-13"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb36-14"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb38"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb38-1"><a></a>In my R project, &lt;path to the file&gt; is an Excel workbook with the</span>
+<span id="cb38-2"><a></a>sheets &lt;sheet names&gt;. I want &lt;which sheets, and whether to stack them</span>
+<span id="cb38-3"><a></a>into one table&gt;, in a table called &lt;table name&gt;. Each sheet has</span>
+<span id="cb38-4"><a></a>&lt;number&gt; rows, and &lt;column&gt; tells the sheets apart. ID columns that</span>
+<span id="cb38-5"><a></a>must stay text: &lt;ID columns&gt;.</span>
+<span id="cb38-6"><a></a></span>
+<span id="cb38-7"><a></a>Then check the number of rows from each sheet and in total, the type of</span>
+<span id="cb38-8"><a></a>every column, the number of missing values in each column, and the</span>
+<span id="cb38-9"><a></a>values of &lt;column that tells the sheets apart&gt;.</span>
+<span id="cb38-10"><a></a></span>
+<span id="cb38-11"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb38-12"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb38-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb38-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb38-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb38-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-11-5">
-<div class="sourceCode" id="cb37"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb37-1"><a></a>Save the table &lt;corn&gt; as &lt;data/corn_clean.rds&gt;. Then read the file back</span>
-<span id="cb37-2"><a></a>and tell me, in one plain-English line, whether it matches the original</span>
-<span id="cb37-3"><a></a>exactly, and if not, which columns differ and how.</span>
-<span id="cb37-4"><a></a></span>
-<span id="cb37-5"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
-<span id="cb37-6"><a></a>heading "&lt;Task 6&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb37-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb37-8"><a></a>with here::here(); no setwd(), no absolute paths. Render the document</span>
-<span id="cb37-9"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb39"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb39-1"><a></a>Save the table &lt;table name&gt; as &lt;path for the new file, ending in .rds or</span>
+<span id="cb39-2"><a></a>.csv&gt;. Then read the file back and tell me, in one plain-English line,</span>
+<span id="cb39-3"><a></a>whether it matches the original exactly, and if not, which columns</span>
+<span id="cb39-4"><a></a>differ and how.</span>
+<span id="cb39-5"><a></a></span>
+<span id="cb39-6"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb39-7"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb39-8"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb39-9"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb39-10"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb39-11"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div id="tabset-11-6">
 <p>For code you did not write, or code you are not sure about:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb38-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb38-2"><a></a>sentence. Then list:</span>
-<span id="cb38-3"><a></a>1. any line that would only work on the computer it was written on</span>
-<span id="cb38-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
-<span id="cb38-5"><a></a>   check would reveal it</span>
-<span id="cb38-6"><a></a></span>
-<span id="cb38-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb40-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb40-2"><a></a>sentence. Then list:</span>
+<span id="cb40-3"><a></a>1. any line that would only work on the computer it was written on</span>
+<span id="cb40-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
+<span id="cb40-5"><a></a>   check would reveal it</span>
+<span id="cb40-6"><a></a></span>
+<span id="cb40-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -1336,8 +1340,8 @@ $yield_range
 <hr color="#EB811B" size="1px" width="796px">
 
 </section>
-<section id="what-is-yours-and-what-you-can-hand-off" class="slide level2">
-<h2>What is yours, and what you can hand off</h2>
+<section id="what-you-must-understand-and-what-the-ai-can-write" class="slide level2">
+<h2>What you must understand, and what the AI can write</h2>
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">

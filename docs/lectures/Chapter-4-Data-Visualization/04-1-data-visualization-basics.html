@@ -478,6 +478,195 @@
 </div>
 </section></section>
 <section>
+<section id="how-figure-code-is-written" class="title-slide slide level1 center">
+<h1>How figure code is written</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="the-shape-every-figure-shares" class="slide level2">
+<h2>The shape every figure shares</h2>
+<p>You will not write figure code from memory. You need to look at any figure code the AI writes and say <strong>which column is shown by what</strong>, because that is where a figure goes wrong. Every <code>ggplot2</code> figure has the same shape.</p>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The pattern</a></li><li><a href="#tabset-4-2">One real example</a></li><li><a href="#tabset-4-3">Every mark has this shape</a></li><li><a href="#tabset-4-4">Inside or outside <code>aes()</code></a></li><li><a href="#tabset-4-5">Variations you will see</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="fu">ggplot</span>(table, <span class="fu">aes</span>(<span class="at">x =</span> column, <span class="at">y =</span> column, <span class="at">colour =</span> column)) <span class="sc">+</span></span>
+<span id="cb1-2"><a></a>  <span class="fu">geom_mark</span>() <span class="sc">+</span></span>
+<span id="cb1-3"><a></a>  <span class="fu">optional_layer</span>() <span class="sc">+</span></span>
+<span id="cb1-4"><a></a>  <span class="fu">optional_layer</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ggplot(table, ...)</code></td>
+<td>The table the figure is drawn from, always the <strong>first</strong> input</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr class="even">
+<td><code>aes(...)</code></td>
+<td>Which column is shown by which visual property: position on the x axis, position on the y axis, colour, size (<code>aes</code> stands for aesthetics, ggplot’s word for visual properties)</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr class="odd">
+<td><code>geom_mark()</code></td>
+<td>The kind of mark drawn: <code>geom_point()</code>, <code>geom_line()</code>, <code>geom_col()</code> and so on</td>
+<td><strong>Yes, at least one</strong></td>
+</tr>
+<tr class="even">
+<td><code>+</code></td>
+<td>Adds the next layer. It ends a line; a line never starts with it</td>
+<td>Between layers</td>
+</tr>
+<tr class="odd">
+<td><code>optional_layer()</code></td>
+<td>Axis and legend titles (<code>labs()</code>), colours and axis ranges (<code>scale_...()</code>), small panels (<code>facet_...()</code>), text size and gridlines (<code>theme()</code>)</td>
+<td>No; each has a default</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How to tell you can read it:</strong> for any figure code, you can fill in a table with one row per column of the data that is used, saying what it sets in the figure.</p>
+</div>
+<div id="tabset-4-2">
+<p><code>state_year</code> has one row per state and year, with the average corn yield of the counties in the data.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">ggplot</span>(state_year, <span class="fu">aes</span>(<span class="at">x =</span> year, <span class="at">y =</span> corn_yield, <span class="at">colour =</span> state_name)) <span class="sc">+</span></span>
+<span id="cb2-2"><a></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb2-3"><a></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> state_colours) <span class="sc">+</span></span>
+<span id="cb2-4"><a></a>  <span class="fu">labs</span>(<span class="at">x =</span> <span class="cn">NULL</span>, <span class="at">y =</span> <span class="st">"Average corn yield</span><span class="sc">\n</span><span class="st">(bushels per acre)"</span>, <span class="at">colour =</span> <span class="cn">NULL</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="04-1-data-visualization-basics_files/figure-revealjs/shape-example-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>Shown by</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>year</code></td>
+<td>position on the x axis</td>
+</tr>
+<tr class="even">
+<td><code>corn_yield</code></td>
+<td>position on the y axis</td>
+</tr>
+<tr class="odd">
+<td><code>state_name</code></td>
+<td>colour, one line per state</td>
+</tr>
+</tbody>
+</table>
+<p>The mark is lines. The two optional layers set the three colours and the axis and legend titles.</p>
+</div>
+<div id="tabset-4-3">
+<p>Marks differ in name, not in shape. The visual properties each one needs inside <code>aes()</code>:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Mark</th>
+<th>In the code</th>
+<th>Needs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Points</td>
+<td><code>geom_point()</code></td>
+<td>x, y</td>
+</tr>
+<tr class="even">
+<td>Lines</td>
+<td><code>geom_line()</code></td>
+<td>x, y</td>
+</tr>
+<tr class="odd">
+<td>Bars whose length is a value in the table</td>
+<td><code>geom_col()</code></td>
+<td>x, y</td>
+</tr>
+<tr class="even">
+<td>Bars that count rows</td>
+<td><code>geom_bar()</code></td>
+<td>x</td>
+</tr>
+<tr class="odd">
+<td>Histogram</td>
+<td><code>geom_histogram()</code></td>
+<td>x</td>
+</tr>
+<tr class="even">
+<td>Box plots</td>
+<td><code>geom_boxplot()</code></td>
+<td>x or y, usually both</td>
+</tr>
+<tr class="odd">
+<td>Text</td>
+<td><code>geom_text()</code></td>
+<td>x, y, label</td>
+</tr>
+</tbody>
+</table>
+<p>Any of them also accepts <code>colour</code>, <code>fill</code> (the colour inside a bar or box), <code>size</code>, <code>shape</code> (of points) and <code>linetype</code> inside <code>aes()</code>.</p>
+</div>
+<div id="tabset-4-4">
+<p>The same word means two different things depending on where it is written:</p>
+<ul>
+<li><strong>Inside <code>aes()</code></strong>: <code>aes(colour = state_name)</code> means “the colour depends on the column <code>state_name</code>”, and ggplot adds a legend.</li>
+<li><strong>Outside <code>aes()</code></strong>: <code>geom_line(colour = "grey40")</code> means “every line is grey”. No column is involved, and there is no legend.</li>
+</ul>
+<p>Writing a fixed colour inside <code>aes()</code> is a common slip. ggplot treats <code>"blue"</code> as a column whose value is the word “blue”, gives it the first default colour, and adds a legend for it:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">ggplot</span>(band_means, <span class="fu">aes</span>(band, corn_yield)) <span class="sc">+</span></span>
+<span id="cb3-2"><a></a>  <span class="fu">geom_point</span>(<span class="fu">aes</span>(<span class="at">colour =</span> <span class="st">"blue"</span>), <span class="at">size =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="04-1-data-visualization-basics_files/figure-revealjs/shape-aes-slip-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>No error, and the points are not blue.</p>
+</div>
+<div id="tabset-4-5">
+<p>AI-written code often writes the same pattern differently. These change how the code looks, not what it draws:</p>
+<ul>
+<li><code>aes(year, corn_yield)</code>: without <code>x =</code> and <code>y =</code>. The first two inputs are x and y.</li>
+<li><code>ggplot(data = cy, mapping = aes(...))</code>: the input names spelled out.</li>
+<li><code>cy |&gt; ggplot(aes(...))</code>: the table passed in with <code>|&gt;</code> instead of written first.</li>
+<li><code>geom_point(aes(colour = state_name))</code>: the <code>aes()</code> inside one mark instead of in <code>ggplot()</code>. It then applies to that mark only.</li>
+<li><code>p &lt;- ggplot(...) + geom_line()</code> on one line, then <code>p + labs(...)</code> later: the figure is stored under a name and added to.</li>
+</ul>
+<p>A <code>+</code> at the start of a line stops R with the error “Cannot use <code>+</code> with a single argument”. The fix is to move it to the end of the line above.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
 <section id="choosing-the-type-of-figure" class="title-slide slide level1 center">
 <h1>Choosing the type of figure</h1>
 
@@ -490,9 +679,9 @@
 <section id="five-kinds-of-message" class="slide level2">
 <h2>Five kinds of message</h2>
 <div class="panel-tabset">
-<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The table</a></li><li><a href="#tabset-4-2">Distribution</a></li><li><a href="#tabset-4-3">Part of a whole</a></li></ul>
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The table</a></li><li><a href="#tabset-5-2">Distribution</a></li><li><a href="#tabset-5-3">Part of a whole</a></li></ul>
 <div class="tab-content">
-<div id="tabset-4-1">
+<div id="tabset-5-1">
 <p>The kind of sentence you wrote tells you the kind of figure to start from. The last column is the part of the code that names the figure type, so you can recognise it in what the AI writes.</p>
 <table class="caption-top">
 <colgroup>
@@ -544,7 +733,7 @@
 </table>
 <p>The next two slides take a comparison and a relationship and show how much the choice matters.</p>
 </div>
-<div id="tabset-4-2">
+<div id="tabset-5-2">
 <p>“Half of all county-years yielded between 164 and 195 bushels per acre.”</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -557,7 +746,7 @@
 </div>
 <p>The shaded band is the middle half. The handful of yields near zero are real rows; the exercise asks what they are.</p>
 </div>
-<div id="tabset-4-3">
+<div id="tabset-5-3">
 <p>“Nebraska makes up 65% of the county-years.”</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -576,9 +765,9 @@
 <h2>One message, three figures</h2>
 <p>Message: “Nebraska counties typically yield more corn than Kansas or Colorado counties.”</p>
 <div class="panel-tabset">
-<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">A. Overlapping histograms</a></li><li><a href="#tabset-5-2">B. Box plots</a></li><li><a href="#tabset-5-3">C. Bars of the average</a></li><li><a href="#tabset-5-4">Which one?</a></li></ul>
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">A. Overlapping histograms</a></li><li><a href="#tabset-6-2">B. Box plots</a></li><li><a href="#tabset-6-3">C. Bars of the average</a></li><li><a href="#tabset-6-4">Which one?</a></li></ul>
 <div class="tab-content">
-<div id="tabset-5-1">
+<div id="tabset-6-1">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -590,7 +779,7 @@
 </div>
 <p>Nebraska has the most rows, so its histogram covers the other two. The reader sees “Nebraska is big”, which is a fact about the data, not about yields.</p>
 </div>
-<div id="tabset-5-2">
+<div id="tabset-6-2">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -602,7 +791,7 @@
 </div>
 <p>The thick line in each box is the median (half the counties yield more, half less), and the box holds the middle half. Nebraska’s median is 184, against 174 for Kansas and 172 for Colorado, and the boxes show how much the states overlap.</p>
 </div>
-<div id="tabset-5-3">
+<div id="tabset-6-3">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -614,7 +803,7 @@
 </div>
 <p>The bars are correct, but they make the states look alike: Nebraska’s average (182) is only 8% above Colorado’s (168), so the difference is a sliver at the end of a long bar.</p>
 </div>
-<div id="tabset-5-4">
+<div id="tabset-6-4">
 <p>B serves this message. “Typically” is a statement about the middle of each state’s yields, and box plots put the middle and the spread side by side.</p>
 <ul>
 <li>A hides the comparison under the difference in the number of rows.</li>
@@ -629,9 +818,9 @@
 <h2>Too many points</h2>
 <p>Message: “Yields fall when drought lasts longer.”</p>
 <div class="panel-tabset">
-<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">A. Every county-year</a></li><li><a href="#tabset-6-2">B. Box plots per drought range</a></li></ul>
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">A. Every county-year</a></li><li><a href="#tabset-7-2">B. Box plots per drought range</a></li></ul>
 <div class="tab-content">
-<div id="tabset-6-1">
+<div id="tabset-7-1">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -643,7 +832,7 @@
 </div>
 <p>73% of the county-years had no extreme drought, so most points sit on top of each other in one column at zero. The fall is there, but the eye cannot find it.</p>
 </div>
-<div id="tabset-6-2">
+<div id="tabset-7-2">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -671,12 +860,12 @@
 <section id="when-colour-should-carry-information" class="slide level2">
 <h2>When colour should carry information</h2>
 <div class="panel-tabset">
-<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The rule</a></li><li><a href="#tabset-7-2">Decoration</a></li><li><a href="#tabset-7-3">Information</a></li></ul>
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">The rule</a></li><li><a href="#tabset-8-2">Decoration</a></li><li><a href="#tabset-8-3">Information</a></li></ul>
 <div class="tab-content">
-<div id="tabset-7-1">
+<div id="tabset-8-1">
 <p>Use colour only for a variable the reader needs and that the position of the marks does not already show. <strong>How to tell:</strong> remove the colour in your head. If the reader loses nothing, the colour is decoration, and decoration makes the reader look for a meaning that is not there.</p>
 </div>
-<div id="tabset-7-2">
+<div id="tabset-8-2">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -688,7 +877,7 @@
 </div>
 <p>Each state already has its own place on the horizontal axis. The colours and the legend repeat the axis labels.</p>
 </div>
-<div id="tabset-7-3">
+<div id="tabset-8-3">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -706,12 +895,12 @@
 <section id="three-kinds-of-colour-scale" class="slide level2">
 <h2>Three kinds of colour scale</h2>
 <div class="panel-tabset">
-<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Categories</a></li><li><a href="#tabset-8-2">Amounts</a></li><li><a href="#tabset-8-3">Above or below a midpoint</a></li></ul>
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Categories</a></li><li><a href="#tabset-9-2">Amounts</a></li><li><a href="#tabset-9-3">Above or below a midpoint</a></li></ul>
 <div class="tab-content">
-<div id="tabset-8-1">
+<div id="tabset-9-1">
 <p><strong>Groups with no order</strong> (states, crops) get clearly different hues, as in the line figure on the previous slide. Use as few as the message needs.</p>
 </div>
-<div id="tabset-8-2">
+<div id="tabset-9-2">
 <p><strong>Amounts</strong> (weeks of drought, yield) get one hue, from light for small to dark for large, so “darker means more” reads without a legend.</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -723,7 +912,7 @@
 </div>
 </div>
 </div>
-<div id="tabset-8-3">
+<div id="tabset-9-3">
 <p><strong>A value above or below a meaningful middle</strong> (a change, a difference from normal) gets two hues that grow darker away from a neutral middle. Here, each county’s yield minus its own 2000 to 2018 average, averaged over the counties of each state:</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -742,9 +931,9 @@
 <section id="highlight-the-group-the-message-is-about" class="slide level2">
 <h2>Highlight the group the message is about</h2>
 <div class="panel-tabset">
-<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Highlight</a></li><li><a href="#tabset-9-2">Same colour, same thing</a></li></ul>
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">Highlight</a></li><li><a href="#tabset-10-2">Same colour, same thing</a></li></ul>
 <div class="tab-content">
-<div id="tabset-9-1">
+<div id="tabset-10-1">
 <p>Message: “Colorado’s 2002 drought lasted about twice as long as Kansas’s or Nebraska’s.”</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -757,7 +946,7 @@
 </div>
 <p>In 2002: Colorado 15.3 weeks, Kansas 6.5, Nebraska 7.3. The other states stay in the figure, in grey, because the message is a comparison with them.</p>
 </div>
-<div id="tabset-9-2">
+<div id="tabset-10-2">
 <p>Every figure on this deck draws Colorado in orange, Kansas in blue and Nebraska in green, including the highlight, where Colorado keeps its orange. A reader who learns the colours on one figure can read the next one without the legend.</p>
 <p>Left to its defaults, ggplot hands out colours to whichever groups are in each figure, in alphabetical order. A figure without Colorado gives Kansas the colour Colorado had in the figure before. Name the colours in your request: “Colorado #E69F00, Kansas #0072B2, Nebraska #009E73 in every figure”.</p>
 </div>
@@ -767,9 +956,9 @@
 <section id="colours-every-reader-can-tell-apart" class="slide level2">
 <h2>Colours every reader can tell apart</h2>
 <div class="panel-tabset">
-<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">ggplot’s default</a></li><li><a href="#tabset-10-2">As a red-green colour-blind reader sees it</a></li><li><a href="#tabset-10-3">Okabe-Ito, as the same reader sees it</a></li><li><a href="#tabset-10-4">How many colours</a></li></ul>
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">ggplot’s default</a></li><li><a href="#tabset-11-2">As a red-green colour-blind reader sees it</a></li><li><a href="#tabset-11-3">Okabe-Ito, as the same reader sees it</a></li><li><a href="#tabset-11-4">How many colours</a></li></ul>
 <div class="tab-content">
-<div id="tabset-10-1">
+<div id="tabset-11-1">
 <p>A <strong>deliberately bad example.</strong> ggplot’s default colours for three groups put a red and a green of about the same lightness next to each other:</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -781,8 +970,8 @@
 </div>
 </div>
 </div>
-<div id="tabset-10-2">
-<p>Roughly 1 man in 12 of European ancestry has some form of red-green colour blindness. The same figure, with its colours converted to what such a reader sees (simulated with the <code>colorspace</code> package):</p>
+<div id="tabset-11-2">
+<p>The same figure, with its colours converted to what a reader with red-green colour blindness sees (simulated with the <code>colorspace</code> package):</p>
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -794,7 +983,7 @@
 </div>
 <p>Colorado and Kansas now look nearly the same.</p>
 </div>
-<div id="tabset-10-3">
+<div id="tabset-11-3">
 <p>The <strong>Okabe-Ito</strong> palette is a set of eight colours chosen to stay distinct for colour-blind readers. The colours used for the states on this deck come from it:</p>
 <div class="cell">
 <div class="cell-output-display">
@@ -806,7 +995,7 @@
 </div>
 </div>
 </div>
-<div id="tabset-10-4">
+<div id="tabset-11-4">
 <p>A reader has to match each colour to the legend, and that gets unreliable well before a palette runs out. With more groups than you can give clearly different colours:</p>
 <ul>
 <li>colour only the groups the message is about and grey the rest, or</li>
@@ -832,9 +1021,9 @@
 <h2>Order categories by value</h2>
 <p>The 12 counties with data in every year, all in Nebraska. Message: “Buffalo had the highest average yield.”</p>
 <div class="panel-tabset">
-<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Alphabetical, names along the bottom</a></li><li><a href="#tabset-11-2">By value, names down the side</a></li></ul>
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Alphabetical, names along the bottom</a></li><li><a href="#tabset-12-2">By value, names down the side</a></li></ul>
 <div class="tab-content">
-<div id="tabset-11-1">
+<div id="tabset-12-1">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -846,7 +1035,7 @@
 </div>
 <p>The names crowd together until they almost touch, and finding the highest county means comparing every point with every other.</p>
 </div>
-<div id="tabset-11-2">
+<div id="tabset-12-2">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -866,9 +1055,9 @@
 <h2>One panel or several</h2>
 <p>Message: “Nebraska’s yields sit higher than the other two states’.”</p>
 <div class="panel-tabset">
-<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Several small panels</a></li><li><a href="#tabset-12-2">When to use which</a></li></ul>
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Several small panels</a></li><li><a href="#tabset-13-2">When to use which</a></li></ul>
 <div class="tab-content">
-<div id="tabset-12-1">
+<div id="tabset-13-1">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -880,7 +1069,7 @@
 </div>
 <p>The overlapping histograms from “One message, three figures”, split into one panel per state. Stacked one above the other on the <strong>same horizontal axis</strong>, the shift of Nebraska’s yields to the right is visible.</p>
 </div>
-<div id="tabset-12-2">
+<div id="tabset-13-2">
 <ul>
 <li><strong>One panel</strong> when the reader must compare values at the same point, for example three lines in the same year. Up to about three or four groups.</li>
 <li><strong>Several small panels</strong> when the groups overlap so much that one panel becomes a tangle, or there are too many groups to colour.</li>
@@ -893,9 +1082,9 @@
 <section id="axis-ranges" class="slide level2">
 <h2>Axis ranges</h2>
 <div class="panel-tabset">
-<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Bars that do not start at zero</a></li><li><a href="#tabset-13-2">Bars from zero</a></li><li><a href="#tabset-13-3">Points and lines</a></li></ul>
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Bars that do not start at zero</a></li><li><a href="#tabset-14-2">Bars from zero</a></li><li><a href="#tabset-14-3">Points and lines</a></li></ul>
 <div class="tab-content">
-<div id="tabset-13-1">
+<div id="tabset-14-1">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -907,7 +1096,7 @@
 </div>
 <p>A <strong>deliberately bad example.</strong> A bar’s length is read as its value. With the axis starting at 165, Nebraska’s bar is 5 times as tall as Colorado’s, although its average is only 8% higher.</p>
 </div>
-<div id="tabset-13-2">
+<div id="tabset-14-2">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -919,7 +1108,7 @@
 </div>
 <p>Honest, and it shows the differences are small. If the message is about those small differences, bars are the wrong choice; use points, which need no zero.</p>
 </div>
-<div id="tabset-13-3">
+<div id="tabset-14-3">
 <p>For points and lines the reader reads position, not length, so the axis should cover the range where the variation that matters lies. The dot plot of county averages on the “Order categories by value” slide runs from about 183 to 197. Forced to start at zero, all 12 points would crowd into the right 7% of the panel’s width and the ranking would be hard to see.</p>
 <p>The opposite mistake: an axis so narrow that a change too small to matter fills the whole figure. The range should match what the message calls large.</p>
 </div>
@@ -929,9 +1118,9 @@
 <section id="titles-labels-and-what-to-leave-out" class="slide level2">
 <h2>Titles, labels, and what to leave out</h2>
 <div class="panel-tabset">
-<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">A title that states the finding</a></li><li><a href="#tabset-14-2">Labels on the lines</a></li><li><a href="#tabset-14-3">Remove what the message does not need</a></li></ul>
+<ul id="tabset-15" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-15-1">A title that states the finding</a></li><li><a href="#tabset-15-2">Labels on the lines</a></li><li><a href="#tabset-15-3">Remove what the message does not need</a></li></ul>
 <div class="tab-content">
-<div id="tabset-14-1">
+<div id="tabset-15-1">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -943,11 +1132,11 @@
 </div>
 <p>A title such as “corn_yield by drought band” names the variables, which the axes already do. A title that states the finding tells the reader what to look for. In a report where the figure has a caption, the caption can carry the finding instead.</p>
 </div>
-<div id="tabset-14-2">
+<div id="tabset-15-2">
 <p>A legend makes the reader look away from the data, find the colour, read the name, and look back, once for every line. A label at the end of each line removes that trip. The “Highlight” figure in the colour section labels its lines directly; the before-and-after slide below does the same for three lines.</p>
 <p>When there is only one group, there is nothing for a legend to explain. Remove it.</p>
 </div>
-<div id="tabset-14-3">
+<div id="tabset-15-3">
 <p>Look at each element and ask whether the message would suffer without it:</p>
 <ul>
 <li>a legend that repeats the axis labels</li>
@@ -990,9 +1179,9 @@
 <h2>Before and after</h2>
 <p>Message: “Extreme drought hit all three states in 2002, and again in 2012 and 2013.”</p>
 <div class="panel-tabset">
-<ul id="tabset-15" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-15-1">Before</a></li><li><a href="#tabset-15-2">After</a></li><li><a href="#tabset-15-3">What changed</a></li></ul>
+<ul id="tabset-16" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-16-1">Before</a></li><li><a href="#tabset-16-2">After</a></li><li><a href="#tabset-16-3">What changed</a></li></ul>
 <div class="tab-content">
-<div id="tabset-15-1">
+<div id="tabset-16-1">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -1004,28 +1193,28 @@
 </div>
 <p>A <strong>deliberately bad example</strong>: ggplot’s defaults, which is what comes back when a request says nothing about how the figure should look.</p>
 </div>
-<div id="tabset-15-2">
+<div id="tabset-16-2">
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>last_points <span class="ot">&lt;-</span> <span class="fu">filter</span>(state_year, year <span class="sc">==</span> <span class="fu">max</span>(year))</span>
-<span id="cb1-2"><a></a></span>
-<span id="cb1-3"><a></a><span class="fu">ggplot</span>(state_year, <span class="fu">aes</span>(year, drought_weeks, <span class="at">colour =</span> state_name)) <span class="sc">+</span></span>
-<span id="cb1-4"><a></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb1-5"><a></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(</span>
-<span id="cb1-6"><a></a>    <span class="at">data =</span> last_points, <span class="fu">aes</span>(<span class="at">label =</span> state_name),</span>
-<span id="cb1-7"><a></a>    <span class="at">direction =</span> <span class="st">"y"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">nudge_x =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">5.5</span>, <span class="at">seed =</span> <span class="dv">1</span></span>
-<span id="cb1-8"><a></a>  ) <span class="sc">+</span></span>
-<span id="cb1-9"><a></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> state_colours, <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb1-10"><a></a>  <span class="fu">scale_x_continuous</span>(</span>
-<span id="cb1-11"><a></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">2000</span>, <span class="dv">2018</span>, <span class="dv">2</span>),</span>
-<span id="cb1-12"><a></a>    <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.02</span>, <span class="fl">0.12</span>))</span>
-<span id="cb1-13"><a></a>  ) <span class="sc">+</span></span>
-<span id="cb1-14"><a></a>  <span class="fu">labs</span>(</span>
-<span id="cb1-15"><a></a>    <span class="at">title =</span> <span class="st">"Extreme drought hit all three states in 2002, and again in 2012 and 2013"</span>,</span>
-<span id="cb1-16"><a></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
-<span id="cb1-17"><a></a>    <span class="at">y =</span> <span class="st">"Weeks of extreme drought,</span><span class="sc">\n</span><span class="st">May to September"</span></span>
-<span id="cb1-18"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>last_points <span class="ot">&lt;-</span> <span class="fu">filter</span>(state_year, year <span class="sc">==</span> <span class="fu">max</span>(year))</span>
+<span id="cb4-2"><a></a></span>
+<span id="cb4-3"><a></a><span class="fu">ggplot</span>(state_year, <span class="fu">aes</span>(year, drought_weeks, <span class="at">colour =</span> state_name)) <span class="sc">+</span></span>
+<span id="cb4-4"><a></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb4-5"><a></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(</span>
+<span id="cb4-6"><a></a>    <span class="at">data =</span> last_points, <span class="fu">aes</span>(<span class="at">label =</span> state_name),</span>
+<span id="cb4-7"><a></a>    <span class="at">direction =</span> <span class="st">"y"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">nudge_x =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">5.5</span>, <span class="at">seed =</span> <span class="dv">1</span></span>
+<span id="cb4-8"><a></a>  ) <span class="sc">+</span></span>
+<span id="cb4-9"><a></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> state_colours, <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb4-10"><a></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb4-11"><a></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">2000</span>, <span class="dv">2018</span>, <span class="dv">2</span>),</span>
+<span id="cb4-12"><a></a>    <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.02</span>, <span class="fl">0.12</span>))</span>
+<span id="cb4-13"><a></a>  ) <span class="sc">+</span></span>
+<span id="cb4-14"><a></a>  <span class="fu">labs</span>(</span>
+<span id="cb4-15"><a></a>    <span class="at">title =</span> <span class="st">"Extreme drought hit all three states in 2002, and again in 2012 and 2013"</span>,</span>
+<span id="cb4-16"><a></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb4-17"><a></a>    <span class="at">y =</span> <span class="st">"Weeks of extreme drought,</span><span class="sc">\n</span><span class="st">May to September"</span></span>
+<span id="cb4-18"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <div>
@@ -1036,7 +1225,7 @@
 </div>
 </div>
 </div>
-<div id="tabset-15-3">
+<div id="tabset-16-3">
 <table class="caption-top">
 <colgroup>
 <col style="width: 25%">
@@ -1109,9 +1298,9 @@
 <section id="what-must-be-true-of-the-data" class="slide level2 scrollable">
 <h2>What must be true of the data</h2>
 <div class="panel-tabset">
-<ul id="tabset-16" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-16-1">The conditions</a></li><li><a href="#tabset-16-2">A year stored as a number</a></li><li><a href="#tabset-16-3">A year that is not there</a></li><li><a href="#tabset-16-4">The check</a></li></ul>
+<ul id="tabset-17" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-17-1">The conditions</a></li><li><a href="#tabset-17-2">A year stored as a number</a></li><li><a href="#tabset-17-3">A year that is not there</a></li><li><a href="#tabset-17-4">The check</a></li></ul>
 <div class="tab-content">
-<div id="tabset-16-1">
+<div id="tabset-17-1">
 <ol type="1">
 <li><strong>One row per thing drawn.</strong> One row per point, per bar, or per point on a line. If the table has one row per county and the line is meant to show one value per state and year, the averaging must happen first.</li>
 <li><strong>The right type per column.</strong> A category the colour should separate (a year, an ID, a 0/1 code) must be stored as a category. Stored as a number, it gets a scale for amounts.</li>
@@ -1119,7 +1308,7 @@
 </ol>
 <p>None of these failures gives an error. The figure is drawn, and it is wrong.</p>
 </div>
-<div id="tabset-16-2">
+<div id="tabset-17-2">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -1131,7 +1320,7 @@
 </div>
 <p>The request was “colour the points by year” for three years. <code>year</code> is stored as a number, so ggplot drew a scale for an amount: a legend with shades for years that are not in the figure, and three shades of one blue that are hard to tell apart.</p>
 </div>
-<div id="tabset-16-3">
+<div id="tabset-17-3">
 <div class="cell">
 <div class="cell-output-display">
 <div>
@@ -1143,15 +1332,15 @@
 </div>
 <p>The data has no Colorado row for 2009. The orange line runs straight from 2008 to 2010 and nothing on the figure says a year is missing.</p>
 </div>
-<div id="tabset-16-4">
+<div id="tabset-17-4">
 <p>Ask the AI to print, next to the figure in the HTML, the table the figure is drawn from, with the number of original rows behind each value. Here, the rows around 2009:</p>
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>state_year_raw <span class="sc">|&gt;</span></span>
-<span id="cb2-2"><a></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> <span class="dv">2008</span><span class="sc">:</span><span class="dv">2010</span>) <span class="sc">|&gt;</span></span>
-<span id="cb2-3"><a></a>  <span class="fu">arrange</span>(year, state_name) <span class="sc">|&gt;</span></span>
-<span id="cb2-4"><a></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(corn_yield, drought_weeks), \(x) <span class="fu">round</span>(x, <span class="dv">1</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>state_year_raw <span class="sc">|&gt;</span></span>
+<span id="cb5-2"><a></a>  <span class="fu">filter</span>(year <span class="sc">%in%</span> <span class="dv">2008</span><span class="sc">:</span><span class="dv">2010</span>) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a></a>  <span class="fu">arrange</span>(year, state_name) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">c</span>(corn_yield, drought_weeks), \(x) <span class="fu">round</span>(x, <span class="dv">1</span>)))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code># A tibble: 8 × 5
@@ -1200,14 +1389,14 @@
 <p>The message is meant to be: “Extreme drought came in a few bad years, above all 2012 and 2013.”</p>
 
 <img data-src="04-1-data-visualization-basics_files/figure-revealjs/your-turn-1.png" width="2160" class="r-stretch"><div class="panel-tabset">
-<ul id="tabset-17" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-17-1">Questions</a></li><li><a href="#tabset-17-2">Answers</a></li></ul>
+<ul id="tabset-18" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-18-1">Questions</a></li><li><a href="#tabset-18-2">Answers</a></li></ul>
 <div class="tab-content">
-<div id="tabset-17-1">
+<div id="tabset-18-1">
 <p>A. Apply questions 1 to 5 of the checklist. Which answers are “no”?</p>
 <p>B. What does the colour show that the position of the bars does not?</p>
 <p>C. List the changes you would ask for, in the order that matters most for the message.</p>
 </div>
-<div id="tabset-17-2">
+<div id="tabset-18-2">
 <p>A. Question 1 is close to “yes”: the tall bars are visible. Question 2 is “no”, question 4 is “no” (the colour and its legend), and question 5 is “no”: raw column names as axis titles, text far smaller than the slide’s, a grey background.</p>
 <p>B. Nothing. The colour repeats the year, which the horizontal axis already shows, and its legend narrows the plot.</p>
 <p>C. Remove the colour and the legend; put the finding in the title; plain-word axis title with units (“Weeks of extreme drought, May to September”); larger text; no grey background. Bars are a reasonable choice here, since the values are counts of weeks and start at zero; a line would also do.</p>
@@ -1263,49 +1452,49 @@
 <section id="a-weak-request-and-a-strong-one" class="slide level2">
 <h2>A weak request and a strong one</h2>
 <div class="panel-tabset">
-<ul id="tabset-18" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-18-1">Weak</a></li><li><a href="#tabset-18-2">Strong</a></li><li><a href="#tabset-18-3">What came back</a></li></ul>
+<ul id="tabset-19" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-19-1">Weak</a></li><li><a href="#tabset-19-2">Strong</a></li><li><a href="#tabset-19-3">What came back</a></li></ul>
 <div class="tab-content">
-<div id="tabset-18-1">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb4-1"><a></a>Make a plot of my corn data.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-19-1">
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb7-1"><a></a>Make a plot of my corn data.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The AI has to guess which columns, which message, which reader and which type of figure. Whatever it draws is a figure of the data, not of a message, and you have no sentence to judge it against.</p>
 </div>
-<div id="tabset-18-2">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb5-1"><a></a>In my R project, data/county_yield.csv has one row per county and year,</span>
-<span id="cb5-2"><a></a>2000 to 2018, for Colorado, Kansas and Nebraska. drought_weeks is the</span>
-<span id="cb5-3"><a></a>number of weeks from May to September the county spent in extreme</span>
-<span id="cb5-4"><a></a>drought.</span>
-<span id="cb5-5"><a></a></span>
-<span id="cb5-6"><a></a>The message: extreme drought hit all three states in 2002, and again in</span>
-<span id="cb5-7"><a></a>2012 and 2013. The reader: an extension audience who knows the states</span>
-<span id="cb5-8"><a></a>but has not seen this data.</span>
-<span id="cb5-9"><a></a></span>
-<span id="cb5-10"><a></a>Average drought_weeks by state and year, and draw one line per state</span>
-<span id="cb5-11"><a></a>over time. Colorado #E69F00, Kansas #0072B2, Nebraska #009E73. Print</span>
-<span id="cb5-12"><a></a>the table the figure is drawn from, with the number of counties behind</span>
-<span id="cb5-13"><a></a>each value.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-19-2">
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb8-1"><a></a>In my R project, data/county_yield.csv has one row per county and year,</span>
+<span id="cb8-2"><a></a>2000 to 2018, for Colorado, Kansas and Nebraska. drought_weeks is the</span>
+<span id="cb8-3"><a></a>number of weeks from May to September the county spent in extreme</span>
+<span id="cb8-4"><a></a>drought.</span>
+<span id="cb8-5"><a></a></span>
+<span id="cb8-6"><a></a>The message: extreme drought hit all three states in 2002, and again in</span>
+<span id="cb8-7"><a></a>2012 and 2013. The reader: an extension audience who knows the states</span>
+<span id="cb8-8"><a></a>but has not seen this data.</span>
+<span id="cb8-9"><a></a></span>
+<span id="cb8-10"><a></a>Average drought_weeks by state and year, and draw one line per state</span>
+<span id="cb8-11"><a></a>over time. Colorado #E69F00, Kansas #0072B2, Nebraska #009E73. Print</span>
+<span id="cb8-12"><a></a>the table the figure is drawn from, with the number of counties behind</span>
+<span id="cb8-13"><a></a>each value.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>followed by the figure standard and the closing instructions.</p>
 </div>
-<div id="tabset-18-3">
+<div id="tabset-19-3">
 <p>A version of what an AI returns, the code behind the “After” figure. You should be able to say which part does what:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>last_points <span class="ot">&lt;-</span> <span class="fu">filter</span>(state_year, year <span class="sc">==</span> <span class="fu">max</span>(year))</span>
-<span id="cb6-2"><a></a></span>
-<span id="cb6-3"><a></a><span class="fu">ggplot</span>(state_year, <span class="fu">aes</span>(year, drought_weeks, <span class="at">colour =</span> state_name)) <span class="sc">+</span></span>
-<span id="cb6-4"><a></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
-<span id="cb6-5"><a></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(</span>
-<span id="cb6-6"><a></a>    <span class="at">data =</span> last_points, <span class="fu">aes</span>(<span class="at">label =</span> state_name),</span>
-<span id="cb6-7"><a></a>    <span class="at">direction =</span> <span class="st">"y"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">nudge_x =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">5.5</span>, <span class="at">seed =</span> <span class="dv">1</span></span>
-<span id="cb6-8"><a></a>  ) <span class="sc">+</span></span>
-<span id="cb6-9"><a></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> state_colours, <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
-<span id="cb6-10"><a></a>  <span class="fu">scale_x_continuous</span>(</span>
-<span id="cb6-11"><a></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">2000</span>, <span class="dv">2018</span>, <span class="dv">2</span>),</span>
-<span id="cb6-12"><a></a>    <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.02</span>, <span class="fl">0.12</span>))</span>
-<span id="cb6-13"><a></a>  ) <span class="sc">+</span></span>
-<span id="cb6-14"><a></a>  <span class="fu">labs</span>(</span>
-<span id="cb6-15"><a></a>    <span class="at">title =</span> <span class="st">"Extreme drought hit all three states in 2002, and again in 2012 and 2013"</span>,</span>
-<span id="cb6-16"><a></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
-<span id="cb6-17"><a></a>    <span class="at">y =</span> <span class="st">"Weeks of extreme drought,</span><span class="sc">\n</span><span class="st">May to September"</span></span>
-<span id="cb6-18"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a>last_points <span class="ot">&lt;-</span> <span class="fu">filter</span>(state_year, year <span class="sc">==</span> <span class="fu">max</span>(year))</span>
+<span id="cb9-2"><a></a></span>
+<span id="cb9-3"><a></a><span class="fu">ggplot</span>(state_year, <span class="fu">aes</span>(year, drought_weeks, <span class="at">colour =</span> state_name)) <span class="sc">+</span></span>
+<span id="cb9-4"><a></a>  <span class="fu">geom_line</span>(<span class="at">linewidth =</span> <span class="dv">1</span>) <span class="sc">+</span></span>
+<span id="cb9-5"><a></a>  ggrepel<span class="sc">::</span><span class="fu">geom_text_repel</span>(</span>
+<span id="cb9-6"><a></a>    <span class="at">data =</span> last_points, <span class="fu">aes</span>(<span class="at">label =</span> state_name),</span>
+<span id="cb9-7"><a></a>    <span class="at">direction =</span> <span class="st">"y"</span>, <span class="at">hjust =</span> <span class="dv">0</span>, <span class="at">nudge_x =</span> <span class="fl">0.4</span>, <span class="at">size =</span> <span class="fl">5.5</span>, <span class="at">seed =</span> <span class="dv">1</span></span>
+<span id="cb9-8"><a></a>  ) <span class="sc">+</span></span>
+<span id="cb9-9"><a></a>  <span class="fu">scale_colour_manual</span>(<span class="at">values =</span> state_colours, <span class="at">guide =</span> <span class="st">"none"</span>) <span class="sc">+</span></span>
+<span id="cb9-10"><a></a>  <span class="fu">scale_x_continuous</span>(</span>
+<span id="cb9-11"><a></a>    <span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">2000</span>, <span class="dv">2018</span>, <span class="dv">2</span>),</span>
+<span id="cb9-12"><a></a>    <span class="at">expand =</span> <span class="fu">expansion</span>(<span class="at">mult =</span> <span class="fu">c</span>(<span class="fl">0.02</span>, <span class="fl">0.12</span>))</span>
+<span id="cb9-13"><a></a>  ) <span class="sc">+</span></span>
+<span id="cb9-14"><a></a>  <span class="fu">labs</span>(</span>
+<span id="cb9-15"><a></a>    <span class="at">title =</span> <span class="st">"Extreme drought hit all three states in 2002, and again in 2012 and 2013"</span>,</span>
+<span id="cb9-16"><a></a>    <span class="at">x =</span> <span class="cn">NULL</span>,</span>
+<span id="cb9-17"><a></a>    <span class="at">y =</span> <span class="st">"Weeks of extreme drought,</span><span class="sc">\n</span><span class="st">May to September"</span></span>
+<span id="cb9-18"><a></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <ul>
 <li><code>ggplot(...)</code> with <code>aes(...)</code>: which column goes on which axis, and which column sets the colour</li>
@@ -1331,135 +1520,135 @@
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know: the message, the reader, the group that matters, what you found in the data. Every figure request ends with the figure standard and then the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-19" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-19-1">Closing instructions</a></li><li><a href="#tabset-19-2">The figure standard</a></li><li><a href="#tabset-19-3">Ask for designs</a></li><li><a href="#tabset-19-4">Improve a figure</a></li><li><a href="#tabset-19-5">Critique a figure</a></li><li><a href="#tabset-19-6">Check against the data</a></li><li><a href="#tabset-19-7">Explain code</a></li></ul>
+<ul id="tabset-20" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-20-1">Closing instructions</a></li><li><a href="#tabset-20-2">The figure standard</a></li><li><a href="#tabset-20-3">Ask for designs</a></li><li><a href="#tabset-20-4">Improve a figure</a></li><li><a href="#tabset-20-5">Critique a figure</a></li><li><a href="#tabset-20-6">Check against the data</a></li><li><a href="#tabset-20-7">Explain code</a></li></ul>
 <div class="tab-content">
-<div id="tabset-19-1">
+<div id="tabset-20-1">
 <p>The lines that end every request:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb7-1"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
-<span id="cb7-2"><a></a>heading "&lt;Task 2&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb7-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb7-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb7-5"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb10-1"><a></a>Put the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the</span>
+<span id="cb10-2"><a></a>heading "&lt;Task 2&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb10-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb10-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb10-5"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
-<div id="tabset-19-2">
+<div id="tabset-20-2">
 <p>Paste this into every figure request, just before the closing instructions:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb8-1"><a></a>Every figure must meet this standard:</span>
-<span id="cb8-2"><a></a>1. Axis titles, legend titles and category labels in plain words with</span>
-<span id="cb8-3"><a></a>   units, such as "Corn yield (bushels per acre)", never a column name;</span>
-<span id="cb8-4"><a></a>   categories in words, such as "Irrigated", never a code such as 1.</span>
-<span id="cb8-5"><a></a>2. Tick labels, axis titles and legend text no smaller than the</span>
-<span id="cb8-6"><a></a>   document's body text, at the size the figure appears in the HTML.</span>
-<span id="cb8-7"><a></a>3. No legend when lines or points can be labelled directly or there is</span>
-<span id="cb8-8"><a></a>   only one group. Otherwise, the legend inside an empty corner of the</span>
-<span id="cb8-9"><a></a>   plot, or above or below a wide figure, in the same order as the lines</span>
-<span id="cb8-10"><a></a>   or bars it describes.</span>
-<span id="cb8-11"><a></a>4. Numbers formatted for reading: thousands separators, no more decimals</span>
-<span id="cb8-12"><a></a>   than the message needs, percentages shown as percentages.</span>
-<span id="cb8-13"><a></a>5. No overlapping tick labels; for long category names, put the</span>
-<span id="cb8-14"><a></a>   categories on the vertical axis rather than rotating the text.</span>
-<span id="cb8-15"><a></a>6. Light or no gridlines and no heavy borders, so the data is the</span>
-<span id="cb8-16"><a></a>   darkest thing in the figure.</span>
-<span id="cb8-17"><a></a>7. A shape that suits the content: wide for a change over time, close</span>
-<span id="cb8-18"><a></a>   to square for a relationship between two variables.</span>
-<span id="cb8-19"><a></a>8. Colours readable by colour-blind readers (such as the Okabe-Ito</span>
-<span id="cb8-20"><a></a>   palette), and no more colours than the message needs.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb11-1"><a></a>Every figure must meet this standard:</span>
+<span id="cb11-2"><a></a>1. Axis titles, legend titles and category labels in plain words with</span>
+<span id="cb11-3"><a></a>   units, such as "Corn yield (bushels per acre)", never a column name;</span>
+<span id="cb11-4"><a></a>   categories in words, such as "Irrigated", never a code such as 1.</span>
+<span id="cb11-5"><a></a>2. Tick labels, axis titles and legend text no smaller than the</span>
+<span id="cb11-6"><a></a>   document's body text, at the size the figure appears in the HTML.</span>
+<span id="cb11-7"><a></a>3. No legend when lines or points can be labelled directly or there is</span>
+<span id="cb11-8"><a></a>   only one group. Otherwise, the legend inside an empty corner of the</span>
+<span id="cb11-9"><a></a>   plot, or above or below a wide figure, in the same order as the lines</span>
+<span id="cb11-10"><a></a>   or bars it describes.</span>
+<span id="cb11-11"><a></a>4. Numbers formatted for reading: thousands separators, no more decimals</span>
+<span id="cb11-12"><a></a>   than the message needs, percentages shown as percentages.</span>
+<span id="cb11-13"><a></a>5. No overlapping tick labels; for long category names, put the</span>
+<span id="cb11-14"><a></a>   categories on the vertical axis rather than rotating the text.</span>
+<span id="cb11-15"><a></a>6. Light or no gridlines and no heavy borders, so the data is the</span>
+<span id="cb11-16"><a></a>   darkest thing in the figure.</span>
+<span id="cb11-17"><a></a>7. A shape that suits the content: wide for a change over time, close</span>
+<span id="cb11-18"><a></a>   to square for a relationship between two variables.</span>
+<span id="cb11-19"><a></a>8. Colours readable by colour-blind readers (such as the Okabe-Ito</span>
+<span id="cb11-20"><a></a>   palette), and no more colours than the message needs.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Keep your own copy of this block, and add to it each time you find something the AI keeps getting wrong.</p>
 </div>
-<div id="tabset-19-3">
+<div id="tabset-20-3">
 <p>The central request: the AI makes alternatives cheaply, and choosing among them is your job.</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb9-1"><a></a>In my R project, &lt;data/county_yield.csv&gt; has one row per &lt;county and</span>
-<span id="cb9-2"><a></a>year&gt;. The figure uses the columns &lt;...&gt;, which mean &lt;...&gt; and are</span>
-<span id="cb9-3"><a></a>measured in &lt;units&gt;.</span>
-<span id="cb9-4"><a></a></span>
-<span id="cb9-5"><a></a>The message: &lt;the one sentence the reader should take away&gt;.</span>
-<span id="cb9-6"><a></a>The reader: &lt;who will see it, and what they already know&gt;.</span>
-<span id="cb9-7"><a></a>The group the message is about: &lt;...&gt;.</span>
-<span id="cb9-8"><a></a></span>
-<span id="cb9-9"><a></a>Draw &lt;three&gt; different designs of a figure for this message, one after</span>
-<span id="cb9-10"><a></a>another. Under each, write one sentence saying what that design makes</span>
-<span id="cb9-11"><a></a>easy to see and what it hides. Do not choose one for me.</span>
-<span id="cb9-12"><a></a></span>
-<span id="cb9-13"><a></a>&lt;the figure standard&gt;</span>
-<span id="cb9-14"><a></a></span>
-<span id="cb9-15"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
-<span id="cb9-16"><a></a>heading "&lt;Task 3&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb9-17"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb9-18"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb9-19"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb12-1"><a></a>In my R project, &lt;data/county_yield.csv&gt; has one row per &lt;county and</span>
+<span id="cb12-2"><a></a>year&gt;. The figure uses the columns &lt;...&gt;, which mean &lt;...&gt; and are</span>
+<span id="cb12-3"><a></a>measured in &lt;units&gt;.</span>
+<span id="cb12-4"><a></a></span>
+<span id="cb12-5"><a></a>The message: &lt;the one sentence the reader should take away&gt;.</span>
+<span id="cb12-6"><a></a>The reader: &lt;who will see it, and what they already know&gt;.</span>
+<span id="cb12-7"><a></a>The group the message is about: &lt;...&gt;.</span>
+<span id="cb12-8"><a></a></span>
+<span id="cb12-9"><a></a>Draw &lt;three&gt; different designs of a figure for this message, one after</span>
+<span id="cb12-10"><a></a>another. Under each, write one sentence saying what that design makes</span>
+<span id="cb12-11"><a></a>easy to see and what it hides. Do not choose one for me.</span>
+<span id="cb12-12"><a></a></span>
+<span id="cb12-13"><a></a>&lt;the figure standard&gt;</span>
+<span id="cb12-14"><a></a></span>
+<span id="cb12-15"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
+<span id="cb12-16"><a></a>heading "&lt;Task 3&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb12-17"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb12-18"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb12-19"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Then choose one, and write in your document which one and why, in terms of the message.</p>
 </div>
-<div id="tabset-19-4">
-<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb10-1"><a></a>The code below draws a figure. Its message should be: &lt;one sentence&gt;.</span>
-<span id="cb10-2"><a></a>The reader is &lt;who&gt;. The group the message is about is &lt;...&gt;; the</span>
-<span id="cb10-3"><a></a>others are context.</span>
-<span id="cb10-4"><a></a></span>
-<span id="cb10-5"><a></a>Change the figure so that the message is the first thing a reader</span>
-<span id="cb10-6"><a></a>sees. Keep the original figure, and put the new one below it. Above the</span>
-<span id="cb10-7"><a></a>new one, list each change and why, in plain English.</span>
-<span id="cb10-8"><a></a></span>
-<span id="cb10-9"><a></a>&lt;the figure standard&gt;</span>
-<span id="cb10-10"><a></a></span>
-<span id="cb10-11"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
-<span id="cb10-12"><a></a>heading "&lt;Task 5&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb10-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb10-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb10-15"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span>
-<span id="cb10-16"><a></a></span>
-<span id="cb10-17"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-20-4">
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb13-1"><a></a>The code below draws a figure. Its message should be: &lt;one sentence&gt;.</span>
+<span id="cb13-2"><a></a>The reader is &lt;who&gt;. The group the message is about is &lt;...&gt;; the</span>
+<span id="cb13-3"><a></a>others are context.</span>
+<span id="cb13-4"><a></a></span>
+<span id="cb13-5"><a></a>Change the figure so that the message is the first thing a reader</span>
+<span id="cb13-6"><a></a>sees. Keep the original figure, and put the new one below it. Above the</span>
+<span id="cb13-7"><a></a>new one, list each change and why, in plain English.</span>
+<span id="cb13-8"><a></a></span>
+<span id="cb13-9"><a></a>&lt;the figure standard&gt;</span>
+<span id="cb13-10"><a></a></span>
+<span id="cb13-11"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
+<span id="cb13-12"><a></a>heading "&lt;Task 5&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb13-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb13-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb13-15"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span>
+<span id="cb13-16"><a></a></span>
+<span id="cb13-17"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-19-5">
-<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb11-1"><a></a>The code below draws a figure. Its intended message is: &lt;one sentence&gt;.</span>
-<span id="cb11-2"><a></a>The reader is &lt;who&gt;.</span>
-<span id="cb11-3"><a></a></span>
-<span id="cb11-4"><a></a>Draw it unchanged. Below it, answer each question with yes or no and</span>
-<span id="cb11-5"><a></a>one sentence of reason:</span>
-<span id="cb11-6"><a></a>1. Could someone who has not seen the data state the message within a</span>
-<span id="cb11-7"><a></a>   few seconds?</span>
-<span id="cb11-8"><a></a>2. Does every colour carry information?</span>
-<span id="cb11-9"><a></a>3. Would the message survive printing in black and white?</span>
-<span id="cb11-10"><a></a>4. Is everything in the figure needed for the message?</span>
-<span id="cb11-11"><a></a>5. Does it meet each item of the figure standard below? Answer per item.</span>
-<span id="cb11-12"><a></a></span>
-<span id="cb11-13"><a></a>&lt;the figure standard&gt;</span>
-<span id="cb11-14"><a></a></span>
-<span id="cb11-15"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
-<span id="cb11-16"><a></a>heading "&lt;Task 5&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb11-17"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb11-18"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb11-19"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span>
-<span id="cb11-20"><a></a></span>
-<span id="cb11-21"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-20-5">
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb14-1"><a></a>The code below draws a figure. Its intended message is: &lt;one sentence&gt;.</span>
+<span id="cb14-2"><a></a>The reader is &lt;who&gt;.</span>
+<span id="cb14-3"><a></a></span>
+<span id="cb14-4"><a></a>Draw it unchanged. Below it, answer each question with yes or no and</span>
+<span id="cb14-5"><a></a>one sentence of reason:</span>
+<span id="cb14-6"><a></a>1. Could someone who has not seen the data state the message within a</span>
+<span id="cb14-7"><a></a>   few seconds?</span>
+<span id="cb14-8"><a></a>2. Does every colour carry information?</span>
+<span id="cb14-9"><a></a>3. Would the message survive printing in black and white?</span>
+<span id="cb14-10"><a></a>4. Is everything in the figure needed for the message?</span>
+<span id="cb14-11"><a></a>5. Does it meet each item of the figure standard below? Answer per item.</span>
+<span id="cb14-12"><a></a></span>
+<span id="cb14-13"><a></a>&lt;the figure standard&gt;</span>
+<span id="cb14-14"><a></a></span>
+<span id="cb14-15"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
+<span id="cb14-16"><a></a>heading "&lt;Task 5&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb14-17"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb14-18"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb14-19"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span>
+<span id="cb14-20"><a></a></span>
+<span id="cb14-21"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Compare its answers with your own before you change anything.</p>
 </div>
-<div id="tabset-19-6">
-<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb12-1"><a></a>Draw my figure from &lt;Task 4&gt; again, and next to it print the table</span>
-<span id="cb12-2"><a></a>the figure is drawn from: one row per &lt;point / bar / point on a line&gt;, with</span>
-<span id="cb12-3"><a></a>the columns that set its position and colour, and the number of rows of</span>
-<span id="cb12-4"><a></a>the original data behind each one.</span>
-<span id="cb12-5"><a></a></span>
-<span id="cb12-6"><a></a>Then check:</span>
-<span id="cb12-7"><a></a>- the number of &lt;points / bars / lines&gt;: expected &lt;...&gt;</span>
-<span id="cb12-8"><a></a>- the column used for colour holds &lt;categories / amounts&gt;, and is</span>
-<span id="cb12-9"><a></a>  stored as such</span>
-<span id="cb12-10"><a></a>- &lt;a gap or a small group you know of&gt;: &lt;...&gt;</span>
-<span id="cb12-11"><a></a></span>
-<span id="cb12-12"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
-<span id="cb12-13"><a></a>heading "&lt;Task 7&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb12-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb12-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
-<span id="cb12-16"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-20-6">
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb15-1"><a></a>Draw my figure from &lt;Task 4&gt; again, and next to it print the table</span>
+<span id="cb15-2"><a></a>the figure is drawn from: one row per &lt;point / bar / point on a line&gt;, with</span>
+<span id="cb15-3"><a></a>the columns that set its position and colour, and the number of rows of</span>
+<span id="cb15-4"><a></a>the original data behind each one.</span>
+<span id="cb15-5"><a></a></span>
+<span id="cb15-6"><a></a>Then check:</span>
+<span id="cb15-7"><a></a>- the number of &lt;points / bars / lines&gt;: expected &lt;...&gt;</span>
+<span id="cb15-8"><a></a>- the column used for colour holds &lt;categories / amounts&gt;, and is</span>
+<span id="cb15-9"><a></a>  stored as such</span>
+<span id="cb15-10"><a></a>- &lt;a gap or a small group you know of&gt;: &lt;...&gt;</span>
+<span id="cb15-11"><a></a></span>
+<span id="cb15-12"><a></a>Put the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the</span>
+<span id="cb15-13"><a></a>heading "&lt;Task 7&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb15-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb15-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check as</span>
+<span id="cb15-16"><a></a>"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;". Render the document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-19-7">
+<div id="tabset-20-7">
 <p>For figure code you did not write, or are not sure about:</p>
-<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb13-1"><a></a>Explain this ggplot2 code to me. For each line, write one plain-English</span>
-<span id="cb13-2"><a></a>sentence. Then list:</span>
-<span id="cb13-3"><a></a>1. which column sets the horizontal axis, the vertical axis, and the</span>
-<span id="cb13-4"><a></a>   colour, and whether each is stored as a number or as a category</span>
-<span id="cb13-5"><a></a>2. any step that could make the figure misleading without an error,</span>
-<span id="cb13-6"><a></a>   and what printed check would reveal it</span>
-<span id="cb13-7"><a></a></span>
-<span id="cb13-8"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb16"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb16-1"><a></a>Explain this ggplot2 code to me. For each line, write one plain-English</span>
+<span id="cb16-2"><a></a>sentence. Then list:</span>
+<span id="cb16-3"><a></a>1. which column sets the horizontal axis, the vertical axis, and the</span>
+<span id="cb16-4"><a></a>   colour, and whether each is stored as a number or as a category</span>
+<span id="cb16-5"><a></a>2. any step that could make the figure misleading without an error,</span>
+<span id="cb16-6"><a></a>   and what printed check would reveal it</span>
+<span id="cb16-7"><a></a></span>
+<span id="cb16-8"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>

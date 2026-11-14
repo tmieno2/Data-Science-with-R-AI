@@ -51,6 +51,8 @@ This is an in-class exercise. Before class, work through the lecture **03-1: Get
 
 ::: {.callout-important title="It worked if"}
 Typing `here::here()` in the Console prints the path to `ch3-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
 :::
 
 # Answers {#sec-answers}

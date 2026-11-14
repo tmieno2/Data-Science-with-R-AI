@@ -179,6 +179,109 @@ ggplot(drought_by_year, aes(year, drought_weeks)) +
 
 :::
 
+# How figure code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The shape every figure shares
+
+You will not write figure code from memory. You need to look at any figure code the AI writes and say **which column is shown by what**, because that is where a figure goes wrong. Every `ggplot2` figure has the same shape.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| label: shape-pattern
+#| echo: true
+#| eval: false
+ggplot(table, aes(x = column, y = column, colour = column)) +
+  geom_mark() +
+  optional_layer() +
+  optional_layer()
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `ggplot(table, ...)` | The table the figure is drawn from, always the **first** input | **Yes** |
+| `aes(...)` | Which column is shown by which visual property: position on the x axis, position on the y axis, colour, size (`aes` stands for aesthetics, ggplot's word for visual properties) | **Yes** |
+| `geom_mark()` | The kind of mark drawn: `geom_point()`, `geom_line()`, `geom_col()` and so on | **Yes, at least one** |
+| `+` | Adds the next layer. It ends a line; a line never starts with it | Between layers |
+| `optional_layer()` | Axis and legend titles (`labs()`), colours and axis ranges (`scale_...()`), small panels (`facet_...()`), text size and gridlines (`theme()`) | No; each has a default |
+
+**How to tell you can read it:** for any figure code, you can fill in a table with one row per column of the data that is used, saying what it sets in the figure.
+
+### One real example
+
+`state_year` has one row per state and year, with the average corn yield of the counties in the data.
+
+```{r}
+#| label: shape-example
+#| echo: true
+#| fig-height: 4
+ggplot(state_year, aes(x = year, y = corn_yield, colour = state_name)) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = state_colours) +
+  labs(x = NULL, y = "Average corn yield\n(bushels per acre)", colour = NULL)
+```
+
+| Column | Shown by |
+|---|---|
+| `year` | position on the x axis |
+| `corn_yield` | position on the y axis |
+| `state_name` | colour, one line per state |
+
+The mark is lines. The two optional layers set the three colours and the axis and legend titles.
+
+### Every mark has this shape
+
+Marks differ in name, not in shape. The visual properties each one needs inside `aes()`:
+
+| Mark | In the code | Needs |
+|---|---|---|
+| Points | `geom_point()` | x, y |
+| Lines | `geom_line()` | x, y |
+| Bars whose length is a value in the table | `geom_col()` | x, y |
+| Bars that count rows | `geom_bar()` | x |
+| Histogram | `geom_histogram()` | x |
+| Box plots | `geom_boxplot()` | x or y, usually both |
+| Text | `geom_text()` | x, y, label |
+
+Any of them also accepts `colour`, `fill` (the colour inside a bar or box), `size`, `shape` (of points) and `linetype` inside `aes()`.
+
+### Inside or outside `aes()`
+
+The same word means two different things depending on where it is written:
+
++ **Inside `aes()`**: `aes(colour = state_name)` means "the colour depends on the column `state_name`", and ggplot adds a legend.
++ **Outside `aes()`**: `geom_line(colour = "grey40")` means "every line is grey". No column is involved, and there is no legend.
+
+Writing a fixed colour inside `aes()` is a common slip. ggplot treats `"blue"` as a column whose value is the word "blue", gives it the first default colour, and adds a legend for it:
+
+```{r}
+#| label: shape-aes-slip
+#| echo: true
+#| fig-height: 3.5
+ggplot(band_means, aes(band, corn_yield)) +
+  geom_point(aes(colour = "blue"), size = 4)
+```
+
+No error, and the points are not blue.
+
+### Variations you will see
+
+AI-written code often writes the same pattern differently. These change how the code looks, not what it draws:
+
++ `aes(year, corn_yield)`: without `x =` and `y =`. The first two inputs are x and y.
++ `ggplot(data = cy, mapping = aes(...))`: the input names spelled out.
++ `cy |> ggplot(aes(...))`: the table passed in with `|>` instead of written first.
++ `geom_point(aes(colour = state_name))`: the `aes()` inside one mark instead of in `ggplot()`. It then applies to that mark only.
++ `p <- ggplot(...) + geom_line()` on one line, then `p + labs(...)` later: the figure is stored under a name and added to.
+
+A `+` at the start of a line stops R with the error "Cannot use `+` with a single argument". The fix is to move it to the end of the line above.
+
+:::
+
 # Choosing the type of figure
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
@@ -470,7 +573,7 @@ ggplot(state_year, aes(year, drought_weeks, colour = state_name)) +
 
 ### As a red-green colour-blind reader sees it
 
-Roughly 1 man in 12 of European ancestry has some form of red-green colour blindness. The same figure, with its colours converted to what such a reader sees (simulated with the `colorspace` package):
+The same figure, with its colours converted to what a reader with red-green colour blindness sees (simulated with the `colorspace` package):
 
 ```{r}
 #| label: cb-simulated

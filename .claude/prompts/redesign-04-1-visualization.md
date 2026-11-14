@@ -34,6 +34,8 @@ The old course repo is read-only for this task. All writing happens in `~/Teachi
 
 **For this chapter, the subject is communication, not code.** A figure exists to convey one fact or idea to a reader. What students must learn is how to choose the design that conveys it best, and how to judge whether a figure does. The AI can produce any figure in seconds; it cannot know what the student is trying to say or who the reader is. Code appears only as a sample to recognise, and only where it helps a student read what the AI wrote.
 
+**Where code does appear, show its general shape before any single example**, as 03-1 does in its slides "How reading code is written" and "How writing code is written". For ggplot2 that means one slide with the pattern every figure the AI writes will share: the data, which column is shown by which visual property (position on the x axis, position on the y axis, colour, size, panel), the kind of mark drawn (points, lines, bars), and optional layers added with `+` for labels, scales and theme. Then a table of the common marks in that shape, then one real example. The aim is that a student can look at any AI-written figure code and say what is mapped to what, not write it from memory.
+
 Candidates (use your judgement after reading the old deck, which is mostly about code and needs reshaping, not trimming):
 
 1. **Start from the message.** Before any figure, write the one sentence the reader should take away, and who the reader is. Every design decision below is judged against that sentence.
@@ -75,6 +77,6 @@ For the exercise, favour tasks where students state a message, ask for alternati
 2. Write the three files.
 3. Render the whole site from the repo root, redirecting output, never piping it: `quarto render > <log file> 2>&1; echo "EXIT: $?"`. It must exit 0.
 4. Check every answer-box number and every output claim against the rendered HTML.
-5. Copy the blank worksheet into a mock student project (a folder with an empty `.Rproj`, `analysis/` and `data/`) in your scratch directory and confirm it renders unchanged.
+5. Copy the blank worksheet into a mock student project (a folder with `analysis/`, `data/` and a `.Rproj` file whose first line is `Version: 1.0`; `here::here()` ignores an empty `.Rproj`) in your scratch directory and confirm it renders unchanged.
 6. Commit in `~/Teaching/Data-Science-with-R-AI` and push to its `origin`.
 7. Report back in plain language, with labelled items: what is in the deck and the exercise, what you cut from the old deck and why, anything about the data that surprised you, and any decisions you need from me, each labelled so I can answer by letter.

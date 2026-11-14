@@ -46,7 +46,7 @@ Those four are your job. So today is about:
 ### Directions
 
 + Clone [this repository](https://github.com/tmieno2/data-science-course-supplementary-datasets), which holds the datasets used here
-+ Ask your AI assistant to install the `tidyverse` and `haven` packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).
++ Ask your AI assistant to install the `tidyverse`, `haven` and `here` packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).
 
 :::
 
@@ -56,7 +56,7 @@ Those four are your job. So today is about:
 
 ## How reading code is written
 
-A data file is a table saved on disk in some **format**. Reading it means a function opens the file and builds a table inside R (a **data frame**) that you give a name to. Whatever the format, and whichever function the AI picks, the code has the same shape.
+A data file is a table saved on disk in some **format**. Reading it means a function opens the file and builds a table inside R (R calls it a **data frame**; this deck says table) that you give a name to. Whatever the format, and whichever function the AI picks, the code follows the same pattern.
 
 ::: {.panel-tabset}
 
@@ -74,16 +74,18 @@ table_name <- reader_function("path/to/file", option = value, ...)
 | `"path/to/file"` | Where the file is, always the **first** input | **Yes, the only required input** |
 | `option = value` | Extra instructions about the layout and types | No; each has a default |
 
-A real line of this shape:
+A real line that follows the pattern:
 
 ```{r}
 #| label: first-import
 corn <- read_csv("corn_yields.csv")
 ```
 
-### Every reader has this shape
+On these slides the data files sit in the same folder as the slides, so a path is just the file name. In your own project, paths are built with `here::here()` (see Condition 1).
 
-Readers differ in name and package, not in shape. The shortest call to each is the path and nothing else:
+### Every reader follows the pattern
+
+Readers differ in name and package, not in pattern. The shortest call to each is the path and nothing else:
 
 | Format | Shortest call | Package |
 |---|---|---|
@@ -130,10 +132,10 @@ AI-written code often wraps the same pattern in extra pieces. They change how th
 3. **The reader understands the layout.** Where the column names are, which sheet to read, what marks a missing value.
 4. **Each column gets the right type.** Numbers as numbers, text as text, IDs kept exactly as written.
 
-### Loud and silent failures
+### Failures with and without an error
 
 + If condition 1 or 2 fails, R stops with an **error**. Annoying, but you know something is wrong.
-+ If condition 3 or 4 fails, R gives you a data frame with **no error**, and the data frame is wrong.
++ If condition 3 or 4 fails, R gives you a table with **no error**, and the table is wrong. This deck calls these **silent failures**.
 
 :::{.callout-important}
 The silent failures are why checking matters. Code that runs is not the same as code that is right.
@@ -150,23 +152,25 @@ The silent failures are why checking matters. Code that runs is not the same as 
 A **path** is the address of a file. There are two kinds:
 
 + **Absolute path**: starts at the top of the disk, for example `"/Users/taro/Documents/class/corn_yields.csv"`. It works only on the computer it was written on, because nobody else has those folders.
-+ **Relative path**: starts from the folder R is currently in (the **working directory**), for example `"data/corn_yields.csv"`. It works on any computer that has the same project folder.
++ **Relative path**: starts from the folder R is currently in (the **working directory**), for example `"data/corn_yields.csv"`. It works only if R is in the folder you expected, and that folder changes:
 
-What R treats as the working directory:
-
-+ At the Console: your project folder (if you opened an R Project)
++ At the Console: your project folder (if you opened an R Project, explained in the next tab)
 + Inside a `.qmd` file: the folder the `.qmd` is saved in
+
+So `"data/corn_yields.csv"` can work at the Console and fail when a `.qmd` in `analysis/` is rendered.
 
 ### The project root and `here()`
 
-The safest path is one measured from the top of your project folder (the **project root**). The `here` package does that. Recognise it when you see it:
+An **R Project** is a folder that RStudio marks with a `.Rproj` file; you open the project by opening that file. The top of that folder is the **project root**.
+
+The safest path is one measured from the project root, whatever folder R is in. The `here` package does that: it finds the project root by looking for the `.Rproj` file. Recognise it when you see it:
 
 ```{r}
 #| eval: false
 corn <- read_csv(here::here("data", "corn_yields.csv"))
 ```
 
-This reads `data/corn_yields.csv` inside your project, whichever subfolder your code is in and whoever's computer it runs on.
+This reads `data/corn_yields.csv` inside your project, whichever subfolder your code is in and whoever's computer it runs on. To check it is set up, run `here::here()` on its own at the Console: it should print your project folder.
 
 ### Why AI gets this wrong
 
@@ -178,6 +182,8 @@ The AI cannot see your folders, so it **guesses** the path. Its guesses tend to 
 
 All three break as soon as the code runs somewhere else. Tell it where the file is (see "Asking AI" below).
 
+If R says the file does not exist, send the AI the exact error message, the folder your `.qmd` is in, and where the file is inside your project.
+
 :::
 
 ## Condition 2: the reader matches the format
@@ -188,7 +194,7 @@ The file extension (the part after the last dot) tells you the format. Tell the 
 |---|---|---|
 | `.csv` | plain text, any software opens it | Only text. Types are guessed on reading. |
 | `.xls`, `.xlsx` | Excel workbook | Several **sheets** per file; a reader takes the first unless told otherwise |
-| `.dta` | STATA | Types and variable labels |
+| `.dta` | STATA | Types, and a description stored with each column |
 | `.rds` | R's own format | The exact R object, nothing guessed |
 
 :::{.callout-note}
@@ -227,7 +233,7 @@ The same file uses `-999` to mean "no data", a common convention. The reader doe
 mean(small$yield)
 ```
 
-An average yield of `r round(mean(small$yield), 1)` bushels per acre. Again no error. The reader has to be told that `-999` means missing.
+An average yield of `r round(mean(small$yield), 1)` bushels per acre, which is impossible. Again no error. The reader has to be told that `-999` means missing.
 
 ### The wrong sheet
 
@@ -262,22 +268,7 @@ Why this matters for research, and why you judge the HTML rather than the chat w
 + The chat disappears; the `.qmd` and its HTML stay with your project.
 
 :::{.callout-note}
-Every request ends with the same few lines telling the AI to work this way. This deck calls them the **closing instructions**; the full text is under **Recommended requests** near the end.
-:::
-
-## What to put in your request
-
-The AI already knows the functions. Your request supplies what it cannot know:
-
-1. **The file**: its name, its format, and where it sits inside your project
-2. **What is inside**: the first few lines, the sheet names, and anything unusual (IDs with leading zeros, codes for missing values)
-3. **What you want back**: the name of the table, what one row is, and which type each key column should be
-4. **Your project's rules**: for example, use the tidyverse, build paths with `here::here()`, never `setwd()` or absolute paths
-5. **Ask for checks**: have it print the numbers you will check against (next section)
-6. **The closing instructions**: which `.qmd` and heading the code goes under, a sentence above each chunk, and render to HTML
-
-:::{.callout-tip title="Using an agent in your editor or terminal?"}
-An agent such as Claude Code can open the file and look for itself. Still write down what you expect (number of rows, types of key columns) **before** it runs, so you have something to compare against.
+Every request that asks for code ends with the same few lines telling the AI to work this way. This deck calls them the **closing instructions**; the full text is under **Recommended requests** near the end.
 :::
 
 ## Look at the file before you ask
@@ -311,6 +302,21 @@ length(readLines("corn_yields.csv"))
 
 :::
 
+## What to put in your request
+
+The AI already knows the functions. Your request supplies what it cannot know, most of it from looking at the file:
+
+1. **The file**: its name, its format, and where it sits inside your project
+2. **What is inside**: the first few lines, the sheet names, and anything unusual (IDs with leading zeros, codes for missing values)
+3. **What you want back**: the name of the table, what one row is, and which type each key column should be
+4. **Your project's rules**, if you have any beyond the closing instructions: for example, use the tidyverse
+5. **Ask for checks**: have it print the numbers you will check against (next section)
+6. **The closing instructions**: which `.qmd` and heading the code goes under, a sentence above each chunk, paths built with `here::here()`, checks printed as expected and got, and render to HTML
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the file and look for itself. Still write down what you expect (number of rows, types of key columns) **before** it runs, so you have something to compare against.
+:::
+
 ## A weak request and a strong one
 
 ::: {.panel-tabset}
@@ -333,49 +339,66 @@ It runs on nobody's computer as written, and if you fix the path, it still guess
 
 ### Strong
 
+An example for a workbook with one sheet per year:
+
 ```text
 In my R project, the file data/corn_yields.xls is an Excel workbook with
 two sheets, corn_yields_08 and corn_yields_09 (one per year). Each row is
-one county, one year, and one irrigation status.
+one county, one year, and one irrigation status. I want both sheets
+stacked into one table called corn, using the tidyverse, with FIPS kept
+as text so leading zeros survive.
 
-Write R code (tidyverse) that:
-- reads BOTH sheets and stacks them into one table called corn
-- keeps FIPS as text so leading zeros survive
-- builds the path with here::here(), no setwd() and no absolute paths
-
-Then print: the number of rows from each sheet (I expect 161 each), the
+Then check the number of rows from each sheet (I expect 161 each), the
 number of rows in corn (322), the type of every column, and the number
-of missing values in each column.
+of missing values in each column (I expect none).
 
-Put the code in analysis/import.qmd under the heading "Read the corn
-data", with one plain-English sentence above each chunk saying what it
-does and why. Render the document to HTML.
+Put the code in my Quarto document analysis/import.qmd, under the
+heading "Read the corn data", as R code chunks. Above each chunk, write
+one plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 ### What came back
 
-A version of what an AI returns for the strong request. Read it line by line; you should be able to say what each line does:
+What the AI's answer looks like in the rendered HTML: a sentence, then the chunk it describes. Read each sentence and check that the code under it does what the sentence says.
+
+Read both sheets, keeping every column as text so that FIPS keeps its leading zeros.
 
 ```{r}
-#| label: ai-answer
+#| label: ai-answer-read
 #| eval: false
 library(readxl)
 library(dplyr)
 
 path <- here::here("data", "corn_yields.xls")
-
 corn_08 <- read_excel(path, sheet = "corn_yields_08", col_types = "text")
 corn_09 <- read_excel(path, sheet = "corn_yields_09", col_types = "text")
-
-corn <- bind_rows(corn_08, corn_09) |>
-  mutate(Year = as.integer(Year), Yield = as.numeric(Yield))
-
-c(nrow(corn_08), nrow(corn_09), nrow(corn))
-glimpse(corn)
-colSums(is.na(corn))
 ```
 
-`bind_rows()` stacks one table on top of another; you will meet it properly later in this chapter.
+Stack the two sheets into one table, then turn `Year` and `Yield` back into numbers, since they were read as text.
+
+```{r}
+#| label: ai-answer-stack
+#| eval: false
+corn <- bind_rows(corn_08, corn_09) |>
+  mutate(Year = as.integer(Year), Yield = as.numeric(Yield))
+```
+
+Print the checks: rows per sheet and in total, the type of every column, and missing values per column.
+
+```{r}
+#| label: ai-answer-check
+#| eval: false
+cat("rows in 2008 sheet: expected 161, got", nrow(corn_08), "\n")
+cat("rows in 2009 sheet: expected 161, got", nrow(corn_09), "\n")
+cat("rows in corn: expected 322, got", nrow(corn), "\n")
+sapply(corn, class)
+cat("missing values: expected 0, got", sum(is.na(corn)), "\n")
+```
+
+Two things to notice. `library()` loads a package so its functions can be used, and `bind_rows()` stacks one table on top of another (you will meet it properly later in this chapter). And the type check would show that `State` and `Irrigated` are still text, because only `Year` and `Yield` were turned back into numbers. That is the type check doing its job: you would ask the AI to make those two numbers as well.
 
 :::
 
@@ -412,31 +435,35 @@ largest value of each numeric column, and the first row.
 Better still, tell it what you expect, so the HTML says which checks passed:
 
 ```text
-I expect 161 rows, 9 columns, no missing values, and Yield between 100 and
-250. Print each check as "<check>: expected <X>, got <Y>".
+I expect <number> rows, <number> columns, <ID columns> as text, <how many>
+missing values, and <column> between <lowest> and <highest>. Print each
+check on its own line as "name of check: expected X, got Y".
 ```
 
-The second version only works if you looked at the file first. That is the part you cannot hand off.
+The second version only works if you looked at the file first. That part only you can do.
 
 ### Reading the HTML
 
-The AI writes the code. In the rendered HTML, you read what it printed and compare it with what you expected:
+For `corn_yields.csv`, the student expected `r length(readLines("corn_yields.csv")) - 1` rows (from counting lines), 9 columns, `FIPS` as text, no missing values, and yields between 100 and 250. The AI wrote the code; in the rendered HTML, you read each line:
 
 ```{r}
 #| label: chk-all
 #| code-fold: true
 #| code-summary: "Code the AI wrote"
-list(
-  rows_and_columns  = dim(corn),
-  column_types      = sapply(corn, class),
-  missing_per_column = colSums(is.na(corn)),
-  yield_range       = range(corn$Yield)
+cat(
+  paste("rows: expected 161, got", nrow(corn)),
+  paste("columns: expected 9, got", ncol(corn)),
+  paste("type of FIPS: expected character, got", class(corn$FIPS)),
+  paste("missing values: expected 0, got", sum(is.na(corn))),
+  paste("Yield range: expected 100 to 250, got", min(corn$Yield), "to", max(corn$Yield)),
+  paste("first row:", paste(unlist(corn[1, ]), collapse = ", ")),
+  sep = "\n"
 )
 ```
 
-+ `r nrow(corn)` rows: the file has `r length(readLines("corn_yields.csv"))` lines, one of them column names. Matches.
-+ `FIPS` is a number. Fine here, since every Nebraska code starts with 31, but in a national dataset this is the column that loses leading zeros.
-+ No missing values, and yields from `r min(corn$Yield)` to `r max(corn$Yield)` bushels per acre: believable.
++ Rows, columns, missing values and the yield range match.
++ The first row matches the second line of the file (shown under "Look at the file before you ask").
++ `FIPS` came back as a number, not the text you expected. In this file every code starts with 31, so nothing was lost, but the check fails, and you would ask the AI to read `FIPS` as text.
 
 :::
 
@@ -445,24 +472,36 @@ list(
 
 The five checks apply to any file. The most useful checks come from what you know about **this** data, and no AI will think of them for you.
 
-The two sheets of `corn_yields.xls` are labelled 2008 and 2009. Yields change from year to year, because the weather does. So ask:
+In `corn_yields.csv`, most counties have two rows: one for irrigated corn and one for non-irrigated corn. Irrigated corn gets water that rain-fed corn does not, so in each county the irrigated yield should be the higher one. So ask:
 
 ```text
-Read both sheets of corn_yields.xls and tell me whether each county's
-yield is the same in both years.
+Using the table corn, for each county with one irrigated and one
+non-irrigated row, check whether the irrigated yield is higher. Print
+how many counties pass and how many fail.
+```
+
+The AI's code, and what it printed:
+
+```{r}
+#| label: chk-irrigation
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+corn |>
+  group_by(FIPS) |>
+  filter(n() == 2, n_distinct(Irrigated) == 2) |>
+  summarise(irrigated_higher = Yield[Irrigated == 1] > Yield[Irrigated == 0]) |>
+  count(irrigated_higher)
 ```
 
 ```{r}
-#| label: chk-sheets
-#| code-fold: true
-#| code-summary: "Code the AI wrote"
-yield_08 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_08")
-yield_09 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_09")
-
-identical(yield_08$Yield, yield_09$Yield)
+#| label: chk-irrigation-n
+#| include: false
+n_both <- corn |> group_by(FIPS) |> filter(n() == 2, n_distinct(Irrigated) == 2) |> n_groups()
 ```
 
-`TRUE`: every county has exactly the same yield in both years. The code ran without error, and the row counts and types pass. The problem is in the file itself, and only a question based on what real yields look like found it.
+All `r n_both` counties pass. A row count or a type check could never have tested this; only what you know about corn could.
+
+When a check like this fails, the code is usually not the problem: the file is. Stop, and ask whoever produced the file before you analyse it.
 
 ## Your turn: read the AI's code
 
@@ -494,7 +533,7 @@ A. Changes the working directory; loads readxl; reads the workbook into `corn`; 
 
 B. Line 1. The folder `C:/Users/jsmith/...` exists only on jsmith's computer.
 
-C. Line 3 reads only the **first** sheet, so the average covers 2008 only. Nothing says so.
+C. Line 3 reads only the **first** sheet, so `corn` holds 2008 only, and nothing says so. The average leaves out 2009.
 
 D. Name both sheets, say whether you want both years or one, ask for `here::here()` and no `setwd()`, and ask it to print the row count per sheet.
 
@@ -506,7 +545,7 @@ D. Name both sheets, say whether you want both years or one, ask for `here::here
 
 ## How writing code is written
 
-Writing (exporting) is reading in reverse: a function takes a table from R and saves it as a file. Again, every writer has the same shape.
+Writing (exporting) is reading in reverse: a function takes a table from R and saves it as a file. Again, every writer follows the same pattern.
 
 ::: {.panel-tabset}
 
@@ -529,7 +568,7 @@ Two differences from reading:
 + There is no `table_name <-` in front. The result is a file on disk, not a new table in R.
 + If a file already exists at that path, it is **replaced without asking**. Writing to the same path as your raw data destroys the raw data.
 
-### Every writer has this shape
+### Every writer follows the pattern
 
 | Format | Shortest call | Package |
 |---|---|---|
@@ -562,7 +601,7 @@ The decision that is yours is the **format**, and it depends on who reads the fi
 
 | Format | Choose it when | What is lost |
 |---|---|---|
-| csv | anyone, in any software, must be able to read it | every type: dates, factors and text IDs come back as guesses |
+| csv | anyone, in any software, must be able to read it | every type: dates, factors (columns of categories) and text IDs come back as guesses |
 | rds | you, in R, will read it in the next step of the project | nothing, but only R can open it |
 | dta | a collaborator uses STATA | some R-only types |
 
@@ -577,7 +616,7 @@ Keep **raw** data as you received it. Save **intermediate** results as rds, so t
 
 **Why:** a file can quietly keep less than you saved. The only way to know what it kept is to read it back.
 
-**What to ask:** "Save the table, read it back, and compare it with the original." Here `Irrigated` was first made a factor (a column of categories), then saved as csv and as rds:
+**What to ask:** "Save the table, read it back, and compare it with the original." Here `Irrigated` was first made a factor, then saved as csv and as rds:
 
 ```{r}
 #| label: round-trip
@@ -598,9 +637,7 @@ c(
 
 The csv gave back text: the factor was lost. The rds gave back the factor.
 
-:::{.callout-tip title="A full request"}
-"Save `corn` as `data/corn_clean.rds` using `here::here()`, then read it back and tell me whether it matches the original exactly, and if not, which columns differ."
-:::
+The request is under **Recommended requests**, tab "Save and read back".
 
 # Recommended requests
 
@@ -608,20 +645,21 @@ The csv gave back text: the factor was lost. The rds gave back the factor.
 
 ## Requests you can copy
 
-Copy one, then replace every `<...>` with what **you** found by looking at the file. The blanks are the part the AI cannot fill in for you. Every request ends with the closing instructions.
+Copy one, then replace every `<...>` with what **you** found by looking at the file. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.
 
 ::: {.panel-tabset}
 
 ### Closing instructions
 
-The lines that end every request:
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
 
 ```text
-Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
-heading "<Task 2>", as R code chunks. Above each chunk, write one
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check as
-"<check>: expected <X>, got <Y>". Render the document to HTML.
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
@@ -629,68 +667,74 @@ A chat assistant cannot render: paste its chunks into your `.qmd` and render it 
 ### Look at a file
 
 ```text
-Without reading <data/corn_messy.csv> as a table, show me its first
-<5> raw lines and the total number of lines.
+Without reading <path to the file> as a table, show me its first
+<number> raw lines and the total number of lines.
 
-Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
-heading "<Task 4b>", as R code chunks. Above each chunk, write one
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Render the document
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
 ### Read a csv
 
 ```text
-In my R project, <data/corn_yields.csv> is a csv file. I looked at it:
-- above the column names there is <nothing>
-- there are <161> data rows and <9> columns
-- one row is <one county, one year, one irrigation status>
-- missing values are written as <nothing / -999 / .>
-- ID columns that must stay text: <FIPS>
-- a believable range for <Yield> is <100 to 250>
+In my R project, <path to the file> is a csv file. I looked at it:
+- above the column names there is <what is there, or nothing>
+- there are <number> data rows and <number> columns
+- one row is <what one row is>
+- missing values are written as <how they are written>
+- ID columns that must stay text: <ID columns>
+- a believable range for <column> is <lowest> to <highest>
 
-Read it into a table called <corn> using the tidyverse. Then check the
-number of rows and columns, the type of every column, the number of
-missing values in each column, the range of <Yield>, and the first row.
+Read it into a table called <table name> using the tidyverse. Then check
+the number of rows and columns, the type of every column, the number of
+missing values in each column, the range of <column>, and the first row.
 
-Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
-heading "<Task 2>", as R code chunks. Above each chunk, write one
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check as
-"<check>: expected <X>, got <Y>". Render the document to HTML.
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 ### Read an Excel workbook
 
 ```text
-In my R project, <data/corn_yields.xls> is an Excel workbook with the
-sheets <corn_yields_08> and <corn_yields_09>. I want <both sheets,
-stacked into one table called corn>. Each sheet has <161> rows, and
-<Year> tells the sheets apart. ID columns that must stay text: <FIPS>.
+In my R project, <path to the file> is an Excel workbook with the
+sheets <sheet names>. I want <which sheets, and whether to stack them
+into one table>, in a table called <table name>. Each sheet has
+<number> rows, and <column> tells the sheets apart. ID columns that
+must stay text: <ID columns>.
 
 Then check the number of rows from each sheet and in total, the type of
 every column, the number of missing values in each column, and the
-values of <Year>.
+values of <column that tells the sheets apart>.
 
-Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
-heading "<Task 3>", as R code chunks. Above each chunk, write one
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check as
-"<check>: expected <X>, got <Y>". Render the document to HTML.
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
 ```
 
 ### Save and read back
 
 ```text
-Save the table <corn> as <data/corn_clean.rds>. Then read the file back
-and tell me, in one plain-English line, whether it matches the original
-exactly, and if not, which columns differ and how.
+Save the table <table name> as <path for the new file, ending in .rds or
+.csv>. Then read the file back and tell me, in one plain-English line,
+whether it matches the original exactly, and if not, which columns
+differ and how.
 
-Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
-heading "<Task 6>", as R code chunks. Above each chunk, write one
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
 plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Render the document
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
@@ -714,7 +758,7 @@ sentence. Then list:
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
-## What is yours, and what you can hand off
+## What you must understand, and what the AI can write
 
 | You need to understand | The AI can write |
 |---|---|
