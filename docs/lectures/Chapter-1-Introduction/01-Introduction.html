@@ -9,7 +9,7 @@
 <link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
   <meta name="generator" content="quarto-1.7.32">
 
-  <title>Data Science with R (AECN 896-05) – 01-1: Introduction to R</title>
+  <title>Data Science with R (AECN 896-05) – 01-1: Reading Code in R and Python</title>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
@@ -94,7 +94,7 @@
     code span.vs { color: #20794d; } /* VerbatimString */
     code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
   </style>
-  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-fea84c45737ceae4afc78b90276b68f2.css">
   <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
   <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
@@ -822,14 +822,16 @@
     // editor toolbar on a stacked one. All it does is set a flag on the
     // interactive area; notebook.scss does the hiding.
     function addOutputToggle(area) {
-      var bar = area.querySelector(".qwebr-editor-toolbar-right-buttons");
+      var bar = area.querySelector(".qwebr-editor-toolbar-right-buttons, " +
+        ".qpyodide-editor-toolbar-right-buttons");
       if (!bar || area.querySelector(".webr-output-toggle")) return;
+      var prefix = area.classList.contains("qpyodide-interactive-area") ? "qpyodide" : "qwebr";
       var btn = document.createElement("button");
       btn.type = "button";
       // The extension's own reset and copy buttons carry exactly these classes.
       // Wearing them too is what makes this look like part of the toolbar rather
       // than something bolted on, and it inherits their hover state for free.
-      btn.className = "btn btn-light btn-xs qwebr-button webr-output-toggle";
+      btn.className = "btn btn-light btn-xs " + prefix + "-button webr-output-toggle";
       // An eye, matching the reset and copy buttons beside it in being icon-only.
       // Font Awesome needs no loading of its own: those two are already
       // `fa-solid fa-arrows-rotate` and `fa-regular fa-copy`. The icon names the
@@ -1079,6 +1081,14 @@
       document.querySelectorAll(".qwebr-interactive-area").forEach(function (area) {
         applyFigureCap(area);
         configure(area);
+      });
+      // Python cells (quarto-pyodide) are always stacked: they get the toggle and
+      // nothing else. The side-by-side rules above read WebR's own cell details
+      // and render-time measurements, which Python cells do not have. See RULES.md.
+      document.querySelectorAll(".qpyodide-interactive-area").forEach(function (area) {
+        if (area.dataset.webrLayout) return;
+        area.dataset.webrLayout = "stacked";
+        addOutputToggle(area);
       });
     }
 
@@ -1393,7 +1403,7 @@
   };
 
   // Store cell data
-  globalThis.qwebrCellDetails = [{"code":"# Every object a slide uses, created when the page loads, so each code area\n# runs on its own and in any order.\nyields <- c(150, 162, NA, 171)\na <- 1\nb <- \"R rocks\"\nd <- 1 == 2\naverage_yield <- mean(yields, na.rm = TRUE)\nv <- c(4, 3, 5, 9, 1)\nmixed <- c(4, 3, \"5\", 9, 1)\nyield_data <- data.frame(\n  nitrogen = c(200, 180, 300),\n  yield = c(240, 220, 230),\n  state = c(\"Kansas\", \"Nebraska\", \"Iowa\")\n)\na_list <- list(numbers = c(10, 20), state = \"Iowa\", data = yield_data)","id":1,"options":{"autorun":"true","classes":"","comment":"","context":"setup","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"unnamed-chunk-1","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"# this whole line is a comment\n2 + 3 # a comment can follow code on the same line","id":2,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"comments","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"average_yield <- mean(yields, na.rm = TRUE)","id":3,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"one-line","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a <- 1\nb <- \"R rocks\"\nd <- 1 == 2","id":4,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"assign","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a\nb\nd","id":5,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"print-object","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a <- 3\na <- 1\na","id":6,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"overwrite","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"\"5\" + 1","id":7,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"text-arithmetic","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"yields\nis.na(yields)","id":8,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"na","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"mean(yields)","id":9,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"na-mean","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"v <- c(4, 3, 5, 9, 1)\nv","id":10,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"vector","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"v * 2\nv + c(10, 20, 30, 40, 50)","id":11,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"vector-arithmetic","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"mixed <- c(4, 3, \"5\", 9, 1)\nmixed","id":12,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"mixed","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"yield_data <- data.frame(\n  nitrogen = c(200, 180, 300),\n  yield = c(240, 220, 230),\n  state = c(\"Kansas\", \"Nebraska\", \"Iowa\")\n)\nyield_data","id":13,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"table","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a_list <- list(numbers = c(10, 20), state = \"Iowa\", data = yield_data)\nnames(a_list)","id":14,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"list","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"class(yield_data)\nclass(mixed)\nstr(yield_data)","id":15,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"class-str","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"mean(yield_data$yield)\nyield_data$yield > 225\nyield_data[yield_data$yield > 225, ]","id":16,"options":{"autorun":"false","classes":"","code-track":"0.5","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"extract","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"round(3.14159, digits = 2)","id":17,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"round","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"mean(yields)\nmean(yields, na.rm = TRUE)","id":18,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"na-rm","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"yields |> mean(na.rm = TRUE)","id":19,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"pipe","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"seq(0, 1, by = 0.25)\nseq(0, 1, length.out = 5)","id":20,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"seq-two-ways","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"dplyr::filter(yield_data, yield > 225)","id":21,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"unnamed-chunk-21","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"sum(\"a\")","id":22,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"error-sum","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"sort(c(\"9\", \"10\", \"100\"))","id":23,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"sort-text","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"average_yield <- mean(yields, na.rm = TRUE)","id":24,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"ai-answer-mean","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"cat(\n  paste(\"values: expected 4, got\", length(yields)),\n  paste(\"missing values: expected 1, got\", sum(is.na(yields))),\n  paste(\"values used: expected 3, got\", sum(!is.na(yields))),\n  paste(\"average yield: expected 161, got\", average_yield),\n  sep = \"\\n\"\n)","id":25,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"ai-answer-check","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"cat(\"type of mixed: expected numeric, got\", class(mixed), \"\\n\")","id":26,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"chk-fail","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"library(dplyr)\nmy_yields <- c(150, 162, \"171\", 140)\navg = mean(my_yields)\navg","id":27,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"unnamed-chunk-27","message":"false","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}}];
+  globalThis.qwebrCellDetails = [{"code":"# Every object a slide uses, created when the page loads, so each code area\n# runs on its own and in any order.\nyields <- c(150, 162, NA, 171)\na <- 1\nb <- \"R rocks\"\nd <- 1 == 2\naverage_yield <- mean(yields, na.rm = TRUE)\nv <- c(4, 3, 5, 9, 1)\nmixed <- c(4, 3, \"5\", 9, 1)\nyield_data <- data.frame(\n  nitrogen = c(200, 180, 300),\n  yield = c(240, 220, 230),\n  state = c(\"Kansas\", \"Nebraska\", \"Iowa\")\n)\na_list <- list(numbers = c(10, 20), state = \"Iowa\", data = yield_data)","id":1,"options":{"autorun":"true","classes":"","comment":"","context":"setup","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"unnamed-chunk-1","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"# this whole line is a comment\n2 + 3 # a comment can follow code on the same line","id":2,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"comments","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"average_yield <- mean(yields, na.rm = TRUE)","id":3,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"one-line","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a <- 1\nb <- \"R rocks\"\nd <- 1 == 2","id":4,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"assign","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a\nb\nd","id":5,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"print-object","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a <- 3\na <- 1\na","id":6,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"overwrite","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"\"5\" + 1","id":7,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"text-arithmetic","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"yields\nis.na(yields)","id":8,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"na","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"v <- c(4, 3, 5, 9, 1)\nv * 2\nv + c(10, 20, 30, 40, 50)","id":9,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"vector-arithmetic","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"mixed <- c(4, 3, \"5\", 9, 1)\nmixed","id":10,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"mixed","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"yield_data <- data.frame(\n  nitrogen = c(200, 180, 300),\n  yield = c(240, 220, 230),\n  state = c(\"Kansas\", \"Nebraska\", \"Iowa\")\n)\nyield_data","id":11,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"table","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a_list <- list(numbers = c(10, 20), state = \"Iowa\")\nnames(a_list)","id":12,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"list","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"class(yield_data)\nstr(yield_data)","id":13,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"class-str","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"yield_data$yield > 225\nyield_data[yield_data$yield > 225, ]","id":14,"options":{"autorun":"false","classes":"","code-track":"0.5","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"extract","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"round(3.14159, digits = 2)","id":15,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"round","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"mean(yields)\nmean(yields, na.rm = TRUE)","id":16,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"na-rm","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"yields |> mean(na.rm = TRUE)","id":17,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"pipe","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"seq(0, 1, by = 0.25)\nseq(0, 1, length.out = 5)","id":18,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"seq-two-ways","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"dplyr::filter(yield_data, yield > 225)","id":19,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"unnamed-chunk-19","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"sum(\"a\")","id":20,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"error-sum","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"sort(c(\"9\", \"10\", \"100\"))","id":21,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"sort-text","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"average_yield <- mean(yields, na.rm = TRUE)","id":22,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"ai-answer-mean","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"cat(\n  paste(\"values: expected 4, got\", length(yields)),\n  paste(\"missing values: expected 1, got\", sum(is.na(yields))),\n  paste(\"values used: expected 3, got\", sum(!is.na(yields))),\n  paste(\"average yield: expected 161, got\", average_yield),\n  sep = \"\\n\"\n)","id":23,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"ai-answer-check","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"cat(\"type of mixed: expected numeric, got\", class(mixed), \"\\n\")","id":24,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"chk-fail","message":"true","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"library(dplyr)\nmy_yields <- c(150, 162, \"171\", 140)\navg = mean(my_yields)\navg","id":25,"options":{"autorun":"false","classes":"","comment":"","context":"interactive","dpi":"216","editor-font-scale":"0.7","editor-max-height":"","editor-quick-suggestions":"false","editor-word-wrap":"true","fig-cap":"","fig-height":"6","fig-width":"10","label":"unnamed-chunk-25","message":"false","out-height":"","out-width":"100%","output":"true","read-only":"false","results":"markup","warning":"true"}}];
 
   </script>
   <script type="module">
@@ -2680,6 +2690,358 @@
   }
 
   </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/editor/editor.main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer">
+    
+  <style type="text/css">
+  .monaco-editor pre {
+    background-color: unset !important;
+  }
+
+  .qpyodide-editor-toolbar {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    box-sizing: border-box;
+  }
+
+  .qpyodide-editor-toolbar-left-buttons, .qpyodide-editor-toolbar-right-buttons {
+    display: flex;
+  }
+
+  .qpyodide-non-interactive-loading-container.qpyodide-cell-needs-evaluation, .qpyodide-non-interactive-loading-container.qpyodide-cell-evaluated {
+    justify-content: center;
+    display: flex;
+    background-color: rgba(250, 250, 250, 0.65);
+    border: 1px solid rgba(233, 236, 239, 0.65);
+    border-radius: 0.5rem;
+    margin-top: 15px;
+    margin-bottom: 15px;
+  }
+
+  .qpyodide-r-project-logo {
+    color: #2767B0; /* R Project's blue color */
+  }
+
+  .qpyodide-icon-status-spinner {
+    color: #7894c4;
+  }
+
+  .qpyodide-icon-run-code {
+    color: #0d9c29
+  }
+
+  .qpyodide-output-code-stdout {
+    color: #111;
+  }
+
+  .qpyodide-output-code-stderr {
+    color: #db4133;
+  }
+
+  .qpyodide-editor {
+    border: 1px solid #EEEEEE;
+  }
+
+  .qpyodide-editor-toolbar {
+    background-color: #EEEEEE;
+    padding: 0.2rem 0.5rem;
+  }
+
+  .qpyodide-button {
+    background-color: #EEEEEE;
+    display: inline-block;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+    text-align: center;
+    color: #000;
+    border-color: #dee2e6;
+    border: 1px solid rgba(0,0,0,0);
+    padding: 0.375rem 0.75rem;
+    font-size: .9rem;
+    border-radius: 0.25rem;
+    transition: color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+  }
+
+  .qpyodide-button:hover {
+    color: #000;
+    background-color: #d9dce0;
+    border-color: #c8ccd0;
+  }
+
+  .qpyodide-button:disabled,.qpyodide-button.disabled,fieldset:disabled .qpyodide-button {
+    pointer-events: none;
+    opacity: .65
+  }
+
+  .qpyodide-button-reset {
+    color: #696969; /*#4682b4;*/
+  }
+
+  .qpyodide-button-copy {
+    color: #696969;
+  }
+
+
+  /* Custom styling for RevealJS Presentations*/
+
+  /* Reset the style of the interactive area */
+  .reveal div.qpyodide-interactive-area {
+    display: block;
+    box-shadow: none;
+    max-width: 100%;
+    max-height: 100%;
+    margin: 0;
+    padding: 0;
+  } 
+
+  /* Provide space to entries */
+  .reveal div.qpyodide-output-code-area pre div {
+    margin: 1px 2px 1px 10px;
+  }
+
+  /* Collapse the inside code tags to avoid extra space between line outputs */
+  .reveal pre div code.qpyodide-output-code-stdout, .reveal pre div code.qpyodide-output-code-stderr {
+    padding: 0;
+    display: contents;
+  }
+
+  .reveal pre div code.qpyodide-output-code-stdout {
+    color: #111;
+  }
+
+  .reveal pre div code.qpyodide-output-code-stderr {
+    color: #db4133;
+  }
+
+
+  /* Create a border around console and output (does not effect graphs) */
+  .reveal div.qpyodide-console-area {
+    border: 1px solid #EEEEEE;
+    box-shadow: 2px 2px 10px #EEEEEE;
+  }
+
+  /* Cap output height and allow text to scroll */
+  /* TODO: Is there a better way to fit contents/max it parallel to the monaco editor size? */
+  .reveal div.qpyodide-output-code-area pre {
+    max-height: 400px;
+    overflow: scroll;
+  }
+  </style>
+  <script type="module">
+  // Document level settings ----
+
+  // Determine if we need to install python packages
+  globalThis.qpyodideInstallPythonPackagesList = [''];
+
+  // Check to see if we have an empty array, if we do set to skip the installation.
+  globalThis.qpyodideSetupPythonPackages = !(qpyodideInstallPythonPackagesList.indexOf("") !== -1);
+
+  // Display a startup message?
+  globalThis.qpyodideShowStartupMessage = true;
+
+  // Describe the webR settings that should be used
+  globalThis.qpyodideCustomizedPyodideOptions = {
+    "indexURL": "https://cdn.jsdelivr.net/pyodide/v0.27.2/full/",
+    "env": {
+      "HOME": "/home/pyodide",
+    }, 
+    stdout: (text) => {qpyodideAddToOutputArray(text, "out");},
+    stderr: (text) => {qpyodideAddToOutputArray(text, "error");}
+  }
+
+  // Store cell data
+  globalThis.qpyodideCellDetails = [{"code":"# this whole line is a comment\n2 + 3 # a comment can follow code on the same line","id":1,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a = 1\nb = \"R rocks\"\nd = 1 == 2","id":2,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a = 1\nb = \"R rocks\"\nd = 1 == 2\nprint(a)\nprint(b)\nprint(d)","id":3,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a = 3\na = 1\nprint(a)","id":4,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"\"5\" + 1","id":5,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import pandas as pd\nyields = pd.Series([150, 162, None, 171])\nyields.isna()","id":6,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import numpy as np\nv = np.array([4, 3, 5, 9, 1])\nprint(v * 2)\nprint(v + np.array([10, 20, 30, 40, 50]))","id":7,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import numpy as np\nmixed = np.array([4, 3, \"5\", 9, 1])\nmixed","id":8,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import pandas as pd\nyield_data = pd.DataFrame({\n  \"nitrogen\": [200, 180, 300],\n  \"yield\": [240, 220, 230],\n  \"state\": [\"Kansas\", \"Nebraska\", \"Iowa\"]\n})\nyield_data","id":9,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"a_dict = {\"numbers\": [10, 20], \"state\": \"Iowa\"}\na_dict.keys()","id":10,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import pandas as pd\nyield_data = pd.DataFrame({\n  \"nitrogen\": [200, 180, 300],\n  \"state\": [\"Kansas\", \"Nebraska\", \"Iowa\"]\n})\nprint(type(yield_data))\nprint(yield_data.dtypes)","id":11,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import pandas as pd\nyield_data = pd.DataFrame({\"yield\": [240, 220, 230], \"state\": [\"Kansas\", \"Nebraska\", \"Iowa\"]})\nprint(yield_data[\"yield\"].mean())\nprint(yield_data[yield_data[\"yield\"] > 225])","id":12,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"round(3.14159, ndigits=2)","id":13,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import pandas as pd\nyields = pd.Series([150, 162, None, 171])\nprint(yields.mean())\nprint(yields.mean(skipna=False))","id":14,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import pandas as pd\nyields = pd.Series([150, 162, None, 171])\nyields.dropna().mean()","id":15,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"import pandas as pd\npd.DataFrame({\"yield\": [240, 230]})","id":16,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"sum([\"a\"])","id":17,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}},{"code":"sorted([\"9\", \"10\", \"100\"])","id":18,"options":{"autorun":"","classes":"","comment":"","context":"interactive","dpi":72,"fig-cap":"","fig-height":5,"fig-width":7,"label":"","message":"true","out-height":"","out-width":"700px","output":"true","read-only":"false","results":"markup","warning":"true"}}];
+
+
+  </script>
+  <script type="module">
+  // Declare startupMessageqpyodide globally
+  globalThis.qpyodideStartupMessage = document.createElement("p");
+
+  // Function to set the button text
+  globalThis.qpyodideSetInteractiveButtonState = function(buttonText, enableCodeButton = true) {
+    document.querySelectorAll(".qpyodide-button-run").forEach((btn) => {
+      btn.innerHTML = buttonText;
+      btn.disabled = !enableCodeButton;
+    });
+  }
+
+  // Function to update the status message in non-interactive cells
+  globalThis.qpyodideUpdateStatusMessage = function(message) {
+    document.querySelectorAll(".qpyodide-status-text.qpyodide-cell-needs-evaluation").forEach((elem) => {
+      elem.innerText = message;
+    });
+  }
+
+  // Function to update the status message
+  globalThis.qpyodideUpdateStatusHeader = function(message) {
+
+    if (!qpyodideShowStartupMessage) return;
+
+    qpyodideStartupMessage.innerHTML = message;
+  }
+
+  // Status header update with customized spinner message
+  globalThis.qpyodideUpdateStatusHeaderSpinner = function(message) {
+
+    qpyodideUpdateStatusHeader(`
+      <i class="fa-solid fa-spinner fa-spin qpyodide-icon-status-spinner"></i>
+      <span>${message}</span>
+    `);
+  }
+
+
+  // Function that attaches the document status message
+  function qpyodideDisplayStartupMessage(showStartupMessage) {
+    if (!showStartupMessage) {
+      return;
+    }
+
+    // Get references to header elements
+    const headerHTML = document.getElementById("title-block-header");
+    const headerRevealJS = document.getElementById("title-slide");
+
+    // Create the outermost div element for metadata
+    const quartoTitleMeta = document.createElement("div");
+    quartoTitleMeta.classList.add("quarto-title-meta");
+
+    // Create the first inner div element
+    const firstInnerDiv = document.createElement("div");
+    firstInnerDiv.setAttribute("id", "qpyodide-status-message-area");
+
+    // Create the second inner div element for "Pyodide Status" heading and contents
+    const secondInnerDiv = document.createElement("div");
+    secondInnerDiv.setAttribute("id", "qpyodide-status-message-title");
+    secondInnerDiv.classList.add("quarto-title-meta-heading");
+    secondInnerDiv.innerText = "Pyodide Status";
+
+    // Create another inner div for contents
+    const secondInnerDivContents = document.createElement("div");
+    secondInnerDivContents.setAttribute("id", "qpyodide-status-message-body");
+    secondInnerDivContents.classList.add("quarto-title-meta-contents");
+
+    // Describe the Pyodide state
+    qpyodideStartupMessage.innerText = "🟡 Loading...";
+    qpyodideStartupMessage.setAttribute("id", "qpyodide-status-message-text");
+    // Add `aria-live` to auto-announce the startup status to screen readers
+    qpyodideStartupMessage.setAttribute("aria-live", "assertive");
+
+    // Append the startup message to the contents
+    secondInnerDivContents.appendChild(qpyodideStartupMessage);
+
+    // Combine the inner divs and contents
+    firstInnerDiv.appendChild(secondInnerDiv);
+    firstInnerDiv.appendChild(secondInnerDivContents);
+    quartoTitleMeta.appendChild(firstInnerDiv);
+
+    // Determine where to insert the quartoTitleMeta element
+    if (headerHTML || headerRevealJS) {
+      // Append to the existing "title-block-header" element or "title-slide" div
+      (headerHTML || headerRevealJS).appendChild(quartoTitleMeta);
+    } else {
+      // If neither headerHTML nor headerRevealJS is found, insert after "Pyodide-monaco-editor-init" script
+      const monacoScript = document.getElementById("qpyodide-monaco-editor-init");
+      const header = document.createElement("header");
+      header.setAttribute("id", "title-block-header");
+      header.appendChild(quartoTitleMeta);
+      monacoScript.after(header);
+    }
+  }
+
+  qpyodideDisplayStartupMessage(qpyodideShowStartupMessage);
+  </script>
+  <script type="module">
+  // Create a logging setup
+  globalThis.qpyodideMessageArray = []
+
+  // Add messages to array
+  globalThis.qpyodideAddToOutputArray = function(message, type) {
+    qpyodideMessageArray.push({ message, type });
+  }
+
+  // Function to reset the output array
+  globalThis.qpyodideResetOutputArray = function() {
+    qpyodideMessageArray = [];
+  }
+
+  globalThis.qpyodideRetrieveOutput = function() {
+    return qpyodideMessageArray.map(entry => entry.message).join('\n');
+  }
+
+  // Start a timer
+  const initializePyodideTimerStart = performance.now();
+
+  // Encase with a dynamic import statement
+  globalThis.qpyodideInstance = await import(
+    qpyodideCustomizedPyodideOptions.indexURL + "pyodide.mjs").then(
+     async({ loadPyodide }) => {
+
+      console.log("Start loading Pyodide");
+      
+      // Populate Pyodide options with defaults or new values based on `pyodide`` meta
+      let mainPyodide = await loadPyodide(
+        qpyodideCustomizedPyodideOptions
+      );
+      
+      // Setup a namespace for global scoping
+      // await loadedPyodide.runPythonAsync("globalScope = {}"); 
+      
+      // Update status to reflect the next stage of the procedure
+      qpyodideUpdateStatusHeaderSpinner("Initializing Python Packages");
+
+      // Load the `micropip` package to allow installation of packages.
+      await mainPyodide.loadPackage("micropip");
+      await mainPyodide.runPythonAsync(`import micropip`);
+
+      // Load the `pyodide_http` package to shim uses of `requests` and `urllib3`.
+      // This allows for `pd.read_csv(url)` to work flawlessly.
+      // Details: https://github.com/coatless-quarto/pyodide/issues/9
+      await mainPyodide.loadPackage("pyodide_http");
+      await mainPyodide.runPythonAsync(`
+      import pyodide_http
+      pyodide_http.patch_all()  # Patch all libraries
+      `);
+
+      // Load the `matplotlib` package with necessary environment hook
+      await mainPyodide.loadPackage("matplotlib");
+
+      // Set the backend for matplotlib to be interactive.
+      await mainPyodide.runPythonAsync(`
+      import matplotlib
+      matplotlib.use("module://matplotlib_pyodide.html5_canvas_backend")
+      from matplotlib import pyplot as plt
+      `);
+
+      // Unlock interactive buttons
+      qpyodideSetInteractiveButtonState(
+        `<i class="fa-solid fa-play qpyodide-icon-run-code"></i> <span>Run Code</span>`, 
+        true
+      );
+
+      // Set document status to viable
+      qpyodideUpdateStatusHeader(
+        "🟢 Ready!"
+      );
+
+      // Assign Pyodide into the global environment
+      globalThis.mainPyodide = mainPyodide;
+
+      console.log("Completed loading Pyodide");
+      return mainPyodide;
+    }
+  );
+
+  // Stop timer
+  const initializePyodideTimerEnd = performance.now();
+
+  // Create a function to retrieve the promise object.
+  globalThis._qpyodideGetInstance = function() {
+      return qpyodideInstance;
+  }
+
+  </script>
 </head>
 <body class="quarto-light">
 <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"></script>
@@ -3005,11 +3367,28 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
   
 }
 </script>
+<script>
+  // PATCHED (see README-vendored.md): load Monaco's loader only once. A deck
+  // with WebR cells has already loaded it (same version), and a second copy
+  // throws "_amdLoaderGlobal has already been declared".
+  if (typeof globalThis.require === "undefined" || !globalThis.require.config) {
+    document.write('<script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs/loader.js"><\/script>');
+  }
+</script>
+<script type="module" id="qpyodide-monaco-editor-init">
+
+  // Configure the Monaco Editor's loader
+  require.config({
+    paths: {
+      'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.47.0/min/vs'
+    }
+  });
+</script>
   <div class="reveal">
     <div class="slides">
 
 <section id="title-slide" class="quarto-title-block center">
-  <h1 class="title">01-1: Introduction to R</h1>
+  <h1 class="title">01-1: Reading Code in R and Python</h1>
 
 <div class="quarto-title-authors">
 </div>
@@ -3034,9 +3413,10 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <div class="tab-content">
 <div id="tabset-1-1">
 <p>An AI assistant can write R code. What it cannot do is tell you whether that code did what you needed. To judge that, you have to be able to <strong>read</strong> R code: say what each line does, even if you could not have written it yourself.</p>
-<p>This first lecture gives you the foundation for reading code. Every line of R you will see in this course is built from three things:</p>
+<p>This course works in R. AI agents also write a lot of <strong>Python</strong>, the other language most used for data work, so this lecture shows each idea in both. The ideas are the same in the two languages; only the way they are written differs.</p>
+<p>This first lecture gives you the foundation for reading code. Every line of R or Python you will see is built from three things:</p>
 <ol type="1">
-<li><strong>Objects</strong>: named things that hold values, created with <code>&lt;-</code></li>
+<li><strong>Objects</strong>: named things that hold values, created with <code>&lt;-</code> in R and <code>=</code> in Python</li>
 <li><strong>Functions</strong>: commands that take inputs and give back a result</li>
 <li><strong>Packages</strong>: collections of functions written by other people, which you install and then load</li>
 </ol>
@@ -3050,15 +3430,16 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </ul>
 </div>
 <div id="tabset-1-3">
-<p>R runs inside this web page, so you can run every example on these slides yourself. The first time the page opens, R takes a little while to load; a code area works once the button reads “Run Code”.</p>
+<p>R and Python both run inside this web page, so you can run every example on these slides yourself. The first time the page opens, they take a little while to load; a code area works once its button reads “Run Code”.</p>
 <ul>
 <li>The box with the pale blue background is a <strong>code area</strong>. You can edit the code in it.</li>
 <li>Click <strong>Run Code</strong> to run all the code in the code area. The result appears under it, or beside it.</li>
 <li>To run only part of the code, select it and press <strong>Command + Enter</strong> (Mac) or <strong>Ctrl + Enter</strong> (Windows).</li>
 <li>The reload button puts the original code back. The copy button copies the code.</li>
 <li>The eye button hides the result, and a second click shows it again.</li>
+<li>A Python code area says “Python” in its bar. Where R and Python sit side by side, R is on the left.</li>
 </ul>
-<p>The objects the slides use, such as <code>yields</code>, are created when the page loads, so each code area runs on its own, in any order. Changing a number and running the code again is the quickest way to see what a line does; nothing you type here can break anything.</p>
+<p>The R objects the slides use, such as <code>yields</code>, are created when the page loads, and each Python code area creates what it uses, so every code area runs on its own, in any order. Changing a number and running the code again is the quickest way to see what a line does; nothing you type here can break anything.</p>
 </div>
 </div>
 </div>
@@ -3108,7 +3489,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </div>
 <div id="tabset-2-3">
 <p>By the end, you should be able to carry out your own research in R with an AI assistant writing the code: get data in, reshape it, make figures and tables, report the results, and work with maps.</p>
-<p>The AI will write that code into a <strong>Quarto document</strong> (a <code>.qmd</code> file: plain text with R code in it). <strong>Rendering</strong> the document runs its code from the top and makes a web page showing the code and its results. Chapter 2 teaches Quarto.</p>
+<p>In this course the AI writes that code into a <strong>Quarto document</strong>, a way of working we recommend for your own research too (a <code>.qmd</code> file: plain text with R code in it). <strong>Rendering</strong> the document runs its code from the top and makes a web page showing the code and its results. Chapter 2 teaches Quarto.</p>
 </div>
 </div>
 </div>
@@ -3123,10 +3504,10 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <hr color="#EB811B" size="1px" width="796px">
 
 </section>
-<section id="what-r-is" class="slide level2">
-<h2>What R is</h2>
+<section id="r-and-python" class="slide level2">
+<h2>R and Python</h2>
 <div class="panel-tabset">
-<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The language</a></li><li><a href="#tabset-3-2">Comments and output</a></li></ul>
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The languages</a></li><li><a href="#tabset-3-2">Comments and output</a></li></ul>
 <div class="tab-content">
 <div id="tabset-3-1">
 <p><strong>R</strong> is a programming language for statistics and data, and the program that runs code written in it.</p>
@@ -3135,12 +3516,19 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <li>Started as software for statistics, designed by statisticians</li>
 <li>Grows through its users: new statistical methods often appear first as R packages written by the people who developed the method, and R also handles maps and large datasets</li>
 </ul>
+<p><strong>Python</strong> is a general-purpose programming language, also free and open source. It is widely used for data work and machine learning, and for automating tasks on a computer.</p>
 </div>
 <div id="tabset-3-2">
-<p>Anything after <code>#</code> on a line is a <strong>comment</strong>: R ignores it. Comments explain the code to people.</p>
+<p>Anything after <code>#</code> on a line is a <strong>comment</strong>: R and Python both ignore it. Comments explain the code to people.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div id="qwebr-insertion-location-2"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>The <code>[1]</code> at the start of the output is not part of the result. It says the line of output starts with the first value.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-1"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>In R’s output, the <code>[1]</code> at the start is not part of the result. It says the line of output starts with the first value. Python prints the value alone.</p>
 </div>
 </div>
 </div>
@@ -3201,19 +3589,17 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </tr>
 </tbody>
 </table>
+<p>The same line in Python, as an AI would write it: <code>average_yield = yields.mean(skipna=True)</code>. The pieces are the same: a new object, the sign that stores it (<code>=</code>), a function (<code>mean</code>), the object it works on (<code>yields</code>) and an option (<code>skipna=True</code>).</p>
 <p><code>mean()</code> is built into R. Many functions are not: they come from a <strong>package</strong>, which has to be installed and loaded first (slide “Packages”).</p>
 <p>The rest of this section takes the pieces one at a time. By the end of it, you should be able to read the line above out loud: “compute the average of <code>yields</code>, leaving out missing values, and store it as <code>average_yield</code>”.</p>
 </section>
 <section id="objects-and--" class="slide level2">
-<h2>Objects and <code>&lt;-</code></h2>
+<h2>Objects and <code>&lt;-</code>, <code>=</code></h2>
 <div class="panel-tabset">
 <ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The pattern</a></li><li><a href="#tabset-4-2">Printing an object</a></li><li><a href="#tabset-4-3">Overwriting</a></li><li><a href="#tabset-4-4"><code>&lt;-</code> versus <code>=</code></a></li></ul>
 <div class="tab-content">
 <div id="tabset-4-1">
-<p>An <strong>object</strong> is a named thing R holds in memory: a number, some text, a table of data, a fitted model. Every object is made by the same pattern:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>name <span class="ot">&lt;-</span> value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>An <strong>object</strong> is a named thing the computer holds in memory: a number, some text, a table of data, a fitted model. Every object is made by the same pattern, <code>name &lt;- value</code> in R and <code>name = value</code> in Python:</p>
 <table class="caption-top">
 <colgroup>
 <col style="width: 50%">
@@ -3231,7 +3617,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <td>The name you will use to refer to the object later</td>
 </tr>
 <tr class="even">
-<td><code>&lt;-</code></td>
+<td><code>&lt;-</code> (R), <code>=</code> (Python)</td>
 <td>“Store the right-hand side under this name”. Read it as “gets”: <code>a</code> gets 1</td>
 </tr>
 <tr class="odd">
@@ -3240,24 +3626,43 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </tr>
 </tbody>
 </table>
-<p>R works out the right-hand side <strong>first</strong>, then stores the result. So <code>d &lt;- 1 == 2</code> stores <code>FALSE</code>, the answer to “is 1 equal to 2?”, not the question.</p>
+<p>The right-hand side is worked out <strong>first</strong>, then the result is stored. So <code>d &lt;- 1 == 2</code> stores <code>FALSE</code>, the answer to “is 1 equal to 2?”, not the question.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div id="qwebr-insertion-location-4"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-2"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
 <p>Running this prints nothing: storing an object does not show it.</p>
 </div>
 <div id="tabset-4-2">
-<p>Running an object’s name on its own prints what it holds. This is the simplest check there is: did the object get the value you expected?</p>
+<p>Printing an object shows what it holds. This is the simplest check there is: did the object get the value you expected? In R, running an object’s name on its own prints it; in Python, <code>print()</code> does.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div id="qwebr-insertion-location-5"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-3"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>Python writes the two logical values <code>True</code> and <code>False</code>; R writes <code>TRUE</code> and <code>FALSE</code>.</p>
 </div>
 <div id="tabset-4-3">
 <p>Storing under a name that already exists <strong>replaces</strong> the old object, without a warning:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div id="qwebr-insertion-location-6"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-4"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
 </div>
 <div id="tabset-4-4">
-<p>Outside a function, <code>name = value</code> does the same as <code>name &lt;- value</code>. You will see both in AI-written code; this course uses <code>&lt;-</code>.</p>
-<p>Inside a function’s parentheses, <code>=</code> means something different: it sets one of the function’s inputs. In <code>mean(yields, na.rm = TRUE)</code>, <code>na.rm = TRUE</code> does not create an object called <code>na.rm</code>. It tells <code>mean()</code> to leave out missing values (slide “Functions and their inputs”).</p>
+<p>In R, outside a function, <code>name = value</code> does the same as <code>name &lt;- value</code>. You will see both in AI-written R code; this course uses <code>&lt;-</code>. Python has only <code>=</code>.</p>
+<p>Inside a function’s parentheses, <code>=</code> means something different, in both languages: it sets one of the function’s inputs. In <code>mean(yields, na.rm = TRUE)</code>, <code>na.rm = TRUE</code> does not create an object called <code>na.rm</code>. It tells <code>mean()</code> to leave out missing values (slide “Functions and their inputs”).</p>
 </div>
 </div>
 </div>
@@ -3268,18 +3673,20 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The types</a></li><li><a href="#tabset-5-2">Operators</a></li><li><a href="#tabset-5-3">Missing values: <code>NA</code></a></li></ul>
 <div class="tab-content">
 <div id="tabset-5-1">
-<p>Every value has a <strong>type</strong>. The type decides what R can do with it.</p>
+<p>Every value has a <strong>type</strong>. The type decides what can be done with it.</p>
 <table class="caption-top">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="header">
 <th>Type</th>
 <th>Examples</th>
 <th>What it is</th>
+<th>Python’s name</th>
 </tr>
 </thead>
 <tbody>
@@ -3287,23 +3694,32 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <td>numeric</td>
 <td><code>1</code>, <code>1.3</code>, <code>-999</code></td>
 <td>A number, whole or with decimals</td>
+<td><code>int</code> (whole), <code>float</code> (decimals)</td>
 </tr>
 <tr class="even">
 <td>character</td>
 <td><code>"Nebraska"</code>, <code>"31001"</code></td>
 <td>Text, always written inside quotation marks</td>
+<td><code>str</code></td>
 </tr>
 <tr class="odd">
 <td>logical</td>
 <td><code>TRUE</code>, <code>FALSE</code></td>
 <td>The answer to a yes-or-no question</td>
+<td><code>bool</code>, written <code>True</code>, <code>False</code></td>
 </tr>
 </tbody>
 </table>
-<p>You will also see <strong>integer</strong> (a whole number written with an <code>L</code>, such as <code>3L</code>); it behaves like numeric.</p>
+<p>In R you will also see <strong>integer</strong> (a whole number written with an <code>L</code>, such as <code>3L</code>); it behaves like numeric.</p>
 <p>Quotation marks matter: <code>"31001"</code> is text, <code>31001</code> is a number. You cannot do arithmetic on text:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div id="qwebr-insertion-location-7"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-5"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
 </div>
 <div id="tabset-5-2">
 <p>Arithmetic and comparisons follow the usual signs, with a few that may be new:</p>
@@ -3330,9 +3746,9 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <td>1.5</td>
 </tr>
 <tr class="even">
-<td><code>^</code></td>
+<td><code>^</code> (R), <code>**</code> (Python)</td>
 <td>to the power of</td>
-<td><code>2^3</code></td>
+<td><code>2^3</code>, <code>2 ** 3</code></td>
 <td>8</td>
 </tr>
 <tr class="odd">
@@ -3349,17 +3765,20 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </tr>
 </tbody>
 </table>
-<p>A comparison gives back a logical value. <code>==</code> (two equals signs) asks a question; a single <code>=</code> sets a value. Comparisons are how rows are kept or dropped from a table later in the course.</p>
+<p>In Python, <code>^</code> is not a power: it means something else and gives a wrong number without an error. A comparison gives back a logical value. <code>==</code> (two equals signs) asks a question; a single <code>=</code> sets a value. Comparisons are how rows are kept or dropped from a table later in the course.</p>
 </div>
 <div id="tabset-5-3">
-<p><code>NA</code> means “this value is missing”. It is not zero, and it is not the text <code>"NA"</code>.</p>
+<p><code>NA</code> means “this value is missing”. It is not zero, and it is not the text <code>"NA"</code>. In Python’s table package, pandas, a missing number is printed <code>NaN</code> (“not a number”), and plain Python uses <code>None</code>.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
 <div id="qwebr-insertion-location-8"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p><code>is.na()</code> asks of each value “is it missing?”. The third one is.</p>
-<p>Most calculations that include a missing value give <code>NA</code>, because the true answer is unknown:</p>
-<div id="qwebr-insertion-location-9"></div>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-6"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>How to get the average of the values that are there is on the slide “Functions and their inputs”, tab “Defaults”.</p>
+</div></div>
+<p><code>is.na()</code> and <code>.isna()</code> ask of each value “is it missing?”. The third one is.</p>
+<p>In R, most calculations that include a missing value give <code>NA</code>, because the true answer is unknown: <code>mean(yields)</code> gives <code>NA</code>. pandas does the opposite. Both are on the slide “Functions and their inputs”, tab “Defaults”.</p>
 </div>
 </div>
 </div>
@@ -3370,47 +3789,80 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">Vectors</a></li><li><a href="#tabset-6-2">One type per vector</a></li><li><a href="#tabset-6-3">Tables</a></li><li><a href="#tabset-6-4">Other objects you will see</a></li><li><a href="#tabset-6-5">What kind of object is it?</a></li></ul>
 <div class="tab-content">
 <div id="tabset-6-1">
-<p>A <strong>vector</strong> is a sequence of values, all of the <strong>same type</strong>. <code>c()</code> (short for “combine”) makes one:</p>
-<div id="qwebr-insertion-location-10"></div>
-<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+<p>A <strong>vector</strong> is a sequence of values, all of the <strong>same type</strong>. In R, <code>c()</code> (short for “combine”) makes one. In Python, AI-written code uses an <strong>array</strong> from the numpy package, <code>np.array([...])</code>, for the same job.</p>
 <p>Arithmetic on vectors works <strong>element by element</strong>: the first value with the first, the second with the second, and so on.</p>
-<div id="qwebr-insertion-location-11"></div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-9"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>R code rarely needs a loop to do the same thing to every value; this is why.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-7"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>Code rarely needs a loop to do the same thing to every value; this is why. A plain Python list, <code>[4, 3, 5, 9, 1]</code> without <code>np.array</code>, is different: <code>* 2</code> repeats the list instead of doubling each value.</p>
 </div>
 <div id="tabset-6-2">
-<p>A vector can hold only one type. Mix types, and R converts everything to the type that can hold all of them, <strong>without an error</strong>:</p>
-<div id="qwebr-insertion-location-12"></div>
+<p>A vector can hold only one type. Mix types, and everything is converted to the type that can hold all of them, <strong>without an error</strong>:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-10"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>Every value is now text (note the quotation marks). One text value turned the whole vector into text. When a column of numbers arrives in your analysis as text, this is usually why, and arithmetic on it will then fail or give <code>NA</code>.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-8"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>Every value is now text (note the quotation marks; numpy adds <code>dtype='&lt;U21'</code>, its name for text). One text value turned the whole vector into text. When a column of numbers arrives in your analysis as text, this is usually why, and arithmetic on it will then fail or give <code>NA</code>.</p>
 </div>
 <div id="tabset-6-3">
-<p>A <strong>table</strong> holds data in rows and columns. Each column is a vector, so each column has one type, but different columns can have different types. All columns have the same length. R calls a table a <strong>data frame</strong>; this course says table.</p>
-<div id="qwebr-insertion-location-13"></div>
+<p>A <strong>table</strong> holds data in rows and columns. Each column is a vector, so each column has one type, but different columns can have different types. All columns have the same length. R and pandas both call a table a <strong>data frame</strong>; this course says table.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-11"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>Inside <code>data.frame()</code>, each <code>name = c(...)</code> makes one column. Values in the same position make one row.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-9"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>Each <code>name = c(...)</code> in R, or <code>"name": [...]</code> in Python, makes one column. Values in the same position make one row. pandas also prints the row numbers, counting from 0.</p>
 <p>You will also see <strong>tibble</strong> and <strong>data.table</strong>. They are tables too, with some extra conveniences; read them as tables.</p>
 </div>
 <div id="tabset-6-4">
 <ul>
-<li><strong>list</strong>: holds any mix of objects, each of any type and length. Results of a statistical model usually come back as a list.</li>
+<li><strong>list</strong>: holds any mix of objects, each of any type and length. Results of a statistical model usually come back as a list. Python’s version with names is a <strong>dictionary</strong>, written <code>{"name": value, ...}</code>.</li>
 <li><strong>matrix</strong>: values of one type in rows and columns, used for linear algebra. You will rarely meet one in this course.</li>
 </ul>
-<div id="qwebr-insertion-location-14"></div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-12"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-10"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p><code>names()</code> and <code>.keys()</code> both give the names of the parts.</p>
 </div>
 <div id="tabset-6-5">
-<p>Many surprises in R come from an object not being what you thought: a column of text instead of numbers, a vector instead of a table. Three functions tell you:</p>
-<div id="qwebr-insertion-location-15"></div>
+<p>Many surprises come from an object not being what you thought: a column of text instead of numbers, a vector instead of a table. A few functions tell you:</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-13"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p><code>class()</code> gives the kind of object; for a vector, the type of its values. <code>str()</code> (structure) gives the size and the type of every column: here 3 rows (“obs.”) and 3 columns (“variables”), with <code>num</code> for numeric and <code>chr</code> for character.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-11"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p><code>class()</code> and <code>type()</code> give the kind of object. <code>str()</code> gives the size and the type of every column (<code>num</code> numeric, <code>chr</code> character); pandas’ <code>.dtypes</code> gives the type of every column, with <code>object</code> for text.</p>
 </div>
 </div>
 </div>
 </section>
 <section id="pulling-parts-out-of-an-object" class="slide level2">
 <h2>Pulling parts out of an object</h2>
-<p>AI-written code constantly takes one column, some rows or one value out of an object. Whatever the object, it is done with brackets or <code>$</code>, in one of these patterns:</p>
+<p>AI-written code constantly takes one column, some rows or one value out of an object. Whatever the object, it is done with brackets, in one of a few patterns.</p>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">R</a></li><li><a href="#tabset-7-2">Python</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
 <table class="caption-top">
 <colgroup>
 <col style="width: 25%">
@@ -3453,20 +3905,69 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </tr>
 </tbody>
 </table>
-<p>Positions count from 1, not 0. <code>table$column</code> is the one you will see most often: <code>mean(yield_data$yield)</code> reads “the average of the <code>yield</code> column of <code>yield_data</code>”.</p>
-<p>The condition is itself a comparison that gives one <code>TRUE</code> or <code>FALSE</code> per row, and the rows marked <code>TRUE</code> are kept:</p>
-<div id="qwebr-insertion-location-16"></div>
+<p>Positions count from 1. <code>table$column</code> is the one you will see most often: <code>mean(yield_data$yield)</code> reads “the average of the <code>yield</code> column of <code>yield_data</code>”. The condition is itself a comparison that gives one <code>TRUE</code> or <code>FALSE</code> per row, and the rows marked <code>TRUE</code> are kept:</p>
+<div id="qwebr-insertion-location-14"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+<div id="tabset-7-2">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pattern</th>
+<th>Gives</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>array[position]</code></td>
+<td>the value at that position</td>
+<td><code>v[1]</code></td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><code>table["column"]</code></td>
+<td>one column</td>
+<td><code>yield_data["yield"]</code></td>
+<td>240 220 230</td>
+</tr>
+<tr class="odd">
+<td><code>table[condition]</code></td>
+<td>the rows where the condition is <code>True</code></td>
+<td><code>yield_data[yield_data["yield"] &gt; 225]</code></td>
+<td>the 2 rows with <code>yield</code> above 225</td>
+</tr>
+<tr class="even">
+<td><code>dictionary["name"]</code></td>
+<td>one element of a dictionary</td>
+<td><code>a_dict["state"]</code></td>
+<td>Iowa</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Positions count from 0 in Python</strong>, so <code>v[1]</code> is the second value, the one R calls <code>v[2]</code>. Code that mixes the two up runs without an error and takes the wrong value.</p>
+<div id="qpyodide-insertion-location-12"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div>
+</div>
+</div>
 </section>
 <section id="functions-and-their-inputs" class="slide level2">
 <h2>Functions and their inputs</h2>
 <div class="panel-tabset">
-<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The pattern</a></li><li><a href="#tabset-7-2">Functions you will see</a></li><li><a href="#tabset-7-3">Defaults</a></li><li><a href="#tabset-7-4">Variations you will see</a></li></ul>
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">The pattern</a></li><li><a href="#tabset-8-2">Functions you will see</a></li><li><a href="#tabset-8-3">Defaults</a></li><li><a href="#tabset-8-4">Variations you will see</a></li></ul>
 <div class="tab-content">
-<div id="tabset-7-1">
-<p>A <strong>function</strong> takes inputs, does something with them, and gives back a result. Every function call follows the same pattern:</p>
+<div id="tabset-8-1">
+<p>A <strong>function</strong> takes inputs, does something with them, and gives back a result. Every function call follows the same pattern, in R and in Python (with <code>=</code> in place of <code>&lt;-</code>):</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>result <span class="ot">&lt;-</span> <span class="fu">function_name</span>(first_input, <span class="at">name =</span> value, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>result <span class="ot">&lt;-</span> <span class="fu">function_name</span>(first_input, <span class="at">name =</span> value, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <table class="caption-top">
 <colgroup>
@@ -3494,7 +3995,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </tr>
 <tr class="odd">
 <td><code>( )</code></td>
-<td>Holds the inputs, separated by commas. R calls the inputs <strong>arguments</strong></td>
+<td>Holds the inputs, separated by commas. R and Python call the inputs <strong>arguments</strong></td>
 <td>Yes, even if empty</td>
 </tr>
 <tr class="even">
@@ -3509,19 +4010,25 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </tr>
 </tbody>
 </table>
-<p>A real call:</p>
-<div id="qwebr-insertion-location-17"></div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-15"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>The first input, <code>3.14159</code>, is the number to round. <code>digits = 2</code> is an option. Leave it out and <code>round()</code> uses its default, 0 digits: <code>round(3.14159)</code> gives 3.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-13"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>In this real call, the first input, <code>3.14159</code>, is the number to round. <code>digits = 2</code> (<code>ndigits=2</code> in Python) is an option. Leave it out and <code>round()</code> uses its default, 0 digits: <code>round(3.14159)</code> gives 3.</p>
 </div>
-<div id="tabset-7-2">
+<div id="tabset-8-2">
 <p>All of these follow the pattern. You do not need to remember them; you need to recognise the pattern when you see them.</p>
 <table class="caption-top">
 <colgroup>
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
-<col style="width: 25%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
 </colgroup>
 <thead>
 <tr class="header">
@@ -3529,6 +4036,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <th>What it gives back</th>
 <th>Example</th>
 <th>Result</th>
+<th>In Python</th>
 </tr>
 </thead>
 <tbody>
@@ -3537,95 +4045,116 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <td>one number summarising a vector</td>
 <td><code>sum(v)</code></td>
 <td>22</td>
+<td><code>v.mean()</code>, <code>sum()</code>, <code>min()</code>, <code>max()</code></td>
 </tr>
 <tr class="even">
 <td><code>length()</code></td>
 <td>how many values a vector has</td>
 <td><code>length(v)</code></td>
 <td>5</td>
+<td><code>len()</code></td>
 </tr>
 <tr class="odd">
 <td><code>nrow()</code>, <code>ncol()</code></td>
 <td>rows or columns of a table</td>
 <td><code>nrow(yield_data)</code></td>
 <td>3</td>
+<td><code>len(table)</code>, <code>table.shape</code></td>
 </tr>
 <tr class="even">
 <td><code>round()</code></td>
 <td>rounded numbers</td>
 <td><code>round(2.567, digits = 1)</code></td>
 <td>2.6</td>
+<td><code>round()</code></td>
 </tr>
 <tr class="odd">
 <td><code>seq()</code></td>
 <td>a sequence of numbers</td>
 <td><code>seq(0, 10, by = 5)</code></td>
 <td>0 5 10</td>
+<td><code>range()</code>, <code>np.arange()</code></td>
 </tr>
 <tr class="even">
 <td><code>rep()</code></td>
 <td>repeated values</td>
 <td><code>rep(10, times = 3)</code></td>
 <td>10 10 10</td>
+<td><code>np.repeat()</code></td>
 </tr>
 <tr class="odd">
 <td><code>is.na()</code></td>
 <td><code>TRUE</code> where a value is missing</td>
 <td><code>is.na(c(1, NA))</code></td>
 <td>FALSE TRUE</td>
+<td><code>.isna()</code></td>
 </tr>
 <tr class="even">
 <td><code>class()</code>, <code>str()</code></td>
 <td>what kind of object something is</td>
 <td><code>class(v)</code></td>
 <td>numeric</td>
+<td><code>type()</code>, <code>.dtypes</code></td>
 </tr>
 </tbody>
 </table>
 </div>
-<div id="tabset-7-3">
-<p>Every option has a <strong>default</strong>: the value it takes when you do not set it, chosen by whoever wrote the function. <code>mean()</code> has an option <code>na.rm</code> (remove <code>NA</code>s) whose default is <code>FALSE</code>. That is why the average above came back <code>NA</code>:</p>
-<div id="qwebr-insertion-location-18"></div>
+<div id="tabset-8-3">
+<p>Every option has a <strong>default</strong>: the value it takes when you do not set it, chosen by whoever wrote the function. R’s <code>mean()</code> has an option <code>na.rm</code> (remove <code>NA</code>s) whose default is <code>FALSE</code>, so the average of <code>yields</code> comes back <code>NA</code>. pandas’ <code>.mean()</code> has the opposite default: its option <code>skipna</code> is <code>True</code>, so it leaves missing values out unless told not to.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-16"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>With <code>na.rm = TRUE</code>, the average is of the 3 values that are there: (150 + 162 + 171) / 3 = 161.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-14"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>Leaving out the missing value, the average is of the 3 values that are there: (150 + 162 + 171) / 3 = 161.</p>
 <div class="callout callout-important no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
 <p><strong>Important</strong></p>
 </div>
 <div class="callout-content">
-<p>AI-written code often adds <code>na.rm = TRUE</code> as a matter of routine. It removes missing values <strong>without saying how many</strong>. An average of 3 values out of 4 is fine; an average of 3 out of 300 is not. When you see <code>na.rm = TRUE</code>, ask how many values were left out.</p>
+<p>AI-written R code often adds <code>na.rm = TRUE</code> as a matter of routine, and pandas does it unasked. Either way, missing values are removed <strong>without saying how many</strong>. An average of 3 values out of 4 is fine; an average of 3 out of 300 is not. When you see <code>na.rm = TRUE</code>, or an average computed in pandas, ask how many values were left out.</p>
 </div>
 </div>
 </div>
 </div>
-<div id="tabset-7-4">
+<div id="tabset-8-4">
 <p>AI-written code often arranges the same pattern differently. These change how the code looks, not what it does:</p>
 <ul>
 <li><strong>One call inside another</strong>: <code>round(mean(yields, na.rm = TRUE), digits = 1)</code>. Read from the inside out: first the average, then round it.</li>
 <li><strong>Spread over several lines</strong>: a long call, like <code>data.frame(...)</code> above, is split after commas. It is still one call; the closing <code>)</code> ends it.</li>
-<li><strong>Inputs without names</strong>: <code>round(3.14159, 2)</code> is the same as <code>round(3.14159, digits = 2)</code>, because <code>digits</code> is the second input. Named inputs are easier to read.</li>
-<li><strong>The pipe</strong>, <code>|&gt;</code>: <code>yields |&gt; mean(na.rm = TRUE)</code> means <code>mean(yields, na.rm = TRUE)</code>. The object on the left becomes the first input of the function on the right. You will see it in nearly every chapter from Chapter 3 on.</li>
+<li><strong>Inputs without names</strong>: <code>round(3.14159, 2)</code> is the same as <code>round(3.14159, digits = 2)</code>, because <code>digits</code> is the second input. Named inputs are easier to read; Python calls them <strong>keyword arguments</strong>.</li>
+<li><strong>The pipe</strong> (R), <code>|&gt;</code>: <code>yields |&gt; mean(na.rm = TRUE)</code> means <code>mean(yields, na.rm = TRUE)</code>. The object on the left becomes the first input of the function on the right. You will see it in nearly every chapter from Chapter 3 on.</li>
+<li><strong>Functions after a dot</strong> (Python): <code>yields.mean()</code> is the function <code>mean</code> applied to <code>yields</code>. Python code is full of these, and they are chained left to right, as the pipe is: <code>yields.dropna().mean()</code> drops the missing values, then averages.</li>
 </ul>
-<div id="qwebr-insertion-location-19"></div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-17"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-15"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
 </div>
 </div>
 </div>
 </section>
 <section id="reading-a-help-page" class="slide level2">
 <h2>Reading a help page</h2>
-<p>Every function has a help page. Put <code>?</code> in front of its name, as in <code>?seq</code>, and R opens the page. The R inside these slides cannot show help pages, so this slide shows the parts of the <code>?seq</code> page that matter. Three sections tell you most of what you need.</p>
+<p>Every function has a help page. Put <code>?</code> in front of its name, as in <code>?seq</code>, and R opens the page; in Python, <code>help(round)</code> prints the one for <code>round</code>. The R inside these slides cannot show help pages, so this slide shows the parts of the <code>?seq</code> page that matter. Three sections tell you most of what you need.</p>
 <div class="panel-tabset">
-<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Description</a></li><li><a href="#tabset-8-2">Usage</a></li><li><a href="#tabset-8-3">Arguments, Examples, or ask</a></li></ul>
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Description</a></li><li><a href="#tabset-9-2">Usage</a></li><li><a href="#tabset-9-3">Arguments, Examples, or ask</a></li></ul>
 <div class="tab-content">
-<div id="tabset-8-1">
+<div id="tabset-9-1">
 <p>At the top, one or two sentences on what the function does. For <code>seq()</code>: “Generate regular sequences.” If that is not what you wanted, you are on the wrong page.</p>
 </div>
-<div id="tabset-8-2">
+<div id="tabset-9-2">
 <p>The function’s inputs, in order, each with its default. The real <code>?seq</code> page also covers some related functions (<code>seq_len()</code>, <code>seq_along()</code> and others), so its Usage section lists several lines. The one for <code>seq()</code> itself is under <code>## Default S3 method:</code>, a technical label you can ignore:</p>
-<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> ((to <span class="sc">-</span> from)<span class="sc">/</span>(length.out <span class="sc">-</span> <span class="dv">1</span>)),</span>
-<span id="cb3-2"><a></a>    <span class="at">length.out =</span> <span class="cn">NULL</span>, <span class="at">along.with =</span> <span class="cn">NULL</span>, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> ((to <span class="sc">-</span> from)<span class="sc">/</span>(length.out <span class="sc">-</span> <span class="dv">1</span>)),</span>
+<span id="cb2-2"><a></a>    <span class="at">length.out =</span> <span class="cn">NULL</span>, <span class="at">along.with =</span> <span class="cn">NULL</span>, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ul>
 <li>Each <code>name = value</code> is an input and its default. Leave out <code>from</code>, and it is 1.</li>
 <li>Inputs without names are matched by position: <code>seq(0, 10)</code> means <code>from = 0, to = 10</code>.</li>
@@ -3633,9 +4162,9 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </ul>
 <p>You only supply the inputs whose defaults you want to change. That is why <code>seq(0, 10)</code> works although <code>seq()</code> lists five inputs.</p>
 </div>
-<div id="tabset-8-3">
+<div id="tabset-9-3">
 <p><strong>Arguments</strong> says what each input means. For <code>seq()</code>, <code>by</code> is the step between values and <code>length.out</code> is how many values you want, so the same sequence can be described two ways:</p>
-<div id="qwebr-insertion-location-20"></div>
+<div id="qwebr-insertion-location-18"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 <p><strong>Examples</strong>, at the very bottom, is code you can copy and run. Running an example and then looking back at Usage is often the fastest way to understand a function.</p>
 <p>You can also paste a line into an AI assistant and ask what each input does (see the slide “Requests you can copy”, tab “Explain code”). The help page is the reference to check its answer against: it describes the version of the function installed on your computer, which the AI cannot see.</p>
@@ -3646,9 +4175,9 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <section id="packages" class="slide level2">
 <h2>Packages</h2>
 <div class="panel-tabset">
-<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">What are packages?</a></li><li><a href="#tabset-9-2">What you will see</a></li><li><a href="#tabset-9-3">Which package is a function from?</a></li></ul>
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">What are packages?</a></li><li><a href="#tabset-10-2">What you will see</a></li><li><a href="#tabset-10-3">Which package is a function from?</a></li></ul>
 <div class="tab-content">
-<div id="tabset-9-1">
+<div id="tabset-10-1">
 <p>A package is a drawer in your workspace (the R environment) holding specialized tools (functions) for a particular set of tasks. Packages are written by R’s users and shared for free; most of the functions in this course come from them.</p>
 <p><strong>Example packages:</strong></p>
 <ul>
@@ -3660,18 +4189,25 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <li>stars (spatiotemporal data handling)</li>
 </ul>
 <p><strong>tidyverse</strong> is a package that installs and loads a set of others at once, including dplyr, ggplot2 and readr.</p>
+<p>Python has packages too. The ones in this lecture are <strong>pandas</strong> (tables), <strong>numpy</strong> (arrays of numbers) and <strong>matplotlib</strong> (figures).</p>
 </div>
-<div id="tabset-9-2">
-<p>Two lines about packages appear in AI-written code and AI messages:</p>
+<div id="tabset-10-2">
+<p>Two kinds of line about packages appear in AI-written code and AI messages:</p>
 <ul>
-<li><code>library(ggplot2)</code>, at the top of a document: the code <strong>loads</strong> the package ggplot2, so that its functions can be used further down. A document loads its packages every time it runs.</li>
-<li><code>install.packages("ggplot2")</code>: the AI <strong>installs</strong> the package, that is, downloads it onto your computer. This is a one-time step that sets up the computer, which the AI runs for you. It should never be inside a document.</li>
+<li><code>library(ggplot2)</code> in R, <code>import pandas as pd</code> in Python, at the top of a document: the code <strong>loads</strong> the package, so that its functions can be used further down. <code>as pd</code> gives pandas the short name <code>pd</code>, which the code then writes in front of its functions. A document loads its packages every time it runs.</li>
+<li><code>install.packages("ggplot2")</code> in R, <code>pip install pandas</code> for Python: the AI <strong>installs</strong> the package, that is, downloads it onto your computer. This is a one-time step that sets up the computer, which the AI runs for you. It should never be inside a document.</li>
 </ul>
 </div>
-<div id="tabset-9-3">
-<p><code>dplyr::filter()</code> reads “the function <code>filter</code> from the package <code>dplyr</code>”:</p>
-<div id="qwebr-insertion-location-21"></div>
+<div id="tabset-10-3">
+<p><code>dplyr::filter()</code> reads “the function <code>filter</code> from the package <code>dplyr</code>”. In Python, <code>pd.read_csv()</code> reads “the function <code>read_csv</code> from the package imported as <code>pd</code>”, that is, pandas, and <code>pd.DataFrame()</code> below is pandas’ function that makes a table.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-19"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-16"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
 </div>
 </div>
 </div>
@@ -3689,25 +4225,33 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <section id="errors-and-failures-without-one" class="slide level2">
 <h2>Errors, and failures without one</h2>
 <div class="panel-tabset">
-<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">Reading an error</a></li><li><a href="#tabset-10-2">Errors you will see</a></li><li><a href="#tabset-10-3">No error is not the same as right</a></li></ul>
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Reading an error</a></li><li><a href="#tabset-11-2">Errors you will see</a></li><li><a href="#tabset-11-3">No error is not the same as right</a></li></ul>
 <div class="tab-content">
-<div id="tabset-10-1">
-<p>When R cannot run a line, it stops and prints an error. Read it before anything else: it usually names the function that failed and what it objected to.</p>
-<div id="qwebr-insertion-location-22"></div>
+<div id="tabset-11-1">
+<p>When R or Python cannot run a line, it stops and prints an error. Read it before anything else: it usually names the function that failed and what it objected to.</p>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-20"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>“invalid ‘type’ (character) of argument”: <code>sum()</code> ran, but its input was text, and text cannot be added up.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-17"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>R’s “invalid ‘type’ (character) of argument” and Python’s “unsupported operand type(s) for +: ‘int’ and ‘str’” say the same thing: <code>sum()</code> ran, but its input was text, and text cannot be added up. Python’s first word, <code>TypeError</code>, names the kind of error.</p>
 </div>
-<div id="tabset-10-2">
+<div id="tabset-11-2">
 <p>Two errors you will see often:</p>
 <table class="caption-top">
 <colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>The error says</th>
+<th>R says</th>
+<th>Python says</th>
 <th>What it means</th>
 <th>Usual cause</th>
 </tr>
@@ -3715,11 +4259,13 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <tbody>
 <tr class="odd">
 <td><code>object 'x' not found</code></td>
+<td><code>NameError: name 'x' is not defined</code></td>
 <td>No object has that name</td>
-<td>A typo (R treats <code>Yield</code> and <code>yield</code> as different names), or the line that creates it was never run, or it was made in the Console but not in the document</td>
+<td>A typo (<code>Yield</code> and <code>yield</code> are different names), or the line that creates it was never run, or it was made in the Console but not in the document</td>
 </tr>
 <tr class="even">
 <td><code>non-numeric argument to binary operator</code></td>
+<td><code>TypeError: ... 'str' and 'int'</code></td>
 <td>Arithmetic on something that is not a number</td>
 <td>A number stored as text</td>
 </tr>
@@ -3727,16 +4273,22 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </table>
 <p>When you ask an AI about an error, send the <strong>whole</strong> error message, the code that produced it, and what you expected. The AI cannot see your screen.</p>
 </div>
-<div id="tabset-10-3">
+<div id="tabset-11-3">
 <p>An error is the good case: you know something went wrong. Worse are lines that run and give a wrong answer. Two you have already met:</p>
 <ul>
-<li>One text value in <code>c(...)</code> turned every value to text, with no error.</li>
-<li><code>na.rm = TRUE</code> leaves out missing values without saying how many.</li>
+<li>One text value in <code>c(...)</code> or <code>np.array([...])</code> turned every value to text, with no error.</li>
+<li><code>na.rm = TRUE</code>, and pandas by default, leave out missing values without saying how many.</li>
 </ul>
 <p>And one more. Text that looks like numbers is sorted as text, character by character:</p>
-<div id="qwebr-insertion-location-23"></div>
+<div class="columns">
+<div class="column" style="width:50%;">
+<div id="qwebr-insertion-location-21"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
-<p>“10” comes before “9” because “1” comes before “9”. No error, wrong order. Checking the type of a value (<code>class()</code>, <code>str()</code>) would catch it.</p>
+</div><div class="column" style="width:50%;">
+<div id="qpyodide-insertion-location-18"></div>
+<noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
+</div></div>
+<p>“10” comes before “9” because “1” comes before “9”. No error, wrong order. Checking the type of a value (<code>class()</code>, <code>str()</code>, <code>type()</code>, <code>.dtypes</code>) would catch it.</p>
 <div class="callout callout-important no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -3763,7 +4315,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </section>
 <section id="what-the-ai-cannot-know" class="slide level2 scrollable">
 <h2>What the AI cannot know</h2>
-<p>The AI knows R. It does not know your session or your intentions. Each of these has to be in your request:</p>
+<p>The AI knows R and Python. It does not know your session or your intentions. Each of these has to be in your request:</p>
 <ol type="1">
 <li><strong>The code</strong>: paste the exact lines, not a description of them</li>
 <li><strong>What came out</strong>: the whole error message or output, copied, not retyped from memory</li>
@@ -3787,39 +4339,39 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <section id="a-weak-request-and-a-strong-one" class="slide level2">
 <h2>A weak request and a strong one</h2>
 <div class="panel-tabset">
-<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Weak</a></li><li><a href="#tabset-11-2">Strong</a></li><li><a href="#tabset-11-3">What came back</a></li></ul>
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Weak</a></li><li><a href="#tabset-12-2">Strong</a></li><li><a href="#tabset-12-3">What came back</a></li></ul>
 <div class="tab-content">
-<div id="tabset-11-1">
-<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb4-1"><a></a>My R code doesn't work, please fix it.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-12-1">
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb3-1"><a></a>My R code doesn't work, please fix it.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The AI does not see the code, the error or what you wanted. It will guess, and a typical reply is a list of five common R mistakes, none of which may be yours.</p>
 </div>
-<div id="tabset-11-2">
-<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb5-1"><a></a>I ran these two lines:</span>
-<span id="cb5-2"><a></a></span>
-<span id="cb5-3"><a></a>yields &lt;- c(150, 162, NA, 171)</span>
-<span id="cb5-4"><a></a>average_yield &lt;- mean(yields)</span>
-<span id="cb5-5"><a></a></span>
-<span id="cb5-6"><a></a>average_yield prints NA. I expected the average of the three yields</span>
-<span id="cb5-7"><a></a>that are not missing, 161. Explain in one plain-English sentence why I</span>
-<span id="cb5-8"><a></a>got NA, then correct the code. Also print how many values the average</span>
-<span id="cb5-9"><a></a>used.</span>
-<span id="cb5-10"><a></a></span>
-<span id="cb5-11"><a></a>Put the code in my Quarto document analysis/yields.qmd, under the</span>
-<span id="cb5-12"><a></a>heading "Average yield", as R code chunks. Above each chunk, write one</span>
-<span id="cb5-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb5-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb5-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb5-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-12-2">
+<div class="sourceCode" id="cb4"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb4-1"><a></a>I ran these two lines:</span>
+<span id="cb4-2"><a></a></span>
+<span id="cb4-3"><a></a>yields &lt;- c(150, 162, NA, 171)</span>
+<span id="cb4-4"><a></a>average_yield &lt;- mean(yields)</span>
+<span id="cb4-5"><a></a></span>
+<span id="cb4-6"><a></a>average_yield prints NA. I expected the average of the three yields</span>
+<span id="cb4-7"><a></a>that are not missing, 161. Explain in one plain-English sentence why I</span>
+<span id="cb4-8"><a></a>got NA, then correct the code. Also print how many values the average</span>
+<span id="cb4-9"><a></a>used.</span>
+<span id="cb4-10"><a></a></span>
+<span id="cb4-11"><a></a>Put the code in my Quarto document analysis/yields.qmd, under the</span>
+<span id="cb4-12"><a></a>heading "Average yield", as R code chunks. Above each chunk, write one</span>
+<span id="cb4-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb4-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb4-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb4-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The last paragraph is the <strong>closing instructions</strong>: the same lines end every request that asks for code. They make the AI put its code into a Quarto document, with a sentence above each piece of code, so that the result is a web page you can read and keep. Chapter 2 teaches Quarto; the full text is on the slide “Requests you can copy”.</p>
 <p><code>here::here()</code> builds a file’s path from the top folder of your project, so the path works on any computer. Chapter 3 explains it.</p>
 </div>
-<div id="tabset-11-3">
+<div id="tabset-12-3">
 <p>What the AI’s answer looks like in the rendered page: a sentence, then the code it describes. Read each sentence, and check that the code under it does what the sentence says.</p>
 <p><code>mean()</code> gives <code>NA</code> when any value is missing, unless told to leave missing values out with <code>na.rm = TRUE</code>.</p>
-<div id="qwebr-insertion-location-24"></div>
+<div id="qwebr-insertion-location-22"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 <p>Print the checks: how many values there are, how many are missing, and the average of the rest.</p>
-<div id="qwebr-insertion-location-25"></div>
+<div id="qwebr-insertion-location-23"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 <p>Every check matches, and each line says what it is checking. Two functions that may be new: <code>cat()</code> prints text, and <code>paste()</code> joins pieces of text into one. <code>sum(!is.na(yields))</code> counts the values that are <strong>not</strong> missing (<code>!</code> means “not”).</p>
 </div>
@@ -3830,48 +4382,48 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <h2>Requests you can copy</h2>
 <p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.</p>
 <div class="panel-tabset">
-<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Explain code</a></li><li><a href="#tabset-12-3">Explain an error</a></li></ul>
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Closing instructions</a></li><li><a href="#tabset-13-2">Explain code</a></li><li><a href="#tabset-13-3">Explain an error</a></li></ul>
 <div class="tab-content">
-<div id="tabset-12-1">
+<div id="tabset-13-1">
 <p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb6-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb6-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb6-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb6-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb6-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb6-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb5-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb5-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb5-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb5-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb5-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb5-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
 </div>
-<div id="tabset-12-2">
+<div id="tabset-13-2">
 <p>For code you did not write, or code you are not sure about:</p>
-<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb7-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
-<span id="cb7-2"><a></a>sentence. Then list:</span>
-<span id="cb7-3"><a></a>1. any line that would only work on the computer it was written on</span>
-<span id="cb7-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
-<span id="cb7-5"><a></a>   check would reveal it</span>
-<span id="cb7-6"><a></a></span>
-<span id="cb7-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb6-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb6-2"><a></a>sentence. Then list:</span>
+<span id="cb6-3"><a></a>1. any line that would only work on the computer it was written on</span>
+<span id="cb6-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
+<span id="cb6-5"><a></a>   check would reveal it</span>
+<span id="cb6-6"><a></a></span>
+<span id="cb6-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<div id="tabset-12-3">
-<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb8-1"><a></a>I ran this R code:</span>
-<span id="cb8-2"><a></a></span>
-<span id="cb8-3"><a></a>&lt;paste the code here&gt;</span>
-<span id="cb8-4"><a></a></span>
-<span id="cb8-5"><a></a>and got this message:</span>
-<span id="cb8-6"><a></a></span>
-<span id="cb8-7"><a></a>&lt;paste the whole error or warning here&gt;</span>
-<span id="cb8-8"><a></a></span>
-<span id="cb8-9"><a></a>I expected &lt;what you expected to get&gt;. The objects it uses hold</span>
-<span id="cb8-10"><a></a>&lt;what they hold, or the output of str() on each&gt;, and I loaded the</span>
-<span id="cb8-11"><a></a>packages &lt;package names&gt;. Explain in plain English what the message</span>
-<span id="cb8-12"><a></a>means and which line caused it, then correct the code.</span>
-<span id="cb8-13"><a></a></span>
-<span id="cb8-14"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
-<span id="cb8-15"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
-<span id="cb8-16"><a></a>plain-English sentence saying what it does and why. Build every path</span>
-<span id="cb8-17"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
-<span id="cb8-18"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
-<span id="cb8-19"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div id="tabset-13-3">
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb7-1"><a></a>I ran this R code:</span>
+<span id="cb7-2"><a></a></span>
+<span id="cb7-3"><a></a>&lt;paste the code here&gt;</span>
+<span id="cb7-4"><a></a></span>
+<span id="cb7-5"><a></a>and got this message:</span>
+<span id="cb7-6"><a></a></span>
+<span id="cb7-7"><a></a>&lt;paste the whole error or warning here&gt;</span>
+<span id="cb7-8"><a></a></span>
+<span id="cb7-9"><a></a>I expected &lt;what you expected to get&gt;. The objects it uses hold</span>
+<span id="cb7-10"><a></a>&lt;what they hold, or the output of str() on each&gt;, and I loaded the</span>
+<span id="cb7-11"><a></a>packages &lt;package names&gt;. Explain in plain English what the message</span>
+<span id="cb7-12"><a></a>means and which line caused it, then correct the code.</span>
+<span id="cb7-13"><a></a></span>
+<span id="cb7-14"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb7-15"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb7-16"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb7-17"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb7-18"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb7-19"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </div>
 </div>
@@ -3889,9 +4441,9 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <section id="checking-what-to-ask-for-and-why" class="slide level2">
 <h2>Checking: what to ask for, and why</h2>
 <div class="panel-tabset">
-<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Checks you can know in advance</a></li><li><a href="#tabset-13-2">Asking for them</a></li><li><a href="#tabset-13-3">A check that fails</a></li></ul>
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Checks you can know in advance</a></li><li><a href="#tabset-14-2">Asking for them</a></li><li><a href="#tabset-14-3">A check that fails</a></li></ul>
 <div class="tab-content">
-<div id="tabset-13-1">
+<div id="tabset-14-1">
 <p>A check is only useful if you know the right answer before you see the result. The AI can write the checking code; only you can supply the answer. Sources of answers you know in advance:</p>
 <table class="caption-top">
 <colgroup>
@@ -3935,16 +4487,16 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </tbody>
 </table>
 </div>
-<div id="tabset-13-2">
+<div id="tabset-14-2">
 <p>Say what you expect, and ask for each check in one form, so the rendered page says which passed:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb9-1"><a></a>I expect &lt;number&gt; values, &lt;number&gt; of them missing, and an average of</span>
-<span id="cb9-2"><a></a>&lt;number&gt;. Print each check on its own line as "name of check: expected</span>
-<span id="cb9-3"><a></a>X, got Y".</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb8-1"><a></a>I expect &lt;number&gt; values, &lt;number&gt; of them missing, and an average of</span>
+<span id="cb8-2"><a></a>&lt;number&gt;. Print each check on its own line as "name of check: expected</span>
+<span id="cb8-3"><a></a>X, got Y".</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>If you cannot fill in a blank, that is a sign to look at the data, or its description, before asking.</p>
 </div>
-<div id="tabset-13-3">
+<div id="tabset-14-3">
 <p>A student expected the values to be numbers. The AI’s code, and what it printed:</p>
-<div id="qwebr-insertion-location-26"></div>
+<div id="qwebr-insertion-location-24"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 <p>The check fails: <code>mixed</code> holds text. Nothing errored, and any average of it would be wrong or <code>NA</code>. The right move is to find out where the text came from (here, the <code>"5"</code> written in quotation marks) before going on.</p>
 </div>
@@ -3955,27 +4507,27 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <h2>Your turn: read the AI’s code</h2>
 <p>A student asked an AI to “average my yields”, and got this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">library</span>(dplyr)</span>
-<span id="cb10-2"><a></a>my_yields <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">150</span>, <span class="dv">162</span>, <span class="st">"171"</span>, <span class="dv">140</span>)</span>
-<span id="cb10-3"><a></a>avg <span class="ot">=</span> <span class="fu">mean</span>(my_yields)</span>
-<span id="cb10-4"><a></a>avg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb9-2"><a></a>my_yields <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">150</span>, <span class="dv">162</span>, <span class="st">"171"</span>, <span class="dv">140</span>)</span>
+<span id="cb9-3"><a></a>avg <span class="ot">=</span> <span class="fu">mean</span>(my_yields)</span>
+<span id="cb9-4"><a></a>avg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="panel-tabset">
-<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Questions</a></li><li><a href="#tabset-14-2">Answers</a></li></ul>
+<ul id="tabset-15" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-15-1">Questions</a></li><li><a href="#tabset-15-2">Answers</a></li></ul>
 <div class="tab-content">
-<div id="tabset-14-1">
+<div id="tabset-15-1">
 <p>A. What does each of the four lines do?</p>
 <p>B. What will <code>avg</code> print, and why? Is there an error?</p>
 <p>C. Which check from the previous slide would have caught the problem, and what would it have printed?</p>
 <p>D. Is line 1 needed?</p>
 </div>
-<div id="tabset-14-2">
+<div id="tabset-15-2">
 <p>A. Loads the dplyr package; stores four yields under the name <code>my_yields</code>; computes their average and stores it as <code>avg</code> (<code>=</code> does the same as <code>&lt;-</code> here); prints <code>avg</code>.</p>
 <p>B. NA. Because <code>"171"</code> is in quotation marks, the whole vector is text, and the average of text is <code>NA</code>. There is no error, only a warning (“argument is not numeric or logical: returning NA”), which is easy to miss.</p>
 <p>C. Check 2, the type: “type of my_yields: expected numeric, got character”.</p>
 <p>D. No.&nbsp;None of the functions used (<code>c()</code>, <code>mean()</code>) comes from dplyr; both are built into R. It does no harm, but a line you cannot explain is worth asking about.</p>
 <p>To see B for yourself, run the student’s code:</p>
-<div id="qwebr-insertion-location-27"></div>
+<div id="qwebr-insertion-location-25"></div>
 <noscript>Please enable JavaScript to experience the dynamic code cell content on this page.</noscript>
 </div>
 </div>
@@ -4006,11 +4558,11 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </thead>
 <tbody>
 <tr class="odd">
-<td>What an object is, and that <code>&lt;-</code> stores a result under a name, replacing any old one</td>
+<td>What an object is, and that <code>&lt;-</code> (<code>=</code> in Python) stores a result under a name, replacing any old one</td>
 <td>The names and the assignments</td>
 </tr>
 <tr class="even">
-<td>That <code>table$column</code> takes one column out of a table</td>
+<td>That <code>table$column</code> (<code>table["column"]</code> in Python) takes one column out of a table</td>
 <td>The extraction code</td>
 </tr>
 <tr class="odd">
@@ -4030,14 +4582,18 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 <td>Which inputs to set</td>
 </tr>
 <tr class="odd">
-<td>That <code>library()</code> at the top of a document loads a package, and that installing is a one-time setup of the computer that never goes in a document</td>
-<td>The <code>library()</code> lines, and installing the packages</td>
+<td>That <code>library()</code> or <code>import</code> at the top of a document loads a package, and that installing is a one-time setup of the computer that never goes in a document</td>
+<td>The <code>library()</code> and <code>import</code> lines, and installing the packages</td>
 </tr>
 <tr class="even">
+<td>How Python differs: <code>=</code>, positions from 0, <code>**</code>, functions after a dot</td>
+<td>Code in either language</td>
+</tr>
+<tr class="odd">
 <td>What the two common errors mean</td>
 <td>The fix, once you have told it the code, the error and what you expected</td>
 </tr>
-<tr class="odd">
+<tr class="even">
 <td>What a correct result looks like</td>
 <td>The checking code</td>
 </tr>
@@ -4582,6 +5138,569 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
         );  
       }
     );
+    </script>
+    <script type="module">
+    /**
+     * Factory function to create different types of cells based on options.
+     * @param {Object} cellData - JSON object containing code, id, and options.
+     * @returns {BaseCell} Instance of the appropriate cell class.
+     */
+    globalThis.qpyodideCreateCell = function(cellData) {
+        switch (cellData.options.context) {
+            case 'interactive':
+                return new InteractiveCell(cellData);
+            case 'output':
+                return new OutputCell(cellData);
+            case 'setup':
+                return new SetupCell(cellData);
+            default:
+                return new InteractiveCell(cellData);
+                // throw new Error('Invalid cell type specified in options.');
+        }
+    }  
+
+    /**
+     * CellContainer class for managing a collection of cells.
+     * @class
+     */
+    class CellContainer {
+        /**
+         * Constructor for CellContainer.
+         * Initializes an empty array to store cells.
+         * @constructor
+         */
+        constructor() {
+            this.cells = [];
+        }
+
+        /**
+         * Add a cell to the container.
+         * @param {BaseCell} cell - Instance of a cell (BaseCell or its subclasses).
+         */
+        addCell(cell) {
+            this.cells.push(cell);
+        }
+
+        /**
+         * Execute all cells in the container.
+         */
+        async executeAllCells() {
+            for (const cell of this.cells) {
+                await cell.executeCode();
+            }
+        }
+
+        /**
+         * Execute all cells in the container.
+         */
+        async autoRunExecuteAllCells() {
+            for (const cell of this.cells) {
+                await cell.autoRunExecuteCode();
+            }
+        }
+    }
+      
+
+    /**
+     * BaseCell class for handling code execution using Pyodide.
+     * @class
+     */
+    class BaseCell {
+        /**
+         * Constructor for BaseCell.
+         * @constructor
+         * @param {Object} cellData - JSON object containing code, id, and options.
+         */
+        constructor(cellData) {
+            this.code = cellData.code;
+            this.id = cellData.id;
+            this.options = cellData.options;
+            this.insertionLocation = document.getElementById(`qpyodide-insertion-location-${this.id}`);
+            this.executionLock = false;
+        }
+
+        cellOptions() {
+            // Subclass this? 
+            console.log(this.options);
+            return this.options;
+        }
+
+        /**
+         * Execute the Python code using Pyodide.
+         * @returns {*} Result of the code execution.
+         */
+        async executeCode() {
+            // Execute code using Pyodide
+            const result = getPyodide().runPython(this.code);
+            return result;
+        }
+    };
+
+    /**
+     * InteractiveCell class for creating editable code editor with Monaco Editor.
+     * @class
+     * @extends BaseCell
+     */
+    class InteractiveCell extends BaseCell {
+
+        /**
+         * Constructor for InteractiveCell.
+         * @constructor
+         * @param {Object} cellData - JSON object containing code, id, and options.
+         */
+        constructor(cellData) {
+            super(cellData);
+            this.editor = null;
+            this.setupElement();
+            this.setupMonacoEditor();
+        }
+
+        /**
+         * Set up the interactive cell elements
+         */
+        setupElement() {
+
+            // Create main div element
+            var mainDiv = document.createElement('div');
+            mainDiv.id = `qpyodide-interactive-area-${this.id}`;
+            mainDiv.className = `qpyodide-interactive-area`;
+            if (this.options.classes) {
+                mainDiv.className += " " + this.options.classes
+            }
+
+            // Add a unique cell identifier that users can customize
+            if (this.options.label) {
+                mainDiv.setAttribute('data-id', this.options.label);
+            }
+
+            // Create toolbar div
+            var toolbarDiv = document.createElement('div');
+            toolbarDiv.className = 'qpyodide-editor-toolbar';
+            toolbarDiv.id = `qpyodide-editor-toolbar-${this.id}`;
+
+            // Create a div to hold the left buttons
+            var leftButtonsDiv = document.createElement('div');
+            leftButtonsDiv.className = 'qpyodide-editor-toolbar-left-buttons';
+
+            // Create a div to hold the right buttons
+            var rightButtonsDiv = document.createElement('div');
+            rightButtonsDiv.className = 'qpyodide-editor-toolbar-right-buttons';
+
+            // Create Run Code button
+            var runCodeButton = document.createElement('button');
+            runCodeButton.className = 'btn btn-default qpyodide-button qpyodide-button-run';
+            runCodeButton.disabled = true;
+            runCodeButton.type = 'button';
+            runCodeButton.id = `qpyodide-button-run-${this.id}`;
+            runCodeButton.textContent = '🟡 Loading Pyodide...';
+            runCodeButton.title = `Run code (Shift + Enter)`;
+
+            // Append buttons to the leftButtonsDiv
+            leftButtonsDiv.appendChild(runCodeButton);
+
+            // Create Reset button
+            var resetButton = document.createElement('button');
+            resetButton.className = 'btn btn-light btn-xs qpyodide-button qpyodide-button-reset';
+            resetButton.type = 'button';
+            resetButton.id = `qpyodide-button-reset-${this.id}`;
+            resetButton.title = 'Start over';
+            resetButton.innerHTML = '<i class="fa-solid fa-arrows-rotate"></i>';
+
+            // Create Copy button
+            var copyButton = document.createElement('button');
+            copyButton.className = 'btn btn-light btn-xs qpyodide-button qpyodide-button-copy';
+            copyButton.type = 'button';
+            copyButton.id = `qpyodide-button-copy-${this.id}`;
+            copyButton.title = 'Copy code';
+            copyButton.innerHTML = '<i class="fa-regular fa-copy"></i>';
+
+            // Append buttons to the rightButtonsDiv
+            rightButtonsDiv.appendChild(resetButton);
+            rightButtonsDiv.appendChild(copyButton);
+
+            // Create console area div
+            var consoleAreaDiv = document.createElement('div');
+            consoleAreaDiv.id = `qpyodide-console-area-${this.id}`;
+            consoleAreaDiv.className = 'qpyodide-console-area';
+
+            // Create editor div
+            var editorDiv = document.createElement('div');
+            editorDiv.id = `qpyodide-editor-${this.id}`;
+            editorDiv.className = 'qpyodide-editor';
+
+            // Create output code area div
+            var outputCodeAreaDiv = document.createElement('div');
+            outputCodeAreaDiv.id = `qpyodide-output-code-area-${this.id}`;
+            outputCodeAreaDiv.className = 'qpyodide-output-code-area';
+            outputCodeAreaDiv.setAttribute('aria-live', 'assertive');
+
+            // Create pre element inside output code area
+            var preElement = document.createElement('pre');
+            preElement.style.visibility = 'hidden';
+            outputCodeAreaDiv.appendChild(preElement);
+
+            // Create output graph area div
+            var outputGraphAreaDiv = document.createElement('div');
+            outputGraphAreaDiv.id = `qpyodide-output-graph-area-${this.id}`;
+            outputGraphAreaDiv.className = 'qpyodide-output-graph-area';
+
+            // Append buttons to the toolbar
+            toolbarDiv.appendChild(leftButtonsDiv);
+            toolbarDiv.appendChild(rightButtonsDiv);
+
+            // Append all elements to the main div
+            mainDiv.appendChild(toolbarDiv);
+            consoleAreaDiv.appendChild(editorDiv);
+            consoleAreaDiv.appendChild(outputCodeAreaDiv);
+            mainDiv.appendChild(consoleAreaDiv);
+            mainDiv.appendChild(outputGraphAreaDiv);
+
+            // Insert the dynamically generated object at the document location.
+            this.insertionLocation.appendChild(mainDiv);
+        }
+
+        /**
+         * Set up Monaco Editor for code editing.
+         */
+        setupMonacoEditor() {
+
+            // Retrieve the previously created document elements
+            this.runButton = document.getElementById(`qpyodide-button-run-${this.id}`);
+            this.resetButton = document.getElementById(`qpyodide-button-reset-${this.id}`);
+            this.copyButton = document.getElementById(`qpyodide-button-copy-${this.id}`);
+            this.editorDiv = document.getElementById(`qpyodide-editor-${this.id}`);
+            this.outputCodeDiv = document.getElementById(`qpyodide-output-code-area-${this.id}`);
+            this.outputGraphDiv = document.getElementById(`qpyodide-output-graph-area-${this.id}`);
+            
+            // Store reference to the object
+            var thiz = this;
+
+            // Load the Monaco Editor and create an instance
+            require(['vs/editor/editor.main'], function () {
+                thiz.editor = monaco.editor.create(
+                    thiz.editorDiv, {
+                        value: thiz.code,
+                        language: 'python',
+                        theme: 'vs-light',
+                        automaticLayout: true,           // Works wonderfully with RevealJS
+                        scrollBeyondLastLine: false,
+                        minimap: {
+                            enabled: false
+                        },
+                        // PATCHED (see README-vendored.md): the same editor as the
+                        // course's patched WebR cells, so an R cell and a Python cell
+                        // on neighbouring tabs look alike. 0.7 of the slide's body
+                        // text is `editor-font-scale: 0.7` in the deck headers, and
+                        // like WebR it reads the editor box's own computed font size.
+                        fontSize: 0.7 * (parseFloat(getComputedStyle(thiz.editorDiv).fontSize) || 19.2),
+                        renderLineHighlight: "none",     // Disable current line highlighting
+                        hideCursorInOverviewRuler: true,  // Remove cursor indictor in right hand side scroll bar
+                        overviewRulerLanes: 0,
+                        overviewRulerBorder: false,
+                        lineNumbersMinChars: 1,
+                        lineDecorationsWidth: 9,
+                        folding: false,
+                        glyphMargin: false,
+                        quickSuggestions: false,
+                        wordWrap: "on",
+                        readOnly: thiz.options['read-only'] ?? false
+                    }
+                );
+            
+                // Store the official counter ID to be used in keyboard shortcuts
+                thiz.editor.__qpyodideCounter = thiz.id;
+            
+                // Store the official div container ID
+                thiz.editor.__qpyodideEditorId = `qpyodide-editor-${thiz.id}`;
+            
+                // Store the initial code value and options
+                thiz.editor.__qpyodideinitialCode = thiz.code;
+                thiz.editor.__qpyodideOptions = thiz.options;
+            
+                // Set at the model level the preferred end of line (EOL) character to LF.
+                // This prevent `\r\n` from being given to the Pyodide engine if the user is on Windows.
+                // See details in: https://github.com/coatless/quarto-Pyodide/issues/94
+                // Associated error text: 
+                // Error: <text>:1:7 unexpected input
+            
+                // Retrieve the underlying model
+                const model = thiz.editor.getModel();
+                // Set EOL for the model
+                model.setEOL(monaco.editor.EndOfLineSequence.LF);
+            
+                // Dynamically modify the height of the editor window if new lines are added.
+                let ignoreEvent = false;
+                const updateHeight = () => {
+                // PATCHED (see README-vendored.md): a cell on a slide or tab not yet
+                // shown is 0 wide, where word wrap would make every character a row.
+                // Wait for a real width, as the patched WebR editor does.
+                if (!thiz.editorDiv.offsetWidth) return;
+                const contentHeight = thiz.editor.getContentHeight() + 2;
+                // We're avoiding a width change
+                //editorDiv.style.width = `${width}px`;
+                thiz.editorDiv.style.height = `${contentHeight}px`;
+                    try {
+                        ignoreEvent = true;
+                
+                        // The key to resizing is this call
+                        thiz.editor.layout();
+                    } finally {
+                        ignoreEvent = false;
+                    }
+                };
+            
+                // Helper function to check if selected text is empty
+                function isEmptyCodeText(selectedCodeText) {
+                    return (selectedCodeText === null || selectedCodeText === undefined || selectedCodeText === "");
+                }
+            
+                // Registry of keyboard shortcuts that should be re-added to each editor window
+                // when focus changes.
+                const addPyodideKeyboardShortCutCommands = () => {
+                // Add a keydown event listener for Shift+Enter to run all code in cell
+                thiz.editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Enter, () => {
+                    // Retrieve all text inside the editor
+                    thiz.runCode(thiz.editor.getValue());
+                });
+            
+                // Add a keydown event listener for CMD/Ctrl+Enter to run selected code
+                thiz.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+                        // Get the selected text from the editor
+                        const selectedText = thiz.editor.getModel().getValueInRange(thiz.editor.getSelection());
+                        // Check if no code is selected
+                        if (isEmptyCodeText(selectedText)) {
+                            // Obtain the current cursor position
+                            let currentPosition = thiz.editor.getPosition();
+                            // Retrieve the current line content
+                            let currentLine = thiz.editor.getModel().getLineContent(currentPosition.lineNumber);
+                    
+                            // Propose a new position to move the cursor to
+                            let newPosition = new monaco.Position(currentPosition.lineNumber + 1, 1);
+                    
+                            // Check if the new position is beyond the last line of the editor
+                            if (newPosition.lineNumber > thiz.editor.getModel().getLineCount()) {
+                                // Add a new line at the end of the editor
+                                thiz.editor.executeEdits("addNewLine", [{
+                                range: new monaco.Range(newPosition.lineNumber, 1, newPosition.lineNumber, 1),
+                                text: "\n", 
+                                forceMoveMarkers: true,
+                                }]);
+                            }
+                            
+                            // Run the entire line of code.
+                            thiz.runCode(currentLine);
+                    
+                            // Move cursor to new position
+                            thiz.editor.setPosition(newPosition);
+                        } else {
+                            // Code to run when Ctrl+Enter is pressed with selected code
+                            thiz.runCode(selectedText);
+                        }
+                    });
+                }
+            
+                // Register an on focus event handler for when a code cell is selected to update
+                // what keyboard shortcut commands should work.
+                // This is a workaround to fix a regression that happened with multiple
+                // editor windows since Monaco 0.32.0 
+                // https://github.com/microsoft/monaco-editor/issues/2947
+                thiz.editor.onDidFocusEditorText(addPyodideKeyboardShortCutCommands);
+            
+                // Register an on change event for when new code is added to the editor window
+                thiz.editor.onDidContentSizeChange(updateHeight);
+            
+                // Manually re-update height to account for the content we inserted into the call
+                updateHeight();
+                    
+            });
+
+            
+            // Add a click event listener to the run button
+            thiz.runButton.onclick = function () {
+                thiz.runCode(
+                    thiz.editor.getValue()
+                );
+            };
+            
+            // Add a click event listener to the reset button
+            thiz.copyButton.onclick = function () {
+                // Retrieve current code data
+                const data = thiz.editor.getValue();
+                
+                // Write code data onto the clipboard.
+                navigator.clipboard.writeText(data || "");
+            };
+            
+            // Add a click event listener to the copy button
+            thiz.resetButton.onclick = function () {
+                thiz.editor.setValue(thiz.editor.__qpyodideinitialCode);
+            };
+        }
+
+        disableInteractiveCells() {
+            // Enable locking of execution for the cell
+            this.executionLock = true;
+
+            // Disallowing execution of other code cells
+            document.querySelectorAll(".qpyodide-button-run").forEach((btn) => {
+                btn.disabled = true;
+            });
+        }
+
+        enableInteractiveCells() {
+            // Remove locking of execution for the cell
+            this.executionLock = false;
+
+            // All execution of other code cells
+            document.querySelectorAll(".qpyodide-button-run").forEach((btn) => {
+                btn.disabled = false;
+            });
+        }
+
+        /**
+         * Execute the Python code inside the editor.
+         */
+        async runCode(code) {
+            
+            // Check if we have an execution lock
+            if (this.executeLock) return; 
+            
+            this.disableInteractiveCells();
+
+            // Force wait procedure
+            await mainPyodide;
+
+            // Clear the output stock
+            qpyodideResetOutputArray();
+
+            // Generate a new canvas element, avoid attaching until the end
+            let graphFigure = document.createElement("figure");
+            document.pyodideMplTarget = graphFigure;
+
+            console.log("Running code!");
+            // Obtain results from the base class
+            try {
+                // Always check to see if the user adds new packages
+                await mainPyodide.loadPackagesFromImports(code);
+
+                // Process result
+                const output = await mainPyodide.runPythonAsync(code);
+
+                // PATCHED (see README-vendored.md): show the value of a last bare
+                // expression the way Python itself shows it, with repr(). Passed
+                // through as a JavaScript value, `True` printed as `true` and the
+                // text 'R rocks' lost its quotation marks.
+                if (output !== undefined) {
+                    qpyodideAddToOutputArray(mainPyodide.globals.get("repr")(output), "stdout");
+                }
+            } catch (err) {
+                // PATCHED (see README-vendored.md): keep only the last line of the
+                // traceback, "TypeError: ...", which is the part a reader needs. The
+                // lines above it are Pyodide's own machinery.
+                const lines = String(err.message || err).trim().split("\n");
+                qpyodideAddToOutputArray(lines[lines.length - 1], "stderr");
+                // TODO: There has to be a way to remove the Pyodide portion of the errors... 
+            }
+
+            const result = qpyodideRetrieveOutput();
+
+            // Nullify the output area of content
+            this.outputCodeDiv.innerHTML = "";
+            this.outputGraphDiv.innerHTML = "";        
+
+            // Design an output object for messages
+            const pre = document.createElement("pre");
+            if (/\S/.test(result)) {
+                // Display results as HTML elements to retain output styling
+                const div = document.createElement("div");
+                // PATCHED (see README-vendored.md): text, not HTML, or a printed
+                // `<class 'str'>` is read as a tag and disappears.
+                div.textContent = result;
+                pre.appendChild(div);
+            } else {
+                // If nothing is present, hide the element.
+                pre.style.visibility = "hidden";
+            }
+
+            // Add output under interactive div
+            this.outputCodeDiv.appendChild(pre);
+
+            // Place the graphics onto the page
+            if (graphFigure) {
+
+                if (this.options['fig-cap']) {
+                    // Create figcaption element
+                    const figcaptionElement = document.createElement('figcaption');
+                    figcaptionElement.innerText = this.options['fig-cap'];
+                    // Append figcaption to figure
+                    graphFigure.appendChild(figcaptionElement);    
+                }
+
+                this.outputGraphDiv.appendChild(graphFigure);
+            }
+
+            // Re-enable execution
+            this.enableInteractiveCells();
+        }
+    };
+
+    /**
+     * OutputCell class for customizing and displaying output.
+     * @class
+     * @extends BaseCell
+     */
+    class OutputCell extends BaseCell {
+        /**
+         * Constructor for OutputCell.
+         * @constructor
+         * @param {Object} cellData - JSON object containing code, id, and options.
+         */
+        constructor(cellData) {
+          super(cellData);
+        }
+      
+        /**
+         * Display customized output on the page.
+         * @param {*} output - Result to be displayed.
+         */
+        displayOutput(output) {
+            const results = this.executeCode();
+            return results;
+        }
+      }
+
+    /**
+     * SetupCell class for suppressed output.
+     * @class
+     * @extends BaseCell
+     */
+    class SetupCell extends BaseCell {
+        /**
+         * Constructor for SetupCell.
+         * @constructor
+         * @param {Object} cellData - JSON object containing code, id, and options.
+         */
+        constructor(cellData) {
+            super(cellData);
+        }
+
+        /**
+         * Execute the Python code without displaying the results.
+         */
+        runSetupCode() {
+            // Execute code without displaying output
+            this.executeCode();
+        }
+    };
+    </script>
+    <script type="module">
+    // Handle cell initialization initialization
+    qpyodideCellDetails.map(
+        (entry) => {
+          // Handle the creation of the element
+          qpyodideCreateCell(entry);
+        }
+      );
     </script>
     
 

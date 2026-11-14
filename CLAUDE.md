@@ -67,6 +67,9 @@ Lecture styling comes from `../_lecture-shared/`, copied into `lectures/` by
 browser) is used by `01-Introduction.qmd` only so far; the other decks use plain
 `{r}` chunks. The patched WebR extension is vendored in `_extensions/coatless/webr/`,
 and its two patched files are copies from `../_lecture-shared/` like the rest.
+`01-Introduction.qmd` also runs Python in the browser with quarto-pyodide, vendored
+and patched in `_extensions/coatless-quarto/pyodide/` (its Quarto 1.11 requirement
+is relaxed to run on 1.7; `README-vendored.md` there lists every change).
 
 ## Rendering
 
