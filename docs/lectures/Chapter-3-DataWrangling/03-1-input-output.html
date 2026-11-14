@@ -994,17 +994,14 @@ $yield_range
 <span id="cb28-5"><a></a><span class="fu">write_csv</span>(corn_f, csv_file)</span>
 <span id="cb28-6"><a></a><span class="fu">saveRDS</span>(corn_f, rds_file)</span>
 <span id="cb28-7"><a></a></span>
-<span id="cb28-8"><a></a><span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb28-8"><a></a><span class="fu">c</span>(</span>
+<span id="cb28-9"><a></a>  <span class="at">from_csv =</span> <span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated),</span>
+<span id="cb28-10"><a></a>  <span class="at">from_rds =</span> <span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span>
+<span id="cb28-11"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "character"</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] "factor"</code></pre>
+<pre><code>   from_csv    from_rds 
+"character"    "factor" </code></pre>
 </div>
 </div>
 <p>The csv gave back text: the factor was lost. The rds gave back the factor.</p>

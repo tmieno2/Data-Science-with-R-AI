@@ -472,8 +472,10 @@ rds_file <- file.path(tempdir(), "corn.rds")
 write_csv(corn_f, csv_file)
 saveRDS(corn_f, rds_file)
 
-class(read_csv(csv_file, show_col_types = FALSE)$Irrigated)
-class(readRDS(rds_file)$Irrigated)
+c(
+  from_csv = class(read_csv(csv_file, show_col_types = FALSE)$Irrigated),
+  from_rds = class(readRDS(rds_file)$Irrigated)
+)
 ```
 
 The csv gave back text: the factor was lost. The rds gave back the factor.
