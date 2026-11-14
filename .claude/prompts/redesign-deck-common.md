@@ -4,6 +4,15 @@ Every agent redesigning a deck reads this first. Your own prompt names the decks
 
 ## Background
 
+**The student's role, which every deck revolves around.** The student is the
+generalist in charge of a research project; AI agents do the work. The student
+must know enough to direct them (what to ask for, what the agent cannot know
+and must be told) and to evaluate what comes back (which checks, with which
+right answers). Every slide earns its place by serving one of those two. Teach
+what a step is and what must be true for it to work; do not teach procedures
+the agent carries out (installing, syntax rules, menu clicks) beyond what the
+student must recognise in the agent's code and messages. (Ruled 2026-11-14.)
+
 The Data Science with R course (AECN 896-05) is being overhauled for 2027 and taught flipped: students study each deck alone before class, then work through an exercise in class with an AI assistant. AI now writes most code, so each deck teaches:
 
 1. **The concept**: what the step is, and what has to be true for it to succeed.
