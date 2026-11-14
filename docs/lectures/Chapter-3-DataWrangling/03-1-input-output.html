@@ -646,20 +646,20 @@
 <hr color="#EB811B" size="1px" width="796px">
 
 </section>
-<section id="how-you-work-with-the-ai-in-this-course" class="slide level2 scrollable">
-<h2>How you work with the AI in this course</h2>
-<p>Every piece of work in this course lives in a <strong>Quarto document</strong> (<code>.qmd</code>), and you judge it by reading the <strong>HTML file</strong> it renders to.</p>
+<section id="working-with-ai-on-your-own-research" class="slide level2 scrollable">
+<h2>Working with AI on your own research</h2>
+<p>This is the way of working with AI that you should take into your own research. Every exercise in this course uses it, so that it is a habit by the time your thesis needs it.</p>
 <ol type="1">
 <li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
-<li><strong>The AI writes into your <code>.qmd</code>.</strong> Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
+<li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
 <li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
 <li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
 </ol>
-<p>Why the HTML and not the chat window:</p>
+<p>Why this matters for research, and why you judge the HTML rather than the chat window:</p>
 <ul>
-<li>Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the work is reproducible; nothing depends on something typed into the Console and forgotten.</li>
-<li>It puts each explanation, its code and its result in one place, in order.</li>
-<li>It is what you hand in, and what anyone else will read.</li>
+<li>Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on something typed into the Console and forgotten.</li>
+<li>The HTML is a record of what was done to the data and why, with each explanation next to its code and its result. You can reread it months later, and your advisor or a coauthor can review your analysis by reading it, without running anything.</li>
+<li>The chat disappears; the <code>.qmd</code> and its HTML stay with your project.</li>
 </ul>
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">

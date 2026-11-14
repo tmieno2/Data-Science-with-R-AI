@@ -200,20 +200,20 @@ A reader told nothing about sheets reads the **first** one only. If you wanted b
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
-## How you work with the AI in this course
+## Working with AI on your own research
 
-Every piece of work in this course lives in a **Quarto document** (`.qmd`), and you judge it by reading the **HTML file** it renders to.
+This is the way of working with AI that you should take into your own research. Every exercise in this course uses it, so that it is a habit by the time your thesis needs it.
 
 1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
-2. **The AI writes into your `.qmd`.** Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
+2. **The AI writes into a Quarto document** (`.qmd`). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
 3. **You render** the `.qmd` to HTML.
 4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
 
-Why the HTML and not the chat window:
+Why this matters for research, and why you judge the HTML rather than the chat window:
 
-+ Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the work is reproducible; nothing depends on something typed into the Console and forgotten.
-+ It puts each explanation, its code and its result in one place, in order.
-+ It is what you hand in, and what anyone else will read.
++ Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on something typed into the Console and forgotten.
++ The HTML is a record of what was done to the data and why, with each explanation next to its code and its result. You can reread it months later, and your advisor or a coauthor can review your analysis by reading it, without running anything.
++ The chat disappears; the `.qmd` and its HTML stay with your project.
 
 :::{.callout-note}
 Every request ends with the same few lines telling the AI to work this way. This deck calls them the **closing instructions**; the full text is under **Recommended requests** near the end.

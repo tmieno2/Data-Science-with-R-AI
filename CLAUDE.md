@@ -17,10 +17,11 @@ AI writes the code, so each deck teaches:
 Function names and arguments appear as samples to recognise, never as the
 subject of a slide.
 
-**The core principle of the course: work lives in a `.qmd`, and is judged by
-reading the rendered HTML.** The AI writes code into the student's `.qmd`,
-with one plain-English sentence above each chunk; the student renders and
-assesses the HTML, not the chat. Every recommended request ends with the same
+**The core principle: a research workflow, practised in the course.** Students
+should do their own research this way: the AI writes code into a `.qmd`, with
+one plain-English sentence above each chunk; the student renders it and
+assesses the HTML, not the chat. Frame it as how to do research with AI, which
+the exercises practise, never as a rule of this course. Every recommended request ends with the same
 "closing instructions" (which `.qmd` and heading, a sentence above each chunk,
 `here::here()` paths, checks printed as "expected X, got Y", render to HTML).
 The canonical wording is the "Closing instructions" tab of the "Recommended

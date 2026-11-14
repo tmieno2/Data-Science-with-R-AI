@@ -6,7 +6,7 @@ format: html
 
 Save this file as `ch3-practice/analysis/ex-3-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-3-1. Try each task before you look.
 
-**Every task has four steps, in this order:**
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
 
 1. **Look** at the file before anyone writes code.
 2. **Predict** what a correct result looks like, and write it down here.

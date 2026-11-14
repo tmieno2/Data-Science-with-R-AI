@@ -9,7 +9,7 @@ I am overhauling my Data Science with R course (AECN 896-05) for 2027 and teachi
 3. **Asking AI**: what the AI cannot know (what the data contains, what fact or idea a figure must convey, and to whom) and so must be told.
 4. **Checking**: concrete checks whose correct answer the student knows in advance.
 
-**The core principle of the whole course:** work lives in a Quarto document (`.qmd`). The AI writes code into it, with one plain-English sentence above each chunk. The student renders it and judges the work by reading the HTML, not the chat window. Every recommended request ends with the same "closing instructions".
+**The core principle is a workflow for students' own research, which the course practises:** the AI writes code into a Quarto document (`.qmd`), with one plain-English sentence above each chunk. The student renders it and judges the work by reading the HTML, not the chat window. The HTML is the reproducible record of the analysis that an advisor or coauthor can review. Present it as how to do research with AI, not as a rule of this course; 03-1's slide "Working with AI on your own research" shows the framing. Every recommended request ends with the same "closing instructions".
 
 ## Read these first, in this order
 
