@@ -1,0 +1,135 @@
+---
+title: "Ex-2-3 worksheet: Websites with Quarto"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch2-practice/analysis/ex-2-3.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-2-3. Try each task before you look.
+
+Today you turn your `ch2-practice` project into a small website for your advisor, who wants to see the Nebraska yield results with their code and checks. The AI writes the configuration and the pages; you decide what the site holds, and you judge it by using it.
+
+**Rules:**
+
+A. Write the site map **before** you ask the AI.
+
+B. Keep the requests you actually sent in this file, with the blanks filled in.
+
+C. You judge the site by rendering it and clicking through it, starting from the home page.
+
+# What is in the project now
+
+List every Quarto document in the project, with its path from the project folder.
+
+```{r}
+#| label: qmd-files
+list.files(here::here(), pattern = "\\.qmd$", recursive = TRUE)
+```
+
+# Task 1: The site map, no AI
+
+Your advisor will look at the site between meetings. They want three things: what the project is, the data with its checks, and the average yield per year.
+
+**A. Write the site map: each page, its file name, what it shows, in the order of the menu.**
+
+1.
+2.
+3.
+
+**B. Which files in the list above must not become pages of this site? Why?**
+
+Your answer:
+
+# Task 2: Predict, no AI
+
+**If the AI only adds a `_quarto.yml` and the three pages, and nothing else, which pages will be in the rendered site? Which of them will be in the menu?**
+
+Your answer:
+
+# Task 3: Ask the AI for the site
+
+**My request to the AI.** Fill in every `<...>` from Tasks 1 and 2, then send it:
+
+```text
+Turn my project folder ch2-practice into a Quarto website. The visitor
+is my advisor, who wants to see the latest results with their code and
+checks. Pages, in this order in the menu at the top:
+<numbered list: page name, file name, what it shows>
+Leave out <files or folders that must not become pages>. Every page
+reads the data it needs itself, from data/2-1-nebraska-yield.csv. On
+the page that reads the data, check the number of rows (I expect
+<number>) and the years covered (I expect <first year> to <last year>).
+
+Put the code in my Quarto document <path of the data page's .qmd>,
+under the heading "<heading>", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+# Task 4: Judge the site
+
+Render the whole website: **Build** tab, **Render Website**. If there is no Build tab, close and reopen the project, or ask the AI to render the website.
+
+**A. Did it render? If not, which file and chunk does the error name?**
+
+Your answer:
+
+**B. Open the home page. Is every page of your site map in the menu, in your order? Can you reach each by clicking?**
+
+Your answer:
+
+**C. List every `.html` file in the output folder (`_site/`, unless the AI chose another). Compare the list with your site map. Is anything there that should not be?**
+
+Your answer:
+
+**D. On the data page, does every "expected, got" line match?**
+
+Your answer:
+
+# Task 5: Add a page
+
+Your advisor asks how many counties report in each year.
+
+**Prediction: how many counties report in each year? (Look at the data, or at Ex-2-2.)**
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`, then send it:
+
+```text
+Add a page to my Quarto website: <file name>, titled "<title>", which
+shows <what it shows>. Put it in the menu after "<the menu entry it
+follows>". Do not change any other page.
+
+Put the code in my Quarto document <path to the new page's .qmd>,
+under the heading "<heading>", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**Render the website again. Is the page in the menu, in the right place? Do its numbers match your prediction? Did any other page change?**
+
+Your answer:
+
+# Task 6: Share it
+
+1. Zip the output folder (`_site/`) and copy the zip file to your Desktop. Unzip it there.
+2. Open `index.html` from the unzipped copy, and click through every page.
+3. Now copy only the data page's `.html` file from `_site/` to your Desktop, and open it.
+
+**What works in step 2, and what does not in step 3? Why?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which files would have become pages if you had not asked for them to be left out? How would your advisor have found them?**
+
+Your answer:
+
+**B. What is the difference between sharing a report (Ex-2-1) and sharing a site?**
+
+Your answer:

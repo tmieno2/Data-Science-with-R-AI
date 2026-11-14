@@ -1,0 +1,853 @@
+---
+title: "09-1: Spatial Data and Vector Layers"
+abstract: "Chapter 9: Spatial Data"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(sf)
+library(dplyr)
+library(readr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+
+counties <- st_read("ne_counties.gpkg", quiet = TRUE)
+wells_table <- read_csv("wells_ne.csv", show_col_types = FALSE)
+wells <- st_as_sf(wells_table, coords = c("longdd", "latdd"), crs = 4269)
+
+ne_area_km2 <- round(sum(as.numeric(st_area(counties))) / 1e6)
+lancaster <- filter(counties, name == "Lancaster")
+lan_ll <- round(st_coordinates(st_centroid(lancaster)), 2)
+lan_utm <- round(st_coordinates(st_centroid(st_transform(lancaster, 26914))))
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Spatial data is data about **where** things are: counties, wells, rivers, fields. An AI assistant can write the code that reads it, combines it and measures it. What it cannot do is:
+
++ know what the coordinates in your files mean
++ see where your places are supposed to be
++ tell whether a map or an area it produced is right
+
+Those are your job. So today is about:
+
+1. **The concept**: the two kinds of spatial data, what one row of a spatial table is, and what a coordinate reference system is
+2. **Reading code**: recognising what a line of spatial code does
+3. **Asking AI**: what to put in your request
+4. **Checking**: four checks to print for every spatial layer, and why each one matters
+
+### Directions
+
++ Ask your AI assistant to install the `sf`, `tidyverse` and `here` packages if you have not already. `sf` is the package for vector data in R.
++ The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Two kinds of spatial data
+
+::: {.panel-tabset}
+
+### Vector and raster
+
++ **Vector data** stores separate things, each with a shape made of coordinates: a **point** (a well), a **line** (a railroad), a **polygon** (a county). Each thing is called a **feature**, and each feature has its own values, such as a county's name.
++ **Raster data** stores a grid of equal cells covering an area, with one value per cell: precipitation, temperature, elevation, a satellite image. There are no separate things, only cells.
+
+This lecture is about vector data. Lecture 09-2 is about raster data.
+
+### What they look like
+
+Nebraska's 93 counties (polygons) and 1,000 irrigation wells (points), two vector layers drawn together. A **layer** is one spatial dataset: one file, one table in R.
+
+```{r}
+#| label: two-layers
+#| echo: false
+#| fig-height: 4.5
+ggplot() +
+  geom_sf(data = counties, fill = "grey95", colour = "grey60") +
+  geom_sf(data = wells, colour = "#0072B2", size = 0.6) +
+  theme_void()
+```
+
+### Which one when
+
+| Your data is about | Kind | Examples |
+|---|---|---|
+| Separate things with a boundary or a location | Vector | counties, fields, farms, wells, roads, weather stations |
+| A quantity that varies continuously over an area | Raster | rainfall, temperature, elevation, satellite images |
+
+:::
+
+## One row of a spatial table is one feature
+
+::: {.panel-tabset}
+
+### The table
+
+In R, a vector layer is a table (an `sf` table, after the package). It looks like any other table, with one extra column, `geom` or `geometry`, that holds each feature's shape:
+
+```{r}
+#| label: print-counties
+counties
+```
+
+One row is one county: its code, its name, and its shape. Filtering rows, adding columns, and joining other tables by `countyfp`, with the layer first (`left_join(layer, table)`), work as on any table, and the shape stays attached to its row. With the ordinary table first, the result is no longer a layer.
+
+### The lines above the table
+
+| Line | What it tells you |
+|---|---|
+| `Simple feature collection with 93 features and 2 fields` | 93 rows (features) and 2 columns besides the shape |
+| `Geometry type: MULTIPOLYGON` | The kind of shape in every row |
+| `Bounding box:` | The smallest rectangle that holds every feature: lowest and highest x, lowest and highest y |
+| `Geodetic CRS: NAD83` | What the coordinates mean (next slide) |
+
+These four lines hold three of the four checks this lecture asks you to print for every layer.
+
+### Kinds of shape
+
+| Geometry type | What it is | Example |
+|---|---|---|
+| `POINT` | One location | a well |
+| `LINESTRING` | A path through several points | a stretch of railroad |
+| `POLYGON` | An area enclosed by a boundary | a field |
+| `MULTI...` | Several pieces that belong to one feature | a county with an island, a river with branches |
+
+The AI picks the right functions for each type. What you need is to know which type your data should be, so that a layer of farms that comes back as `POINT` (one location per farm) instead of `POLYGON` (each farm's boundary) is caught.
+
+:::
+
+## A coordinate reference system says what the numbers mean
+
+::: {.panel-tabset}
+
+### The idea
+
+A shape is stored as numbers: pairs of x and y. The numbers alone do not say where on Earth the place is. The **coordinate reference system** (CRS) does: it says what the numbers are measured in and from where. There are two kinds:
+
++ **Geographic**: longitude and latitude, in **degrees**. Longitude is x, latitude is y.
++ **Projected**: the curved Earth drawn onto a flat surface, with x and y in **metres** (or feet) from a chosen starting point. Each one is accurate for one region, for example UTM zone 14N for central North America.
+
+Each common CRS has a catalogue number, its **EPSG code**: 4269 is NAD83 longitude and latitude, used by most US government data; 4326 is WGS84 longitude and latitude, used by GPS; 26914 is NAD83 / UTM zone 14N, in metres.
+
+### The same place, two CRSs
+
+The centre of Lancaster County, Nebraska:
+
+| CRS | x | y |
+|---|---|---|
+| NAD83, EPSG 4269 (degrees) | `r lan_ll[1]` | `r lan_ll[2]` |
+| NAD83 / UTM zone 14N, EPSG 26914 (metres) | `r format(lan_utm[1], big.mark = ",")` | `r format(lan_utm[2], big.mark = ",")` |
+
+Same place, completely different numbers. Moving a layer from one CRS to another (**transforming** it) recomputes every coordinate.
+
+### Why layers must share one
+
+Combining two layers, for example asking which county each well is in, compares their numbers directly. That only makes sense if both sets of numbers mean the same thing, so **two layers must be in the same CRS before they can be combined**.
+
+`sf` checks this for you, as far as it can. If the two CRSs differ, it stops with an error:
+
+```{r}
+#| label: crs-error
+#| error: true
+st_intersects(wells, st_transform(counties, 26914))
+```
+
+That is the good case: you know something is wrong. The silent failures come when a layer's CRS is **wrong** or **missing**, because then `sf` has nothing correct to check against. They are later in this deck.
+
+:::
+
+# How spatial code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Reading a layer from a file
+
+::: {.panel-tabset}
+
+### The pattern
+
+Vector layers come in several file formats. Whatever the format, reading one follows the same pattern as reading a table in lecture 03-1:
+
+```{r}
+#| eval: false
+layer <- reader_function("path/to/file")
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `layer <-` | The name the layer will have inside R | Needed to keep the result |
+| `reader_function` | `st_read()` or `read_sf()`, both from `sf`; they differ only in how they print | Yes |
+| `"path/to/file"` | Where the file is | **Yes, the only required input** |
+
+A real line:
+
+```{r}
+#| label: read-gpkg
+counties <- st_read("ne_counties.gpkg")
+```
+
+`st_read()` prints a short report as it reads; the CRS is on its last line.
+
+### Formats
+
+The same reader opens all of them:
+
+| Extension | Format | What to know |
+|---|---|---|
+| `.shp` | Shapefile, the format of ArcGIS | One layer is **several files** with the same name: `.shp` (shapes), `.shx` (an index), `.dbf` (the columns), `.prj` (the CRS). Without the `.prj`, the layer has no CRS. |
+| `.gpkg` | GeoPackage | One file, keeps the CRS |
+| `.geojson` | GeoJSON | One file, always longitude and latitude in WGS84 |
+| `.rds` | R's own format | One file, the exact R object, only R opens it |
+
+### Writing
+
+Saving a layer follows the writing pattern of lecture 03-1:
+
+```{r}
+#| eval: false
+st_write(layer, "path/to/file.gpkg")
+```
+
+The extension picks the format. Two things to know:
+
++ A csv cannot hold a shape. `write_csv()` on a layer writes the shapes as long lines of text that nothing reads back as shapes. Save layers as `.gpkg` (or `.rds` if only R will read them).
++ `st_write()` refuses to replace an existing file unless told to (`delete_dsn = TRUE`), unlike the writers in lecture 03-1.
+
+:::
+
+## Turning a table with coordinates into a layer
+
+::: {.panel-tabset}
+
+### The pattern
+
+Data often arrives as an ordinary table with two coordinate columns, for example a csv of wells. To R it is just a table with two columns of numbers. One function turns it into a layer:
+
+```{r}
+#| eval: false
+layer <- st_as_sf(table, coords = c("x column", "y column"), crs = code)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `table` | The ordinary table | Yes |
+| `coords = c(...)` | The two coordinate columns, **x first**: longitude before latitude, or easting before northing (x and y in metres in a projected CRS) | Yes |
+| `crs = code` | What the numbers mean, as an EPSG code | **Not required by R, but required by you.** Left out, the layer has no CRS at all, and nothing warns you. |
+
+Only you can supply the CRS. It is not in the numbers; it is in the documentation that came with the data.
+
+### A real example
+
+```{r}
+#| label: wells-raw
+wells_table <- read_csv("wells_ne.csv", show_col_types = FALSE)
+head(wells_table, 3)
+```
+
+`longdd` and `latdd` are longitude and latitude in decimal degrees. The source of this data documents them as NAD83, EPSG 4269.
+
+```{r}
+#| label: wells-sf
+wells <- st_as_sf(wells_table, coords = c("longdd", "latdd"), crs = 4269)
+wells
+```
+
+The two coordinate columns became one `geometry` column, and the layer now has a CRS.
+
+:::
+
+## Doing things with a layer
+
+::: {.panel-tabset}
+
+### The pattern
+
+Almost every spatial function in `sf` starts with `st_` and takes the layer first:
+
+```{r}
+#| eval: false
+result <- st_function(layer, other_inputs)
+```
+
+| Function | What it does | What to know |
+|---|---|---|
+| `st_crs(layer)` | Prints the CRS | The first check |
+| `st_transform(layer, code)` | Moves the layer into another CRS, recomputing every coordinate | Use it to make two layers share a CRS |
+| `st_set_crs(layer, code)` | **Labels** the layer with a CRS, changing no number | Only for a layer whose CRS is missing and known from its documentation. On a layer that has a CRS, it puts the layer in the wrong place. |
+| `st_area(layer)` | Area of each polygon | Units come with the result, such as `[m^2]` |
+| `st_length(layer)` | Length of each line | Same |
+| `st_distance(a, b)` | Distance between every feature of `a` and every feature of `b` | Same |
+| `st_buffer(layer, dist)` | A zone of width `dist` around each feature | `dist` is in metres for a longitude/latitude layer, and in the units of the CRS for a projected one. State the units in your request. |
+| `st_centroid(layer)` | The centre point of each feature | |
+| `st_drop_geometry(layer)` | Removes the shape, giving an ordinary table | |
+
+### Table verbs still work
+
+`filter()`, `mutate()`, `select()` and joins by a column work on a layer as on any table, and the shape stays with its row:
+
+```{r}
+#| label: dplyr-on-sf
+counties |>
+  filter(name %in% c("Lancaster", "Douglas")) |>
+  mutate(area_km2 = as.numeric(st_area(geom)) / 1e6)
+```
+
+Two variations you will see in AI-written code: `sf::st_area(...)`, with the package name in front, and `units::set_units(st_area(geom), km^2)`, which converts the units instead of dividing by a million. Both do the same thing as above.
+
+### Variations you will see
+
++ `layer |> st_transform(26914) |> st_buffer(2000)`: several steps passed along with `|>`
++ `st_transform(layer, st_crs(other_layer))`: "use the other layer's CRS", the usual way to make two layers match
++ `st_transform(layer, "EPSG:26914")`: the code written as text; the same as `26914`
+
+:::
+
+# What has to be true
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Conditions for spatial data to be right
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **Every layer has the right CRS**: its label says what its numbers really mean.
+2. **Layers share a CRS before they are combined.**
+3. **x and y are in the right order**: longitude (or easting) first.
+4. **Distances and areas are computed in known units**, metres or feet, never in degrees.
+5. **One row is the feature you think it is**, and the count of rows matches what you expect.
+
+### With and without an error
+
++ If condition 2 fails, `sf` stops with an error (previous section). Annoying, but you know.
++ If condition 1, 3, 4 or 5 fails, you get a layer, a map or a number with **no error**, and it is wrong. This deck calls these **silent failures**, as lecture 03-1 does.
+
+:::{.callout-important}
+Every one of these silent failures is visible in the printed CRS, the bounding box, or a quick map. That is why those are the checks.
+:::
+
+:::
+
+## Silent failures
+
+::: {.panel-tabset}
+
+### Coordinates in the wrong order
+
+People say "lat/long", so latitude often ends up first:
+
+```{r}
+#| label: swapped
+#| warning: true
+wells_swapped <- st_as_sf(wells_table, coords = c("latdd", "longdd"), crs = 4269)
+st_bbox(wells_swapped)
+```
+
+The bounding box puts the wells at x between 40 and 42 and y between -104 and -97. Nebraska is at longitude -104 to -95 and latitude 40 to 43, so x and y are swapped. A latitude of -104 does not exist, yet the layer was created with no error and no warning, and any map or calculation that follows runs.
+
+### The wrong CRS
+
+The same wells, with their coordinates in UTM zone 14N metres, read with the CRS a quick request would guess, longitude and latitude:
+
+```{r}
+#| label: wrong-crs
+#| warning: true
+wells_utm_table <- wells |>
+  st_transform(26914) |>
+  mutate(easting = st_coordinates(geometry)[, 1],
+         northing = st_coordinates(geometry)[, 2]) |>
+  st_drop_geometry()
+
+wells_mislabelled <- st_as_sf(wells_utm_table, coords = c("easting", "northing"), crs = 4269)
+st_bbox(wells_mislabelled)
+```
+
+Asking how many wells lie in a Nebraska county:
+
+```{r}
+#| label: wrong-crs-count
+#| warning: true
+sum(lengths(st_intersects(wells_mislabelled, counties)) > 0)
+```
+
+Zero of `r nrow(wells)`, with no error. The only sign is a warning that the bounding box "has potentially an invalid value range for longlat data", easy to miss among other output. The two layers carry the same CRS label, so `sf` combined them, but the numbers in one of them are metres. Only the bounding box (x in the hundreds of thousands cannot be a longitude) shows why.
+
+### No CRS: areas in degrees
+
+A shapefile whose `.prj` file was lost has no CRS. Here the counties are saved as a shapefile, the `.prj` is deleted, and the rest is read back:
+
+```{r}
+#| label: no-prj
+shp <- file.path(tempdir(), "counties.shp")
+st_write(counties, shp, delete_dsn = TRUE, quiet = TRUE)
+invisible(file.remove(sub("shp$", "prj", shp)))
+counties_no_crs <- st_read(shp, quiet = TRUE)
+st_crs(counties_no_crs)
+```
+
+Its areas:
+
+```{r}
+#| label: no-prj-area
+head(st_area(counties_no_crs), 3)
+sum(st_area(counties_no_crs))
+```
+
+Without a CRS, `st_area()` treats the numbers as plain x and y and returns square **degrees**, with no units and no warning. All of Nebraska comes to `r round(sum(st_area(counties_no_crs)), 1)`. With the CRS, it comes to `r format(ne_area_km2, big.mark = ",")` square kilometres. A square degree is not a fixed area either: it shrinks toward the poles.
+
+The fix here is `st_set_crs()`, with the CRS from the data's documentation, because the numbers are right and only the label is missing.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The way of working from lecture 02-1, "Working with AI on your own research", applies unchanged:
+
+1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
+2. **The AI writes into a Quarto document** (`.qmd`). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
+3. **You render** the `.qmd` to HTML.
+4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
+
+For spatial data the HTML matters even more, because two of the four checks are a printed bounding box and a quick map, and you judge both by eye. The rendered document puts each map next to the code that made it and the numbers that describe it, and it stays with your project after the chat is gone.
+
+:::{.callout-note}
+Every request that asks for code ends with the same few lines, the **closing instructions**; the full text is under **Recommended requests** near the end.
+:::
+
+## Look at the files before you ask
+
+::: {.panel-tabset}
+
+### What to look for
+
+You cannot tell the AI what the coordinates mean without finding out first. For each file:
+
+1. **Its format**, from the extension. For a shapefile, check that the `.shx`, `.dbf` and `.prj` files are there too.
+2. **Its CRS.** It is in the documentation: a README, a metadata page, the website it came from. For a csv with coordinates, this is the only place it is.
+3. **What one row is**: a well, a county, a county in one year.
+4. **How many rows** there should be: 93 counties in Nebraska, 1,000 wells in the file.
+5. **Where the place is**, roughly, in longitude and latitude. Nebraska is about -104 to -95 longitude and 40 to 43 latitude; any map site will tell you this for any place.
+
+### The numbers tell you a little
+
+The raw first lines of a csv with coordinates:
+
+```{r}
+#| label: peek-csv
+readLines("wells_ne.csv", n = 3)
+```
+
+Numbers between -180 and 180 with several decimals look like longitude and latitude in degrees. Numbers in the hundreds of thousands or millions are metres or feet in a projected CRS. That narrows it down; it does not tell you which CRS. Only the documentation does.
+
+:::
+
+## What to put in your request
+
+The AI knows every `st_` function. Your request supplies what it cannot know:
+
+1. **The files**: names, formats, and where they sit in your project
+2. **The CRS of each file**, from its documentation, as an EPSG code if you have one, and which columns hold x and y for a csv
+3. **What one row is**, and how many rows there should be
+4. **What you want back**: the layers, the CRS to work in, and units for any area or distance
+5. **Ask for checks**: the CRS of every layer, the number of features, the bounding box, a quick map (next section)
+6. **The closing instructions**
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the files itself. It still cannot read a CRS that is not in the file. Write down the CRS and where the place should be **before** it runs.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Load my wells csv and the county map and count the wells in each county.
+```
+
+The AI has to guess the file names, which columns are coordinates, and what they mean. A typical reply:
+
+```{r}
+#| eval: false
+wells <- read.csv("wells.csv")
+wells_sf <- st_as_sf(wells, coords = c("lat", "lon"), crs = 4326)
+counties <- st_read("counties.shp")
+```
+
+Latitude first, a CRS guessed, and a shapefile read without checking it has a CRS. Every one of these runs.
+
+### Strong
+
+An example for wells and counties:
+
+```text
+In my R project, data/wells.csv has one row per irrigation well (1,000
+wells). Columns longdd and latdd are longitude and latitude in NAD83,
+EPSG 4269. data/counties.gpkg has the 93 counties of Nebraska, also in
+EPSG 4269. Read both, making the wells a spatial layer.
+
+Then check, for each layer: the CRS (I expect EPSG 4269), the number of
+features (1,000 and 93), and the bounding box (I expect longitude
+between -104 and -95 and latitude between 40 and 43). Draw a quick map
+of each layer on its own.
+
+Put the code in my Quarto document analysis/import.qmd, under the
+heading "Read the spatial data", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build every
+path with here::here(); no setwd(), no absolute paths. Print each check
+on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+### What came back
+
+In the rendered HTML, a sentence, then the chunk it describes.
+
+Read the county layer, and make the wells table a spatial layer using its longitude and latitude columns in NAD83.
+
+```{r}
+#| label: ai-read
+#| eval: false
+counties <- st_read(here::here("data", "counties.gpkg"), quiet = TRUE)
+wells <- read_csv(here::here("data", "wells.csv"), show_col_types = FALSE) |>
+  st_as_sf(coords = c("longdd", "latdd"), crs = 4269)
+```
+
+Print the CRS, the number of features and the bounding box of each layer, against what was expected.
+
+```{r}
+#| label: ai-check
+#| eval: false
+for (nm in c("counties", "wells")) {
+  layer <- get(nm)
+  bb <- round(st_bbox(layer), 1)
+  cat(nm, "CRS: expected EPSG 4269, got EPSG", st_crs(layer)$epsg, "\n")
+  cat(nm, "features: expected", paste0(c(counties = 93, wells = 1000)[[nm]], ","), "got", nrow(layer), "\n")
+  cat(nm, "longitude: expected -104 to -95, got", bb["xmin"], "to", bb["xmax"], "\n")
+  cat(nm, "latitude: expected 40 to 43, got", bb["ymin"], "to", bb["ymax"], "\n")
+}
+```
+
+`for (nm in ...)` repeats the lines inside the braces once for each layer name, and `get(nm)` fetches the layer by its name. The output is in the next section.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The four checks
+
+::: {.panel-tabset}
+
+### What to ask for, and why
+
+The AI can write the checking code. It cannot know the right answers. Ask for these for every layer, after reading it and after every step that changes it:
+
+| | Ask the AI to print | Catches | What only you can supply |
+|---|---|---|---|
+| 1 | the CRS | a missing CRS, a guessed one, two layers that do not match | the CRS from the documentation |
+| 2 | the number of features | rows lost or duplicated, a file cut short | the count you expect |
+| 3 | the bounding box | x and y swapped, numbers in metres labelled as degrees, a layer in the wrong place | where the place is |
+| 4 | a quick map of each layer on its own | anything the numbers did not show: a missing piece, points in the sea, the wrong shapes | what the place looks like |
+
+For a layer of shapes, also ask for the **geometry type**, and for any area or distance, ask for the **units** to be printed with the numbers.
+
+### Asking for them
+
+One sentence at the end of your request does it:
+
+```text
+For every layer, print the CRS, the number of features and the bounding
+box, and draw a quick map of the layer on its own.
+```
+
+Better, say what you expect, so the HTML says which checks passed:
+
+```text
+I expect <layer> to be in EPSG <code>, with <number> features, and
+longitude between <west> and <east> and latitude between <south> and
+<north>. Print each check on its own line as "name of check: expected X,
+got Y".
+```
+
+The bounding box is in the units of the layer's CRS. For a layer in metres, ask for the box after transforming to longitude and latitude, so you can compare it with a map.
+
+### Reading the HTML
+
+What the checking code on the previous slide printed:
+
+```{r}
+#| label: chk-run
+#| echo: false
+for (nm in c("counties", "wells")) {
+  layer <- get(nm)
+  bb <- round(st_bbox(layer), 1)
+  cat(nm, "CRS: expected EPSG 4269, got EPSG", st_crs(layer)$epsg, "\n")
+  cat(nm, "features: expected", paste0(c(counties = 93, wells = 1000)[[nm]], ","), "got", nrow(layer), "\n")
+  cat(nm, "longitude: expected -104 to -95, got", bb["xmin"], "to", bb["xmax"], "\n")
+  cat(nm, "latitude: expected 40 to 43, got", bb["ymin"], "to", bb["ymax"], "\n")
+}
+```
+
+Every line matches. The wells cover only part of the state (their box is smaller than the counties' box), which is what the quick map on the "Two kinds of spatial data" slide also shows: no wells in the northern part of the state. Whether that is right is a question about the data, for whoever produced it.
+
+:::
+
+## Checks that come from knowing the place
+
+The four checks apply to any layer. Checks from what you know about **this** place are stronger, and no AI will think of them for you.
+
++ The counties of a state should add up to the state's area. Nebraska is about 200,000 square kilometres (any encyclopedia).
++ Every well in a file of Nebraska wells should fall inside a Nebraska county.
+
+```text
+Using the layers counties and wells, print the total area of the
+counties in square kilometres (I expect about 200,000), and the number
+of wells that fall inside a county (I expect all 1,000).
+
+Put the code in my Quarto document analysis/import.qmd, under the
+heading "Check against the place", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+The AI's code, and what it printed:
+
+```{r}
+#| label: chk-place
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+total_km2 <- sum(units::set_units(st_area(counties), km^2))
+inside <- sum(lengths(st_intersects(wells, counties)) > 0)
+cat("total area: expected about 200,000 km2, got", format(round(as.numeric(total_km2)), big.mark = ","), "\n")
+cat("wells inside a county: expected 1000, got", inside, "\n")
+```
+
+Both pass. Run on `wells_mislabelled` from the "Silent failures" slide, the second check gives 0; run on `counties_no_crs`, the first gives `r round(sum(st_area(counties_no_crs)), 1)`. Neither failure can get past these two lines.
+
+## Your turn: read the AI's code
+
+```{r}
+#| label: buffer-5
+#| include: false
+zone <- st_buffer(wells[1, ], dist = 5)
+zone_m2 <- round(as.numeric(st_area(zone)))
+```
+
+A student asked an AI to "draw a 5 km zone around each well and give me the area of one zone", and got this:
+
+```{r}
+#| eval: false
+setwd("C:/Users/jsmith/Desktop/gis")
+wells <- st_as_sf(read_csv("wells.csv"), coords = c("longdd", "latdd"), crs = 4269)
+zones <- st_buffer(wells, dist = 5)
+st_area(zones[1, ])
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each line do?
+
+B. Which line will fail on your computer?
+
+C. Which problem gives a wrong answer **without** an error?
+
+D. Which check would catch it, and what is its expected value?
+
+### Answers
+
+A. Changes the working directory; reads the csv and makes it a layer of points in NAD83 longitude and latitude; draws a zone of width 5 around each well; prints the area of the first zone.
+
+B. Line 1. That folder exists only on jsmith's computer.
+
+C. Line 3. For a longitude/latitude layer, `sf` measures `dist` in metres, so `dist = 5` draws a zone of 5 **metres**, not 5 kilometres. When run, line 4 prints `r zone_m2` [m^2]. The request said "5 km", the code says 5, and nothing warns that the units differ.
+
+D. The area of one zone, with its units. A circle of radius 5 km has an area of about 78.5 square kilometres, so the expected value is known before anything runs; `r zone_m2` square metres is a million times too small. The fix is `dist = 5000`, or `units::set_units(5, km)`, and a request that states the units.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at the files and their documentation. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Read a layer
+
+```text
+In my R project, <path to the file> is a <format> file with one row per
+<what one row is>. Its documentation says the CRS is <CRS name, EPSG
+code>. Read it into a layer called <layer name>.
+
+Then check the CRS (I expect EPSG <code>), the number of features (I
+expect <number>), the geometry type (I expect <type>), and the bounding
+box (I expect longitude between <west> and <east> and latitude between
+<south> and <north>). Draw a quick map of the layer on its own.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Coordinates to a layer
+
+```text
+In my R project, <path to the csv> has one row per <what one row is>
+(<number> rows). The columns <x column> and <y column> hold <longitude
+and latitude, or easting and northing> in <CRS name, EPSG code>,
+according to <where you found this>. Make it a layer of points called
+<layer name>, with <x column> as x.
+
+Then check the CRS, the number of features, and the bounding box (I
+expect longitude between <west> and <east> and latitude between <south>
+and <north>; if the layer is not in degrees, transform a copy to EPSG
+4269 to print this). Draw a quick map of the points on top of <a layer
+of the area they should fall in>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### A missing CRS
+
+```text
+The layer <layer name> has no CRS. Its documentation says its
+coordinates are <CRS name, EPSG code>. Label it with that CRS without
+changing any coordinate.
+
+Then check the CRS (I expect EPSG <code>) and the bounding box (I expect
+longitude between <west> and <east> and latitude between <south> and
+<north>).
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Areas or distances
+
+```text
+Using the layer <layer name>, add a column <column name> with the
+<area of each feature, or distance from each feature to the nearest
+feature of another layer> in <units>. Print the CRS of every layer
+used, and the units of the result.
+
+Check: <a total or a value you know, such as the total area against the
+known area of the state>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Save and read back
+
+```text
+Save the layer <layer name> as <path for the new file, ending in .gpkg>.
+Then read the file back and check that the CRS, the number of features
+and the column names match the original.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. for each layer, what CRS it ends up in, and whether that CRS is
+   known or guessed
+3. any line that could give a wrong result without an error, and which
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| Vector or raster, and which geometry type your features are | The reader and the geometry functions |
+| What one row of a layer is, and how many there should be | `filter()`, `mutate()`, joins on layers |
+| What a CRS is, and which one each of your files is in, from its documentation | `st_as_sf(..., crs = )`, `st_set_crs()`, `st_transform()` |
+| That layers must share a CRS before being combined | Transforming one to match the other |
+| Where your place is, and how big it is | The checking code |
+
+**Every spatial layer:** find its CRS in the documentation and write down how many features it has and where it should be. Ask the AI to write the code and the four checks into your `.qmd`: CRS, number of features, bounding box, quick map. Render it, and judge the HTML against what you wrote down.

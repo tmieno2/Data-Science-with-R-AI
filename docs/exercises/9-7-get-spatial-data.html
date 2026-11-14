@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Ex-9-7: Getting Spatial Data from Online Sources, with an AI Assistant – Data Science with R (AECN 896-05)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Data Science with R (AECN 896-05)</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../lectures/index.html"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../exercises/index.html"> 
+<span class="menu-text">Exercises</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-setup" id="toc-sec-setup" class="nav-link active" data-scroll-target="#sec-setup">Setup</a></li>
+  <li><a href="#sec-answers" id="toc-sec-answers" class="nav-link" data-scroll-target="#sec-answers">Answers</a>
+  <ul class="collapse">
+  <li><a href="#task-1-the-five-decisions" id="toc-task-1-the-five-decisions" class="nav-link" data-scroll-target="#task-1-the-five-decisions">Task 1: The five decisions</a></li>
+  <li><a href="#task-2-kansas-county-boundaries" id="toc-task-2-kansas-county-boundaries" class="nav-link" data-scroll-target="#task-2-kansas-county-boundaries">Task 2: Kansas county boundaries</a></li>
+  <li><a href="#task-3-if-time-allows-a-map-of-the-contiguous-states" id="toc-task-3-if-time-allows-a-map-of-the-contiguous-states" class="nav-link" data-scroll-target="#task-3-if-time-allows-a-map-of-the-contiguous-states">Task 3 (if time allows): A map of the contiguous states</a></li>
+  <li><a href="#task-4-daily-rain-from-prism" id="toc-task-4-daily-rain-from-prism" class="nav-link" data-scroll-target="#task-4-daily-rain-from-prism">Task 4: Daily rain from PRISM</a></li>
+  <li><a href="#task-5-rain-in-each-county" id="toc-task-5-rain-in-each-county" class="nav-link" data-scroll-target="#task-5-rain-in-each-county">Task 5: Rain in each county</a></li>
+  <li><a href="#task-6-statistics-from-usda-nass" id="toc-task-6-statistics-from-usda-nass" class="nav-link" data-scroll-target="#task-6-statistics-from-usda-nass">Task 6: Statistics from USDA-NASS</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content column-page-right" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Ex-9-7: Getting Spatial Data from Online Sources, with an AI Assistant</h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-right">
+
+    
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    Spatial Data
+  </div>
+</div>
+
+
+</header>
+
+
+<p>This is an in-class exercise. Before class, work through the lecture <strong>09-7: Getting Spatial Data from Online Sources</strong>. In class, you download the data yourself, with an AI assistant writing the code. Your job is everything the AI cannot do: deciding what data the question needs, knowing what should arrive, and judging whether what arrived is that.</p>
+<section id="sec-setup" class="level1">
+<h1>Setup</h1>
+<ol type="1">
+<li><strong>Before class</strong>, if you want to do Task 6: request a free USDA-NASS Quick Stats key at <a href="https://quickstats.nass.usda.gov/api" class="uri">https://quickstats.nass.usda.gov/api</a>. It arrives by email, sometimes after a delay. Add a line <code>NASS_API_KEY=your-key</code> to the file <code>.Renviron</code> in your home folder (ask the AI how to open it), then restart R. Never put the key in a <code>.qmd</code>.</li>
+<li>Download the worksheet, <a href="worksheets/ex-9-7.qmd">ex-9-7.qmd</a>. There are no data files to download from here: you download the data in class. The one exception is the fallback file below.</li>
+<li>Use the R Project folder <code>ch9-practice</code> from the earlier Chapter 9 exercises, or make one, with two subfolders, <code>data</code> and <code>analysis</code>. Inside <code>data</code>, make a folder <code>raw</code> for downloads. You may ask the AI how to do this.</li>
+<li>Copy the worksheet into <code>ch9-practice/analysis</code>.</li>
+<li>Ask the AI to install the <code>sf</code>, <code>terra</code>, <code>tidyterra</code>, <code>tigris</code> and <code>prism</code> packages, and <code>rnassqs</code> if you will do Task 6.</li>
+<li>Open the worksheet and start at Task 1.</li>
+</ol>
+<div class="callout callout-style-default callout-note callout-titled" title="If PRISM refuses the download">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+If PRISM refuses the download
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>PRISM refuses a file downloaded more than twice in a day, which can happen in a class where many people download the same days. If PRISM refuses the download, use this file: <a href="data/9-7-ppt-kansas.tif">9-7-ppt-kansas.tif</a>. It holds the five days of Task 4, one layer per day, cut to a rectangle a little larger than Kansas. Save it as <code>data/raw/9-7-ppt-kansas.tif</code> and tell the AI to read it instead of downloading.</p>
+</div>
+</div>
+<div class="callout callout-style-default callout-important callout-titled" title="It worked if">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+It worked if
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Typing <code>here::here()</code> in the Console prints the path to <code>ch9-practice</code> and nothing longer.</p>
+<p>If <code>here::here()</code> prints a path ending in <code>analysis</code>, the <code>.Rproj</code> file was not recognised. <code>here</code> only accepts a <code>.Rproj</code> file whose first line starts with <code>Version:</code>, which every project created in RStudio (File, New Project) has.</p>
+</div>
+</div>
+<p>The numbers below come from downloads made on 14 November 2026. Sources occasionally revise their data, so yours may differ slightly; a large difference is worth asking about.</p>
+</section>
+<section id="sec-answers" class="level1">
+<h1>Answers</h1>
+<p>Open each one only after you have tried the task.</p>
+<section id="task-1-the-five-decisions" class="level2">
+<h2 class="anchored" data-anchor-id="task-1-the-five-decisions">Task 1: The five decisions</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Decision</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Dataset and variable</td>
+<td>PRISM daily precipitation (<code>ppt</code>); Census county boundaries</td>
+</tr>
+<tr class="even">
+<td>Area</td>
+<td>Kansas</td>
+</tr>
+<tr class="odd">
+<td>Time</td>
+<td>10 to 14 July 2023, five days; boundaries for a year near 2023</td>
+</tr>
+<tr class="even">
+<td>Spatial unit of the result</td>
+<td>county</td>
+</tr>
+<tr class="odd">
+<td>Units of the values</td>
+<td>millimetres (PRISM’s documentation)</td>
+</tr>
+</tbody>
+</table>
+<p>Two datasets: county boundaries with <code>tigris</code>, and daily precipitation with <code>prism</code>. Kansas has 105 counties.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-2-kansas-county-boundaries" class="level2">
+<h2 class="anchored" data-anchor-id="task-2-kansas-county-boundaries">Task 2: Kansas county boundaries</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>105 features, in NAD83 longitude and latitude, all in Kansas. The map shows the rectangle of Kansas with its north-eastern corner cut by the Missouri River.</p>
+<p>On the second render, the file exists, so the download step is skipped and the file is read. If it downloaded again, the code is missing the “only if the file does not exist” condition; ask the AI to add it.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-3-if-time-allows-a-map-of-the-contiguous-states" class="level2">
+<h2 class="anchored" data-anchor-id="task-3-if-time-allows-a-map-of-the-contiguous-states">Task 3 (if time allows): A map of the contiguous states</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p><strong>56 features, not 48 or 50.</strong> Besides the 50 states, the file holds 6 more: District of Columbia, American Samoa, Puerto Rico, United States Virgin Islands, Guam, Commonwealth of the Northern Mariana Islands. These are the District of Columbia and the US territories, which the Census Bureau publishes with the states. With Alaska and Hawaii, 8 features are not contiguous states.</p>
+<p>Nothing failed: the function returned what the Census Bureau calls “states and equivalent entities”. Only the count check, and the list of names, showed that it was not what you meant. Drawn on a map, the territories and Alaska also stretch the map across the Pacific, which is often how people first notice.</p>
+<p>A request that keeps what you need:</p>
+<pre class="text"><code>From the states layer, keep only the 48 contiguous states: drop Alaska,
+Hawaii, the District of Columbia and the territories. Then check: the
+number of features (I expect 48), and draw a map.</code></pre>
+<p>48 features remain. Whether to keep the District of Columbia is a decision about your map; say which in the request.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-4-daily-rain-from-prism" class="level2">
+<h2 class="anchored" data-anchor-id="task-4-daily-rain-from-prism">Task 4: Daily rain from PRISM</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>5 layers, with the dates 20230710, 20230711, 20230712, 20230713, 20230714 in their names, in NAD83 longitude and latitude, with cells of 0.0417 degrees (about 4 km). Daily values over Kansas range from 0 to 123.4 mm, the largest on 20230713.</p>
+<p>The units are not in the raster. They are in PRISM’s documentation, and in the <code>.info.txt</code> file the download saved beside each <code>.bil</code>. That file is where “mm” in your checks comes from.</p>
+<p>The blanks, filled in: <code>ppt</code>, <code>2023-07-10</code>, <code>2023-07-14</code>, <code>5</code>, and a range such as 0 to 150 (a single day’s rain above about 150 mm anywhere in Kansas would be extraordinary).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-5-rain-in-each-county" class="level2">
+<h2 class="anchored" data-anchor-id="task-5-rain-in-each-county">Task 5: Rain in each county</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>105 rows and 0 counties with no value, but one check fails: <strong>counties not entirely inside the raster’s rectangle: expected 0, got 1 (Wyandotte)</strong>.</p>
+<p>You cropped the raster to the counties, so how can a county stick out? <code>crop()</code> cuts along cell edges, and by default it rounds the counties’ rectangle to the <strong>nearest</strong> cell edge. Where the nearest edge lies inside the counties’ rectangle, a sliver of the edge county is cut off: here about 1.4 km of Wyandotte County’s eastern tip, on the Missouri River. Its average comes from the rest of the county, with no NA and no warning.</p>
+<p>The fix is to round outward: <code>crop(ppt, counties, snap = "out")</code> keeps every cell any county touches. With it, the same check gives 0. A sliver this small barely moves one county’s average, but the same rounding on a coarser raster cuts off whole cells.</p>
+<p>County averages of the five-day total range from 0 mm (Shawnee) to 58 mm (Crawford). Summer rain in Kansas comes from storms, so neighbouring counties can differ a great deal over a few days; compare the county map with the daily maps of Task 4, where the same pattern should be visible.</p>
+<p>The checks from lecture 09-6 caught a problem created by your own code, in a step that looked too simple to need checking.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-6-statistics-from-usda-nass" class="level2">
+<h2 class="anchored" data-anchor-id="task-6-statistics-from-usda-nass">Task 6: Statistics from USDA-NASS</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The search returns 10 items. The one for all soybeans is <code>SOYBEANS - ACRES HARVESTED</code>; the others are parts of it (irrigated, non-irrigated, double cropped, organic, and so on). Choosing among them is your decision, not the AI’s. At most 105 counties times 3 years, 315 rows, can arrive.</p>
+<p>These answers cannot list your exact numbers, because the download needs your own key, and they were written without one: the <code>rnassqs</code> code was not run for this page. The list of items above comes from the <code>tidyUSDA</code> package’s saved list of NASS items. What to look for in your HTML:</p>
+<ul>
+<li><strong>Fewer rows than counties times years.</strong> NASS does not publish a county when too few farms report, and western Kansas grows few soybeans. Count the counties per year and compare with 105.</li>
+<li><strong>Rows that are not counties.</strong> Rows named <code>OTHER (COMBINED) COUNTIES</code>, county code 998, combine the unpublished counties of one district. They are not counties, and must not be mapped or averaged with them.</li>
+<li><strong>Units and type.</strong> <code>unit_desc</code> should say <code>ACRES</code>. <code>Value</code> is acres harvested in the county, not a share, and may arrive as text with commas (<code>12,300</code>) and <code>(D)</code> for withheld values; converting it to a number turns <code>(D)</code> into NA, so ask how many became missing.</li>
+</ul>
+<p>If any year is missing entirely, NASS may not have published the survey for that year yet. That is a check on “which years arrived”, which you asked for.</p>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Made with Quarto</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

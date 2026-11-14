@@ -1,0 +1,726 @@
+---
+title: "08-2: Regression Tables"
+abstract: "Chapter 8: Make Tables"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(modelsummary)
+
+air <- airquality
+
+m1 <- lm(Ozone ~ Temp, data = air)
+m2 <- lm(Ozone ~ Temp + Wind, data = air)
+m3 <- lm(Ozone ~ Temp + Wind + Solar.R, data = air)
+
+complete_rows <- function(vars) sum(complete.cases(air[, vars]))
+n_missing_ozone <- sum(is.na(air$Ozone))
+n_missing_solar <- sum(is.na(air$Solar.R))
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+An AI assistant can estimate regressions and put them in a table in seconds. What it cannot do is:
+
++ know which models you meant to compare, and why
++ know which estimate your message is about
++ know how many observations each model should have
++ tell whether the table shows the models you meant
+
+Those are your job. So today is about:
+
+1. **The concept**: what a reader needs from a regression table
+2. **Reading code**: recognising what a line of regression-table code does
+3. **Asking AI**: what to put in the request
+4. **Checking**: that the table shows the models you meant, with the observations you expected
+
+This deck assumes lecture 08-1 (the message, the display table, the table standard). It does not teach regression itself: what an estimate or a standard error means is the subject of your econometrics course.
+
+### Directions
+
++ Ask your AI assistant to install the `modelsummary` package if you have not already.
++ The data on these slides is `airquality`, which comes with R, so there is no file to download.
+
+:::
+
+# What a regression table is for
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The data and the models on these slides
+
+`airquality` has one row per day in New York, May to September 1973: `r nrow(air)` rows. The columns used here:
+
+| Column | What it is |
+|---|---|
+| `Ozone` | Ozone concentration (parts per billion) |
+| `Temp` | Maximum temperature (degrees Fahrenheit) |
+| `Wind` | Average wind speed (miles per hour) |
+| `Solar.R` | Solar radiation (langleys, a unit of sunlight energy per area) |
+
+The message: "Hotter days have more ozone, and the relationship holds after accounting for wind and sunlight." So three models (regressions), each adding a variable:
+
+```{r}
+#| label: models
+#| eval: false
+m1 <- lm(Ozone ~ Temp, data = air)
+m2 <- lm(Ozone ~ Temp + Wind, data = air)
+m3 <- lm(Ozone ~ Temp + Wind + Solar.R, data = air)
+```
+
+`lm()` estimates a linear regression. To the left of `~` is the outcome (what the model explains); to the right, the variables that explain it.
+
+## What the reader needs from a regression table
+
+A reader of a regression table is asking four questions. Each part of the table answers one:
+
+| The reader asks | The part of the table that answers |
+|---|---|
+| Which models are these? What does each explain, with which variables? | The column headers and title; which coefficient rows are filled in for each column |
+| How large is the estimate the message is about? | The coefficient rows (one per variable), in plain words with units |
+| How precise is it? | The standard error in parentheses below each estimate, and a note saying which kind of standard error |
+| What data is behind each model? | The number of observations at the bottom of each column, and notes on the sample |
+
+Anything that does not answer one of these questions is clutter for this reader. The comparison the message is about runs **across** the columns: here, how the temperature estimate changes as wind and sunlight are added.
+
+## What the default gives
+
+::: {.panel-tabset}
+
+### Before
+
+What comes back from `modelsummary(list(m1, m2, m3))`, with no instructions:
+
+```{r}
+#| label: before
+#| echo: false
+modelsummary(list(m1, m2, m3))
+```
+
+### After
+
+```{r}
+#| label: after
+#| echo: false
+coef_labels <- c(
+  "Temp" = "Temperature (°F)",
+  "Wind" = "Wind speed (miles per hour)",
+  "Solar.R" = "Solar radiation (langleys)",
+  "(Intercept)" = "Constant"
+)
+modelsummary(
+  list("(1)" = m1, "(2)" = m2, "(3)" = m3),
+  coef_map = coef_labels,
+  gof_map = list(
+    list(raw = "nobs", clean = "Observations (days)", fmt = 0),
+    list(raw = "r.squared", clean = "R squared", fmt = 2)
+  ),
+  vcov = "HC1",
+  fmt = 2,
+  align = "lrrr",
+  title = "Ozone (parts per billion) and the weather, New York, May to September 1973",
+  notes = c(
+    "Each column is a linear regression of ozone on the variables listed. Robust standard errors (HC1) in parentheses.",
+    "Days with a missing value in any variable a model uses are left out of that model.",
+    "Data: airquality, which comes with R."
+  )
+)
+```
+
+### What changed
+
+| | Table standard item | Before | After |
+|---|---|---|---|
+| 1 | Plain-word labels | `Temp`, `Solar.R`, `(Intercept)` | "Temperature (°F)", "Solar radiation (langleys)", "Constant", the variable of the message first |
+| 3 | Rounded | 3 decimals everywhere | 2 decimals |
+| 6 | Aligned | numbers centred | numbers right-aligned (`align = "lrrr"`: left for the labels, right for the three model columns) |
+| 10 to 12 | Title and notes | none | a title naming the outcome, units and data; notes on the method, the standard errors and the missing days |
+| 14 | Nothing unneeded | AIC, BIC, Log.Lik., F, RMSE, adjusted R2 | observations and R squared only |
+| 15 to 18 | Regression items | which standard errors? not said | robust standard errors, said in a note; observations for every model |
+
+The default has no significance stars, which meets item 17 as it is. If you want stars, ask for them and for a note defining them.
+
+:::
+
+# How regression-table code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The pattern
+
+A regression table function does the work of the display table (lecture 08-1) for you: it takes the estimated models and lays out one column per model. Every call follows the same pattern.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+modelsummary(
+  list("header 1" = model_1, "header 2" = model_2, ...),
+  option = value, ...
+)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `list(...)` | The models, one per column, **in the order of the columns** | **Yes, the only required input** |
+| `"header 1" =` | The header of that column. Leave it out and the header is `(1)`, `(2)`, ... | No |
+| `option = value` | What to show and how: labels, which rows, standard errors, title, notes | No; each has a default |
+
+The header is attached to the model by the `=` inside `list()`. Nothing checks that the header describes the model: `list("Soybeans" = corn_model)` gives a column called "Soybeans" with the corn results in it.
+
+### Common options
+
+| Option | What it does | Default if left out |
+|---|---|---|
+| `coef_map = c("raw" = "Label")` | Renames coefficient rows, sets their order, and **drops every coefficient not listed** | raw names, in the order the models have them |
+| `coef_rename = c("raw" = "Label")` | Renames only; keeps every coefficient | raw names |
+| `gof_map = ...` | Which rows go at the bottom (observations, R squared) | about eight rows |
+| `vcov = "HC1"` | Which standard errors | the classical ones from `lm()` |
+| `fmt = 2` | Number of decimals | 3 |
+| `align = "lrrr"` | Alignment, one letter per column: `l` left, `r` right | centred numbers |
+| `stars = TRUE` | Adds significance stars and a note defining them | no stars |
+| `title = "..."`, `notes = "..."` | Title and notes | none |
+| `output = "flextable"` or `"gt"` | Hands back a `flextable` or `gt` table, to change further with the steps from 08-1 | a table for the document being rendered |
+
+`msummary()` is a shorter name for the same function.
+
+### Variations you will see
+
++ `modelsummary::modelsummary(...)`: the package name, then `::`, then the function.
++ The list of models stored first under a name, `models <- list(...)`, then `modelsummary(models, ...)`.
++ Models from other functions in the same list, such as `fixest::feols()` for models with fixed effects (one constant per group, such as per county). The table code is the same.
++ `modelsummary(...) |> some_step()`: the table passed on to a styling step from 08-1, after `output = "flextable"` or `"gt"`.
+
+:::
+
+## One real example
+
+The "After" table, as you would see it in the HTML: a sentence, then the chunk.
+
+Put the three ozone models side by side, with plain labels and the temperature row first, only observations and R squared at the bottom, robust standard errors, two decimals, a title and notes.
+
+```{r}
+#| ref.label: after
+#| eval: false
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+```
+
+You should be able to point at the part that sets each label, the part that decides which rows appear at the bottom, and the part that chooses the standard errors. The column order comes from the order inside `list()`.
+
+# Standard errors
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Which standard errors, and saying so
+
+::: {.panel-tabset}
+
+### Same estimates, different standard errors
+
+There are several ways to compute standard errors, and your econometrics course says which one a model needs. In the table, `vcov =` chooses. It changes the standard errors only, never the estimates:
+
+```{r}
+#| label: vcov-compare
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+modelsummary(
+  list("Classical" = m2, "Robust (HC1)" = m2),
+  vcov = list("classical", "HC1"),
+  coef_map = c("Temp" = "Temperature (°F)", "Wind" = "Wind speed (miles per hour)"),
+  gof_map = list(list(raw = "nobs", clean = "Observations (days)", fmt = 0)),
+  fmt = 2
+)
+```
+
+The estimates are identical; the standard errors in parentheses are not. A reader cannot tell which kind they are looking at unless a note says so.
+
+### An option that does nothing
+
+Older code and older tutorials write `statistic_override =` instead of `vcov =`. That name no longer exists, and `modelsummary()` accepts it **without an error or a warning**, and ignores it:
+
+```{r}
+#| label: statistic-override
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+modelsummary(
+  list("Asked for robust" = m2),
+  statistic_override = list(sandwich::vcovHC(m2, type = "HC1")),
+  coef_map = c("Temp" = "Temperature (°F)", "Wind" = "Wind speed (miles per hour)"),
+  gof_map = list(list(raw = "nobs", clean = "Observations (days)", fmt = 0)),
+  fmt = 2
+)
+```
+
+The standard errors are the classical ones from the previous tab, not the robust ones that were asked for. AI assistants learned from older code too, so they sometimes write this. The same happens with any option name `modelsummary()` does not know, such as a misspelling (`vcovv =`).
+
+**The check:** for one model, print the table with and without the change of standard errors. If nothing moves, the change was not applied.
+
+:::
+
+# Checking the table
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Does the table show the models you meant?
+
+The AI can write the checking code. It cannot know which models you meant or how many observations each should have. Ask for these after every regression table:
+
+| | Ask the AI to print | Why | What only you can supply |
+|---|---|---|---|
+| 1 | each column's header next to its model's formula | A header is attached by position in `list()`, and nothing checks it describes the model | which model goes in which column |
+| 2 | the number of observations of each model | Rows with a missing value are dropped without a word (next slide) | the count you expect, from looking at the data |
+| 3 | one estimate, straight from the model | Confirms the table shows that model's numbers | which estimate the message is about |
+| 4 | every coefficient each model has, against the rows in the table | `coef_map` drops any coefficient it does not list | which variables each model should have |
+
+Checks 2 and 4 catch failures that give no error at all. The next two slides show them.
+
+## Observations: what `lm()` drops without saying
+
+::: {.panel-tabset}
+
+### The check
+
+`air` has `r nrow(air)` rows. A student expects each model to use all of them, and asks the AI to print the check:
+
+```{r}
+#| label: nobs-check
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+models <- list("(1)" = m1, "(2)" = m2, "(3)" = m3)
+for (name in names(models)) {
+  cat(paste0("observations in model ", name, ": expected ", nrow(air),
+             ", got ", nobs(models[[name]])), "\n")
+}
+```
+
+All three checks **fail**.
+
+### Why
+
+`lm()` leaves out every row with a missing value in any variable the model uses, and says nothing. `Ozone` is missing on `r n_missing_ozone` days and `Solar.R` on `r n_missing_solar`, some of them the same days:
+
+```{r}
+#| label: nobs-why
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+cat(
+  paste("days with Ozone and Temp:", sum(complete.cases(air[, c("Ozone", "Temp")]))),
+  paste("days with Ozone, Temp, Wind and Solar.R:",
+        sum(complete.cases(air[, c("Ozone", "Temp", "Wind", "Solar.R")]))),
+  sep = "\n"
+)
+```
+
+So the expected count is the number of rows with **no missing value in any variable the model uses**: `r complete_rows(c("Ozone", "Temp"))`, `r complete_rows(c("Ozone", "Temp", "Wind"))` and `r complete_rows(c("Ozone", "Temp", "Wind", "Solar.R"))`. Model (3) uses `r complete_rows(c("Ozone", "Temp", "Wind")) - complete_rows(c("Ozone", "Temp", "Wind", "Solar.R"))` fewer days than model (2).
+
+### What it means for the table
+
+When the columns use different rows, a change across the columns has two possible causes: the added variable, or the different days. Here the difference is small; in other data it can be large.
+
+What to do, and to decide **before** you look at the estimates:
+
++ Say it in a note: "Days with a missing value in any variable a model uses are left out of that model", with the number of observations shown for every column.
++ If the comparison across columns is the message, estimate every model on the same rows, those with no missing value in any variable of the largest model, and say so in a note.
+
+:::
+
+## Coefficients that disappear
+
+`coef_map` renames coefficient rows and sets their order, and drops every coefficient it does not list. Here the AI was asked to label temperature and forgot wind:
+
+```{r}
+#| label: coef-map-drop
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+modelsummary(
+  list("(1)" = m1, "(2)" = m2),
+  coef_map = c("Temp" = "Temperature (°F)"),
+  gof_map = list(list(raw = "nobs", clean = "Observations (days)", fmt = 0)),
+  fmt = 2
+)
+```
+
+Column (2) is a model with wind in it, but the table shows no wind row and no constant, and nothing says they are missing. Sometimes leaving rows out is what you want (a note then says "also includes ..."); it should never happen by accident.
+
+**The check:** ask the AI to list each model's coefficients next to the rows of the table, and to say which ones are not shown.
+
+# Summary statistics tables
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The table that comes before the regressions
+
+Papers usually show a table of the variables before the regressions: how many observations, the average, the spread, the range. The same package makes it, with a pattern of its own.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+datasummary(rows ~ columns, data = table)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `rows` | The variables, joined with `+`, one row each | **Yes** |
+| `columns` | The statistics, joined with `+`: `N`, `Mean`, `SD`, `Min`, `Max`, `Median` | **Yes** |
+| `data = table` | The data | **Yes** |
+
+Swap the two sides of `~` and the variables become columns. `datasummary_skim(table)` is a shortcut that summarises every column with its own choice of statistics.
+
+### One real example
+
+```{r}
+#| label: datasummary
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+datasummary(
+  Heading("Ozone (parts per billion)") * Ozone +
+    Heading("Maximum temperature (°F)") * Temp +
+    Heading("Wind speed (miles per hour)") * Wind +
+    Heading("Solar radiation (langleys)") * Solar.R ~
+    Heading("Days") * N + Mean + Heading("Std. dev.") * SD + Min + Max,
+  data = air,
+  fmt = 1,
+  title = "Daily weather and ozone, New York, May to September 1973",
+  notes = "Data: airquality, which comes with R."
+)
+```
+
+`Heading("...") *` gives a row or column its label. The `Days` column is the check: it counts the days with a value, so it shows at once which variables have missing values, and it should match what you counted in the data.
+
+:::
+
+# Judging a regression table
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The checklist
+
+Apply it to any regression table, yours or the AI's, in the rendered HTML. Each question has a yes or no answer.
+
+1. Can a reader tell, from the headers and title alone, what each model explains and how the models differ?
+2. Is the estimate the message is about easy to find (first row, plain label with units)?
+3. Does a note say which standard errors are shown, and define any stars?
+4. Is the number of observations shown for every model, and does it match what you expected?
+5. Did the printed formulas match the column headers?
+6. Is every coefficient each model has either shown, or mentioned in a note?
+7. Does it meet every item of the table standard?
+
+## Your turn: read the AI's code
+
+A student asked an AI to "make a regression table of my ozone models with robust standard errors" and kept this:
+
+```{r}
+#| label: your-turn
+#| eval: false
+modelsummary(
+  list("Temperature only" = m1, "Plus sunlight" = m2, "Plus wind" = m3),
+  statistic_override = list(sandwich::vcovHC(m1), sandwich::vcovHC(m2), sandwich::vcovHC(m3)),
+  coef_map = c("Temp" = "Temperature", "Solar.R" = "Sunlight")
+)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each part of the call do?
+
+B. Which header is wrong? (Look at how `m2` and `m3` were defined on "The data and the models on these slides".)
+
+C. Besides the headers, which two problems give a wrong table without any error?
+
+D. Which checks from "Does the table show the models you meant?" would catch each problem?
+
+### Answers
+
+A. `list(...)`: the three models, one column each, with their headers. `statistic_override =`: meant to use robust standard errors. `coef_map =`: label the temperature and sunlight rows, and show only those.
+
+B. `m2` is temperature plus **wind**, and `m3` adds sunlight to that. The headers "Plus sunlight" and "Plus wind" are on the wrong columns.
+
+C. `statistic_override` is ignored, so the standard errors are the classical ones, not the robust ones asked for. And `coef_map` drops wind and the constant, so the reader sees a model labelled "Plus wind" with no wind row. (Also missing: units in the labels, a title, a note on the standard errors.)
+
+D. Check 1 (headers against formulas) catches the swapped headers. Check 4 (every coefficient against the table's rows) catches the missing wind row. Printing the table with and without the change of standard errors catches the ignored `statistic_override`.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+Regression tables follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document (`.qmd`) with one plain-English sentence above each chunk, you render it to HTML, and you judge the HTML.
+
+For regression tables this matters because:
+
++ The models, the table and the checks sit in one document, so a header can be read next to the formula it describes.
++ When the data changes, rendering again re-estimates every model and rebuilds the table. No number is ever copied by hand.
++ Your advisor reviews the models by reading the HTML: what was estimated, on which rows, with which standard errors.
+
+## What to put in a regression table request
+
+The AI already knows `modelsummary`. Your request supplies what it cannot know:
+
+1. **The data**: what one row is, the columns used, their units, and which have missing values
+2. **The models**: for each column, the outcome and the variables, in the order the columns should appear
+3. **The message**: which estimate the reader should look at, and the comparison across columns
+4. **The standard errors**: which kind, from your econometrics course or your advisor
+5. **What to show**: which coefficient rows, in which order and with which labels; which rows at the bottom
+6. **The checks**: the number of observations you expect for each model, headers against formulas, every coefficient accounted for
+7. **The table standard**, then the **closing instructions**
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Run regressions of ozone on the weather and make a nice table.
+```
+
+The AI chooses the models, their order, the standard errors and what to show. Whatever comes back, you have nothing to check it against.
+
+### Strong
+
+```text
+In my R project, the table air has one row per day: Ozone (parts per
+billion, missing on some days), Temp (degrees Fahrenheit), Wind (miles
+per hour) and Solar.R (langleys, missing on some days).
+
+Estimate three linear regressions of Ozone, one per column, in this
+order: (1) on Temp; (2) on Temp and Wind; (3) on Temp, Wind and
+Solar.R. The message is about the Temp estimate and how it changes
+across the columns. Use robust standard errors (HC1). Show the rows
+Temp, Wind, Solar.R and the constant, in that order, and at the bottom
+only the number of observations and R squared. Use modelsummary.
+
+Check: each column's header next to its model's formula; the number of
+observations of each model (I expect 116, 116 and 111, the days with no
+missing value in the model's variables); and every coefficient of each
+model against the rows of the table.
+
+<the table standard>
+
+Put the code in my Quarto document analysis/regressions.qmd, under the
+heading "Ozone and the weather", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+Replace `<the table standard>` with the block from **Recommended requests**.
+
+### What came back
+
+The table on "One real example", followed by the checks:
+
+```{r}
+#| label: strong-checks
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+models <- list("(1)" = m1, "(2)" = m2, "(3)" = m3)
+expected_n <- c(116, 116, 111)
+shown <- names(coef_labels)
+not_shown <- setdiff(unlist(lapply(models, \(m) names(coef(m)))), shown)
+lines <- c()
+for (i in seq_along(models)) {
+  col <- names(models)[i]
+  lines <- c(lines,
+    paste0("formula of column ", col, ": ", deparse(formula(models[[i]]))),
+    paste0("observations in column ", col, ": expected ", expected_n[i],
+           ", got ", nobs(models[[i]])))
+}
+lines <- c(lines, paste("coefficients not shown in the table: expected 0, got",
+                        length(not_shown)))
+cat(lines, sep = "\n")
+```
+
+Every line matches. The last check compares each model's own list of coefficients with the labels the table uses (`coef_labels`, from the table's code), so neither list is typed twice. The student could only write "116, 116 and 111" by counting the complete days first, as on "Observations: what `lm()` drops without saying".
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** know: the models, the message, the observations you expect. Every table request ends with the table standard and then the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### The table standard
+
+The same block as in lecture 08-1. Paste it into every table request, just before the closing instructions:
+
+```text
+Every table must meet this standard:
+1. Column headers and row labels in plain words with units, such as
+   "Corn yield (bushels per acre)", never a column name such as
+   corn_yield.
+2. Categories in words, such as "Irrigated", never a code such as 1.
+3. Numbers rounded to what the message needs, with the same number of
+   decimals down each column.
+4. Thousands separators in large numbers, except in years.
+5. Percentages shown as percentages.
+6. Numbers right-aligned so that the digits line up; text left-aligned.
+7. Text no smaller than the document's body text.
+8. Fits the page width where it will appear, without scrolling.
+9. Rows in an order that serves the message (by value, or in time
+   order), not alphabetical unless the reader will search a long table.
+10. A title that says what the numbers are.
+11. A note giving the source of the data.
+12. A note saying how any computed column was computed.
+13. The number of observations behind each value, when it varies.
+14. Nothing the message does not need: no extra columns, no row
+    numbers, no heavy borders, no colours that only decorate.
+For regression tables, also:
+15. One column per model, with headers or a title saying what each
+    model explains.
+16. Standard errors in parentheses below each estimate, with their kind
+    stated in a note.
+17. Significance stars left out, or defined in a note and used the same
+    way in every table.
+18. The number of observations for every model.
+```
+
+### Regression table
+
+```text
+In my R project, <the table or file> has one row per <what one row
+is>. The columns used: <each column, what it means, its units, and
+whether it has missing values>.
+
+Estimate <the kind of model, such as linear regressions>, one per
+column, in this order: <for each column, the outcome and the
+variables>. The message is about <the estimate the reader should look
+at, and the comparison across columns>. Use <the kind of standard
+errors>. Show the rows <the coefficients, in order>, and at the bottom
+only <the rows you want, such as the number of observations>. Use
+modelsummary.
+
+Check: each column's header next to its model's formula; the number of
+observations of each model (I expect <the number for each model>); and
+every coefficient of each model against the rows of the table.
+
+<the table standard>
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Same rows for every model
+
+When the comparison across columns is the message and the models would otherwise use different rows:
+
+```text
+Estimate every model in the table on the same rows: those with no
+missing value in any of <the variables of the largest model>. I expect
+<number> rows. Add a note to the table saying so, and print the number
+of observations of each model as a check.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Summary statistics table
+
+```text
+In my R project, <the table or file> has one row per <what one row
+is>. Make a table of summary statistics with one row per variable for
+<the variables, each with its plain-word label and units>, and the
+columns: number of observations, mean, standard deviation, minimum and
+maximum. Use modelsummary's datasummary(). Check the number of
+observations of each variable against <the counts you expect>.
+
+<the table standard>
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+For code you did not write, or code you are not sure about:
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. which model ends up in which column, with its formula
+2. any option that is ignored, misspelled, or drops rows or
+   coefficients without saying so
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| Which models answer your question, and in which order to show them | `lm()` and the `list()` of models |
+| Which estimate the message is about | `coef_map`, labels and order |
+| Which standard errors the models need | `vcov =` |
+| How many observations each model should have, from the missing values in the data | The check that prints them |
+| What the reader needs: labels with units, observations, notes | `gof_map`, `title`, `notes` |
+
+**Every regression table:** write down the models and the number of observations you expect, then ask for the table with the table standard and the checks, written into your `.qmd`. Render it, and check that every header matches its formula, every count matches, and every coefficient is accounted for.

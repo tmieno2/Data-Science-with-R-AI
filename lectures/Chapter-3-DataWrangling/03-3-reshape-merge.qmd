@@ -1,0 +1,855 @@
+---
+title: "03-3: Reshaping and Merging"
+abstract: "Chapter 3: Data Wrangling"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+library(tidyr)
+corn <- read_csv("corn_yields.csv", col_types = cols(FIPS = "c"))
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Two operations change how your data is spread over rows, columns and tables:
+
++ **Reshaping** rearranges one table, so that one row means something else
++ **Merging** combines two tables, by matching their rows
+
+An AI assistant writes the code for both in a line or two. What it cannot do is:
+
++ know what one row of each of your tables is
++ know which columns identify a row, and whether they really do
++ know whether the same county, year or person is written the same way in both tables
++ tell whether the result has the rows it should
+
+Those four are your job. So today is about:
+
+1. **The concept**: what long and wide are, what a merge is, and what has to be true for each to work
+2. **Reading code**: the pattern reshaping and merging code follows
+3. **Asking AI**: what to put in your request
+4. **Checking**: the row counts, unmatched rows and repeated keys that tell you whether it worked
+
+### Directions
+
++ You need the `tidyverse` package, installed in 03-1. It includes `tidyr` (reshaping) and `dplyr` (merging).
++ The examples use `corn_yields.csv` from 03-1: corn yields for Nebraska counties in 2008, one row per county and irrigation status. On these slides the file sits in the same folder as the slides, so the code uses just its name. `FIPS`, the county code, is read as text, as 03-1 recommended.
+
+:::
+
+# Reshaping
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Long and wide
+
+The same numbers can be laid out in two ways. Three counties from `corn_yields.csv`:
+
+```{r}
+#| label: lw-data
+#| include: false
+three <- corn |>
+  filter(FIPS %in% c("31019", "31041", "31047")) |>
+  select(FIPS, County_name, Irrigated, Yield)
+three_wide <- three |>
+  pivot_wider(names_from = Irrigated, values_from = Yield, names_prefix = "yield_")
+```
+
+::: {.panel-tabset}
+
+### Long
+
+```{r}
+#| label: lw-long
+#| echo: false
+three
+```
+
+**One row is one county and one irrigation status.** Each yield has its own row; the column `Irrigated` says which kind of yield it is.
+
+### Wide
+
+```{r}
+#| label: lw-wide
+#| echo: false
+three_wide
+```
+
+**One row is one county.** The irrigation status has moved into the column names: `yield_0` holds non-irrigated yields and `yield_1` irrigated ones. Nothing in the data says that; you have to know it.
+
+### Which one you need
+
+Neither layout is right in general. The one you need depends on the next step:
+
++ **Wide** when the next step compares values side by side within a row: "irrigated minus non-irrigated yield, for each county" is one `mutate()` on the wide table.
++ **Long** when the next step works on one column of values: "the average yield by irrigation status" is `group_by()` and `summarise()` on the long table, and most figures (Chapter 4) want long data.
+
+So "reshape this table" is not a request. "Make one row per county, with one yield column per irrigation status" is.
+
+:::
+
+## How reshaping code is written
+
+Reshaping goes in one of two directions, and the code for each follows its own pattern.
+
+::: {.panel-tabset}
+
+### Long to wide
+
+```{r}
+#| eval: false
+wide_table <- long_table |>
+  pivot_wider(names_from = column_with_new_names, values_from = column_with_values)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `long_table` | The table to reshape | Yes |
+| `names_from =` | The column whose values become the new column names (here `Irrigated`) | **Yes** |
+| `values_from =` | The column whose values fill the new columns (here `Yield`) | **Yes** |
+| every other column | Used to decide which rows belong together in one wide row (here `FIPS` and `County_name`) | Not written; all the remaining columns are used |
+| `names_prefix =` and others | Extra instructions, such as text put in front of the new names | No |
+
+The last row is where most problems come from: the columns you did **not** mention decide what one row of the result is.
+
+### Wide to long
+
+```{r}
+#| eval: false
+long_table <- wide_table |>
+  pivot_longer(columns_to_stack, names_to = "new_name_column", values_to = "new_value_column")
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `wide_table` | The table to reshape | Yes |
+| `columns_to_stack` | The columns whose values go into one column, for example `starts_with("yield_")` | **Yes** |
+| `names_to =` | The name of the new column that will hold the old column names | No; the default is `"name"` |
+| `values_to =` | The name of the new column that will hold the values | No; the default is `"value"` |
+
+A real example, the three-county table back to long:
+
+```{r}
+#| label: lw-back
+three_wide |>
+  pivot_longer(starts_with("yield_"), names_to = "Irrigated", values_to = "Yield")
+```
+
+The old column names are now values, and they are text: `"yield_0"`, not the number 0. Turning them back into numbers is a separate step.
+
+### Variations you will see
+
+The same two operations have other names, from older packages and other styles:
+
+| Long to wide | Wide to long | Where from |
+|---|---|---|
+| `pivot_wider()` | `pivot_longer()` | tidyr (tidyverse), current |
+| `spread()` | `gather()` | tidyr, older versions |
+| `dcast()` | `melt()` | data.table and reshape2 |
+| `reshape(direction = "wide")` | `reshape(direction = "long")` | built into R |
+
+Whatever the name, look for the same three things: which columns become names, which hold values, and which identify a row.
+
+:::
+
+## What has to be true for a reshape to work
+
+::: {.panel-tabset}
+
+### The conditions
+
+For long to wide:
+
+1. **You know which columns identify one row of the result** (here, `FIPS` and `County_name` for one row per county).
+2. **No other column differs within that row.** Every column that is neither the identifier, nor the names column, nor the values column must have the same value on all the rows that are combined, or be dropped first.
+3. **Each identifier and name appears only once.** One county must not have two non-irrigated yields.
+
+For wide to long, the main condition is that **the stacked columns hold the same kind of value** (all yields, in the same units).
+
+Breaking condition 2 gives a wrong table with **no error**. Breaking condition 3 gives a warning. The next two tabs show both with `corn_yields.csv`.
+
+### A column that differs
+
+`Data item` describes the row, and the description is different for irrigated and non-irrigated corn. Leave it in, and it becomes part of the identifier:
+
+```{r}
+#| label: wide-data-item
+corn_wide <- corn |>
+  filter(FIPS != "31000") |>
+  select(FIPS, County_name, `Data item`, Irrigated, Yield) |>
+  pivot_wider(names_from = Irrigated, values_from = Yield, names_prefix = "yield_")
+nrow(corn_wide)
+n_distinct(corn_wide$FIPS)
+```
+
+`r nrow(corn_wide)` rows for `r n_distinct(corn_wide$FIPS)` counties. The rows were never combined: each county with both kinds of yield still has two rows, one with `yield_1` missing and one with `yield_0` missing. No error, no warning. (`FIPS` 31000 is left out here; the next tab explains why.)
+
+Without `Data item`:
+
+```{r}
+#| label: wide-good
+corn_wide <- corn |>
+  filter(FIPS != "31000") |>
+  select(FIPS, County_name, Irrigated, Yield) |>
+  pivot_wider(names_from = Irrigated, values_from = Yield, names_prefix = "yield_")
+nrow(corn_wide)
+colSums(is.na(corn_wide))
+```
+
+One row per county. The `r sum(is.na(corn_wide$yield_1))` missing irrigated yields are real: those counties have no irrigated row in the file.
+
+### A combination that repeats
+
+```{r}
+#| label: wide-repeat
+#| warning: true
+corn_wide_all <- corn |>
+  select(FIPS, County_name, Irrigated, Yield) |>
+  pivot_wider(names_from = Irrigated, values_from = Yield, names_prefix = "yield_")
+```
+
+The warning says some values "are not uniquely identified". The cause is one code:
+
+```{r}
+#| label: count-31000
+count(corn, FIPS, County_name, Irrigated) |>
+  filter(n > 1)
+```
+
+`FIPS` 31000 is `OTHER (COMBINED) COUNTIES`: the yields of several small counties, reported together under one code. It has `r sum(corn$FIPS == "31000" & corn$Irrigated == 1)` irrigated and `r sum(corn$FIPS == "31000" & corn$Irrigated == 0)` non-irrigated rows, so there is no single value to put in its cell. Here R warns. R still returns a table, with several values stored in the cell for 31000. The warning suggests `values_fn =`, and an AI asked to get rid of the warning may add `values_fn = mean`, which averages the rows and hides the problem. Read the repeated rows first (see "Checks that come from knowing the data"). What to do (drop these rows, or find out which counties each one covers) is a decision about the data, not the code.
+
+:::
+
+## Checking a reshape
+
+**Why:** a reshape changes the number of rows in a way you can work out before running it. If the count is wrong, the identifier was wrong.
+
+| Direction | Expected rows | Expected missing values |
+|---|---|---|
+| Long to wide | the number of distinct identifiers (for one row per county: the number of counties) | the identifier and name combinations that are not in the long table |
+| Wide to long | wide rows × the number of stacked columns | the missing values in the stacked columns, unless the request says to drop them |
+
+For the table above: `r n_distinct(corn$FIPS) - 1` counties after leaving out 31000, so `r n_distinct(corn$FIPS) - 1` rows wide, and back to long `r n_distinct(corn$FIPS) - 1` × 2 = `r 2 * (n_distinct(corn$FIPS) - 1)` rows, of which `r sum(is.na(corn_wide$yield_1))` have a missing yield.
+
+A third check needs no arithmetic: **the total of the values does not change.** The sum of all yields before and after a reshape must be the same, apart from missing values.
+
+```{r}
+#| label: chk-reshape
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+before <- corn |> filter(FIPS != "31000")
+back_long <- corn_wide |>
+  pivot_longer(starts_with("yield_"), names_to = "Irrigated", values_to = "Yield")
+cat(
+  paste("wide rows: expected", n_distinct(before$FIPS), "got", nrow(corn_wide)),
+  paste("long rows: expected", 2 * nrow(corn_wide), "got", nrow(back_long)),
+  paste("missing yields after: expected", sum(is.na(corn_wide$yield_1)), "got", sum(is.na(back_long$Yield))),
+  paste("total yield: expected", sum(before$Yield), "got", sum(back_long$Yield, na.rm = TRUE)),
+  sep = "\n"
+)
+```
+
+# Merging
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What a merge is
+
+::: {.panel-tabset}
+
+### Matching rows by key
+
+A **merge** (also called a **join**) adds columns from a second table to a first one, by matching rows that refer to the same thing: the same county, the same county and year, the same person.
+
+The columns used to match are the **key**. A key has to identify each row: in a table with one row per county and year, the key is the county code and the year together.
+
+```{r}
+#| label: merge-idea
+#| echo: false
+yields <- tibble(fips = c("31019", "31041", "31047"), year = 2008, yield = c(173, 163, 177))
+rain   <- tibble(fips = c("31019", "31041", "31047"), year = 2008, rain_mm = c(510, 480, 530))
+```
+
+The yields:
+
+```{r}
+#| label: merge-idea-yields
+#| echo: false
+yields
+```
+
+The rainfall:
+
+```{r}
+#| label: merge-idea-rain
+#| echo: false
+rain
+```
+
+Matching on `fips` and `year` puts each county's rainfall next to its yield. (These rainfall numbers are made up for this example.)
+
+```{r}
+#| label: merge-idea-join
+#| echo: false
+left_join(yields, rain, by = c("fips", "year"))
+```
+
+### Merging and stacking
+
+There are two ways to combine tables, and they answer different needs:
+
+| | Merging | Stacking |
+|---|---|---|
+| What it adds | **columns**, from another table about the same things | **rows**, from another table with the same columns |
+| Example | yields and rainfall, both by county and year | the 2008 sheet and the 2009 sheet of `corn_yields.xls` |
+| What has to match | the values in the key columns | the column names and types |
+
+Stacking has its own slide after the merging slides.
+
+:::
+
+## How merging code is written
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+merged_table <- join_function(first_table, second_table, by = c("key_column_1", "key_column_2"))
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `join_function` | Which rows to keep (next tab) | Yes |
+| `first_table` | The table you start from; with a left join, every one of its rows is kept | **Yes** |
+| `second_table` | The table whose columns are added | **Yes** |
+| `by =` | The key columns, which must exist in both tables | Without it, every column with the same name in both is used, and a message says which |
+| `relationship =`, `unmatched =` | Instructions to stop with an error if the tables are not as expected: a row matching more than one row, or a row that would be dropped | No, but worth asking for (see "Checking a merge") |
+
+### Every join follows the pattern
+
+The joins differ only in which rows they keep:
+
+| Join | Keeps | Rows of the first table with no match |
+|---|---|---|
+| `left_join()` | every row of the first table | kept, with the new columns missing (`NA`) |
+| `inner_join()` | only rows that match in both | **dropped** |
+| `full_join()` | every row of both tables | kept, with missing values on whichever side has no match |
+| `anti_join()` | rows of the first table that have **no** match; adds no columns | (this is the check for unmatched rows) |
+
+`left_join()` is the usual choice: it keeps the table you started with and adds to it.
+
+### Variations you will see
+
++ `by = join_by(fips, year)`: the same keys, written without quotes.
++ `by = c("fips" = "county_code")`: the key has a different name in each table; the first name is in the first table.
++ `first_table |> left_join(second_table, by = ...)`: the first table piped in.
++ Base R: `merge(first_table, second_table, by = c("fips", "year"), all.x = TRUE)`, where `all.x = TRUE` makes it a left join.
++ data.table: `second_table[first_table, on = .(fips, year)]`.
+
+:::
+
+## What has to be true for a merge to work
+
+1. **The key is complete and identifies each row**: every column needed (county *and* year), in every table where you assume one row per key. If the second table is meant to have one row per county, each county code must appear in it once.
+2. **The key has the same values in both tables.** The same county must be written the same way: `"01001"` in one table and `1001` in the other are different values.
+3. **The key has the same type in both tables.** Text in one and a number in the other gives an error in `dplyr`. In base R's `merge()` it gives no error: the codes that lost their zeros simply fail to match.
+4. **You know which rows should match.** Every county in the first table, or only some?
+
+Condition 3 is the only one that gives an error, and only in `dplyr`. If 1, 2 or 4 fails, R gives you a merged table with **no error**, and the table is wrong. These are the silent failures of merging; the next slide shows each with `corn_yields.csv`.
+
+## What goes wrong without an error
+
+The task for all three tabs: start from a list of the counties in `corn_yields.csv`, one row per county, and add each county's irrigated yield.
+
+```{r}
+#| label: merge-setup
+counties  <- corn |> distinct(FIPS, County_name)
+irrigated <- corn |> filter(Irrigated == 1) |> select(FIPS, irrigated_yield = Yield)
+c(counties = nrow(counties), irrigated = nrow(irrigated))
+```
+
+::: {.panel-tabset}
+
+### A repeated key adds rows
+
+```{r}
+#| label: merge-dup
+merged <- left_join(counties, irrigated, by = "FIPS")
+nrow(merged)
+```
+
+The list had `r nrow(counties)` counties; the result has `r nrow(merged)` rows. A left join should keep the rows of the first table, so where did `r nrow(merged) - nrow(counties)` rows come from?
+
+```{r}
+#| label: merge-dup-count
+count(irrigated, FIPS) |> filter(n > 1)
+```
+
+`FIPS` 31000 (`OTHER (COMBINED) COUNTIES`, several small counties reported together) has 4 irrigated rows. A row of the first table that matches 4 rows becomes 4 rows. No warning: `dplyr` warns only when rows repeat on both sides of the match. Any later sum or average over counties now counts 31000 four times.
+
+### A key with no match
+
+```{r}
+#| label: merge-unmatched
+sum(is.na(merged$irrigated_yield))
+nrow(anti_join(counties, irrigated, by = "FIPS"))
+```
+
+`r sum(is.na(merged$irrigated_yield))` counties have no irrigated yield in the file, so they get `NA`. That is correct here: those counties have no irrigated row. But the same `NA` appears when a match should exist and the key is written differently, and the table looks the same either way. Count the unmatched rows, and decide whether the number is believable.
+
+With `inner_join()` instead, the same `r nrow(anti_join(counties, irrigated, by = "FIPS"))` counties disappear from the result, again with no message.
+
+### Leading zeros lost
+
+A second table read with `read.csv()`, which, as in 03-1, turns `01001` into a number:
+
+```{r}
+#| label: merge-zeros
+yields <- tibble(fips = c("01001", "01003", "31019"), yield = c(150, 162, 173))
+drought <- read.csv(text = "fips,weeks
+01001,3
+01003,0
+31019,1")
+drought$fips
+```
+
+Joining now stops with an error, because one key is text and the other a number (condition 3). The usual fix an AI suggests is to turn the number into text:
+
+```{r}
+#| label: merge-zeros-join
+drought$fips <- as.character(drought$fips)
+left_join(yields, drought, by = "fips")
+```
+
+The error is gone, and so are the two Alabama matches: `"1001"` is not `"01001"`. No error, no warning, just missing values. The right fix is to read the key as text in the first place, or to put the zeros back.
+
+:::
+
+## Checking a merge
+
+::: {.panel-tabset}
+
+### The checks
+
+The AI can write the checking code. It cannot know the right answers. Ask for these with every merge:
+
+| | Ask the AI to print | What it catches | What only you can supply |
+|---|---|---|---|
+| 1 | the rows of each table, and of the result | a repeated key (more rows), an inner join dropping rows (fewer) | the number of rows the result should have |
+| 2 | the keys that appear more than once, in each table | the cause of extra rows | which table should have one row per key |
+| 3 | the number of rows of each table with no match in the other | keys written differently; rows you did not expect to match | how many should fail to match, and why |
+| 4 | the number of missing values in the added columns | unmatched rows, seen from the result | the same |
+| 5 | the type of the key in each table, and a few of its values | lost leading zeros, text against numbers | how the key should look |
+
+### Making the code stop
+
+Two options make a join stop with an error instead of continuing silently. Ask for them when you know what to expect:
+
++ `relationship = "many-to-one"`: stop if a row of the first table matches more than one row of the second
++ `unmatched = "error"`: stop if a row would be dropped. In `left_join()` that means a row of the **second** table that matches nothing, since every row of the first table is kept anyway. To stop when a row of the first table has no match, ask for `inner_join(..., unmatched = "error")`, or for a check that stops when the number of unmatched rows is not 0.
+
+```{r}
+#| label: merge-stop
+#| error: true
+left_join(counties, irrigated, by = "FIPS", relationship = "many-to-one")
+```
+
+Here the code stops at 31000 instead of quietly adding rows.
+
+### Reading the HTML
+
+For the county list, the student expected `r nrow(counties)` rows after the join (one per county), one row per county in `irrigated`, and, having counted `r n_distinct(irrigated$FIPS)` distinct county codes among the irrigated rows, `r nrow(counties)` − `r n_distinct(irrigated$FIPS)` = `r nrow(counties) - n_distinct(irrigated$FIPS)` counties without an irrigated yield. The AI wrote the code; in the rendered HTML, you read each line:
+
+```{r}
+#| label: chk-merge
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+cat(
+  paste("rows after join: expected", nrow(counties), "got", nrow(merged)),
+  paste("repeated FIPS in irrigated: expected 0, got", sum(duplicated(irrigated$FIPS))),
+  paste("counties with no irrigated row: expected 15, got", nrow(anti_join(counties, irrigated, by = "FIPS"))),
+  paste("irrigated rows with no county: expected 0, got", nrow(anti_join(irrigated, counties, by = "FIPS"))),
+  sep = "\n"
+)
+```
+
++ Two checks fail, and they point at the same thing: `FIPS` 31000 appears 4 times in `irrigated`, which adds `r nrow(merged) - nrow(counties)` rows. `duplicated()` marks each row that repeats an earlier one, so its sum counts the repeats: 4 copies of 31000 are 3 repeats.
++ The two unmatched counts are as expected.
+
+:::
+
+## Stacking tables
+
+Stacking puts one table under another. It is the step that combined the two sheets of `corn_yields.xls` in 03-1. It needs the two tables to have **the same column names and types**. When a name differs, R does not refuse:
+
+```{r}
+#| label: stack
+sheet_08 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_08")
+sheet_09 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_09") |>
+  rename(yield = Yield)
+stacked <- bind_rows(sheet_08, sheet_09)
+dim(stacked)
+```
+
+Here the 2009 sheet's `Yield` column was renamed `yield`, the kind of difference two files from different sources often have. `bind_rows()` keeps both as separate columns, so the result has `r ncol(stacked)` columns, and each of the two yield columns is missing in half the rows. The row count, `r nrow(stacked)`, looks right.
+
+**Checks for stacking:** the rows add up (`r nrow(sheet_08)` + `r nrow(sheet_09)`); the number of columns is the same as in each table (`r ncol(sheet_08)`); no column is missing in exactly the rows of one table.
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For reshaping and merging, judging the HTML is mostly reading row counts, which you can do only if you wrote down the numbers you expected before asking. Every request for code ends with the **closing instructions**, under **Recommended requests**.
+
+## Look at both tables before you ask
+
+For a merge, look at each table and answer four questions in writing:
+
+1. **What is one row?** One county? One county and year?
+2. **Which columns identify a row, and do they really?** Count the rows per key value; any count above 1 is a repeat.
+3. **How is the key written?** Its type, its length, whether codes have leading zeros, and whether the two tables identify a row with the same columns at all. One table may use a county name where the other uses a county code, or a date where the other uses a year.
+4. **Which rows should match?** The same counties and years in both, or only some?
+
+The answer to question 2 for the irrigated yields:
+
+```{r}
+#| label: look-key
+count(irrigated, FIPS) |>
+  count(n, name = "number_of_codes")
+```
+
+`r sum(table(irrigated$FIPS) == 1)` county codes appear once and one appears `r max(table(irrigated$FIPS))` times. That one row of output, read before asking, predicts the extra rows of the merge.
+
+For a reshape, questions 1 and 2 are the whole job: what one row is now, what it should be after, and which columns identify it.
+
+## What to put in your request
+
+The AI already knows the functions. Your request supplies what it cannot know:
+
+1. **Each table**: its name and what one row of it is
+2. **The key**: which columns identify a row in each table, how they are written, and whether they need to be built or converted before they can match
+3. **What you want back**: what one row of the result is, and which rows to keep (all rows of the first table, or only matches)
+4. **What you expect**: the number of rows of the result, and how many rows should fail to match
+5. **Ask for checks**: row counts, repeated keys and unmatched rows (see "Checking a merge")
+6. **The closing instructions**: which `.qmd` and heading the code goes under, a sentence above each chunk, paths built with `here::here()`, checks printed as expected and got, and render to HTML
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Merge my yield data and my rainfall data.
+```
+
+The AI has to guess the key. It may pick `by` columns by matching names, or join on the county name, which repeats across states. It will not check for repeated keys or count unmatched rows, so a result with extra or missing rows looks finished.
+
+### Strong
+
+An example for a yield table and a rainfall table:
+
+```text
+In my R project I have two tables. In yields, one row is one county
+and year; the county is identified by fips, a 5-digit code stored as
+text with leading zeros, and year. In rain, one row should also be one
+county and year, with the same two columns. Add the rainfall to yields,
+keeping every row of yields, using the tidyverse. Stop with an error if
+a row of yields matches more than one row of rain.
+
+Then check the number of rows of yields, rain and the result (I expect
+the result to have as many rows as yields), the number of repeated
+fips-year pairs in each table (I expect 0), and the number of rows of
+yields with no rainfall (I expect 0).
+
+Put the code in my Quarto document analysis/merge.qmd, under the
+heading "Add rainfall to yields", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+### What came back
+
+What the AI's answer looks like in the rendered HTML, using the small `yields` and `rain` tables from "What a merge is":
+
+Add each county's rainfall to its yield, matching on county code and year, and stop if a county-year of yields matches more than one rainfall row.
+
+```{r}
+#| label: ai-answer-yields
+#| include: false
+yields <- tibble(fips = c("31019", "31041", "31047"), year = 2008, yield = c(173, 163, 177))
+```
+
+```{r}
+#| label: ai-answer-merge
+yields_rain <- left_join(yields, rain, by = c("fips", "year"), relationship = "many-to-one")
+```
+
+Check the row counts, repeated keys and unmatched rows.
+
+```{r}
+#| label: ai-answer-check
+cat("rows of result: expected", nrow(yields), "got", nrow(yields_rain), "\n")
+cat("repeated fips-year in yields: expected 0, got", sum(duplicated(yields[c("fips", "year")])), "\n")
+cat("repeated fips-year in rain: expected 0, got", sum(duplicated(rain[c("fips", "year")])), "\n")
+cat("yields rows with no rainfall: expected 0, got", sum(is.na(yields_rain$rain_mm)), "\n")
+```
+
+Every check passes.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checks that come from knowing the data
+
+The checks on "Checking a merge" found that `FIPS` 31000 repeats. They cannot say what to do about it. Knowing the data can.
+
+The name, `OTHER (COMBINED) COUNTIES`, says this code is not a county. The US Department of Agriculture reports counties with few farms together, one combined row for each of its crop reporting districts (groups of neighbouring counties). So the six rows belong to several districts, and the file has no column saying which. So:
+
++ In a table meant to have one row per county, these rows do not belong. Leave them out, and say so in the sentence above the chunk.
++ If you need them, you need the district, which means going back to the source, not changing the code.
+
+Any time a key repeats, look at the repeated rows before deciding. They may be exact copies (keep one), corrections (keep the latest, if you can tell), or different things sharing a code, as here (no code change fixes it).
+
+```{r}
+#| label: chk-dup-rows
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+corn |>
+  filter(FIPS == "31000") |>
+  select(County_name, Irrigated, Yield)
+```
+
+Six rows, six different yields: not copies.
+
+In 03-2, one row of this file was described as one county, in one year, with one irrigation status. These six rows show that description was not quite true, and only the check on the key found it.
+
+## Your turn: read the AI's code
+
+A student asked an AI to "add drought data to my yields table and give me the average yield". Both tables have one row per county and year, for counties in Colorado, Kansas and Nebraska, with columns `state_name`, `county_name` and `year`. The student's `.qmd` is in the `analysis` folder of the project, and the data in `data`. The AI wrote:
+
+```{r}
+#| eval: false
+yields  <- read_csv("data/yields.csv")
+drought <- read_csv("data/drought.csv")
+both <- left_join(yields, drought, by = c("county_name", "year"))
+mean(both$yield)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each line do?
+
+B. The key is incomplete. What is missing, and why does it matter in these three states?
+
+C. What happens to the number of rows, and to the average?
+
+D. Which lines fail when the student renders the `.qmd`, and why?
+
+E. Which checks would have shown the problems in B and C?
+
+### Answers
+
+A. Reads the yields; reads the drought data; adds the drought columns to every row of `yields`, matching on county name and year; averages the yield.
+
+B. `state_name`. County names are not unique across states: there is a Lincoln County in Colorado, in Kansas and in Nebraska. Without the state, Lincoln County, Nebraska in 2010 matches the drought rows of all three Lincoln counties in 2010.
+
+C. Every row of a repeated name becomes several rows, so the result has more rows than `yields`, and the average counts those counties several times. Because the key repeats on both sides of the match, `dplyr` prints a warning about a "many-to-many relationship"; read warnings, do not ignore them. A second clue: `state_name` is in both tables but not in the key, so the result has two columns, `state_name.x` and `state_name.y`, which disagree on the extra rows.
+
+D. The two `read_csv()` lines. A `.qmd` is rendered from its own folder, `analysis`, where there is no `data` folder (03-1, Condition 1). Paths built with `here::here()` fix it.
+
+E. Rows of `yields` and of the result (more rows after a left join), and repeated keys in each table (`county_name` and `year` together repeat in both).
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at your tables. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at a key
+
+```text
+In the table <table name>, I think <the key columns> identify each row.
+Print the number of rows, the number of distinct values of <the key
+columns> together, the values that appear more than once with all their
+rows, and the type and first few values of each key column.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Wide to long
+
+```text
+In my table <table name>, one row is <what one row is>, and the columns
+<the columns to stack> all hold <what they hold, with units>; their
+names contain <what the names say, for example the year>. Make a long
+table called <new table name> with one row per <what one row should
+be>, with a column <name for the old column names> and a column <name
+for the values>. Turn <the column of old names> into <type>. Missing
+values should be <kept or dropped>.
+
+Then check the number of rows (I expect <number>), the number of
+missing values (I expect <number>), and that the total of the values is
+the same as before.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Long to wide
+
+```text
+In my table <table name>, one row is <what one row is>. Make a wide
+table called <new table name> with one row per <what one row should
+be>, identified by <the identifying columns>, and one column for each
+value of <the column whose values become names>, filled with <the
+column of values>. Drop every other column first.
+
+Then check the number of rows (I expect <number>), that each
+<identifier> appears once, and the number of missing values in each new
+column (I expect <number>).
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Merge
+
+```text
+In my R project I have two tables. In <first table>, one row is <what
+one row is>, identified by <key columns, with their type and how they
+are written>. In <second table>, one row is <what one row is>,
+identified by <key columns, with their type and how they are written>.
+<Anything needed to make the keys match, or nothing>. Add <the columns
+to add> to <first table>, keeping <every row of the first table, or
+only rows that match>. Stop with an error if a row of <first table>
+matches more than one row of <second table>.
+
+Then check the number of rows of each table and of the result (I
+expect <number>), the number of repeated keys in each table (I expect
+<number>), and the number of rows of each table with no match in the
+other (I expect <number> and <number>).
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Stack
+
+```text
+Stack the tables <table names> into one table called <new table name>.
+They should have the same columns: <column names>. <The column that
+tells the tables apart, or how to add one>.
+
+Then check the number of rows of each table and of the result, the
+number of columns (I expect <number>), and the number of missing values
+in each column (I expect <number>).
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+For code you did not write, or code you are not sure about:
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| What one row is, before and after a reshape | `pivot_wider()`, `pivot_longer()` and their options |
+| Which columns identify a row, and whether they really do | The code that counts repeated keys |
+| Whether the key is written the same way, with the same type, in both tables | The code that fixes a key once you say what is wrong |
+| Which rows should match, and which join keeps the rows you want | The join and its `by =` |
+| How many rows the result should have | The checking code |
+
+**Every reshape or merge:** write down what one row is and how many rows you expect, before asking. Ask the AI to write the code and the checks (rows, repeated keys, unmatched rows) into your `.qmd`. Render it, and judge the HTML against what you wrote down.

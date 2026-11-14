@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <title>Data Science with R (AECN 896-05) – 01-1: Introduction to R</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <!--
+    Support for collapsible "Transcript" panels in revealjs decks.
+
+    Include it from a deck's YAML header, with the path relative to the qmd:
+
+        format:
+          revealjs:
+            include-in-header: ../transcript-support.html
+
+    Then add a transcript anywhere inside a slide (or inside a single tab of a
+    tabset, which is the usual case):
+
+        <details class="transcript">
+        <summary>Transcript</summary>
+
+        What the lecturer says about this tab.
+
+        </details>
+
+    On a tab whose figure fills the whole slide there is no free rectangle to
+    overlay, so add "inline" and the panel joins the flow when opened, pushing the
+    figure down instead of covering it:
+
+        <details class="transcript inline">
+
+    Use it only where it is needed. Measure rather than guess: an open panel must
+    not overlap a ".cell-output-display". The collapsed pill still costs 0px in
+    both variants, which is the property the whole design exists to preserve.
+
+    It must live in the header rather than the body of a qmd: raw HTML placed
+    above the first "##" heading becomes its own untitled slide.
+
+    <details> is a native HTML element, so the collapse/expand works with no
+    JavaScript at all, including in a self-contained (embed-resources) file. The
+    script at the bottom adds one behaviour on top: collapsing an open panel when
+    the reader moves on. Without it everything still works, panels just keep their
+    open state.
+
+    Audience: students reviewing after class. These are not presenter notes -
+    reveal's own ".notes" blocks are the presenter-only mechanism.
+  -->
+  <style>
+  /* The panel is positioned against the slide rather than sitting in its normal
+     flow. That is the whole point: collapsed it costs the slide no vertical
+     space, and opened it overlays the content instead of pushing it off the
+     bottom edge. Each panel lives inside its own tab, and hidden tabs do not
+     render, so only the visible tab's transcript is ever shown. */
+  .reveal details.transcript {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    width: auto;
+    font-size: 0.55em;
+    line-height: 1.45;
+    text-align: left;
+    border-radius: 6px;
+    /* custom.scss styles every bare <details> as an "answer box" (grey border
+       plus padding) for Quarto's folded-code blocks. Opt out of both here so the
+       collapsed pill is not sitting inside a grey rectangle. */
+    border: none;
+    padding: 0;
+  }
+
+  /* Collapsed: a small pill that hugs the top-right corner. */
+  .reveal details.transcript > summary {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+    outline: none;
+    /* custom.scss pulls every bare <summary> with a negative margin; undo it. */
+    margin: 0;
+    padding: 0.15em 0.7em;
+    border: 1px solid #06a666;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #06a666;
+    font-weight: 600;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .reveal details.transcript > summary::-webkit-details-marker { display: none; }
+  .reveal details.transcript > summary::before { content: "\25B8\00A0"; }
+  .reveal details.transcript[open] > summary::before { content: "\25BE\00A0"; }
+
+  /* Opened: a tall, narrow panel down the right-hand side, where slide content
+     rarely reaches. It starts below the tab bar so tab names stay clickable
+     while a transcript is open, and runs down to just above the footer.
+
+     Measured as a share of the 700px logical slide. A top-level tab bar ends at
+     12.4-13%, so 21% clears it everywhere.
+
+     A tab bar that sits lower on the slide is cleared HORIZONTALLY instead: the
+     panel occupies x 62-100%, and no tab row measured so far reaches past x 66%.
+     Cases seen, all fine:
+       00-1  nested tabset          18.9%, names reach x 15%
+       00-1  tabset below prose     40.8%, names reach x 59%
+       01-2  nested tabset          29.6%, names reach x 46%
+     So the rule to preserve is not "top clears every tab bar" but "no tab NAME
+     overlaps the panel's rectangle". Re-check that if a deck grows a long tab row
+     sitting low on the slide. */
+  .reveal details.transcript[open] {
+    top: 21%;
+    width: 36%;
+    max-height: 75%;
+    overflow-y: auto;
+    padding: 0.55em 0.85em 0.7em;
+    background: #f4fbf8;
+    border: 1px solid #06a666;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+  }
+  .reveal details.transcript[open] > summary {
+    display: block;
+    padding: 0 0 0.4em 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .reveal details.transcript p { margin: 0.35em 0; }
+
+  /* Opt-out, applied per tab as class="transcript inline".
+     Some figures are rendered at out-width 80% and span x 1.4-98.6% of the slide,
+     running from just under the tab bar down to y ~95%. There is no rectangle
+     left to overlay, so on those tabs the panel joins the normal flow when opened
+     and pushes the figure down; the slide is "scrollable: true", so the figure
+     stays reachable. Note this rule only touches [open]: collapsed, the pill is
+     still absolutely positioned at the top-right corner and still costs 0px. */
+  .reveal details.transcript.inline[open] {
+    position: static;
+    width: auto;
+    max-height: none;
+    overflow-y: visible;
+    margin: 0 0 0.9em 0;
+  }
+
+  /* No .slide-logo rule here: no deck in this course sets a "logo:" in its YAML,
+     so the bottom-right corner the panel would collide with is already free. If
+     a logo is ever added, move it out of the way with
+     .reveal .slide-logo { right: auto !important; left: 56px !important; }
+     where 56px clears reveal's menu button at x 8-43px. */
+  </style>
+
+  <script>
+  // Collapse any open transcript when the reader moves to another slide or
+  // another tab, so a panel left open never reappears over unrelated content.
+  (function () {
+    function closeAll() {
+      document.querySelectorAll("details.transcript[open]")
+        .forEach(function (d) { d.open = false; });
+    }
+
+    // Slide changes come from reveal, which is not ready when this runs.
+    function hookReveal() {
+      if (window.Reveal && typeof Reveal.on === "function") {
+        Reveal.on("slidechanged", closeAll);
+        Reveal.on("overviewshown", closeAll);
+        return true;
+      }
+      return false;
+    }
+    if (!hookReveal()) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (hookReveal() || ++tries > 100) clearInterval(timer);
+      }, 100);
+    }
+
+    // Tab changes are plain clicks; capture so this runs before the tab switches.
+    document.addEventListener("click", function (e) {
+      var el = e.target;
+      if (el && el.closest && el.closest('.panel-tabset [role="tab"]')) closeAll();
+    }, true);
+  })();
+  </script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">01-1: Introduction to R</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="how-this-lecture-works" class="title-slide slide level1 center">
+<h1>How this lecture works</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-will-and-will-not-learn-today" class="slide level2 scrollable">
+<h2>What you will and will not learn today</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">The plan</a></li><li><a href="#tabset-1-2">Directions</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<p>An AI assistant can write R code. What it cannot do is tell you whether that code did what you needed. To judge that, you have to be able to <strong>read</strong> R code: say what each line does, even if you could not have written it yourself.</p>
+<p>This first lecture gives you the foundation for reading code. Every line of R you will see in this course is built from three things:</p>
+<ol type="1">
+<li><strong>Objects</strong>: named things that hold values, created with <code>&lt;-</code></li>
+<li><strong>Functions</strong>: commands that take inputs and give back a result</li>
+<li><strong>Packages</strong>: collections of functions written by other people, which you install and then load</li>
+</ol>
+<p>You will not learn to write these from memory. You will learn to recognise them, so that when an AI hands you code, you can follow it line by line.</p>
+</div>
+<div id="tabset-1-2">
+<ul>
+<li>Install R, then RStudio (see “Installing them” under “R and RStudio” below)</li>
+<li>Install the packages <code>tidyverse</code>, <code>rmarkdown</code> and <code>here</code>, at the Console: <code>install.packages(c("tidyverse", "rmarkdown", "here"))</code>. Do this before class; it can take several minutes. What packages are, and why installing happens once, is on the slide “Packages: installing and loading”</li>
+<li>Have an AI assistant available: a chat assistant in your browser, or an agent such as Claude Code in your editor or terminal</li>
+<li>To move around these slides: click the three stacked horizontal lines in the bottom-left corner for the table of contents, or press the <code>o</code> key to see every slide at once</li>
+</ul>
+<p>The code on these slides was run when the slides were made, and its output is shown under it. To try it yourself, copy it into RStudio.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="why-the-course-works-this-way" class="slide level2">
+<h2>Why the course works this way</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">R does exactly what the code says</a></li><li><a href="#tabset-2-2">Your job, and the AI’s</a></li><li><a href="#tabset-2-3">What the course is for</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<p>R runs each line exactly as written. Given a line it cannot make sense of, it stops and prints an <strong>error</strong>. Given a line it can run, it follows its own rules, even when the result is not what you meant.</p>
+<p>An AI assistant is the opposite. Given a request with gaps, it fills them in with guesses: where your files are, what your data holds, what you wanted the result for. It writes code that runs, and the guesses are inside it.</p>
+<p>So the risk has moved. Code that does not run is easy to spot. Code that runs and does the wrong thing is not, and that is what you have to catch.</p>
+</div>
+<div id="tabset-2-2">
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>The AI does</th>
+<th>You do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Knows every function and every input</td>
+<td>Understand the step: what it is for, and what has to be true for it to work (<strong>the concept</strong>)</td>
+</tr>
+<tr class="even">
+<td>Writes the code</td>
+<td>Recognise what each line does (<strong>reading code</strong>)</td>
+</tr>
+<tr class="odd">
+<td>Fills gaps with guesses</td>
+<td>Tell it what it cannot know: your files, your data, your purpose (<strong>asking</strong>)</td>
+</tr>
+<tr class="even">
+<td>Reports that the code ran</td>
+<td>Decide whether the result is right, using checks whose answer you know in advance (<strong>checking</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p>Every lecture in this course is organised around those four parts.</p>
+</div>
+<div id="tabset-2-3">
+<p>By the end, you should be able to carry out your own research in R with an AI assistant writing the code: get data in, reshape it, make figures and tables, report the results, and work with maps.</p>
+<p>The AI will write that code into a <strong>Quarto document</strong> (a <code>.qmd</code> file: plain text with R code in it). <strong>Rendering</strong> the document runs its code from the top and makes a web page showing the code and its results. Chapter 2 teaches Quarto.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="r-and-rstudio" class="title-slide slide level1 center">
+<h1>R and RStudio</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="r-and-rstudio-1" class="slide level2">
+<h2>R and RStudio</h2>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">What they are</a></li><li><a href="#tabset-3-2">Installing them</a></li><li><a href="#tabset-3-3">The four panes</a></li><li><a href="#tabset-3-4">Running code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<p><strong>R</strong> is a programming language for statistics and data, and the program that runs code written in it.</p>
+<ul>
+<li>Free and open source, and widely used in universities and in industry</li>
+<li>Started as software for statistics, designed by statisticians</li>
+<li>Grows through its users: new statistical methods often appear first as R packages written by the people who developed the method, and R also handles maps and large datasets</li>
+</ul>
+<p><strong>RStudio</strong> is a separate program that you work in. It sends your code to R and shows you the results, your files, your figures and the help pages in one window. R’s own window is very basic, so almost everyone uses R through RStudio.</p>
+</div>
+<div id="tabset-3-2">
+<p>Install both, <strong>R first</strong>, then RStudio, because RStudio looks for an existing R installation when it starts.</p>
+<ul>
+<li><a href="https://www.r-project.org/">R</a></li>
+<li><a href="https://posit.co/download/rstudio-desktop/">RStudio</a></li>
+</ul>
+<p>It worked if RStudio opens and the lower-left pane shows a line starting with <code>R version</code> followed by a <code>&gt;</code>.</p>
+</div>
+<div id="tabset-3-3">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Where</th>
+<th>Pane</th>
+<th>What it is for</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Upper left</td>
+<td>Script or document</td>
+<td>Code you want to keep, saved in a file</td>
+</tr>
+<tr class="even">
+<td>Lower left</td>
+<td><strong>Console</strong></td>
+<td>Where R runs code. Type a line after <code>&gt;</code> and press Enter</td>
+</tr>
+<tr class="odd">
+<td>Upper right</td>
+<td><strong>Environment</strong></td>
+<td>Lists the objects R is currently holding</td>
+</tr>
+<tr class="even">
+<td>Lower right</td>
+<td>Files, Plots, Packages, Help</td>
+<td>Your folders, figures, installed packages and help pages</td>
+</tr>
+</tbody>
+</table>
+<p>Appearance and pane layout can be changed under Tools, Global Options.</p>
+</div>
+<div id="tabset-3-4">
+<ul>
+<li>At the Console: type a line and press Enter. R prints the result.</li>
+<li>In a file: put the cursor on a line, or select several lines, and press <strong>Command + Enter</strong> (Mac) or <strong>Ctrl + Enter</strong> (Windows). RStudio sends them to the Console.</li>
+</ul>
+<p>Anything after <code>#</code> on a line is a <strong>comment</strong>: R ignores it. Comments explain the code to people.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a><span class="co"># this whole line is a comment</span></span>
+<span id="cb1-2"><a></a><span class="dv">2</span> <span class="sc">+</span> <span class="dv">3</span> <span class="co"># a comment can follow code on the same line</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 5</code></pre>
+</div>
+</div>
+<p>The <code>[1]</code> at the start of the output is not part of the result. It says the line of output starts with the first value.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="reading-code" class="title-slide slide level1 center">
+<h1>Reading code</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="the-three-building-blocks-in-one-line" class="slide level2">
+<h2>The three building blocks in one line</h2>
+<p>Here is a typical line of R, of the kind an AI writes all the time:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>average_yield <span class="ot">&lt;-</span> <span class="fu">mean</span>(yields, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Piece</th>
+<th>What it is</th>
+<th>Slide</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>average_yield</code></td>
+<td>The name of a new <strong>object</strong>, which will hold the result</td>
+<td>Objects and <code>&lt;-</code></td>
+</tr>
+<tr class="even">
+<td><code>&lt;-</code></td>
+<td>Stores the result of the right-hand side under that name</td>
+<td>Objects and <code>&lt;-</code></td>
+</tr>
+<tr class="odd">
+<td><code>mean</code></td>
+<td>A <strong>function</strong>: it computes an average</td>
+<td>Functions and their inputs</td>
+</tr>
+<tr class="even">
+<td><code>yields</code></td>
+<td>An existing object, the first <strong>input</strong> to the function</td>
+<td>Functions and their inputs</td>
+</tr>
+<tr class="odd">
+<td><code>na.rm = TRUE</code></td>
+<td>A named input: an option that changes what the function does</td>
+<td>Functions and their inputs</td>
+</tr>
+</tbody>
+</table>
+<p><code>mean()</code> is built into R. Many functions are not: they come from a <strong>package</strong>, which has to be installed and loaded first (slide “Packages”).</p>
+<p>The rest of this section takes the pieces one at a time. By the end of it, you should be able to read the line above out loud: “compute the average of <code>yields</code>, leaving out missing values, and store it as <code>average_yield</code>”.</p>
+</section>
+<section id="objects-and--" class="slide level2">
+<h2>Objects and <code>&lt;-</code></h2>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The pattern</a></li><li><a href="#tabset-4-2">Printing an object</a></li><li><a href="#tabset-4-3">Overwriting</a></li><li><a href="#tabset-4-4"><code>&lt;-</code> versus <code>=</code></a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<p>An <strong>object</strong> is a named thing R holds in memory: a number, some text, a table of data, a fitted model. Every object is made by the same pattern:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>name <span class="ot">&lt;-</span> value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>name</code></td>
+<td>The name you will use to refer to the object later</td>
+</tr>
+<tr class="even">
+<td><code>&lt;-</code></td>
+<td>“Store the right-hand side under this name”. Read it as “gets”: <code>a</code> gets 1</td>
+</tr>
+<tr class="odd">
+<td><code>value</code></td>
+<td>Anything that produces a result: a number, text, or a whole calculation</td>
+</tr>
+</tbody>
+</table>
+<p>R works out the right-hand side <strong>first</strong>, then stores the result. So <code>d &lt;- 1 == 2</code> stores <code>FALSE</code>, the answer to “is 1 equal to 2?”, not the question.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>a <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb5-2"><a></a>b <span class="ot">&lt;-</span> <span class="st">"R rocks"</span></span>
+<span id="cb5-3"><a></a>d <span class="ot">&lt;-</span> <span class="dv">1</span> <span class="sc">==</span> <span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>These three objects now appear in RStudio’s Environment pane.</p>
+</div>
+<div id="tabset-4-2">
+<p>Running an object’s name on its own prints what it holds. This is the simplest check there is: did the object get the value you expected?</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>a</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>b</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "R rocks"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>d</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-4-3">
+<p>Storing under a name that already exists <strong>replaces</strong> the old object, without a warning:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>a <span class="ot">&lt;-</span> <span class="dv">3</span></span>
+<span id="cb12-2"><a></a>a <span class="ot">&lt;-</span> <span class="dv">1</span></span>
+<span id="cb12-3"><a></a>a</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 1</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-4-4">
+<p>Outside a function, <code>name = value</code> does the same as <code>name &lt;- value</code>. You will see both in AI-written code; this course uses <code>&lt;-</code>.</p>
+<p>Inside a function’s parentheses, <code>=</code> means something different: it sets one of the function’s inputs. In <code>mean(yields, na.rm = TRUE)</code>, <code>na.rm = TRUE</code> does not create an object called <code>na.rm</code>. It tells <code>mean()</code> to leave out missing values (slide “Functions and their inputs”).</p>
+</div>
+</div>
+</div>
+</section>
+<section id="values-and-their-types" class="slide level2">
+<h2>Values and their types</h2>
+<div class="panel-tabset">
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The types</a></li><li><a href="#tabset-5-2">Operators</a></li><li><a href="#tabset-5-3">Missing values: <code>NA</code></a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1">
+<p>Every value has a <strong>type</strong>. The type decides what R can do with it.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Examples</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>numeric</td>
+<td><code>1</code>, <code>1.3</code>, <code>-999</code></td>
+<td>A number, whole or with decimals</td>
+</tr>
+<tr class="even">
+<td>character</td>
+<td><code>"Nebraska"</code>, <code>"31001"</code></td>
+<td>Text, always written inside quotation marks</td>
+</tr>
+<tr class="odd">
+<td>logical</td>
+<td><code>TRUE</code>, <code>FALSE</code></td>
+<td>The answer to a yes-or-no question</td>
+</tr>
+</tbody>
+</table>
+<p>You will also see <strong>integer</strong> (a whole number written with an <code>L</code>, such as <code>3L</code>); it behaves like numeric.</p>
+<p>Quotation marks matter: <code>"31001"</code> is text, <code>31001</code> is a number. You cannot do arithmetic on text:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="st">"5"</span> <span class="sc">+</span> <span class="dv">1</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in "5" + 1: non-numeric argument to binary operator</code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-5-2">
+<p>Arithmetic and comparisons follow the usual signs, with a few that may be new:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Operator</th>
+<th>Meaning</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>+ - * /</code></td>
+<td>add, subtract, multiply, divide</td>
+<td><code>6 / 4</code></td>
+<td>1.5</td>
+</tr>
+<tr class="even">
+<td><code>^</code></td>
+<td>to the power of</td>
+<td><code>2^3</code></td>
+<td>8</td>
+</tr>
+<tr class="odd">
+<td><code>==</code>, <code>!=</code></td>
+<td>is equal to, is not equal to</td>
+<td><code>5 == 4</code></td>
+<td>FALSE</td>
+</tr>
+<tr class="even">
+<td><code>&gt;</code>, <code>&lt;</code>, <code>&gt;=</code>, <code>&lt;=</code></td>
+<td>greater than, less than, and so on</td>
+<td><code>5 &gt; 4</code></td>
+<td>TRUE</td>
+</tr>
+</tbody>
+</table>
+<p>A comparison gives back a logical value. <code>==</code> (two equals signs) asks a question; a single <code>=</code> sets a value. Comparisons are how rows are kept or dropped from a table later in the course.</p>
+</div>
+<div id="tabset-5-3">
+<p><code>NA</code> means “this value is missing”. It is not zero, and it is not the text <code>"NA"</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a>yields</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 150 162  NA 171</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="fu">is.na</span>(yields)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] FALSE FALSE  TRUE FALSE</code></pre>
+</div>
+</div>
+<p><code>is.na()</code> asks of each value “is it missing?”. The third one is.</p>
+<p>Most calculations that include a missing value give <code>NA</code>, because the true answer is unknown:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a><span class="fu">mean</span>(yields)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] NA</code></pre>
+</div>
+</div>
+<p>How to get the average of the values that are there is on the slide “Functions and their inputs”, tab “Defaults”.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="vectors-and-tables" class="slide level2">
+<h2>Vectors and tables</h2>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">Vectors</a></li><li><a href="#tabset-6-2">One type per vector</a></li><li><a href="#tabset-6-3">Tables</a></li><li><a href="#tabset-6-4">Other objects you will see</a></li><li><a href="#tabset-6-5">What kind of object is it?</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<p>A <strong>vector</strong> is a sequence of values, all of the <strong>same type</strong>. <code>c()</code> (short for “combine”) makes one:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a>v <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="dv">5</span>, <span class="dv">9</span>, <span class="dv">1</span>)</span>
+<span id="cb22-2"><a></a>v</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 4 3 5 9 1</code></pre>
+</div>
+</div>
+<p>Arithmetic on vectors works <strong>element by element</strong>: the first value with the first, the second with the second, and so on.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a>v <span class="sc">*</span> <span class="dv">2</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  8  6 10 18  2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a>v <span class="sc">+</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>, <span class="dv">30</span>, <span class="dv">40</span>, <span class="dv">50</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14 23 35 49 51</code></pre>
+</div>
+</div>
+<p>R code rarely needs a loop to do the same thing to every value; this is why.</p>
+</div>
+<div id="tabset-6-2">
+<p>A vector can hold only one type. Mix types, and R converts everything to the type that can hold all of them, <strong>without an error</strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a>mixed <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">4</span>, <span class="dv">3</span>, <span class="st">"5"</span>, <span class="dv">9</span>, <span class="dv">1</span>)</span>
+<span id="cb28-2"><a></a>mixed</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "4" "3" "5" "9" "1"</code></pre>
+</div>
+</div>
+<p>Every value is now text (note the quotation marks). One text value turned the whole vector into text. When a column of numbers arrives in your analysis as text, this is usually why, and arithmetic on it will then fail or give <code>NA</code>.</p>
+</div>
+<div id="tabset-6-3">
+<p>A <strong>table</strong> holds data in rows and columns. Each column is a vector, so each column has one type, but different columns can have different types. All columns have the same length. R calls a table a <strong>data frame</strong>; this course says table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a>yield_data <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb30-2"><a></a>  <span class="at">nitrogen =</span> <span class="fu">c</span>(<span class="dv">200</span>, <span class="dv">180</span>, <span class="dv">300</span>),</span>
+<span id="cb30-3"><a></a>  <span class="at">yield =</span> <span class="fu">c</span>(<span class="dv">240</span>, <span class="dv">220</span>, <span class="dv">230</span>),</span>
+<span id="cb30-4"><a></a>  <span class="at">state =</span> <span class="fu">c</span>(<span class="st">"Kansas"</span>, <span class="st">"Nebraska"</span>, <span class="st">"Iowa"</span>)</span>
+<span id="cb30-5"><a></a>)</span>
+<span id="cb30-6"><a></a>yield_data</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  nitrogen yield    state
+1      200   240   Kansas
+2      180   220 Nebraska
+3      300   230     Iowa</code></pre>
+</div>
+</div>
+<p>Inside <code>data.frame()</code>, each <code>name = c(...)</code> makes one column. Values in the same position make one row.</p>
+<p>You will also see <strong>tibble</strong> and <strong>data.table</strong>. They are tables too, with some extra conveniences; read them as tables.</p>
+</div>
+<div id="tabset-6-4">
+<ul>
+<li><strong>list</strong>: holds any mix of objects, each of any type and length. Results of a statistical model usually come back as a list.</li>
+<li><strong>matrix</strong>: values of one type in rows and columns, used for linear algebra. You will rarely meet one in this course.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a>a_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">numbers =</span> <span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">20</span>), <span class="at">state =</span> <span class="st">"Iowa"</span>, <span class="at">data =</span> yield_data)</span>
+<span id="cb32-2"><a></a><span class="fu">names</span>(a_list)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "numbers" "state"   "data"   </code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-6-5">
+<p>Many surprises in R come from an object not being what you thought: a column of text instead of numbers, a vector instead of a table. Three functions tell you:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a><span class="fu">class</span>(yield_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "data.frame"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a></a><span class="fu">class</span>(mixed)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "character"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb38"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a></a><span class="fu">str</span>(yield_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'data.frame':   3 obs. of  3 variables:
+ $ nitrogen: num  200 180 300
+ $ yield   : num  240 220 230
+ $ state   : chr  "Kansas" "Nebraska" "Iowa"</code></pre>
+</div>
+</div>
+<p><code>class()</code> gives the kind of object; for a vector, the type of its values. <code>str()</code> (structure) gives the size and the type of every column: here 3 rows (“obs.”) and 3 columns (“variables”), with <code>num</code> for numeric and <code>chr</code> for character. In RStudio, <code>View(yield_data)</code> opens a table in a spreadsheet-style viewer.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="pulling-parts-out-of-an-object" class="slide level2">
+<h2>Pulling parts out of an object</h2>
+<p>AI-written code constantly takes one column, some rows or one value out of an object. Whatever the object, it is done with brackets or <code>$</code>, in one of these patterns:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pattern</th>
+<th>Gives</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>vector[position]</code></td>
+<td>values at those positions</td>
+<td><code>v[2]</code></td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><code>table$column</code></td>
+<td>one column, as a vector</td>
+<td><code>yield_data$yield</code></td>
+<td>240 220 230</td>
+</tr>
+<tr class="odd">
+<td><code>table[condition, ]</code></td>
+<td>the rows where the condition is <code>TRUE</code>; the empty place after the comma means “all columns”</td>
+<td><code>yield_data[yield_data$yield &gt; 225, ]</code></td>
+<td>the 2 rows with <code>yield</code> above 225</td>
+</tr>
+<tr class="even">
+<td><code>list[[position]]</code> or <code>list$name</code></td>
+<td>one element of a list</td>
+<td><code>a_list$state</code></td>
+<td>Iowa</td>
+</tr>
+</tbody>
+</table>
+<p>Positions count from 1, not 0. <code>table$column</code> is the one you will see most often: <code>mean(yield_data$yield)</code> reads “the average of the <code>yield</code> column of <code>yield_data</code>”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb40"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a></a><span class="fu">mean</span>(yield_data<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 230</code></pre>
+</div>
+</div>
+<p>The condition is itself a comparison that gives one <code>TRUE</code> or <code>FALSE</code> per row, and the rows marked <code>TRUE</code> are kept:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb42"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a></a>yield_data<span class="sc">$</span>yield <span class="sc">&gt;</span> <span class="dv">225</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1]  TRUE FALSE  TRUE</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb44"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a></a>yield_data[yield_data<span class="sc">$</span>yield <span class="sc">&gt;</span> <span class="dv">225</span>, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  nitrogen yield  state
+1      200   240 Kansas
+3      300   230   Iowa</code></pre>
+</div>
+</div>
+</section>
+<section id="functions-and-their-inputs" class="slide level2">
+<h2>Functions and their inputs</h2>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The pattern</a></li><li><a href="#tabset-7-2">Functions you will see</a></li><li><a href="#tabset-7-3">Defaults</a></li><li><a href="#tabset-7-4">Variations you will see</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
+<p>A <strong>function</strong> takes inputs, does something with them, and gives back a result. Every function call follows the same pattern:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb46"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a></a>result <span class="ot">&lt;-</span> <span class="fu">function_name</span>(first_input, <span class="at">name =</span> value, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>result &lt;-</code></td>
+<td>Stores what the function gives back</td>
+<td>No; without it, the result is printed and then gone</td>
+</tr>
+<tr class="even">
+<td><code>function_name</code></td>
+<td>What to do</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>( )</code></td>
+<td>Holds the inputs, separated by commas. R calls the inputs <strong>arguments</strong></td>
+<td>Yes, even if empty</td>
+</tr>
+<tr class="even">
+<td><code>first_input</code></td>
+<td>Usually the data to work on, matched by its <strong>position</strong></td>
+<td>Usually</td>
+</tr>
+<tr class="odd">
+<td><code>name = value</code></td>
+<td>An option, matched by its <strong>name</strong></td>
+<td>No; each has a default</td>
+</tr>
+</tbody>
+</table>
+<p>A real call:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb47"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a></a><span class="fu">round</span>(<span class="fl">3.14159</span>, <span class="at">digits =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 3.14</code></pre>
+</div>
+</div>
+<p>The first input, <code>3.14159</code>, is the number to round. <code>digits = 2</code> is an option. Leave it out and <code>round()</code> uses its default, 0 digits: <code>round(3.14159)</code> gives 3.</p>
+</div>
+<div id="tabset-7-2">
+<p>All of these follow the pattern. You do not need to remember them; you need to recognise the pattern when you see them.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>What it gives back</th>
+<th>Example</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>mean()</code>, <code>sum()</code>, <code>min()</code>, <code>max()</code></td>
+<td>one number summarising a vector</td>
+<td><code>sum(v)</code></td>
+<td>22</td>
+</tr>
+<tr class="even">
+<td><code>length()</code></td>
+<td>how many values a vector has</td>
+<td><code>length(v)</code></td>
+<td>5</td>
+</tr>
+<tr class="odd">
+<td><code>nrow()</code>, <code>ncol()</code></td>
+<td>rows or columns of a table</td>
+<td><code>nrow(yield_data)</code></td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><code>round()</code></td>
+<td>rounded numbers</td>
+<td><code>round(2.567, digits = 1)</code></td>
+<td>2.6</td>
+</tr>
+<tr class="odd">
+<td><code>seq()</code></td>
+<td>a sequence of numbers</td>
+<td><code>seq(0, 10, by = 5)</code></td>
+<td>0 5 10</td>
+</tr>
+<tr class="even">
+<td><code>rep()</code></td>
+<td>repeated values</td>
+<td><code>rep(10, times = 3)</code></td>
+<td>10 10 10</td>
+</tr>
+<tr class="odd">
+<td><code>is.na()</code></td>
+<td><code>TRUE</code> where a value is missing</td>
+<td><code>is.na(c(1, NA))</code></td>
+<td>FALSE TRUE</td>
+</tr>
+<tr class="even">
+<td><code>class()</code>, <code>str()</code></td>
+<td>what kind of object something is</td>
+<td><code>class(v)</code></td>
+<td>numeric</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-7-3">
+<p>Every option has a <strong>default</strong>: the value it takes when you do not set it, chosen by whoever wrote the function. <code>mean()</code> has an option <code>na.rm</code> (remove <code>NA</code>s) whose default is <code>FALSE</code>. That is why the average above came back <code>NA</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb49"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a></a><span class="fu">mean</span>(yields)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb51-1"><a></a><span class="fu">mean</span>(yields, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 161</code></pre>
+</div>
+</div>
+<p>With <code>na.rm = TRUE</code>, the average is of the 3 values that are there: (150 + 162 + 171) / 3 = 161.</p>
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>AI-written code often adds <code>na.rm = TRUE</code> as a matter of routine. It removes missing values <strong>without saying how many</strong>. An average of 3 values out of 4 is fine; an average of 3 out of 300 is not. When you see <code>na.rm = TRUE</code>, ask how many values were left out.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-7-4">
+<p>AI-written code often arranges the same pattern differently. These change how the code looks, not what it does:</p>
+<ul>
+<li><strong>One call inside another</strong>: <code>round(mean(yields, na.rm = TRUE), digits = 1)</code>. Read from the inside out: first the average, then round it.</li>
+<li><strong>Spread over several lines</strong>: a long call, like <code>data.frame(...)</code> above, is split after commas. It is still one call; the closing <code>)</code> ends it.</li>
+<li><strong>Inputs without names</strong>: <code>round(3.14159, 2)</code> is the same as <code>round(3.14159, digits = 2)</code>, because <code>digits</code> is the second input. Named inputs are easier to read.</li>
+<li><strong>The pipe</strong>, <code>|&gt;</code>: <code>yields |&gt; mean(na.rm = TRUE)</code> means <code>mean(yields, na.rm = TRUE)</code>. The object on the left becomes the first input of the function on the right. You will see it in nearly every chapter from Chapter 3 on.</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb53-1"><a></a>yields <span class="sc">|&gt;</span> <span class="fu">mean</span>(<span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 161</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="reading-a-help-page" class="slide level2">
+<h2>Reading a help page</h2>
+<p>Every function has a help page. Put <code>?</code> in front of its name, at the Console, and the page opens in the Help pane: <code>?seq</code>. Three sections tell you most of what you need.</p>
+<div class="panel-tabset">
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Description</a></li><li><a href="#tabset-8-2">Usage</a></li><li><a href="#tabset-8-3">Arguments, Examples, or ask</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1">
+<p>At the top, one or two sentences on what the function does. For <code>seq()</code>: “Generate regular sequences.” If that is not what you wanted, you are on the wrong page.</p>
+</div>
+<div id="tabset-8-2">
+<p>The function’s inputs, in order, each with its default. The real <code>?seq</code> page also covers some related functions (<code>seq_len()</code>, <code>seq_along()</code> and others), so its Usage section lists several lines. The one for <code>seq()</code> itself is under <code>## Default S3 method:</code>, a technical label you can ignore:</p>
+<div class="sourceCode" id="cb55"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a></a><span class="fu">seq</span>(<span class="at">from =</span> <span class="dv">1</span>, <span class="at">to =</span> <span class="dv">1</span>, <span class="at">by =</span> ((to <span class="sc">-</span> from)<span class="sc">/</span>(length.out <span class="sc">-</span> <span class="dv">1</span>)),</span>
+<span id="cb55-2"><a></a>    <span class="at">length.out =</span> <span class="cn">NULL</span>, <span class="at">along.with =</span> <span class="cn">NULL</span>, ...)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>Each <code>name = value</code> is an input and its default. Leave out <code>from</code>, and it is 1.</li>
+<li>Inputs without names are matched by position: <code>seq(0, 10)</code> means <code>from = 0, to = 10</code>.</li>
+<li><code>NULL</code> means “not set”. <code>...</code> means further inputs can be passed on; you can ignore it.</li>
+</ul>
+<p>You only supply the inputs whose defaults you want to change. That is why <code>seq(0, 10)</code> works although <code>seq()</code> lists five inputs.</p>
+</div>
+<div id="tabset-8-3">
+<p><strong>Arguments</strong> says what each input means. For <code>seq()</code>, <code>by</code> is the step between values and <code>length.out</code> is how many values you want, so the same sequence can be described two ways:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb56-1"><a></a><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">by =</span> <span class="fl">0.25</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.00 0.25 0.50 0.75 1.00</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb58-1"><a></a><span class="fu">seq</span>(<span class="dv">0</span>, <span class="dv">1</span>, <span class="at">length.out =</span> <span class="dv">5</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.00 0.25 0.50 0.75 1.00</code></pre>
+</div>
+</div>
+<p><strong>Examples</strong>, at the very bottom, is code you can copy and run. Running an example and then looking back at Usage is often the fastest way to understand a function.</p>
+<p>You can also paste a line into an AI assistant and ask what each input does (see “Recommended requests”, tab “Explain code”). The help page is the reference to check its answer against: it describes the version of the function installed on your computer, which the AI cannot see.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="packages-installing-and-loading" class="slide level2">
+<h2>Packages: installing and loading</h2>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">What are packages?</a></li><li><a href="#tabset-9-2">Installing versus loading</a></li><li><a href="#tabset-9-3">When it goes wrong</a></li><li><a href="#tabset-9-4">Which package is a function from?</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<p>A package is a drawer in your workspace (the R environment) holding specialized tools (functions) for a particular set of tasks. Packages are written by R’s users and shared for free; most of the functions in this course come from them.</p>
+<p><strong>Example packages:</strong></p>
+<ul>
+<li>dplyr (data wrangling)</li>
+<li>data.table (data wrangling)</li>
+<li>ggplot2 (data visualization)</li>
+<li>sf (spatial vector data handling)</li>
+<li>terra (spatial raster data handling)</li>
+<li>stars (spatiotemporal data handling)</li>
+</ul>
+<p><strong>tidyverse</strong> is a package that installs and loads a set of others at once, including dplyr, ggplot2 and readr.</p>
+</div>
+<div id="tabset-9-2">
+<p>Two separate steps:</p>
+<ul>
+<li><strong>Install</strong>: before you can use the tools (functions) in a drawer (package), you have to obtain the drawer. Installing downloads the package onto your computer. The name goes in quotation marks:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb60"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb60-1"><a></a><span class="fu">install.packages</span>(<span class="st">"ggplot2"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<ul>
+<li><strong>Load</strong>: you then bring the drawer into your workspace with <code>library()</code>. The name goes without quotation marks:</li>
+</ul>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb61"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb61-1"><a></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>You can now use the tools (functions) that drawer contains.</p>
+<div title="Install once, load every time">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Install once, load every time</strong></p>
+</div>
+<div class="callout-content">
+<p>You install a package <strong>once per computer</strong>, at the Console. You load it with <code>library()</code> in <strong>every new R session</strong> (R from the moment it starts until it is closed or restarted), and that includes every time a Quarto document is rendered, because rendering starts a fresh R session. So <code>library()</code> lines belong at the top of your document, and <code>install.packages()</code> lines do not belong in it at all: they would download the package again at every render.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-9-3">
+<p>The two steps fail with two different errors, and the error tells you which step is missing:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb62"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb62-1"><a></a><span class="fu">library</span>(notapkg)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in library(notapkg): there is no package called 'notapkg'</code></pre>
+</div>
+</div>
+<p>“There is no package called …”: the package is <strong>not installed</strong> (or the name is misspelled).</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a></a>tidy_table <span class="ot">&lt;-</span> <span class="fu">as_tibble</span>(yield_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in as_tibble(yield_data): could not find function "as_tibble"</code></pre>
+</div>
+</div>
+<p>“Could not find function …”: the package that has the function is <strong>not loaded</strong> (here, <code>as_tibble()</code> comes from the tibble package, which also comes with dplyr and tidyverse), or the function name is misspelled.</p>
+</div>
+<div id="tabset-9-4">
+<p>A line does not say which package its function comes from, unless it is written as <code>package::function()</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb66"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a></a>dplyr<span class="sc">::</span><span class="fu">filter</span>(yield_data, yield <span class="sc">&gt;</span> <span class="dv">225</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>dplyr::filter</code> means “the <code>filter()</code> function from dplyr”. It uses the function without loading the whole package, and it tells the reader where the function comes from. When you cannot tell, ask the AI, or run <code>?filter</code> after the package is loaded: if several packages have a function of that name, the help pane lists them all, each with the package it comes from. Each help page also names its package at the top left, as in <code>filter {dplyr}</code>.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="when-code-fails" class="title-slide slide level1 center">
+<h1>When code fails</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="errors-and-failures-without-one" class="slide level2">
+<h2>Errors, and failures without one</h2>
+<div class="panel-tabset">
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">Reading an error</a></li><li><a href="#tabset-10-2">Errors you will see</a></li><li><a href="#tabset-10-3">No error is not the same as right</a></li></ul>
+<div class="tab-content">
+<div id="tabset-10-1">
+<p>When R cannot run a line, it stops and prints an error. Read it before anything else: it usually names the function that failed and what it objected to.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb67-1"><a></a><span class="fu">sum</span>(<span class="st">"a"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error in sum("a"): invalid 'type' (character) of argument</code></pre>
+</div>
+</div>
+<p>“invalid ‘type’ (character) of argument”: <code>sum()</code> ran, but its input was text, and text cannot be added up.</p>
+</div>
+<div id="tabset-10-2">
+<p>Four errors you will see often:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>The error says</th>
+<th>What it means</th>
+<th>Usual cause</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>object 'x' not found</code></td>
+<td>No object has that name</td>
+<td>A typo (R treats <code>Yield</code> and <code>yield</code> as different names), or the line that creates it was never run, or it was made in the Console but not in the document</td>
+</tr>
+<tr class="even">
+<td><code>could not find function "f"</code></td>
+<td>No loaded function has that name</td>
+<td>The package was not loaded, or a typo</td>
+</tr>
+<tr class="odd">
+<td><code>there is no package called 'p'</code></td>
+<td>The package is not installed</td>
+<td>Not installed on this computer, or a typo</td>
+</tr>
+<tr class="even">
+<td><code>non-numeric argument to binary operator</code></td>
+<td>Arithmetic on something that is not a number</td>
+<td>A number stored as text</td>
+</tr>
+</tbody>
+</table>
+<p>When you ask an AI about an error, send the <strong>whole</strong> error message, the code that produced it, and what you expected. The AI cannot see your screen.</p>
+</div>
+<div id="tabset-10-3">
+<p>An error is the good case: you know something went wrong. Worse are lines that run and give a wrong answer. Two you have already met:</p>
+<ul>
+<li>One text value in <code>c(...)</code> turned every value to text, with no error.</li>
+<li><code>na.rm = TRUE</code> leaves out missing values without saying how many.</li>
+</ul>
+<p>And one more. Text that looks like numbers is sorted as text, character by character:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a></a><span class="fu">sort</span>(<span class="fu">c</span>(<span class="st">"9"</span>, <span class="st">"10"</span>, <span class="st">"100"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "10"  "100" "9"  </code></pre>
+</div>
+</div>
+<p>“10” comes before “9” because “1” comes before “9”. No error, wrong order. Checking the type of a value (<code>class()</code>, <code>str()</code>) would catch it.</p>
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>Code that runs is not the same as code that is right. Deciding whether it is right is the part that stays your job.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="asking-ai" class="title-slide slide level1 center">
+<h1>Asking AI</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-the-ai-cannot-know" class="slide level2 scrollable">
+<h2>What the AI cannot know</h2>
+<p>The AI knows R. It does not know your session or your intentions. Each of these has to be in your request:</p>
+<ol type="1">
+<li><strong>The code</strong>: paste the exact lines, not a description of them</li>
+<li><strong>What came out</strong>: the whole error message or output, copied, not retyped from memory</li>
+<li><strong>What you expected</strong>: the result you thought you would get, and why</li>
+<li><strong>What is around it</strong>: which objects already exist and what they hold, which packages you loaded. Running <code>str()</code> on an object and pasting the output is a quick way to describe it</li>
+<li><strong>What you want back</strong>: an explanation, a corrected line, or both</li>
+</ol>
+<div title="Using an agent in your editor or terminal?">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Using an agent in your editor or terminal?</strong></p>
+</div>
+<div class="callout-content">
+<p>An agent such as Claude Code can run the code and see the error itself. Still say what you expected <strong>before</strong> it runs, so you have something to compare its answer with.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="a-weak-request-and-a-strong-one" class="slide level2">
+<h2>A weak request and a strong one</h2>
+<div class="panel-tabset">
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Weak</a></li><li><a href="#tabset-11-2">Strong</a></li><li><a href="#tabset-11-3">What came back</a></li></ul>
+<div class="tab-content">
+<div id="tabset-11-1">
+<div class="sourceCode" id="cb71"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb71-1"><a></a>My R code doesn't work, please fix it.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The AI does not see the code, the error or what you wanted. It will guess, and a typical reply is a list of five common R mistakes, none of which may be yours.</p>
+</div>
+<div id="tabset-11-2">
+<div class="sourceCode" id="cb72"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb72-1"><a></a>I ran these two lines:</span>
+<span id="cb72-2"><a></a></span>
+<span id="cb72-3"><a></a>yields &lt;- c(150, 162, NA, 171)</span>
+<span id="cb72-4"><a></a>average_yield &lt;- mean(yields)</span>
+<span id="cb72-5"><a></a></span>
+<span id="cb72-6"><a></a>average_yield prints NA. I expected the average of the three yields</span>
+<span id="cb72-7"><a></a>that are not missing, 161. Explain in one plain-English sentence why I</span>
+<span id="cb72-8"><a></a>got NA, then correct the code. Also print how many values the average</span>
+<span id="cb72-9"><a></a>used.</span>
+<span id="cb72-10"><a></a></span>
+<span id="cb72-11"><a></a>Put the code in my Quarto document analysis/yields.qmd, under the</span>
+<span id="cb72-12"><a></a>heading "Average yield", as R code chunks. Above each chunk, write one</span>
+<span id="cb72-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb72-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb72-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb72-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The last paragraph is the <strong>closing instructions</strong>: the same lines end every request that asks for code. They make the AI put its code into a Quarto document, with a sentence above each piece of code, so that the result is a web page you can read and keep. Chapter 2 teaches Quarto; the full text is under “Recommended requests”.</p>
+<p><code>here::here()</code> builds a file’s path from the top folder of your project, so the path works on any computer. Chapter 3 explains it.</p>
+</div>
+<div id="tabset-11-3">
+<p>What the AI’s answer looks like in the rendered page: a sentence, then the code it describes. Read each sentence, and check that the code under it does what the sentence says.</p>
+<p><code>mean()</code> gives <code>NA</code> when any value is missing, unless told to leave missing values out with <code>na.rm = TRUE</code>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb73"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb73-1"><a></a>average_yield <span class="ot">&lt;-</span> <span class="fu">mean</span>(yields, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Print the checks: how many values there are, how many are missing, and the average of the rest.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a></a><span class="fu">cat</span>(</span>
+<span id="cb74-2"><a></a>  <span class="fu">paste</span>(<span class="st">"values: expected 4, got"</span>, <span class="fu">length</span>(yields)),</span>
+<span id="cb74-3"><a></a>  <span class="fu">paste</span>(<span class="st">"missing values: expected 1, got"</span>, <span class="fu">sum</span>(<span class="fu">is.na</span>(yields))),</span>
+<span id="cb74-4"><a></a>  <span class="fu">paste</span>(<span class="st">"values used: expected 3, got"</span>, <span class="fu">sum</span>(<span class="sc">!</span><span class="fu">is.na</span>(yields))),</span>
+<span id="cb74-5"><a></a>  <span class="fu">paste</span>(<span class="st">"average yield: expected 161, got"</span>, average_yield),</span>
+<span id="cb74-6"><a></a>  <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb74-7"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>values: expected 4, got 4
+missing values: expected 1, got 1
+values used: expected 3, got 3
+average yield: expected 161, got 161</code></pre>
+</div>
+</div>
+<p>Every check matches, and each line says what it is checking. Two functions that may be new: <code>cat()</code> prints text, and <code>paste()</code> joins pieces of text into one. <code>sum(!is.na(yields))</code> counts the values that are <strong>not</strong> missing (<code>!</code> means “not”).</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="checking-the-result" class="title-slide slide level1 center">
+<h1>Checking the result</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="checking-what-to-ask-for-and-why" class="slide level2">
+<h2>Checking: what to ask for, and why</h2>
+<div class="panel-tabset">
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Checks you can know in advance</a></li><li><a href="#tabset-12-2">Asking for them</a></li><li><a href="#tabset-12-3">A check that fails</a></li></ul>
+<div class="tab-content">
+<div id="tabset-12-1">
+<p>A check is only useful if you know the right answer before you see the result. The AI can write the checking code; only you can supply the answer. Sources of answers you know in advance:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Ask the AI to print</th>
+<th>You know the answer from</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>how many values, rows or columns there are</td>
+<td>counting, or the description of the data (a help page, a codebook)</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>the type of each key value or column</td>
+<td>knowing what it measures: a yield is a number, a state name is text</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>how many values are missing</td>
+<td>the data’s description, or counting them yourself on a small case</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>the smallest and largest value</td>
+<td>what is believable: a corn yield is not negative</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>the result on a small case</td>
+<td>working it out by hand, as for the average of 150, 162 and 171</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-12-2">
+<p>Say what you expect, and ask for each check in one form, so the rendered page says which passed:</p>
+<div class="sourceCode" id="cb76"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb76-1"><a></a>I expect &lt;number&gt; values, &lt;number&gt; of them missing, and an average of</span>
+<span id="cb76-2"><a></a>&lt;number&gt;. Print each check on its own line as "name of check: expected</span>
+<span id="cb76-3"><a></a>X, got Y".</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>If you cannot fill in a blank, that is a sign to look at the data, or its description, before asking.</p>
+</div>
+<div id="tabset-12-3">
+<p>A student expected the values to be numbers. The AI’s code, and what it printed:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb77-1"><a></a><span class="fu">cat</span>(<span class="st">"type of mixed: expected numeric, got"</span>, <span class="fu">class</span>(mixed), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>type of mixed: expected numeric, got character </code></pre>
+</div>
+</div>
+<p>The check fails: <code>mixed</code> holds text. Nothing errored, and any average of it would be wrong or <code>NA</code>. The right move is to find out where the text came from (here, the <code>"5"</code> written in quotation marks) before going on.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="your-turn-read-the-ais-code" class="slide level2">
+<h2>Your turn: read the AI’s code</h2>
+<p>A student asked an AI to “average my yields”, and got this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb79-2"><a></a>my_yields <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">150</span>, <span class="dv">162</span>, <span class="st">"171"</span>, <span class="dv">140</span>)</span>
+<span id="cb79-3"><a></a>avg <span class="ot">=</span> <span class="fu">mean</span>(my_yields)</span>
+<span id="cb79-4"><a></a>avg</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="panel-tabset">
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Questions</a></li><li><a href="#tabset-13-2">Answers</a></li></ul>
+<div class="tab-content">
+<div id="tabset-13-1">
+<p>A. What does each of the four lines do?</p>
+<p>B. What will <code>avg</code> print, and why? Is there an error?</p>
+<p>C. Which check from the previous slide would have caught the problem, and what would it have printed?</p>
+<p>D. Is line 1 needed?</p>
+</div>
+<div id="tabset-13-2">
+<p>A. Loads the dplyr package; stores four yields under the name <code>my_yields</code>; computes their average and stores it as <code>avg</code> (<code>=</code> does the same as <code>&lt;-</code> here); prints <code>avg</code>.</p>
+<p>B. NA. Because <code>"171"</code> is in quotation marks, the whole vector is text, and the average of text is <code>NA</code>. There is no error, only a warning (“argument is not numeric or logical: returning NA”), which is easy to miss.</p>
+<p>C. Check 2, the type: “type of my_yields: expected numeric, got character”.</p>
+<p>D. No.&nbsp;None of the functions used (<code>c()</code>, <code>mean()</code>) comes from dplyr; both are built into R. It does no harm, but a line you cannot explain is worth asking about.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="recommended-requests" class="title-slide slide level1 center">
+<h1>Recommended requests</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="requests-you-can-copy" class="slide level2">
+<h2>Requests you can copy</h2>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.</p>
+<div class="panel-tabset">
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Closing instructions</a></li><li><a href="#tabset-14-2">Explain code</a></li><li><a href="#tabset-14-3">Explain an error</a></li><li><a href="#tabset-14-4">Install packages</a></li><li><a href="#tabset-14-5">Compute something, with checks</a></li></ul>
+<div class="tab-content">
+<div id="tabset-14-1">
+<p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
+<div class="sourceCode" id="cb80"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb80-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb80-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb80-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb80-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb80-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb80-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
+</div>
+<div id="tabset-14-2">
+<p>For code you did not write, or code you are not sure about:</p>
+<div class="sourceCode" id="cb81"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb81-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb81-2"><a></a>sentence. Then list:</span>
+<span id="cb81-3"><a></a>1. any line that would only work on the computer it was written on</span>
+<span id="cb81-4"><a></a>2. any line that could give a wrong result without an error, and what</span>
+<span id="cb81-5"><a></a>   check would reveal it</span>
+<span id="cb81-6"><a></a></span>
+<span id="cb81-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-3">
+<div class="sourceCode" id="cb82"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb82-1"><a></a>I ran this R code:</span>
+<span id="cb82-2"><a></a></span>
+<span id="cb82-3"><a></a>&lt;paste the code here&gt;</span>
+<span id="cb82-4"><a></a></span>
+<span id="cb82-5"><a></a>and got this message:</span>
+<span id="cb82-6"><a></a></span>
+<span id="cb82-7"><a></a>&lt;paste the whole error or warning here&gt;</span>
+<span id="cb82-8"><a></a></span>
+<span id="cb82-9"><a></a>I expected &lt;what you expected to get&gt;. The objects it uses hold</span>
+<span id="cb82-10"><a></a>&lt;what they hold, or the output of str() on each&gt;, and I loaded the</span>
+<span id="cb82-11"><a></a>packages &lt;package names&gt;. Explain in plain English what the message</span>
+<span id="cb82-12"><a></a>means and which line caused it, then correct the code.</span>
+<span id="cb82-13"><a></a></span>
+<span id="cb82-14"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb82-15"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb82-16"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb82-17"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb82-18"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb82-19"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-4">
+<p>Installing happens once, at the Console, so this request asks the AI to act rather than to write code into your document:</p>
+<div class="sourceCode" id="cb83"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb83-1"><a></a>Install the R packages &lt;package names&gt; on my computer, at the R</span>
+<span id="cb83-2"><a></a>Console, not in any document. Then load each one with library() and</span>
+<span id="cb83-3"><a></a>tell me whether it loaded, and its version.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot run anything: it will give you an <code>install.packages()</code> line to paste into the Console yourself.</p>
+</div>
+<div id="tabset-14-5">
+<div class="sourceCode" id="cb84"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb84-1"><a></a>In my Quarto document &lt;path to your .qmd&gt;, the object &lt;object name&gt; is</span>
+<span id="cb84-2"><a></a>created earlier and holds &lt;what it holds&gt;. Compute &lt;what you want&gt;.</span>
+<span id="cb84-3"><a></a>I expect &lt;number&gt; values, &lt;number&gt; of them missing, and a result of</span>
+<span id="cb84-4"><a></a>about &lt;number&gt;.</span>
+<span id="cb84-5"><a></a></span>
+<span id="cb84-6"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb84-7"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb84-8"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb84-9"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb84-10"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb84-11"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="summary" class="title-slide slide level1 center">
+<h1>Summary</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-must-understand-and-what-the-ai-can-write" class="slide level2">
+<h2>What you must understand, and what the AI can write</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You need to understand</th>
+<th>The AI can write</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What an object is, and that <code>&lt;-</code> stores a result under a name, replacing any old one</td>
+<td>The names and the assignments</td>
+</tr>
+<tr class="even">
+<td>That <code>table$column</code> takes one column out of a table</td>
+<td>The extraction code</td>
+</tr>
+<tr class="odd">
+<td>The types of values, and that mixing them converts everything to text without an error</td>
+<td>The conversions between types</td>
+</tr>
+<tr class="even">
+<td>The pattern of a function call: name, inputs by position, options by name, defaults</td>
+<td>Which function to use and which options to set</td>
+</tr>
+<tr class="odd">
+<td>What a default does, especially <code>na.rm = TRUE</code></td>
+<td>The options themselves</td>
+</tr>
+<tr class="even">
+<td>That a help page lists each input and its default</td>
+<td>Which inputs to set</td>
+</tr>
+<tr class="odd">
+<td>Installing (once, at the Console) versus loading (every session, at the top of the document)</td>
+<td>The <code>install.packages()</code> and <code>library()</code> lines</td>
+</tr>
+<tr class="even">
+<td>What the four common errors mean</td>
+<td>The fix, once you have told it the code, the error and what you expected</td>
+</tr>
+<tr class="odd">
+<td>What a correct result looks like</td>
+<td>The checking code</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every time AI hands you code:</strong> read it line by line, and name the objects, functions, inputs and packages in it. If you cannot say what a line does, ask before you keep it. Then judge the result by checks whose answer you knew beforehand.</p>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="../index.html">back to the lecture slides</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

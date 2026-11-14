@@ -1,0 +1,924 @@
+---
+title: "01-1: Introduction to R"
+abstract: "Chapter 1: R Introduction"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+yields <- c(150, 162, NA, 171)
+# Inline results printed the way R prints them, values separated by spaces
+out <- function(z) paste(z, collapse = " ")
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+An AI assistant can write R code. What it cannot do is tell you whether that code did what you needed. To judge that, you have to be able to **read** R code: say what each line does, even if you could not have written it yourself.
+
+This first lecture gives you the foundation for reading code. Every line of R you will see in this course is built from three things:
+
+1. **Objects**: named things that hold values, created with `<-`
+2. **Functions**: commands that take inputs and give back a result
+3. **Packages**: collections of functions written by other people, which you install and then load
+
+You will not learn to write these from memory. You will learn to recognise them, so that when an AI hands you code, you can follow it line by line.
+
+### Directions
+
++ Install R, then RStudio (see "Installing them" under "R and RStudio" below)
++ Install the packages `tidyverse`, `rmarkdown` and `here`, at the Console: `install.packages(c("tidyverse", "rmarkdown", "here"))`. Do this before class; it can take several minutes. What packages are, and why installing happens once, is on the slide "Packages: installing and loading"
++ Have an AI assistant available: a chat assistant in your browser, or an agent such as Claude Code in your editor or terminal
++ To move around these slides: click the three stacked horizontal lines in the bottom-left corner for the table of contents, or press the `o` key to see every slide at once
+
+The code on these slides was run when the slides were made, and its output is shown under it. To try it yourself, copy it into RStudio.
+
+:::
+
+## Why the course works this way
+
+::: {.panel-tabset}
+
+### R does exactly what the code says
+
+R runs each line exactly as written. Given a line it cannot make sense of, it stops and prints an **error**. Given a line it can run, it follows its own rules, even when the result is not what you meant.
+
+An AI assistant is the opposite. Given a request with gaps, it fills them in with guesses: where your files are, what your data holds, what you wanted the result for. It writes code that runs, and the guesses are inside it.
+
+So the risk has moved. Code that does not run is easy to spot. Code that runs and does the wrong thing is not, and that is what you have to catch.
+
+### Your job, and the AI's
+
+| The AI does | You do |
+|---|---|
+| Knows every function and every input | Understand the step: what it is for, and what has to be true for it to work (**the concept**) |
+| Writes the code | Recognise what each line does (**reading code**) |
+| Fills gaps with guesses | Tell it what it cannot know: your files, your data, your purpose (**asking**) |
+| Reports that the code ran | Decide whether the result is right, using checks whose answer you know in advance (**checking**) |
+
+Every lecture in this course is organised around those four parts.
+
+### What the course is for
+
+By the end, you should be able to carry out your own research in R with an AI assistant writing the code: get data in, reshape it, make figures and tables, report the results, and work with maps.
+
+The AI will write that code into a **Quarto document** (a `.qmd` file: plain text with R code in it). **Rendering** the document runs its code from the top and makes a web page showing the code and its results. Chapter 2 teaches Quarto.
+
+:::
+
+# R and RStudio
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## R and RStudio
+
+::: {.panel-tabset}
+
+### What they are
+
+**R** is a programming language for statistics and data, and the program that runs code written in it.
+
++ Free and open source, and widely used in universities and in industry
++ Started as software for statistics, designed by statisticians
++ Grows through its users: new statistical methods often appear first as R packages written by the people who developed the method, and R also handles maps and large datasets
+
+**RStudio** is a separate program that you work in. It sends your code to R and shows you the results, your files, your figures and the help pages in one window. R's own window is very basic, so almost everyone uses R through RStudio.
+
+### Installing them
+
+Install both, **R first**, then RStudio, because RStudio looks for an existing R installation when it starts.
+
++ [R](https://www.r-project.org/)
++ [RStudio](https://posit.co/download/rstudio-desktop/)
+
+It worked if RStudio opens and the lower-left pane shows a line starting with `R version` followed by a `>`.
+
+### The four panes
+
+| Where | Pane | What it is for |
+|---|---|---|
+| Upper left | Script or document | Code you want to keep, saved in a file |
+| Lower left | **Console** | Where R runs code. Type a line after `>` and press Enter |
+| Upper right | **Environment** | Lists the objects R is currently holding |
+| Lower right | Files, Plots, Packages, Help | Your folders, figures, installed packages and help pages |
+
+Appearance and pane layout can be changed under Tools, Global Options.
+
+### Running code
+
++ At the Console: type a line and press Enter. R prints the result.
++ In a file: put the cursor on a line, or select several lines, and press **Command + Enter** (Mac) or **Ctrl + Enter** (Windows). RStudio sends them to the Console.
+
+Anything after `#` on a line is a **comment**: R ignores it. Comments explain the code to people.
+
+```{r}
+#| label: comments
+# this whole line is a comment
+2 + 3 # a comment can follow code on the same line
+```
+
+The `[1]` at the start of the output is not part of the result. It says the line of output starts with the first value.
+
+:::
+
+# Reading code
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The three building blocks in one line
+
+Here is a typical line of R, of the kind an AI writes all the time:
+
+```{r}
+#| label: one-line
+average_yield <- mean(yields, na.rm = TRUE)
+```
+
+| Piece | What it is | Slide |
+|---|---|---|
+| `average_yield` | The name of a new **object**, which will hold the result | Objects and `<-` |
+| `<-` | Stores the result of the right-hand side under that name | Objects and `<-` |
+| `mean` | A **function**: it computes an average | Functions and their inputs |
+| `yields` | An existing object, the first **input** to the function | Functions and their inputs |
+| `na.rm = TRUE` | A named input: an option that changes what the function does | Functions and their inputs |
+
+`mean()` is built into R. Many functions are not: they come from a **package**, which has to be installed and loaded first (slide "Packages").
+
+The rest of this section takes the pieces one at a time. By the end of it, you should be able to read the line above out loud: "compute the average of `yields`, leaving out missing values, and store it as `average_yield`".
+
+## Objects and `<-`
+
+::: {.panel-tabset}
+
+### The pattern
+
+An **object** is a named thing R holds in memory: a number, some text, a table of data, a fitted model. Every object is made by the same pattern:
+
+```{r}
+#| eval: false
+name <- value
+```
+
+| Part | What it is |
+|---|---|
+| `name` | The name you will use to refer to the object later |
+| `<-` | "Store the right-hand side under this name". Read it as "gets": `a` gets 1 |
+| `value` | Anything that produces a result: a number, text, or a whole calculation |
+
+R works out the right-hand side **first**, then stores the result. So `d <- 1 == 2` stores `FALSE`, the answer to "is 1 equal to 2?", not the question.
+
+```{r}
+#| label: assign
+a <- 1
+b <- "R rocks"
+d <- 1 == 2
+```
+
+These three objects now appear in RStudio's Environment pane.
+
+### Printing an object
+
+Running an object's name on its own prints what it holds. This is the simplest check there is: did the object get the value you expected?
+
+```{r}
+#| label: print-object
+a
+b
+d
+```
+
+### Overwriting
+
+Storing under a name that already exists **replaces** the old object, without a warning:
+
+```{r}
+#| label: overwrite
+a <- 3
+a <- 1
+a
+```
+
+### `<-` versus `=`
+
+Outside a function, `name = value` does the same as `name <- value`. You will see both in AI-written code; this course uses `<-`.
+
+Inside a function's parentheses, `=` means something different: it sets one of the function's inputs. In `mean(yields, na.rm = TRUE)`, `na.rm = TRUE` does not create an object called `na.rm`. It tells `mean()` to leave out missing values (slide "Functions and their inputs").
+
+:::
+
+## Values and their types
+
+::: {.panel-tabset}
+
+### The types
+
+Every value has a **type**. The type decides what R can do with it.
+
+| Type | Examples | What it is |
+|---|---|---|
+| numeric | `1`, `1.3`, `-999` | A number, whole or with decimals |
+| character | `"Nebraska"`, `"31001"` | Text, always written inside quotation marks |
+| logical | `TRUE`, `FALSE` | The answer to a yes-or-no question |
+
+You will also see **integer** (a whole number written with an `L`, such as `3L`); it behaves like numeric.
+
+Quotation marks matter: `"31001"` is text, `31001` is a number. You cannot do arithmetic on text:
+
+```{r}
+#| label: text-arithmetic
+#| error: true
+"5" + 1
+```
+
+### Operators
+
+Arithmetic and comparisons follow the usual signs, with a few that may be new:
+
+| Operator | Meaning | Example | Result |
+|---|---|---|---|
+| `+ - * /` | add, subtract, multiply, divide | `6 / 4` | `r 6 / 4` |
+| `^` | to the power of | `2^3` | `r 2^3` |
+| `==`, `!=` | is equal to, is not equal to | `5 == 4` | `r 5 == 4` |
+| `>`, `<`, `>=`, `<=` | greater than, less than, and so on | `5 > 4` | `r 5 > 4` |
+
+A comparison gives back a logical value. `==` (two equals signs) asks a question; a single `=` sets a value. Comparisons are how rows are kept or dropped from a table later in the course.
+
+### Missing values: `NA`
+
+`NA` means "this value is missing". It is not zero, and it is not the text `"NA"`.
+
+```{r}
+#| label: na
+yields
+is.na(yields)
+```
+
+`is.na()` asks of each value "is it missing?". The third one is.
+
+Most calculations that include a missing value give `NA`, because the true answer is unknown:
+
+```{r}
+#| label: na-mean
+mean(yields)
+```
+
+How to get the average of the values that are there is on the slide "Functions and their inputs", tab "Defaults".
+
+:::
+
+## Vectors and tables
+
+::: {.panel-tabset}
+
+### Vectors
+
+A **vector** is a sequence of values, all of the **same type**. `c()` (short for "combine") makes one:
+
+```{r}
+#| label: vector
+v <- c(4, 3, 5, 9, 1)
+v
+```
+
+Arithmetic on vectors works **element by element**: the first value with the first, the second with the second, and so on.
+
+```{r}
+#| label: vector-arithmetic
+v * 2
+v + c(10, 20, 30, 40, 50)
+```
+
+R code rarely needs a loop to do the same thing to every value; this is why.
+
+### One type per vector
+
+A vector can hold only one type. Mix types, and R converts everything to the type that can hold all of them, **without an error**:
+
+```{r}
+#| label: mixed
+mixed <- c(4, 3, "5", 9, 1)
+mixed
+```
+
+Every value is now text (note the quotation marks). One text value turned the whole vector into text. When a column of numbers arrives in your analysis as text, this is usually why, and arithmetic on it will then fail or give `NA`.
+
+### Tables
+
+A **table** holds data in rows and columns. Each column is a vector, so each column has one type, but different columns can have different types. All columns have the same length. R calls a table a **data frame**; this course says table.
+
+```{r}
+#| label: table
+yield_data <- data.frame(
+  nitrogen = c(200, 180, 300),
+  yield = c(240, 220, 230),
+  state = c("Kansas", "Nebraska", "Iowa")
+)
+yield_data
+```
+
+Inside `data.frame()`, each `name = c(...)` makes one column. Values in the same position make one row.
+
+You will also see **tibble** and **data.table**. They are tables too, with some extra conveniences; read them as tables.
+
+### Other objects you will see
+
++ **list**: holds any mix of objects, each of any type and length. Results of a statistical model usually come back as a list.
++ **matrix**: values of one type in rows and columns, used for linear algebra. You will rarely meet one in this course.
+
+```{r}
+#| label: list
+a_list <- list(numbers = c(10, 20), state = "Iowa", data = yield_data)
+names(a_list)
+```
+
+### What kind of object is it?
+
+Many surprises in R come from an object not being what you thought: a column of text instead of numbers, a vector instead of a table. Three functions tell you:
+
+```{r}
+#| label: class-str
+class(yield_data)
+class(mixed)
+str(yield_data)
+```
+
+`class()` gives the kind of object; for a vector, the type of its values. `str()` (structure) gives the size and the type of every column: here `r nrow(yield_data)` rows ("obs.") and `r ncol(yield_data)` columns ("variables"), with `num` for numeric and `chr` for character. In RStudio, `View(yield_data)` opens a table in a spreadsheet-style viewer.
+
+:::
+
+## Pulling parts out of an object
+
+AI-written code constantly takes one column, some rows or one value out of an object. Whatever the object, it is done with brackets or `$`, in one of these patterns:
+
+| Pattern | Gives | Example | Result |
+|---|---|---|---|
+| `vector[position]` | values at those positions | `v[2]` | `r v[2]` |
+| `table$column` | one column, as a vector | `yield_data$yield` | `r out(yield_data$yield)` |
+| `table[condition, ]` | the rows where the condition is `TRUE`; the empty place after the comma means "all columns" | `yield_data[yield_data$yield > 225, ]` | the `r sum(yield_data$yield > 225)` rows with `yield` above 225 |
+| `list[[position]]` or `list$name` | one element of a list | `a_list$state` | `r a_list$state` |
+
+Positions count from 1, not 0. `table$column` is the one you will see most often: `mean(yield_data$yield)` reads "the average of the `yield` column of `yield_data`".
+
+```{r}
+#| label: extract
+mean(yield_data$yield)
+```
+
+The condition is itself a comparison that gives one `TRUE` or `FALSE` per row, and the rows marked `TRUE` are kept:
+
+```{r}
+#| label: extract-rows
+yield_data$yield > 225
+yield_data[yield_data$yield > 225, ]
+```
+
+## Functions and their inputs
+
+::: {.panel-tabset}
+
+### The pattern
+
+A **function** takes inputs, does something with them, and gives back a result. Every function call follows the same pattern:
+
+```{r}
+#| eval: false
+result <- function_name(first_input, name = value, ...)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `result <-` | Stores what the function gives back | No; without it, the result is printed and then gone |
+| `function_name` | What to do | Yes |
+| `( )` | Holds the inputs, separated by commas. R calls the inputs **arguments** | Yes, even if empty |
+| `first_input` | Usually the data to work on, matched by its **position** | Usually |
+| `name = value` | An option, matched by its **name** | No; each has a default |
+
+A real call:
+
+```{r}
+#| label: round
+round(3.14159, digits = 2)
+```
+
+The first input, `3.14159`, is the number to round. `digits = 2` is an option. Leave it out and `round()` uses its default, 0 digits: `round(3.14159)` gives `r round(3.14159)`.
+
+### Functions you will see
+
+All of these follow the pattern. You do not need to remember them; you need to recognise the pattern when you see them.
+
+| Function | What it gives back | Example | Result |
+|---|---|---|---|
+| `mean()`, `sum()`, `min()`, `max()` | one number summarising a vector | `sum(v)` | `r sum(v)` |
+| `length()` | how many values a vector has | `length(v)` | `r length(v)` |
+| `nrow()`, `ncol()` | rows or columns of a table | `nrow(yield_data)` | `r nrow(yield_data)` |
+| `round()` | rounded numbers | `round(2.567, digits = 1)` | `r round(2.567, digits = 1)` |
+| `seq()` | a sequence of numbers | `seq(0, 10, by = 5)` | `r out(seq(0, 10, by = 5))` |
+| `rep()` | repeated values | `rep(10, times = 3)` | `r out(rep(10, times = 3))` |
+| `is.na()` | `TRUE` where a value is missing | `is.na(c(1, NA))` | `r out(is.na(c(1, NA)))` |
+| `class()`, `str()` | what kind of object something is | `class(v)` | `r class(v)` |
+
+### Defaults
+
+Every option has a **default**: the value it takes when you do not set it, chosen by whoever wrote the function. `mean()` has an option `na.rm` (remove `NA`s) whose default is `FALSE`. That is why the average above came back `NA`:
+
+```{r}
+#| label: na-rm
+mean(yields)
+mean(yields, na.rm = TRUE)
+```
+
+With `na.rm = TRUE`, the average is of the `r sum(!is.na(yields))` values that are there: (150 + 162 + 171) / 3 = `r mean(yields, na.rm = TRUE)`.
+
+:::{.callout-important}
+AI-written code often adds `na.rm = TRUE` as a matter of routine. It removes missing values **without saying how many**. An average of 3 values out of 4 is fine; an average of 3 out of 300 is not. When you see `na.rm = TRUE`, ask how many values were left out.
+:::
+
+### Variations you will see
+
+AI-written code often arranges the same pattern differently. These change how the code looks, not what it does:
+
++ **One call inside another**: `round(mean(yields, na.rm = TRUE), digits = 1)`. Read from the inside out: first the average, then round it.
++ **Spread over several lines**: a long call, like `data.frame(...)` above, is split after commas. It is still one call; the closing `)` ends it.
++ **Inputs without names**: `round(3.14159, 2)` is the same as `round(3.14159, digits = 2)`, because `digits` is the second input. Named inputs are easier to read.
++ **The pipe**, `|>`: `yields |> mean(na.rm = TRUE)` means `mean(yields, na.rm = TRUE)`. The object on the left becomes the first input of the function on the right. You will see it in nearly every chapter from Chapter 3 on.
+
+```{r}
+#| label: pipe
+yields |> mean(na.rm = TRUE)
+```
+
+:::
+
+## Reading a help page
+
+Every function has a help page. Put `?` in front of its name, at the Console, and the page opens in the Help pane: `?seq`. Three sections tell you most of what you need.
+
+::: {.panel-tabset}
+
+### Description
+
+At the top, one or two sentences on what the function does. For `seq()`: "Generate regular sequences." If that is not what you wanted, you are on the wrong page.
+
+### Usage
+
+The function's inputs, in order, each with its default. The real `?seq` page also covers some related functions (`seq_len()`, `seq_along()` and others), so its Usage section lists several lines. The one for `seq()` itself is under `## Default S3 method:`, a technical label you can ignore:
+
+```r
+seq(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
+    length.out = NULL, along.with = NULL, ...)
+```
+
++ Each `name = value` is an input and its default. Leave out `from`, and it is 1.
++ Inputs without names are matched by position: `seq(0, 10)` means `from = 0, to = 10`.
++ `NULL` means "not set". `...` means further inputs can be passed on; you can ignore it.
+
+You only supply the inputs whose defaults you want to change. That is why `seq(0, 10)` works although `seq()` lists five inputs.
+
+### Arguments, Examples, or ask
+
+**Arguments** says what each input means. For `seq()`, `by` is the step between values and `length.out` is how many values you want, so the same sequence can be described two ways:
+
+```{r}
+#| label: seq-two-ways
+seq(0, 1, by = 0.25)
+seq(0, 1, length.out = 5)
+```
+
+**Examples**, at the very bottom, is code you can copy and run. Running an example and then looking back at Usage is often the fastest way to understand a function.
+
+You can also paste a line into an AI assistant and ask what each input does (see "Recommended requests", tab "Explain code"). The help page is the reference to check its answer against: it describes the version of the function installed on your computer, which the AI cannot see.
+
+:::
+
+## Packages: installing and loading
+
+::: {.panel-tabset}
+
+### What are packages?
+
+A package is a drawer in your workspace (the R environment) holding specialized tools (functions) for a particular set of tasks. Packages are written by R's users and shared for free; most of the functions in this course come from them.
+
+**Example packages:**
+
++ dplyr (data wrangling)
++ data.table (data wrangling)
++ ggplot2 (data visualization)
++ sf (spatial vector data handling)
++ terra (spatial raster data handling)
++ stars (spatiotemporal data handling)
+
+**tidyverse** is a package that installs and loads a set of others at once, including dplyr, ggplot2 and readr.
+
+### Installing versus loading
+
+Two separate steps:
+
++ **Install**: before you can use the tools (functions) in a drawer (package), you have to obtain the drawer. Installing downloads the package onto your computer. The name goes in quotation marks:
+
+```{r}
+#| eval: false
+install.packages("ggplot2")
+```
+
++ **Load**: you then bring the drawer into your workspace with `library()`. The name goes without quotation marks:
+
+```{r}
+#| eval: false
+library(ggplot2)
+```
+
+You can now use the tools (functions) that drawer contains.
+
+:::{.callout-note title="Install once, load every time"}
+You install a package **once per computer**, at the Console. You load it with `library()` in **every new R session** (R from the moment it starts until it is closed or restarted), and that includes every time a Quarto document is rendered, because rendering starts a fresh R session. So `library()` lines belong at the top of your document, and `install.packages()` lines do not belong in it at all: they would download the package again at every render.
+:::
+
+### When it goes wrong
+
+The two steps fail with two different errors, and the error tells you which step is missing:
+
+```{r}
+#| label: no-package
+#| error: true
+library(notapkg)
+```
+
+"There is no package called ...": the package is **not installed** (or the name is misspelled).
+
+```{r}
+#| label: no-function
+#| error: true
+tidy_table <- as_tibble(yield_data)
+```
+
+"Could not find function ...": the package that has the function is **not loaded** (here, `as_tibble()` comes from the tibble package, which also comes with dplyr and tidyverse), or the function name is misspelled.
+
+### Which package is a function from?
+
+A line does not say which package its function comes from, unless it is written as `package::function()`:
+
+```{r}
+#| eval: false
+dplyr::filter(yield_data, yield > 225)
+```
+
+`dplyr::filter` means "the `filter()` function from dplyr". It uses the function without loading the whole package, and it tells the reader where the function comes from. When you cannot tell, ask the AI, or run `?filter` after the package is loaded: if several packages have a function of that name, the help pane lists them all, each with the package it comes from. Each help page also names its package at the top left, as in `filter {dplyr}`.
+
+:::
+
+# When code fails
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Errors, and failures without one
+
+::: {.panel-tabset}
+
+### Reading an error
+
+When R cannot run a line, it stops and prints an error. Read it before anything else: it usually names the function that failed and what it objected to.
+
+```{r}
+#| label: error-sum
+#| error: true
+sum("a")
+```
+
+"invalid 'type' (character) of argument": `sum()` ran, but its input was text, and text cannot be added up.
+
+### Errors you will see
+
+Four errors you will see often:
+
+| The error says | What it means | Usual cause |
+|---|---|---|
+| `object 'x' not found` | No object has that name | A typo (R treats `Yield` and `yield` as different names), or the line that creates it was never run, or it was made in the Console but not in the document |
+| `could not find function "f"` | No loaded function has that name | The package was not loaded, or a typo |
+| `there is no package called 'p'` | The package is not installed | Not installed on this computer, or a typo |
+| `non-numeric argument to binary operator` | Arithmetic on something that is not a number | A number stored as text |
+
+When you ask an AI about an error, send the **whole** error message, the code that produced it, and what you expected. The AI cannot see your screen.
+
+### No error is not the same as right
+
+An error is the good case: you know something went wrong. Worse are lines that run and give a wrong answer. Two you have already met:
+
++ One text value in `c(...)` turned every value to text, with no error.
++ `na.rm = TRUE` leaves out missing values without saying how many.
+
+And one more. Text that looks like numbers is sorted as text, character by character:
+
+```{r}
+#| label: sort-text
+sort(c("9", "10", "100"))
+```
+
+"10" comes before "9" because "1" comes before "9". No error, wrong order. Checking the type of a value (`class()`, `str()`) would catch it.
+
+:::{.callout-important}
+Code that runs is not the same as code that is right. Deciding whether it is right is the part that stays your job.
+:::
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What the AI cannot know
+
+The AI knows R. It does not know your session or your intentions. Each of these has to be in your request:
+
+1. **The code**: paste the exact lines, not a description of them
+2. **What came out**: the whole error message or output, copied, not retyped from memory
+3. **What you expected**: the result you thought you would get, and why
+4. **What is around it**: which objects already exist and what they hold, which packages you loaded. Running `str()` on an object and pasting the output is a quick way to describe it
+5. **What you want back**: an explanation, a corrected line, or both
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can run the code and see the error itself. Still say what you expected **before** it runs, so you have something to compare its answer with.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+My R code doesn't work, please fix it.
+```
+
+The AI does not see the code, the error or what you wanted. It will guess, and a typical reply is a list of five common R mistakes, none of which may be yours.
+
+### Strong
+
+```text
+I ran these two lines:
+
+yields <- c(150, 162, NA, 171)
+average_yield <- mean(yields)
+
+average_yield prints NA. I expected the average of the three yields
+that are not missing, 161. Explain in one plain-English sentence why I
+got NA, then correct the code. Also print how many values the average
+used.
+
+Put the code in my Quarto document analysis/yields.qmd, under the
+heading "Average yield", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+The last paragraph is the **closing instructions**: the same lines end every request that asks for code. They make the AI put its code into a Quarto document, with a sentence above each piece of code, so that the result is a web page you can read and keep. Chapter 2 teaches Quarto; the full text is under "Recommended requests".
+
+`here::here()` builds a file's path from the top folder of your project, so the path works on any computer. Chapter 3 explains it.
+
+### What came back
+
+What the AI's answer looks like in the rendered page: a sentence, then the code it describes. Read each sentence, and check that the code under it does what the sentence says.
+
+`mean()` gives `NA` when any value is missing, unless told to leave missing values out with `na.rm = TRUE`.
+
+```{r}
+#| label: ai-answer-mean
+average_yield <- mean(yields, na.rm = TRUE)
+```
+
+Print the checks: how many values there are, how many are missing, and the average of the rest.
+
+```{r}
+#| label: ai-answer-check
+cat(
+  paste("values: expected 4, got", length(yields)),
+  paste("missing values: expected 1, got", sum(is.na(yields))),
+  paste("values used: expected 3, got", sum(!is.na(yields))),
+  paste("average yield: expected 161, got", average_yield),
+  sep = "\n"
+)
+```
+
+Every check matches, and each line says what it is checking. Two functions that may be new: `cat()` prints text, and `paste()` joins pieces of text into one. `sum(!is.na(yields))` counts the values that are **not** missing (`!` means "not").
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checking: what to ask for, and why
+
+::: {.panel-tabset}
+
+### Checks you can know in advance
+
+A check is only useful if you know the right answer before you see the result. The AI can write the checking code; only you can supply the answer. Sources of answers you know in advance:
+
+| | Ask the AI to print | You know the answer from |
+|---|---|---|
+| 1 | how many values, rows or columns there are | counting, or the description of the data (a help page, a codebook) |
+| 2 | the type of each key value or column | knowing what it measures: a yield is a number, a state name is text |
+| 3 | how many values are missing | the data's description, or counting them yourself on a small case |
+| 4 | the smallest and largest value | what is believable: a corn yield is not negative |
+| 5 | the result on a small case | working it out by hand, as for the average of 150, 162 and 171 |
+
+### Asking for them
+
+Say what you expect, and ask for each check in one form, so the rendered page says which passed:
+
+```text
+I expect <number> values, <number> of them missing, and an average of
+<number>. Print each check on its own line as "name of check: expected
+X, got Y".
+```
+
+If you cannot fill in a blank, that is a sign to look at the data, or its description, before asking.
+
+### A check that fails
+
+A student expected the values to be numbers. The AI's code, and what it printed:
+
+```{r}
+#| label: chk-fail
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+cat("type of mixed: expected numeric, got", class(mixed), "\n")
+```
+
+The check fails: `mixed` holds text. Nothing errored, and any average of it would be wrong or `NA`. The right move is to find out where the text came from (here, the `"5"` written in quotation marks) before going on.
+
+:::
+
+## Your turn: read the AI's code
+
+A student asked an AI to "average my yields", and got this:
+
+```{r}
+#| eval: false
+library(dplyr)
+my_yields <- c(150, 162, "171", 140)
+avg = mean(my_yields)
+avg
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each of the four lines do?
+
+B. What will `avg` print, and why? Is there an error?
+
+C. Which check from the previous slide would have caught the problem, and what would it have printed?
+
+D. Is line 1 needed?
+
+### Answers
+
+```{r}
+#| label: your-turn
+#| include: false
+my_yields <- c(150, 162, "171", 140)
+avg <- suppressWarnings(mean(my_yields))
+```
+
+A. Loads the dplyr package; stores four yields under the name `my_yields`; computes their average and stores it as `avg` (`=` does the same as `<-` here); prints `avg`.
+
+B. `r avg`. Because `"171"` is in quotation marks, the whole vector is text, and the average of text is `NA`. There is no error, only a warning ("argument is not numeric or logical: returning NA"), which is easy to miss.
+
+C. Check 2, the type: "type of my_yields: expected numeric, got `r class(my_yields)`".
+
+D. No. None of the functions used (`c()`, `mean()`) comes from dplyr; both are built into R. It does no harm, but a line you cannot explain is worth asking about.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** know. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Explain code
+
+For code you did not write, or code you are not sure about:
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+### Explain an error
+
+```text
+I ran this R code:
+
+<paste the code here>
+
+and got this message:
+
+<paste the whole error or warning here>
+
+I expected <what you expected to get>. The objects it uses hold
+<what they hold, or the output of str() on each>, and I loaded the
+packages <package names>. Explain in plain English what the message
+means and which line caused it, then correct the code.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Install packages
+
+Installing happens once, at the Console, so this request asks the AI to act rather than to write code into your document:
+
+```text
+Install the R packages <package names> on my computer, at the R
+Console, not in any document. Then load each one with library() and
+tell me whether it loaded, and its version.
+```
+
+A chat assistant cannot run anything: it will give you an `install.packages()` line to paste into the Console yourself.
+
+### Compute something, with checks
+
+```text
+In my Quarto document <path to your .qmd>, the object <object name> is
+created earlier and holds <what it holds>. Compute <what you want>.
+I expect <number> values, <number> of them missing, and a result of
+about <number>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| What an object is, and that `<-` stores a result under a name, replacing any old one | The names and the assignments |
+| That `table$column` takes one column out of a table | The extraction code |
+| The types of values, and that mixing them converts everything to text without an error | The conversions between types |
+| The pattern of a function call: name, inputs by position, options by name, defaults | Which function to use and which options to set |
+| What a default does, especially `na.rm = TRUE` | The options themselves |
+| That a help page lists each input and its default | Which inputs to set |
+| Installing (once, at the Console) versus loading (every session, at the top of the document) | The `install.packages()` and `library()` lines |
+| What the four common errors mean | The fix, once you have told it the code, the error and what you expected |
+| What a correct result looks like | The checking code |
+
+**Every time AI hands you code:** read it line by line, and name the objects, functions, inputs and packages in it. If you cannot say what a line does, ask before you keep it. Then judge the result by checks whose answer you knew beforehand.

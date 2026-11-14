@@ -1,0 +1,166 @@
+---
+title: "Ex-3-3: Reshaping and Merging, with an AI Assistant"
+abstract: "Data Wrangling"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/3-3-corn_yield_wide.csv
+  - data/3-3-drought.csv
+  - worksheets/ex-3-3.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+library(tidyr)
+yield_wide <- read_csv("data/3-3-corn_yield_wide.csv", col_types = cols(county_code = "c"))
+drought <- read_csv("data/3-3-drought.csv", col_types = cols(fips = "c"))
+
+n_county <- nrow(yield_wide)
+yield_cols <- grep("^yield_", names(yield_wide), value = TRUE)
+n_years <- length(yield_cols)
+n_missing_wide <- sum(is.na(yield_wide[yield_cols]))
+total_wide <- sum(yield_wide[yield_cols], na.rm = TRUE)
+
+state_codes <- c(Colorado = "08", Kansas = "20", Nebraska = "31")
+yield_long <- yield_wide |>
+  pivot_longer(all_of(yield_cols), names_to = "year", names_prefix = "yield_",
+               values_to = "corn_yield", values_drop_na = TRUE) |>
+  mutate(year = as.integer(year),
+         fips = paste0(state_codes[state_name], county_code))
+
+dups <- drought |> group_by(fips, year) |> filter(n() > 1) |> ungroup()
+n_dup_pairs <- nrow(distinct(dups, fips, year))
+dup_states <- unique(substr(dups$fips, 1, 2))
+dup_years <- unique(dups$year)
+dups_identical <- nrow(distinct(dups)) == n_dup_pairs
+
+merged_raw <- left_join(yield_long, drought, by = c("fips", "year"))
+merged <- left_join(yield_long, distinct(drought), by = c("fips", "year"),
+                    relationship = "many-to-one")
+unmatched_yield <- nrow(anti_join(yield_long, drought, by = c("fips", "year")))
+unmatched_drought <- nrow(anti_join(distinct(drought), yield_long, by = c("fips", "year")))
+ks16 <- sum(yield_long$state_name == "Kansas" & yield_long$year == 2016)
+
+by_sy <- merged |>
+  group_by(state_name, year) |>
+  summarise(avg = mean(corn_yield), counties = n(), .groups = "drop")
+report <- by_sy |> select(-counties) |> pivot_wider(names_from = year, values_from = avg)
+report_n <- by_sy |> select(-avg) |> pivot_wider(names_from = year, values_from = counties)
+fewest_all <- by_sy |> filter(counties == min(counties))
+
+co_n <- sum(yield_long$state_name == "Colorado")
+```
+
+This is an in-class exercise. Before class, work through the lecture **03-3: Reshaping and Merging**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what the files contain, asking for the right thing and the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Use the `ch3-practice` project from Ex-3-1. If you do not have it, make an R Project folder called `ch3-practice` with two subfolders, `data` and `analysis` (you may ask the AI how).
+2. Download the worksheet, [ex-3-3.qmd](worksheets/ex-3-3.qmd), and the data files [3-3-corn_yield_wide.csv](data/3-3-corn_yield_wide.csv) and [3-3-drought.csv](data/3-3-drought.csv).
+3. Copy both data files into `ch3-practice/data`, and the worksheet into `ch3-practice/analysis`.
+4. Open the project, open the worksheet, and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch3-practice` and nothing longer.
+:::
+
+The two files are a teaching dataset, built from US Department of Agriculture county yields and the US Drought Monitor. One problem has been put into one of them on purpose; finding it is part of the exercise.
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Read and look
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. One row is one county. The year is in the column names: `r paste(yield_cols, collapse = ", ")`. `yield_wide` has `r n_county` rows and `r ncol(yield_wide)` columns.
+
+B. One row should be one county in one year, identified by `fips` and `year`. `drought` has `r nrow(drought)` rows.
+
+C. `yield_wide` uses two columns, `state_name` and a 3-digit `county_code`. `drought` uses one, `fips`: 5 digits, the 2-digit state code followed by the same 3-digit county code. So Baca County, Colorado is `Colorado` and `009` in one table and `08009` in the other. The keys have to be made the same before merging; the AI cannot know that unless you tell it how they relate.
+
+D. `r n_missing_wide` of the `r n_county * n_years` yield cells are missing. Those county-years are absent from the source: county yields are not published for every county in every year (for example, when too few farms report). In the wide layout, every county gets a cell for every year, so an absent county-year shows up as a missing value.
+:::
+
+## Task 2: Wide to long
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** Keeping missing yields: `r n_county` counties × `r n_years` years = `r n_county * n_years` rows. Dropping them: `r n_county * n_years` − `r n_missing_wide` = `r nrow(yield_long)` rows. The total of all yields is `r format(total_wide, big.mark = ",")` before and after.
+
+**Result.** `r nrow(yield_long)` rows, no missing values, `year` a whole number, and the totals match.
+
+The blanks, filled in: one row is "one county", the columns are `r paste(yield_cols, collapse = ", ")`, and one row of the result is "one county in one year".
+
+If `year` came back as text such as `"yield_2014"`, the request's "Turn year into a whole number" was not followed; the type check shows it. A text `year` would also make the merge in Task 4 stop with an error, since `year` is a number in `drought`.
+:::
+
+## Task 3: Look at the keys
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** None in either table: each should have one row per county and year.
+
+**Result.** `yield_long` has none. `drought` has `r nrow(drought)` rows but only `r nrow(distinct(drought, fips, year))` distinct `fips`-`year` pairs: `r n_dup_pairs` pairs appear twice.
+
+A. Every repeated row is from state code `r dup_states` (Kansas) in `r dup_years`: every Kansas county in that year appears twice. A whole state and year repeated together suggests how the file was put together, for example from two downloads that overlapped by one year.
+
+B. They are `r if (dups_identical) "exact copies: the same weeks in both rows" else "not exact copies"`. Exact copies can be reduced to one row each without losing anything. If the values had differed, you could not pick one without knowing which is right; that would be a question for whoever produced the file, not something to settle in code.
+
+C. `r nrow(merged_raw)` rows instead of `r nrow(yield_long)`. Each of the `r ks16` Kansas counties with a 2016 yield would appear twice, so any average over county-years would count Kansas 2016 twice. No warning: `dplyr` warns only when rows repeat on both sides of the match.
+:::
+
+## Task 4: Merge
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** `r nrow(yield_long)` rows, the same as `yield_long`. After the copies are removed, `drought` has `r nrow(distinct(drought))` county-years, the same number as `yield_long`, so if the keys are built correctly every row of each should match: 0 unmatched rows on both sides.
+
+**Result.** `r nrow(merged)` rows; no repeated keys after the copies are removed; `r unmatched_yield` unmatched rows of `yield_long` and `r unmatched_drought` of `drought`.
+
+The middle blank, filled in, reads something like: "In yield_long, build a fips column by putting the state code (Colorado 08, Kansas 20, Nebraska 31) in front of county_code, as text. In drought, the rows for Kansas in 2016 appear twice as exact copies; keep one of each."
+
+**The sentence above the key-building chunk.** If the AI looked up state codes itself, check them against the three you gave it. A wrong code, or a `county_code` that had lost its leading zeros (`9` instead of `009`), makes whole states fail to match; the unmatched-rows check shows it as a number far above 0.
+
+The `relationship` option did its job only because you dealt with the copies first. Run the merge on the original `drought` and the code stops with an error, which is the point of asking for it.
+:::
+
+## Task 5: Long to wide, for a report (if time allows)
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** `r nrow(report)` rows (one per state) and `r ncol(report)` columns (the state and `r n_years` years). No missing cells: each state has at least one county with a yield in every year.
+
+**Result.**
+
+```{r}
+#| label: show-report
+#| echo: false
+knitr::kable(report, digits = 1)
+```
+
+And the number of counties behind each average:
+
+```{r}
+#| label: show-report-n
+#| echo: false
+knitr::kable(report_n)
+```
+
+The averages are not equally trustworthy. The smallest number of counties behind an average is `r min(by_sy$counties)`, for `r paste(paste(fewest_all$state_name, fewest_all$year), collapse = " and ")`, while Nebraska's averages rest on dozens. Which counties report a yield also changes from year to year, so a change in a state's average can come from a change in which counties are included, not from a change in yields. A note under the table should give the number of counties behind each average, or the table should include `report_n`.
+:::
+
+## Task 6: Kim's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Reads the drought file; keeps the rows of `yield_long` whose `fips` appears in `drought`, adding the drought columns.
+
+B. `read.csv()` reads `fips` as a number, so `08009` becomes `8009`. The join then stops with an error, because `fips` is text in `yield_long` and a number in `drought`. If the AI "fixes" that by turning the number back into text, Colorado's codes are `"8009"` and so on, which match nothing, and `inner_join()` drops all `r co_n` Colorado rows without a message.
+
+C. `year`. Each county-year row of `yield_long` matches every year of that county in `drought`, so a county with 5 years in each becomes 25 rows. Because `fips` repeats in both tables, `dplyr` prints a warning about a "many-to-many relationship".
+
+D. Rows before and after (both problems), repeated keys (C: with `fips` alone as the key, almost every key repeats), unmatched rows (B: all Colorado rows unmatched), and the type of `fips` in each table (B).
+:::

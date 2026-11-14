@@ -1,0 +1,177 @@
+---
+title: "Ex-9-7: Getting Spatial Data from Online Sources, with an AI Assistant"
+abstract: "Spatial Data"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/9-7-ppt-kansas.tif
+  - worksheets/ex-9-7.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk. The files read here were downloaded by
+# exercises/data-prep/make-9-7-downloads.R; students download their own.
+suppressMessages({
+  library(sf)
+  library(terra)
+  library(dplyr)
+})
+ks <- st_read("data/9-7-ks-counties.gpkg", quiet = TRUE)
+states <- readr::read_csv("data/9-7-states-table.csv", show_col_types = FALSE)
+ppt_file <- rast("data/9-7-ppt-kansas.tif")
+# Crop as students will, with the default snap
+ppt <- crop(ppt_file, vect(ks))
+
+# Task 2
+n_ks <- nrow(ks)
+crs_ks <- st_crs(ks)$Name
+ks_states <- paste(unique(ks$STATE_NAME), collapse = ", ")
+
+# Task 3
+n_states <- nrow(states)
+not_contig <- c("Alaska", "Hawaii")
+extra <- states$NAME[!states$NAME %in% state.name]
+n_extra <- length(extra)
+n_contig <- sum(states$NAME %in% setdiff(state.name, not_contig))
+
+# Task 4
+n_lyr <- nlyr(ppt)
+dates <- sub(".*_(\\d{8})$", "\\1", names(ppt))
+crs_ppt <- crs(ppt, describe = TRUE)$name
+rng_day <- round(global(ppt, range, na.rm = TRUE), 1)
+max_day <- dates[which.max(rng_day[, 2])]
+max_val <- max(rng_day[, 2])
+
+# Task 5
+tot <- sum(ppt)
+names(tot) <- "ppt_total"
+ex <- terra::extract(tot, vect(ks), exact = TRUE) |>
+  filter(!is.na(ppt_total)) |>
+  group_by(ID) |>
+  summarise(ppt_mm = sum(ppt_total * fraction) / sum(fraction))
+ks_ppt <- tibble(ID = seq_len(n_ks), NAME = ks$NAME) |> left_join(ex, by = "ID")
+n_noval <- sum(is.na(ks_ppt$ppt_mm))
+in_box <- function(r) relate(vect(ks), vect(ext(r), crs = crs(r)), "within")[, 1]
+n_out <- sum(!in_box(tot))
+out_names <- ks$NAME[!in_box(tot)]
+out_km <- round((st_bbox(ks)["xmax"] - xmax(tot)) * 111.32 * cos(39.1 * pi / 180), 1)
+tot_out <- crop(sum(ppt_file), vect(ks), snap = "out")
+n_out_fixed <- sum(!in_box(tot_out))
+rng_cty <- round(range(ks_ppt$ppt_mm, na.rm = TRUE), 1)
+wettest <- ks_ppt$NAME[which.max(ks_ppt$ppt_mm)]
+driest <- ks_ppt$NAME[which.min(ks_ppt$ppt_mm)]
+
+# Task 6
+# The list was saved by make-9-7-downloads.R; rnassqs cannot list items without a key
+soy_items <- readr::read_csv("data/9-7-nass-soy-items.csv", show_col_types = FALSE)$short_desc
+```
+
+This is an in-class exercise. Before class, work through the lecture **09-7: Getting Spatial Data from Online Sources**. In class, you download the data yourself, with an AI assistant writing the code. Your job is everything the AI cannot do: deciding what data the question needs, knowing what should arrive, and judging whether what arrived is that.
+
+# Setup {#sec-setup}
+
+1. **Before class**, if you want to do Task 6: request a free USDA-NASS Quick Stats key at <https://quickstats.nass.usda.gov/api>. It arrives by email, sometimes after a delay. Add a line `NASS_API_KEY=your-key` to the file `.Renviron` in your home folder (ask the AI how to open it), then restart R. Never put the key in a `.qmd`.
+2. Download the worksheet, [ex-9-7.qmd](worksheets/ex-9-7.qmd). There are no data files to download from here: you download the data in class. The one exception is the fallback file below.
+3. Use the R Project folder `ch9-practice` from the earlier Chapter 9 exercises, or make one, with two subfolders, `data` and `analysis`. Inside `data`, make a folder `raw` for downloads. You may ask the AI how to do this.
+4. Copy the worksheet into `ch9-practice/analysis`.
+5. Ask the AI to install the `sf`, `terra`, `tidyterra`, `tigris` and `prism` packages, and `rnassqs` if you will do Task 6.
+6. Open the worksheet and start at Task 1.
+
+::: {.callout-note title="If PRISM refuses the download"}
+PRISM refuses a file downloaded more than twice in a day, which can happen in a class where many people download the same days. If PRISM refuses the download, use this file: [9-7-ppt-kansas.tif](data/9-7-ppt-kansas.tif). It holds the five days of Task 4, one layer per day, cut to a rectangle a little larger than Kansas. Save it as `data/raw/9-7-ppt-kansas.tif` and tell the AI to read it instead of downloading.
+:::
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch9-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has.
+:::
+
+The numbers below come from downloads made on 14 November 2026. Sources occasionally revise their data, so yours may differ slightly; a large difference is worth asking about.
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: The five decisions
+
+::: {.callout-note collapse="true" title="What you should find"}
+| Decision | Answer |
+|---|---|
+| Dataset and variable | PRISM daily precipitation (`ppt`); Census county boundaries |
+| Area | Kansas |
+| Time | 10 to 14 July 2023, five days; boundaries for a year near 2023 |
+| Spatial unit of the result | county |
+| Units of the values | millimetres (PRISM's documentation) |
+
+Two datasets: county boundaries with `tigris`, and daily precipitation with `prism`. Kansas has `r n_ks` counties.
+:::
+
+## Task 2: Kansas county boundaries
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_ks` features, in `r crs_ks` longitude and latitude, all in `r ks_states`. The map shows the rectangle of Kansas with its north-eastern corner cut by the Missouri River.
+
+On the second render, the file exists, so the download step is skipped and the file is read. If it downloaded again, the code is missing the "only if the file does not exist" condition; ask the AI to add it.
+:::
+
+## Task 3 (if time allows): A map of the contiguous states
+
+::: {.callout-note collapse="true" title="What you should find"}
+**`r n_states` features, not 48 or 50.** Besides the 50 states, the file holds `r n_extra` more: `r paste(extra, collapse = ", ")`. These are the District of Columbia and the US territories, which the Census Bureau publishes with the states. With Alaska and Hawaii, `r n_states - 48` features are not contiguous states.
+
+Nothing failed: the function returned what the Census Bureau calls "states and equivalent entities". Only the count check, and the list of names, showed that it was not what you meant. Drawn on a map, the territories and Alaska also stretch the map across the Pacific, which is often how people first notice.
+
+A request that keeps what you need:
+
+```text
+From the states layer, keep only the 48 contiguous states: drop Alaska,
+Hawaii, the District of Columbia and the territories. Then check: the
+number of features (I expect 48), and draw a map.
+```
+
+`r n_contig` features remain. Whether to keep the District of Columbia is a decision about your map; say which in the request.
+:::
+
+## Task 4: Daily rain from PRISM
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_lyr` layers, with the dates `r paste(dates, collapse = ", ")` in their names, in `r crs_ppt` longitude and latitude, with cells of 0.0417 degrees (about 4 km). Daily values over Kansas range from 0 to `r max_val` mm, the largest on `r max_day`.
+
+The units are not in the raster. They are in PRISM's documentation, and in the `.info.txt` file the download saved beside each `.bil`. That file is where "mm" in your checks comes from.
+
+The blanks, filled in: `ppt`, `2023-07-10`, `2023-07-14`, `5`, and a range such as 0 to 150 (a single day's rain above about 150 mm anywhere in Kansas would be extraordinary).
+:::
+
+## Task 5: Rain in each county
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_ks` rows and `r n_noval` counties with no value, but one check fails: **counties not entirely inside the raster's rectangle: expected 0, got `r n_out` (`r paste(out_names, collapse = ", ")`)**.
+
+You cropped the raster to the counties, so how can a county stick out? `crop()` cuts along cell edges, and by default it rounds the counties' rectangle to the **nearest** cell edge. Where the nearest edge lies inside the counties' rectangle, a sliver of the edge county is cut off: here about `r out_km` km of `r paste(out_names, collapse = ", ")` County's eastern tip, on the Missouri River. Its average comes from the rest of the county, with no NA and no warning.
+
+The fix is to round outward: `crop(ppt, counties, snap = "out")` keeps every cell any county touches. With it, the same check gives `r n_out_fixed`. A sliver this small barely moves one county's average, but the same rounding on a coarser raster cuts off whole cells.
+
+County averages of the five-day total range from `r rng_cty[1]` mm (`r driest`) to `r rng_cty[2]` mm (`r wettest`). Summer rain in Kansas comes from storms, so neighbouring counties can differ a great deal over a few days; compare the county map with the daily maps of Task 4, where the same pattern should be visible.
+
+The checks from lecture 09-6 caught a problem created by your own code, in a step that looked too simple to need checking.
+:::
+
+## Task 6: Statistics from USDA-NASS
+
+::: {.callout-note collapse="true" title="What you should find"}
+The search returns `r length(soy_items)` items. The one for all soybeans is `SOYBEANS - ACRES HARVESTED`; the others are parts of it (irrigated, non-irrigated, double cropped, organic, and so on). Choosing among them is your decision, not the AI's. At most `r n_ks` counties times 3 years, `r n_ks * 3` rows, can arrive.
+
+These answers cannot list your exact numbers, because the download needs your own key, and they were written without one: the `rnassqs` code was not run for this page. The list of items above comes from the `tidyUSDA` package's saved list of NASS items. What to look for in your HTML:
+
++ **Fewer rows than counties times years.** NASS does not publish a county when too few farms report, and western Kansas grows few soybeans. Count the counties per year and compare with `r n_ks`.
++ **Rows that are not counties.** Rows named `OTHER (COMBINED) COUNTIES`, county code 998, combine the unpublished counties of one district. They are not counties, and must not be mapped or averaged with them.
++ **Units and type.** `unit_desc` should say `ACRES`. `Value` is acres harvested in the county, not a share, and may arrive as text with commas (`12,300`) and `(D)` for withheld values; converting it to a number turns `(D)` into NA, so ask how many became missing.
+
+If any year is missing entirely, NASS may not have published the survey for that year yet. That is a check on "which years arrived", which you asked for.
+:::

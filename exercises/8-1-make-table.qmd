@@ -1,0 +1,171 @@
+---
+title: "Ex-8-1: Communicating with Tables, with an AI Assistant"
+abstract: "Make Tables"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/8-1-county-crops.csv
+  - worksheets/ex-8-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+library(tidyr)
+library(flextable)
+
+crops <- read_csv("data/8-1-county-crops.csv", show_col_types = FALSE)
+
+by_state <- crops |>
+  mutate(drought = weeks_extreme >= 1) |>
+  group_by(state_name) |>
+  summarise(
+    none = mean(corn_yield[!drought]),
+    with = mean(corn_yield[drought]),
+    n_none = sum(!drought),
+    n_with = sum(drought),
+    diff = with - none
+  )
+v <- function(st, col) by_state[[col]][by_state$state_name == st]
+r1 <- function(x) format(round(x, 1), nsmall = 1)
+gap_range <- paste(round(min(-by_state$diff)), "to", round(max(-by_state$diff)))
+n_small <- sum(crops$weeks_extreme > 0 & crops$weeks_extreme < 1)
+
+sam <- crops |>
+  mutate(drought = weeks_extreme >= 1) |>
+  group_by(state_name, drought) |>
+  summarise(yield = mean(corn_yield), .groups = "drop") |>
+  pivot_wider(names_from = drought, values_from = yield)
+```
+
+This is an in-class exercise. Before class, work through the lecture **08-1: Communicating with Tables**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: deciding what the table should tell the reader, choosing its layout, and judging whether the numbers are right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-8-1.qmd](worksheets/ex-8-1.qmd), and the data file [8-1-county-crops.csv](data/8-1-county-crops.csv).
+2. Make an R Project folder called `ch8-practice`, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy `8-1-county-crops.csv` into `ch8-practice/data`, and the worksheet into `ch8-practice/analysis`.
+4. Ask your AI assistant to install `flextable` and `gt` if you have not already.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch8-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look and predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r nrow(crops)` data rows, below one line of column names.
+
+B. One county in one year.
+
+C. Many readers would do. For example: farmers and extension agents in the three states, who know what drought does to corn but have not seen the numbers across all counties. Or an advisor, who knows the data source but wants the size of the effect. The reader decides how much the notes must explain: a farmer needs "bushels per acre" spelled out and the drought categories explained; an advisor may not.
+:::
+
+## Task 2: The message and the layout
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. Something like: "In all three states, corn yields were about ___ bushels per acre lower in county-years with extreme drought."
+
+B. A layout that serves this message:
+
++ One row per state.
++ Columns: the state; the average yield without extreme drought; the average yield with it; the difference; the number of county-years behind each average.
++ The difference is the comparison the message is about, so it gets its own column, and the reader does not have to subtract.
++ The rows ordered by the difference, or in a natural order the reader knows. With three rows, either works; say which you chose and why.
+
+Other layouts can work (see Task 5). What matters is that you decided it, not the AI.
+
+C. `r nrow(crops)`, the number of rows in the data: every county-year is either with or without extreme drought.
+:::
+
+## Task 3: Ask badly
+
+::: {.callout-note collapse="true" title="What you should find"}
+What comes back varies, but it usually fails items 1, 3 and 10 to 12 of the table standard: raw column names such as `state_name` and `corn_yield`, several decimals, and no title or notes. It also has to guess things only you decided:
+
++ what "drought" means: any week of extreme drought, a week or more, or one of the milder categories;
++ whether to show averages, totals or something else;
++ the layout: which comparison goes down a column;
++ whether to show the number of county-years.
+
+If your AI used `weeks_extreme > 0` as the definition, notice that `r n_small` county-years have more than 0 but less than 1 week of extreme drought. Two reasonable definitions give two different tables, and only a note says which one the reader is looking at.
+:::
+
+## Task 4: Ask properly
+
+::: {.callout-note collapse="true" title="What you should find"}
+Average corn yield (bushels per acre), and the number of county-years behind each average:
+
+| State | Without extreme drought | With extreme drought | Difference |
+|---|---|---|---|
+| Colorado | `r r1(v("Colorado", "none"))` (`r v("Colorado", "n_none")`) | `r r1(v("Colorado", "with"))` (`r v("Colorado", "n_with")`) | `r r1(v("Colorado", "diff"))` |
+| Kansas | `r r1(v("Kansas", "none"))` (`r v("Kansas", "n_none")`) | `r r1(v("Kansas", "with"))` (`r v("Kansas", "n_with")`) | `r r1(v("Kansas", "diff"))` |
+| Nebraska | `r r1(v("Nebraska", "none"))` (`r v("Nebraska", "n_none")`) | `r r1(v("Nebraska", "with"))` (`r v("Nebraska", "n_with")`) | `r r1(v("Nebraska", "diff"))` |
+
+Checks: 3 rows; the counts add up to `r sum(by_state$n_none) + sum(by_state$n_with)`, which should equal the `r nrow(crops)` rows of the data.
+
+**The message, filled in:** "In all three states, corn yields were about `r gap_range` bushels per acre lower in county-years with at least one week of extreme drought."
+
+**Rounding.** Whole bushels are enough for this message; one decimal is also fine. More than one decimal claims a precision that county yield estimates do not have.
+
+**Notes the table needs:** the source; what "with extreme drought" means (at least one week from May to September in category D3 or D4); that the numbers are averages over county-years; and the counts, which differ a lot: Colorado's drought average rests on `r v("Colorado", "n_with")` county-years, Nebraska's on `r v("Nebraska", "n_with")`.
+
+**What this table does not show.** The difference is not the effect of drought alone. Drought years differ from other years in other ways too (yields rose over these 19 years, and the worst droughts came in 2002, 2012 and 2013). A careful note says "lower in", not "caused by".
+:::
+
+## Task 5: Two layouts
+
+::: {.callout-note collapse="true" title="What you should find"}
+**One row per state** puts the two averages for each state side by side and, with a difference column, puts the three differences down one column. That serves a message about how large the drop is and whether it is similar across states.
+
+**One row per drought status, one column per state** puts the three states side by side. That serves a message comparing states, such as "Nebraska has the highest yields, with or without drought". For the drought message, the reader has to compare up and down within each column, and there is no natural place for the difference.
+
+For the message in Task 2, one row per state is the better choice. If your message was about the states rather than the drought, the second layout may be better. Either answer is right if your reason names the comparison the reader must make.
+:::
+
+## Task 6: Sam's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Mark each county-year as with or without extreme drought; group by state and drought status; average the corn yield in each group; put the two drought statuses side by side as columns; turn the result into a table; rename the headers; round to whole numbers. The first four steps decide the numbers. `flextable()`, `set_header_labels()` and `colformat_double()` only change how it looks.
+
+B. `TRUE`. `drought` is `TRUE` when `weeks_extreme` is 1 or more.
+
+C. The two drought headers are swapped. `FALSE` (no extreme drought) is labelled "Extreme drought", and `TRUE` is labelled "No extreme drought". Sam's table shows:
+
+```{r}
+#| label: sam-table
+#| echo: false
+sam |>
+  flextable() |>
+  set_header_labels(
+    state_name = "State",
+    `FALSE` = "Extreme drought",
+    `TRUE` = "No extreme drought"
+  ) |>
+  colformat_double(digits = 0)
+```
+
+A reader would conclude that yields were **higher** in drought, by about `r gap_range` bushels per acre, the opposite of the truth. No error, no warning.
+
+D. Two checks, either of which catches it:
+
+1. **A check from knowing the data.** Drought lowers corn yields, so the "Extreme drought" column should be the lower one. It is the higher one in every state. That alone says something is wrong.
+2. **One value computed a second way.** For example, the average yield of Colorado county-years with `weeks_extreme` of 1 or more is `r r1(v("Colorado", "with"))`, computed with `filter()` and `mean()` (or in a spreadsheet). Sam's table puts `r round(v("Colorado", "with"))` under "No extreme drought".
+
+Also, the table misses items 1 (units) and 10 to 13 (title, notes, counts), and has no difference column.
+
+E. It shows Sam's table above. The fix is to label `FALSE` "No extreme drought" and `TRUE` "Extreme drought", or better, to give the columns plain names in the display table before `flextable()`, so the headers do not depend on remembering which of `TRUE` and `FALSE` is which.
+:::

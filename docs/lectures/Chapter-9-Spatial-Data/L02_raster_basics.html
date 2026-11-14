@@ -1,0 +1,1848 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <title>Data Science with R (AECN 896-05) – 09-2: Raster Data</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <!--
+    Support for collapsible "Transcript" panels in revealjs decks.
+
+    Include it from a deck's YAML header, with the path relative to the qmd:
+
+        format:
+          revealjs:
+            include-in-header: ../transcript-support.html
+
+    Then add a transcript anywhere inside a slide (or inside a single tab of a
+    tabset, which is the usual case):
+
+        <details class="transcript">
+        <summary>Transcript</summary>
+
+        What the lecturer says about this tab.
+
+        </details>
+
+    On a tab whose figure fills the whole slide there is no free rectangle to
+    overlay, so add "inline" and the panel joins the flow when opened, pushing the
+    figure down instead of covering it:
+
+        <details class="transcript inline">
+
+    Use it only where it is needed. Measure rather than guess: an open panel must
+    not overlap a ".cell-output-display". The collapsed pill still costs 0px in
+    both variants, which is the property the whole design exists to preserve.
+
+    It must live in the header rather than the body of a qmd: raw HTML placed
+    above the first "##" heading becomes its own untitled slide.
+
+    <details> is a native HTML element, so the collapse/expand works with no
+    JavaScript at all, including in a self-contained (embed-resources) file. The
+    script at the bottom adds one behaviour on top: collapsing an open panel when
+    the reader moves on. Without it everything still works, panels just keep their
+    open state.
+
+    Audience: students reviewing after class. These are not presenter notes -
+    reveal's own ".notes" blocks are the presenter-only mechanism.
+  -->
+  <style>
+  /* The panel is positioned against the slide rather than sitting in its normal
+     flow. That is the whole point: collapsed it costs the slide no vertical
+     space, and opened it overlays the content instead of pushing it off the
+     bottom edge. Each panel lives inside its own tab, and hidden tabs do not
+     render, so only the visible tab's transcript is ever shown. */
+  .reveal details.transcript {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    width: auto;
+    font-size: 0.55em;
+    line-height: 1.45;
+    text-align: left;
+    border-radius: 6px;
+    /* custom.scss styles every bare <details> as an "answer box" (grey border
+       plus padding) for Quarto's folded-code blocks. Opt out of both here so the
+       collapsed pill is not sitting inside a grey rectangle. */
+    border: none;
+    padding: 0;
+  }
+
+  /* Collapsed: a small pill that hugs the top-right corner. */
+  .reveal details.transcript > summary {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+    outline: none;
+    /* custom.scss pulls every bare <summary> with a negative margin; undo it. */
+    margin: 0;
+    padding: 0.15em 0.7em;
+    border: 1px solid #06a666;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #06a666;
+    font-weight: 600;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .reveal details.transcript > summary::-webkit-details-marker { display: none; }
+  .reveal details.transcript > summary::before { content: "\25B8\00A0"; }
+  .reveal details.transcript[open] > summary::before { content: "\25BE\00A0"; }
+
+  /* Opened: a tall, narrow panel down the right-hand side, where slide content
+     rarely reaches. It starts below the tab bar so tab names stay clickable
+     while a transcript is open, and runs down to just above the footer.
+
+     Measured as a share of the 700px logical slide. A top-level tab bar ends at
+     12.4-13%, so 21% clears it everywhere.
+
+     A tab bar that sits lower on the slide is cleared HORIZONTALLY instead: the
+     panel occupies x 62-100%, and no tab row measured so far reaches past x 66%.
+     Cases seen, all fine:
+       00-1  nested tabset          18.9%, names reach x 15%
+       00-1  tabset below prose     40.8%, names reach x 59%
+       01-2  nested tabset          29.6%, names reach x 46%
+     So the rule to preserve is not "top clears every tab bar" but "no tab NAME
+     overlaps the panel's rectangle". Re-check that if a deck grows a long tab row
+     sitting low on the slide. */
+  .reveal details.transcript[open] {
+    top: 21%;
+    width: 36%;
+    max-height: 75%;
+    overflow-y: auto;
+    padding: 0.55em 0.85em 0.7em;
+    background: #f4fbf8;
+    border: 1px solid #06a666;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+  }
+  .reveal details.transcript[open] > summary {
+    display: block;
+    padding: 0 0 0.4em 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .reveal details.transcript p { margin: 0.35em 0; }
+
+  /* Opt-out, applied per tab as class="transcript inline".
+     Some figures are rendered at out-width 80% and span x 1.4-98.6% of the slide,
+     running from just under the tab bar down to y ~95%. There is no rectangle
+     left to overlay, so on those tabs the panel joins the normal flow when opened
+     and pushes the figure down; the slide is "scrollable: true", so the figure
+     stays reachable. Note this rule only touches [open]: collapsed, the pill is
+     still absolutely positioned at the top-right corner and still costs 0px. */
+  .reveal details.transcript.inline[open] {
+    position: static;
+    width: auto;
+    max-height: none;
+    overflow-y: visible;
+    margin: 0 0 0.9em 0;
+  }
+
+  /* No .slide-logo rule here: no deck in this course sets a "logo:" in its YAML,
+     so the bottom-right corner the panel would collide with is already free. If
+     a logo is ever added, move it out of the way with
+     .reveal .slide-logo { right: auto !important; left: 56px !important; }
+     where 56px clears reveal's menu button at x 8-43px. */
+  </style>
+
+  <script>
+  // Collapse any open transcript when the reader moves to another slide or
+  // another tab, so a panel left open never reappears over unrelated content.
+  (function () {
+    function closeAll() {
+      document.querySelectorAll("details.transcript[open]")
+        .forEach(function (d) { d.open = false; });
+    }
+
+    // Slide changes come from reveal, which is not ready when this runs.
+    function hookReveal() {
+      if (window.Reveal && typeof Reveal.on === "function") {
+        Reveal.on("slidechanged", closeAll);
+        Reveal.on("overviewshown", closeAll);
+        return true;
+      }
+      return false;
+    }
+    if (!hookReveal()) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (hookReveal() || ++tries > 100) clearInterval(timer);
+      }, 100);
+    }
+
+    // Tab changes are plain clicks; capture so this runs before the tab switches.
+    document.addEventListener("click", function (e) {
+      var el = e.target;
+      if (el && el.closest && el.closest('.panel-tabset [role="tab"]')) closeAll();
+    }, true);
+  })();
+  </script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">09-2: Raster Data</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="how-this-lecture-works" class="title-slide slide level1 center">
+<h1>How this lecture works</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-will-and-will-not-learn-today" class="slide level2 scrollable">
+<h2>What you will and will not learn today</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">The plan</a></li><li><a href="#tabset-1-2">Directions</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<p>Weather, elevation, soil and satellite images come as <strong>raster data</strong>: a grid of cells, each with a value. An AI assistant can read any raster format and compute anything on it. What it cannot do is:</p>
+<ul>
+<li>know what the numbers in the cells mean: their units, their scale, which value means “no data”</li>
+<li>know where the grid should be</li>
+<li>tell whether a value it computed is believable</li>
+</ul>
+<p>Those are your job. So today is about:</p>
+<ol type="1">
+<li><strong>The concept</strong>: what a raster is, and what has to be true before its values can be used</li>
+<li><strong>Reading code</strong>: recognising what a line of raster code does</li>
+<li><strong>Asking AI</strong>: what to put in your request</li>
+<li><strong>Checking</strong>: what to print for every raster, and why</li>
+</ol>
+</div>
+<div id="tabset-1-2">
+<ul>
+<li>Ask your AI assistant to install the <code>terra</code> and <code>tidyterra</code> packages if you have not already. <code>terra</code> reads and computes on rasters; <code>tidyterra</code> lets <code>ggplot2</code> draw them.</li>
+<li>The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with <code>here::here()</code> (lecture 03-1).</li>
+</ul>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="the-concept" class="title-slide slide level1 center">
+<h1>The concept</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="a-raster-is-a-grid-of-cells" class="slide level2">
+<h2>A raster is a grid of cells</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">The idea</a></li><li><a href="#tabset-2-2">A whole raster</a></li><li><a href="#tabset-2-3">Close up</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<p>A raster covers a rectangle with a grid of equal cells. Each cell holds one value. What describes the grid:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Term</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Extent</strong></td>
+<td>The rectangle the grid covers: lowest and highest x, lowest and highest y</td>
+</tr>
+<tr class="even">
+<td><strong>Resolution</strong></td>
+<td>The width and height of one cell, in the units of the CRS</td>
+</tr>
+<tr class="odd">
+<td><strong>Rows and columns</strong></td>
+<td>How many cells down and across</td>
+</tr>
+<tr class="even">
+<td><strong>CRS</strong></td>
+<td>What the x and y numbers mean, as in lecture 09-1</td>
+</tr>
+<tr class="odd">
+<td><strong>Layers</strong></td>
+<td>A raster can hold several grids on the same cells, for example one per day. Each layer has a name.</td>
+</tr>
+</tbody>
+</table>
+<p>A cell with no value (outside the area measured, or a failed reading) holds <code>NA</code>, R’s missing value, if the file says which value means “no data”.</p>
+</div>
+<div id="tabset-2-2">
+<p>Daily precipitation in millimetres on 1 August 2012, from PRISM (a US weather dataset), for the rectangle around Nebraska. Cells outside Nebraska hold no data.</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L02_raster_basics_files/figure-revealjs/whole-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-2-3">
+<p>The 8-by-8 block of cells in the north-west corner of the state, with the value of each cell written in it:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L02_raster_basics_files/figure-revealjs/close-up-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Each square is one cell, about 4 km across, and the number in it is the whole of what the raster knows about that square.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-a-raster-file-does-and-does-not-say" class="slide level2">
+<h2>What a raster file does and does not say</h2>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Stored, and not always stored</a></li><li><a href="#tabset-3-2">Vector or raster</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Always in the file</th>
+<th>Sometimes in the file, sometimes only in the documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>The numbers in the cells</td>
+<td>Which value means “no data” (often -9999)</td>
+</tr>
+<tr class="even">
+<td>The extent, resolution, rows, columns</td>
+<td>The <strong>units</strong> (millimetres or inches, degrees C or F)</td>
+</tr>
+<tr class="odd">
+<td>The number of layers</td>
+<td>The <strong>scale</strong>: values stored as whole numbers, such as hundredths of a millimetre, to save space</td>
+</tr>
+<tr class="even">
+<td>Usually the CRS</td>
+<td>What each layer is (which date), beyond a name</td>
+</tr>
+</tbody>
+</table>
+<p>Whatever is not in the file, only you can tell the AI, from the documentation of the data.</p>
+</div>
+<div id="tabset-3-2">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Vector (lecture 09-1)</th>
+<th>Raster</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Stores</td>
+<td>separate features, each with a shape</td>
+<td>one value per cell of a grid</td>
+</tr>
+<tr class="even">
+<td>One row or cell is</td>
+<td>a county, a well</td>
+<td>a 4 km square</td>
+</tr>
+<tr class="odd">
+<td>Typical data</td>
+<td>boundaries, locations, roads</td>
+<td>weather, elevation, satellite images</td>
+</tr>
+<tr class="even">
+<td>R package</td>
+<td><code>sf</code></td>
+<td><code>terra</code></td>
+</tr>
+</tbody>
+</table>
+<p>Both need a CRS, and both must share a CRS with any layer they are combined with.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="how-raster-code-is-written" class="title-slide slide level1 center">
+<h1>How raster code is written</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="reading-a-raster" class="slide level2">
+<h2>Reading a raster</h2>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The pattern</a></li><li><a href="#tabset-4-2">Reading the printout</a></li><li><a href="#tabset-4-3">Formats</a></li><li><a href="#tabset-4-4">Writing</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>raster <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">"path/to/file"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>raster &lt;-</code></td>
+<td>The name the raster will have inside R</td>
+<td>Needed to keep the result</td>
+</tr>
+<tr class="even">
+<td><code>rast</code></td>
+<td>The reader from <code>terra</code>, for every raster format</td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>"path/to/file"</code></td>
+<td>Where the file is. <code>c("file1", "file2")</code> reads several files as layers of one raster.</td>
+<td><strong>Yes, the only required input</strong></td>
+</tr>
+</tbody>
+</table>
+<p>A real line, and what R prints for it:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>ppt_days <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">"ne_ppt_2012aug.tif"</span>)</span>
+<span id="cb2-2"><a></a>ppt_days</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+size        : 73, 210, 5  (nrow, ncol, nlyr)
+resolution  : 0.04166667, 0.04166667  (x, y)
+extent      : -104.0625, -95.3125, 39.97917, 43.02083  (xmin, xmax, ymin, ymax)
+coord. ref. : lon/lat NAD83 (EPSG:4269) 
+source      : ne_ppt_2012aug.tif 
+names       : ppt_2012_08_01, ppt_2012_08_02, ppt_2012_08_03, ppt_2012_08_04, ppt_2012_08_05 
+min values  :          0.000,          0.000,           0.00,          0.000,          0.000 
+max values  :         73.808,         40.739,          37.48,         34.864,         18.364 </code></pre>
+</div>
+</div>
+</div>
+<div id="tabset-4-2">
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Line</th>
+<th>What it says here</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>size</code></td>
+<td>73 rows, 210 columns, 5 layers</td>
+</tr>
+<tr class="even">
+<td><code>resolution</code></td>
+<td>one cell is 0.0417 by 0.0417, in degrees because of the CRS</td>
+</tr>
+<tr class="odd">
+<td><code>extent</code></td>
+<td>longitude -104.1 to -95.3, latitude 40 to 43: Nebraska</td>
+</tr>
+<tr class="even">
+<td><code>coord. ref.</code></td>
+<td>the CRS: longitude and latitude, NAD83 (EPSG 4269)</td>
+</tr>
+<tr class="odd">
+<td><code>names</code></td>
+<td>one name per layer: here, the date</td>
+</tr>
+<tr class="even">
+<td><code>min values</code>, <code>max values</code></td>
+<td>the smallest and largest value in each layer, ignoring no-data cells</td>
+</tr>
+</tbody>
+</table>
+<p>Most of the checks for a raster are on this printout.</p>
+</div>
+<div id="tabset-4-3">
+<p>The same reader opens all of them:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Extension</th>
+<th>Format</th>
+<th>Where you meet it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>.tif</code></td>
+<td>GeoTIFF, the most common</td>
+<td>satellite images, elevation, most downloads</td>
+</tr>
+<tr class="even">
+<td><code>.bil</code> (with <code>.hdr</code>)</td>
+<td>Band interleaved by line</td>
+<td>PRISM weather data</td>
+</tr>
+<tr class="odd">
+<td><code>.nc</code></td>
+<td>netCDF, often many layers</td>
+<td>climate data such as gridMET, often one layer per day</td>
+</tr>
+<tr class="even">
+<td><code>.asc</code></td>
+<td>ASCII grid, plain text</td>
+<td>older data</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-4-4">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="fu">writeRaster</span>(raster, <span class="st">"path/to/file.tif"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The extension picks the format. <code>overwrite = TRUE</code> is needed to replace an existing file. A raster cannot go into a csv without losing the grid.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="doing-things-with-a-raster" class="slide level2">
+<h2>Doing things with a raster</h2>
+<div class="panel-tabset">
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The pattern</a></li><li><a href="#tabset-5-2">One real example</a></li><li><a href="#tabset-5-3">Variations you will see</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1">
+<p>Most raster functions take the raster first and return a new raster:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a>result <span class="ot">&lt;-</span> <span class="fu">raster_function</span>(raster, other_inputs)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>What it does</th>
+<th>Default that matters</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>raster1 + raster2</code>, <code>raster * 10</code>, <code>log(raster)</code></td>
+<td>Arithmetic, cell by cell. Rasters must share extent and resolution.</td>
+<td></td>
+</tr>
+<tr class="even">
+<td><code>raster[[2]]</code> or <code>raster[["name"]]</code></td>
+<td>One layer</td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>global(raster, "mean")</code></td>
+<td>One number per layer, over all cells</td>
+<td>Without <code>na.rm = TRUE</code>, a single <code>NA</code> makes the result <code>NA</code></td>
+</tr>
+<tr class="even">
+<td><code>classify(raster, cbind(-9999, NA))</code></td>
+<td>Replaces values, here -9999 by <code>NA</code></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><code>aggregate(raster, fact = 5)</code></td>
+<td>Coarser cells: each 5-by-5 block becomes one cell</td>
+<td>Averages the block (<code>fun = "mean"</code>)</td>
+</tr>
+<tr class="even">
+<td><code>resample(raster, template)</code></td>
+<td>Moves values onto another grid</td>
+<td>Interpolates between cells (<code>method = "bilinear"</code>)</td>
+</tr>
+<tr class="odd">
+<td><code>project(raster, "EPSG:5070")</code></td>
+<td>Moves the raster into another CRS</td>
+<td>Recomputes every cell value</td>
+</tr>
+<tr class="even">
+<td><code>crop()</code>, <code>mask()</code>, <code>extract()</code></td>
+<td>Combine a raster with vector data</td>
+<td>Lecture 09-6</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-5-2">
+<p>The total over the five days, cell by cell, and its largest value:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>ppt_total <span class="ot">&lt;-</span> <span class="fu">sum</span>(ppt_days)</span>
+<span id="cb6-2"><a></a><span class="fu">global</span>(ppt_total, <span class="st">"max"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       max
+sum 83.239</code></pre>
+</div>
+</div>
+<p><code>sum()</code> over the layers of one raster adds them cell by cell, giving a raster with one layer.</p>
+</div>
+<div id="tabset-5-3">
+<ul>
+<li><code>terra::rast(...)</code>: the package name in front</li>
+<li><code>rast(here::here("data", "ppt.tif"))</code>: the path built by another function</li>
+<li><code>ppt_days$ppt_2012_08_01</code>: one layer by name, like a column of a table</li>
+<li><code>ggplot() + geom_spatraster(data = raster)</code>: a map of a raster, from <code>tidyterra</code> (lecture 09-3)</li>
+</ul>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="what-has-to-be-true" class="title-slide slide level1 center">
+<h1>What has to be true</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="conditions-for-raster-values-to-be-right" class="slide level2 scrollable">
+<h2>Conditions for raster values to be right</h2>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">The conditions</a></li><li><a href="#tabset-6-2">With and without an error</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<ol type="1">
+<li><strong>The no-data value is declared</strong>, so cells without data are <code>NA</code>, not a number such as -9999.</li>
+<li><strong>The units and scale are known</strong>, so a stored 7381 is read as 73.81 millimetres.</li>
+<li><strong>The grid is where the place is</strong>: the CRS and extent are right.</li>
+<li><strong>Each layer is what you think</strong>: the right date, the right variable.</li>
+<li><strong>Every operation’s default fits the kind of value</strong>: averaging works for amounts such as rainfall, not for codes such as 1 = corn, 2 = soybean.</li>
+<li><strong>A raster combined with vector data shares its CRS.</strong> Transform the vector layer to the raster’s CRS, not the other way: projecting a raster recomputes its values.</li>
+</ol>
+</div>
+<div id="tabset-6-2">
+<p>Raster operations stop with an error when two rasters do not share extent and resolution, or a file does not exist. Conditions 1 to 5 failing gives numbers with <strong>no error</strong>: the silent failures on the next slide are three of them.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="silent-failures-cell-values-misread" class="slide level2">
+<h2>Silent failures: cell values misread</h2>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">An undeclared no-data value</a></li><li><a href="#tabset-7-2">Values in a scale</a></li><li><a href="#tabset-7-3">Averaging codes</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
+<p><code>ne_ppt_raw.tif</code> holds the same 1 August 2012 precipitation, stored the way some data providers store it: -9999 in the cells outside Nebraska, and no line in the file saying that -9999 means “no data”.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>raw <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">"ne_ppt_raw.tif"</span>)</span>
+<span id="cb8-2"><a></a>raw</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+size        : 73, 210, 1  (nrow, ncol, nlyr)
+resolution  : 0.04166667, 0.04166667  (x, y)
+extent      : -104.0625, -95.3125, 39.97917, 43.02083  (xmin, xmax, ymin, ymax)
+coord. ref. : lon/lat NAD83 (EPSG:4269) 
+source      : ne_ppt_raw.tif 
+name        :   ppt 
+min value   : -9999 
+max value   :  7381 </code></pre>
+</div>
+</div>
+<p>The average over the cells:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">global</span>(raw, <span class="st">"mean"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         mean
+ppt -1547.469</code></pre>
+</div>
+</div>
+<p>An average daily precipitation of -1547 millimetres, impossible, and no error. 2,580 cells hold -9999 and were averaged with the rest. The printout above shows it: <code>min value: -9999</code>.</p>
+</div>
+<div id="tabset-7-2">
+<p>The largest value in the same file is 7381. 7,381 millimetres in a day is impossible: the file stores <strong>hundredths</strong> of a millimetre as whole numbers. Only the documentation says so. Both fixes together, declare -9999 as no data, then divide by 100:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>fixed <span class="ot">&lt;-</span> <span class="fu">classify</span>(raw, <span class="fu">cbind</span>(<span class="sc">-</span><span class="dv">9999</span>, <span class="cn">NA</span>)) <span class="sc">/</span> <span class="dv">100</span></span>
+<span id="cb12-2"><a></a><span class="fu">global</span>(fixed, <span class="fu">c</span>(<span class="st">"min"</span>, <span class="st">"max"</span>, <span class="st">"mean"</span>), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>    min   max     mean
+ppt   0 73.81 1.627232</code></pre>
+</div>
+</div>
+<p>Now the values run from 0 to 73.8 millimetres, and the average is 1.63 millimetres, the same as the file that declares its no-data value and units.</p>
+</div>
+<div id="tabset-7-3">
+<p>A small land-cover raster where 1 means corn and 2 means soybean, made coarser by <code>aggregate()</code>, which averages by default:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a>landcover <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="at">nrows =</span> <span class="dv">4</span>, <span class="at">ncols =</span> <span class="dv">4</span>, <span class="at">xmin =</span> <span class="dv">0</span>, <span class="at">xmax =</span> <span class="dv">4</span>, <span class="at">ymin =</span> <span class="dv">0</span>, <span class="at">ymax =</span> <span class="dv">4</span>,</span>
+<span id="cb14-2"><a></a>                  <span class="at">vals =</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">1</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">2</span>, <span class="dv">1</span>, <span class="dv">1</span>))</span>
+<span id="cb14-3"><a></a><span class="fu">values</span>(<span class="fu">aggregate</span>(landcover, <span class="at">fact =</span> <span class="dv">2</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     lyr.1
+[1,]  1.25
+[2,]  2.00
+[3,]  1.50
+[4,]  1.25</code></pre>
+</div>
+</div>
+<p>Values of 1.25 and 1.5 are neither corn nor soybean, and nothing warns you. For codes, the right rule is the most common value in each block, <code>fun = "modal"</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">values</span>(<span class="fu">aggregate</span>(landcover, <span class="at">fact =</span> <span class="dv">2</span>, <span class="at">fun =</span> <span class="st">"modal"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     lyr.1
+[1,]     1
+[2,]     2
+[3,]     1
+[4,]     1</code></pre>
+</div>
+</div>
+<p><code>resample()</code> has the same problem when codes are stored as plain numbers: its default, <code>"bilinear"</code>, interpolates between neighbouring cells. Tell it <code>method = "near"</code>. (If the raster is declared categorical, <code>terra</code> uses <code>"near"</code> itself; <code>aggregate()</code> averages either way.) <code>project()</code>, which moves a raster to another CRS, has the same default and needs the same instruction.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="asking-ai" class="title-slide slide level1 center">
+<h1>Asking AI</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="working-with-ai-on-your-own-research" class="slide level2 scrollable">
+<h2>Working with AI on your own research</h2>
+<p>The way of working from lecture 02-1, “Working with AI on your own research”, applies unchanged:</p>
+<ol type="1">
+<li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
+<li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
+<li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
+<li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
+</ol>
+<p>A raster’s printout, its value ranges and a quick map are checks you judge by eye. In the HTML they sit next to the code that produced them, and the document records which no-data value and scale you told the AI to use, and why.</p>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Every request that asks for code ends with the same few lines, the <strong>closing instructions</strong>; the full text is under <strong>Recommended requests</strong> near the end.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="look-before-you-ask" class="slide level2 scrollable">
+<h2>Look before you ask</h2>
+<div class="panel-tabset">
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Read the documentation</a></li><li><a href="#tabset-8-2">Print the raster before computing anything</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1">
+<p>Raster data almost always comes with documentation: a README, a metadata page, a <code>.txt</code> or <code>.xml</code> file next to the data. Find in it:</p>
+<ol type="1">
+<li><strong>The variable and its units</strong>: precipitation in millimetres, temperature in degrees C</li>
+<li><strong>The scale</strong>: are values stored as they are, or multiplied (by 10, 100, 10,000) to make whole numbers?</li>
+<li><strong>The no-data value</strong>: often -9999, sometimes 0 or 255</li>
+<li><strong>The CRS</strong></li>
+<li><strong>What each layer is</strong>: which date, which band of a satellite image</li>
+</ol>
+</div>
+<div id="tabset-8-2">
+<p>The printout of <code>rast()</code> reads only the file’s description and, if the file stores them, its smallest and largest values, so it is quick even for a large file. If the printout has no <code>min value</code> line, ask for the range before anything else.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a><span class="fu">rast</span>(<span class="st">"ne_ppt_raw.tif"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>class       : SpatRaster 
+size        : 73, 210, 1  (nrow, ncol, nlyr)
+resolution  : 0.04166667, 0.04166667  (x, y)
+extent      : -104.0625, -95.3125, 39.97917, 43.02083  (xmin, xmax, ymin, ymax)
+coord. ref. : lon/lat NAD83 (EPSG:4269) 
+source      : ne_ppt_raw.tif 
+name        :   ppt 
+min value   : -9999 
+max value   :  7381 </code></pre>
+</div>
+</div>
+<p>From this alone: one layer, longitude and latitude around Nebraska, values from -9999 to 7381. Compare that with the documentation <strong>before</strong> asking for any calculation.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-put-in-your-request" class="slide level2 scrollable">
+<h2>What to put in your request</h2>
+<p>The AI knows every <code>terra</code> function. Your request supplies what it cannot know:</p>
+<ol type="1">
+<li><strong>The file</strong>: name, format, where it is in your project</li>
+<li><strong>What the values mean</strong>: the variable, its units, its scale</li>
+<li><strong>The no-data value</strong></li>
+<li><strong>The CRS</strong>, and <strong>what each layer is</strong></li>
+<li><strong>What you want back</strong>: which layers, which units, which calculation, and for codes, that values must not be averaged</li>
+<li><strong>Ask for checks</strong>: next section</li>
+<li><strong>The closing instructions</strong></li>
+</ol>
+<div title="Using an agent in your editor or terminal?">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Using an agent in your editor or terminal?</strong></p>
+</div>
+<div class="callout-content">
+<p>An agent such as Claude Code can open the raster and print it for itself. It still cannot know a scale or a no-data value that is only in the documentation. Write those down <strong>before</strong> it runs.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="a-weak-request-and-a-strong-one" class="slide level2">
+<h2>A weak request and a strong one</h2>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Weak</a></li><li><a href="#tabset-9-2">Strong</a></li><li><a href="#tabset-9-3">What came back</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<div class="sourceCode" id="cb20"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb20-1"><a></a>Load the precipitation raster and give me the average rainfall.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A typical reply:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>ppt <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">"ppt.tif"</span>)</span>
+<span id="cb21-2"><a></a><span class="fu">global</span>(ppt, <span class="st">"mean"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>On a file like <code>ne_ppt_raw.tif</code> this prints -1547, with no error: the -9999 cells and the hundredths are both taken at face value.</p>
+</div>
+<div id="tabset-9-2">
+<p>An example for a precipitation file like the one on the “Silent failures” slide:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb22-1"><a></a>In my R project, data/ppt_raw.tif is a GeoTIFF of daily precipitation</span>
+<span id="cb22-2"><a></a>on 1 August 2012 around Nebraska, one layer. Its documentation says:</span>
+<span id="cb22-3"><a></a>values are hundredths of a millimetre stored as whole numbers, -9999</span>
+<span id="cb22-4"><a></a>means no data, and the CRS is NAD83 longitude and latitude (EPSG 4269).</span>
+<span id="cb22-5"><a></a></span>
+<span id="cb22-6"><a></a>Read it, mark -9999 as missing, and convert the values to millimetres,</span>
+<span id="cb22-7"><a></a>in a raster called ppt. Then print the average precipitation over the</span>
+<span id="cb22-8"><a></a>cells with data.</span>
+<span id="cb22-9"><a></a></span>
+<span id="cb22-10"><a></a>Check: the CRS (I expect EPSG 4269), the extent (I expect longitude</span>
+<span id="cb22-11"><a></a>between -104 and -95 and latitude between 40 and 43), the smallest and</span>
+<span id="cb22-12"><a></a>largest value after conversion (I expect 0 and something below 150 mm),</span>
+<span id="cb22-13"><a></a>and the number of missing cells. Draw a quick map of the raster.</span>
+<span id="cb22-14"><a></a></span>
+<span id="cb22-15"><a></a>Put the code in my Quarto document analysis/weather.qmd, under the</span>
+<span id="cb22-16"><a></a>heading "Read the precipitation", as R code chunks. Above each chunk,</span>
+<span id="cb22-17"><a></a>write one plain-English sentence saying what it does and why. Build</span>
+<span id="cb22-18"><a></a>every path with here::here(); no setwd(), no absolute paths. Print each</span>
+<span id="cb22-19"><a></a>check on its own line as "name of check: expected X, got Y". Render the</span>
+<span id="cb22-20"><a></a>document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-3">
+<p>In the rendered HTML, a sentence, then the chunk it describes.</p>
+<p>Read the raster, mark -9999 as missing, and convert hundredths of a millimetre to millimetres.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a>ppt <span class="ot">&lt;-</span> <span class="fu">rast</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ppt_raw.tif"</span>))</span>
+<span id="cb23-2"><a></a>ppt <span class="ot">&lt;-</span> <span class="fu">classify</span>(ppt, <span class="fu">cbind</span>(<span class="sc">-</span><span class="dv">9999</span>, <span class="cn">NA</span>)) <span class="sc">/</span> <span class="dv">100</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Print the checks against what was expected, then the average.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a>rng <span class="ot">&lt;-</span> <span class="fu">global</span>(ppt, <span class="fu">c</span>(<span class="st">"min"</span>, <span class="st">"max"</span>), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb24-2"><a></a><span class="fu">cat</span>(<span class="st">"CRS: expected EPSG 4269, got EPSG"</span>, <span class="fu">crs</span>(ppt, <span class="at">describe =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>code, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb24-3"><a></a><span class="fu">cat</span>(<span class="st">"longitude: expected -104 to -95, got"</span>, <span class="fu">round</span>(<span class="fu">xmin</span>(ppt), <span class="dv">1</span>), <span class="st">"to"</span>, <span class="fu">round</span>(<span class="fu">xmax</span>(ppt), <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb24-4"><a></a><span class="fu">cat</span>(<span class="st">"latitude: expected 40 to 43, got"</span>, <span class="fu">round</span>(<span class="fu">ymin</span>(ppt), <span class="dv">1</span>), <span class="st">"to"</span>, <span class="fu">round</span>(<span class="fu">ymax</span>(ppt), <span class="dv">1</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb24-5"><a></a><span class="fu">cat</span>(<span class="st">"smallest value: expected 0, got"</span>, rng<span class="sc">$</span>min, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb24-6"><a></a><span class="fu">cat</span>(<span class="st">"largest value: expected below 150, got"</span>, rng<span class="sc">$</span>max, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb24-7"><a></a><span class="fu">cat</span>(<span class="st">"missing cells: expected some (the rectangle reaches outside Nebraska), got"</span>, <span class="fu">global</span>(ppt, <span class="st">"isNA"</span>)[<span class="dv">1</span>, <span class="dv">1</span>], <span class="st">"of"</span>, <span class="fu">ncell</span>(ppt), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb24-8"><a></a><span class="fu">global</span>(ppt, <span class="st">"mean"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>crs(ppt, describe = TRUE)$code</code> pulls the EPSG code out of the CRS description. The output is in the next section.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="checking-the-result" class="title-slide slide level1 center">
+<h1>Checking the result</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-to-check-for-every-raster" class="slide level2">
+<h2>What to check for every raster</h2>
+<div class="panel-tabset">
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">What to ask for, and why</a></li><li><a href="#tabset-10-2">Asking for them</a></li><li><a href="#tabset-10-3">Reading the HTML</a></li></ul>
+<div class="tab-content">
+<div id="tabset-10-1">
+<p>The AI can write the checking code. It cannot know the right answers. Ask for these after reading a raster and after each step that changes its values:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Ask the AI to print</th>
+<th>Catches</th>
+<th>What only you can supply</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>the CRS</td>
+<td>a missing or wrong CRS</td>
+<td>the CRS from the documentation</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>rows, columns, resolution, number of layers</td>
+<td>the wrong file, a layer missing</td>
+<td>what the documentation says</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>the extent</td>
+<td>a grid in the wrong place, or in metres when you expected degrees</td>
+<td>where the place is</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>the name of each layer</td>
+<td>layers in the wrong order, the wrong dates</td>
+<td>which date or variable each layer is</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>the smallest and largest value of each layer</td>
+<td>an undeclared no-data value, a scale not applied, the wrong units</td>
+<td>a believable range, in known units</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>the number of missing (<code>NA</code>) cells</td>
+<td>no-data cells counted as values (zero missing where some should be)</td>
+<td>roughly how many cells lie outside the area</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>a quick map of each layer</td>
+<td>anything the numbers did not show</td>
+<td>what the pattern should look like</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-10-2">
+<p>One sentence at the end of your request:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb25-1"><a></a>Print the CRS, the extent, the resolution, the name, smallest and</span>
+<span id="cb25-2"><a></a>largest value of each layer, and the number of missing cells, and draw</span>
+<span id="cb25-3"><a></a>a quick map of each layer.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Better, with what you expect:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb26-1"><a></a>I expect EPSG &lt;code&gt;, longitude between &lt;west&gt; and &lt;east&gt; and latitude</span>
+<span id="cb26-2"><a></a>between &lt;south&gt; and &lt;north&gt;, layers named &lt;names&gt;, and values between</span>
+<span id="cb26-3"><a></a>&lt;lowest&gt; and &lt;highest&gt; &lt;units&gt;. Print each check on its own line as</span>
+<span id="cb26-4"><a></a>"name of check: expected X, got Y".</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-10-3">
+<p>What the checking code on the previous slide printed, run on <code>ne_ppt_raw.tif</code>:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>CRS: expected EPSG 4269, got EPSG 4269 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>longitude: expected -104 to -95, got -104.1 to -95.3 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>latitude: expected 40 to 43, got 40 to 43 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>smallest value: expected 0, got 0 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>largest value: expected below 150, got 73.81 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>missing cells: expected some (the rectangle reaches outside Nebraska), got 2580 of 15330 </code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        mean
+ppt 1.627232</code></pre>
+</div>
+</div>
+<p>Every check passes. 2,580 of 15,330 cells are missing, about 17%: the rectangle around Nebraska includes parts of other states, and the cells there have no data. Had the -9999 not been declared, this line would say 0, and the smallest value -99.99.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="checks-that-come-from-knowing-the-data" class="slide level2">
+<h2>Checks that come from knowing the data</h2>
+<p>The checks above apply to any raster. Checks from what you know about <strong>this</strong> variable are stronger:</p>
+<ul>
+<li>Precipitation is never negative, and a daily total above a few hundred millimetres would be a record.</li>
+<li>Five different days should not have identical values. A file in which two layers are the same is a file with a mistake in it.</li>
+</ul>
+<div class="sourceCode" id="cb34"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb34-1"><a></a>Using the raster ppt_days with five daily layers, print the smallest value</span>
+<span id="cb34-2"><a></a>of each layer (I expect 0 or more), and for each pair of consecutive</span>
+<span id="cb34-3"><a></a>days, whether the two layers are identical (I expect not).</span>
+<span id="cb34-4"><a></a></span>
+<span id="cb34-5"><a></a>Put the code in my Quarto document analysis/weather.qmd, under the</span>
+<span id="cb34-6"><a></a>heading "Check against the data", as R code chunks. Above each chunk,</span>
+<span id="cb34-7"><a></a>write one plain-English sentence saying what it does and why. Build</span>
+<span id="cb34-8"><a></a>every path with here::here(); no setwd(), no absolute paths. Print each</span>
+<span id="cb34-9"><a></a>check on its own line as "name of check: expected X, got Y". Render the</span>
+<span id="cb34-10"><a></a>document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The AI’s code, and what it printed:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a></a>mins <span class="ot">&lt;-</span> <span class="fu">global</span>(ppt_days, <span class="st">"min"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)<span class="sc">$</span>min</span>
+<span id="cb35-2"><a></a><span class="fu">cat</span>(<span class="st">"smallest value per day: expected 0 or more, got"</span>, <span class="fu">round</span>(mins, <span class="dv">2</span>), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>smallest value per day: expected 0 or more, got 0 0 0 0 0 </code></pre>
+</div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb37"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb37-1"><a></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span>(<span class="fu">nlyr</span>(ppt_days) <span class="sc">-</span> <span class="dv">1</span>)) {</span>
+<span id="cb37-2"><a></a>  same <span class="ot">&lt;-</span> <span class="fu">all</span>(<span class="fu">values</span>(ppt_days[[i]]) <span class="sc">==</span> <span class="fu">values</span>(ppt_days[[i <span class="sc">+</span> <span class="dv">1</span>]]), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb37-3"><a></a>  <span class="fu">cat</span>(<span class="fu">names</span>(ppt_days)[i], <span class="st">"and"</span>, <span class="fu">names</span>(ppt_days)[i <span class="sc">+</span> <span class="dv">1</span>], <span class="st">"identical: expected FALSE, got"</span>, same, <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb37-4"><a></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>ppt_2012_08_01 and ppt_2012_08_02 identical: expected FALSE, got FALSE 
+ppt_2012_08_02 and ppt_2012_08_03 identical: expected FALSE, got FALSE 
+ppt_2012_08_03 and ppt_2012_08_04 identical: expected FALSE, got FALSE 
+ppt_2012_08_04 and ppt_2012_08_05 identical: expected FALSE, got FALSE </code></pre>
+</div>
+</div>
+<p>All pass. When a check like this fails, the code is usually not the problem: the file is. Stop, and ask whoever produced it.</p>
+</section>
+<section id="your-turn-read-the-ais-code" class="slide level2">
+<h2>Your turn: read the AI’s code</h2>
+<p>A student has a land-cover raster, where 1 means corn, 2 soybean and 3 pasture, stored as plain numbers, and a weather raster on a different grid. They asked an AI to “put the land cover on the weather grid”, and got this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb39"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb39-1"><a></a>landcover <span class="ot">&lt;-</span> <span class="fu">rast</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"landcover.tif"</span>))</span>
+<span id="cb39-2"><a></a>weather <span class="ot">&lt;-</span> <span class="fu">rast</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"weather.tif"</span>))</span>
+<span id="cb39-3"><a></a>landcover_on_weather <span class="ot">&lt;-</span> <span class="fu">resample</span>(landcover, weather)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="panel-tabset">
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Questions</a></li><li><a href="#tabset-11-2">Answers</a></li></ul>
+<div class="tab-content">
+<div id="tabset-11-1">
+<p>A. What does each line do?</p>
+<p>B. Which line gives a wrong result <strong>without</strong> an error, and what will the result contain?</p>
+<p>C. Which check would catch it?</p>
+<p>D. What should the request have said?</p>
+</div>
+<div id="tabset-11-2">
+<p>A. Reads the land-cover raster; reads the weather raster; moves the land-cover values onto the weather grid.</p>
+<p>B. Line 3. Without a <code>method</code>, <code>resample()</code> interpolates between neighbouring cells (<code>"bilinear"</code>). Codes are not amounts, so the result holds values between the codes. On the 4-by-4 land-cover raster from the “Silent failures” slide, moved to a shifted 3-by-3 grid, it gives values such as 1.09, 1.21, 1.3: neither corn nor soybean.</p>
+<p>C. The list of distinct values before and after. Before: 1, 2 and 3. After: many values that are not whole numbers. The smallest and largest value would not catch it, because every interpolated value lies between them.</p>
+<p>D. That the values are codes that must not be averaged or interpolated, so that each new cell takes the value of the nearest old cell (<code>method = "near"</code>), and to print the distinct values before and after.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="recommended-requests" class="title-slide slide level1 center">
+<h1>Recommended requests</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="requests-you-can-copy" class="slide level2">
+<h2>Requests you can copy</h2>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found in the data’s documentation and printout. Every request for code ends with the closing instructions.</p>
+<div class="panel-tabset">
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Look at a raster</a></li><li><a href="#tabset-12-3">Read a raster</a></li><li><a href="#tabset-12-4">Change the grid</a></li><li><a href="#tabset-12-5">Save and read back</a></li><li><a href="#tabset-12-6">Explain code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-12-1">
+<p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
+<div class="sourceCode" id="cb40"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb40-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb40-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb40-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb40-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb40-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb40-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
+</div>
+<div id="tabset-12-2">
+<div class="sourceCode" id="cb41"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb41-1"><a></a>Without changing any value, read &lt;path to the file&gt; and print what R</span>
+<span id="cb41-2"><a></a>reports about it: rows, columns, layers, resolution, extent, CRS, the</span>
+<span id="cb41-3"><a></a>name of each layer, and the smallest and largest value of each layer.</span>
+<span id="cb41-4"><a></a>Draw a quick map of the first layer.</span>
+<span id="cb41-5"><a></a></span>
+<span id="cb41-6"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb41-7"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb41-8"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb41-9"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb41-10"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb41-11"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-3">
+<div class="sourceCode" id="cb42"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb42-1"><a></a>In my R project, &lt;path to the file&gt; is a &lt;format&gt; file of &lt;variable&gt;</span>
+<span id="cb42-2"><a></a>for &lt;place and dates&gt;, with &lt;number&gt; layers, one per &lt;what each layer</span>
+<span id="cb42-3"><a></a>is&gt;. Its documentation says: values are &lt;units, and the scale if</span>
+<span id="cb42-4"><a></a>any&gt;, &lt;no-data value&gt; means no data, and the CRS is &lt;CRS name, EPSG</span>
+<span id="cb42-5"><a></a>code&gt;.</span>
+<span id="cb42-6"><a></a></span>
+<span id="cb42-7"><a></a>Read it into a raster called &lt;raster name&gt;, mark &lt;no-data value&gt; as</span>
+<span id="cb42-8"><a></a>missing, and convert the values to &lt;units&gt;. Name the layers &lt;names&gt;.</span>
+<span id="cb42-9"><a></a></span>
+<span id="cb42-10"><a></a>Check: the CRS (I expect EPSG &lt;code&gt;), the extent (I expect &lt;west&gt; to</span>
+<span id="cb42-11"><a></a>&lt;east&gt; and &lt;south&gt; to &lt;north&gt;, in the units of the CRS), the name of</span>
+<span id="cb42-12"><a></a>each layer, the smallest and largest value of each layer (I expect</span>
+<span id="cb42-13"><a></a>&lt;lowest&gt; to &lt;highest&gt; &lt;units&gt;), and the number of missing cells. Draw</span>
+<span id="cb42-14"><a></a>a quick map of each layer.</span>
+<span id="cb42-15"><a></a></span>
+<span id="cb42-16"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb42-17"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb42-18"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb42-19"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb42-20"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb42-21"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-4">
+<div class="sourceCode" id="cb43"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb43-1"><a></a>The raster &lt;raster name&gt; holds &lt;variable&gt;, which is &lt;an amount that can</span>
+<span id="cb43-2"><a></a>be averaged, or a code that cannot, such as land cover&gt;. Make it</span>
+<span id="cb43-3"><a></a>&lt;coarser by a factor of &lt;number&gt;, or match the grid of &lt;other raster&gt;&gt;.</span>
+<span id="cb43-4"><a></a>Use a rule suited to &lt;amounts or codes&gt;, and say which rule you used</span>
+<span id="cb43-5"><a></a>and why.</span>
+<span id="cb43-6"><a></a></span>
+<span id="cb43-7"><a></a>Check: the resolution and extent before and after, and the smallest and</span>
+<span id="cb43-8"><a></a>largest value before and after (for codes, the list of distinct values</span>
+<span id="cb43-9"><a></a>before and after; I expect the same codes).</span>
+<span id="cb43-10"><a></a></span>
+<span id="cb43-11"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb43-12"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb43-13"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb43-14"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb43-15"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb43-16"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-5">
+<div class="sourceCode" id="cb44"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb44-1"><a></a>Save the raster &lt;raster name&gt; as &lt;path for the new file, ending in</span>
+<span id="cb44-2"><a></a>.tif&gt;. Then read the file back and check that the CRS, the extent, the</span>
+<span id="cb44-3"><a></a>layer names, the smallest and largest value of each layer and the</span>
+<span id="cb44-4"><a></a>number of missing cells all match the original.</span>
+<span id="cb44-5"><a></a></span>
+<span id="cb44-6"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb44-7"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb44-8"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb44-9"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb44-10"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb44-11"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-6">
+<div class="sourceCode" id="cb45"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb45-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb45-2"><a></a>sentence. Then list:</span>
+<span id="cb45-3"><a></a>1. any line that would only work on the computer it was written on</span>
+<span id="cb45-4"><a></a>2. which value is treated as "no data", and in which units the values</span>
+<span id="cb45-5"><a></a>   end up</span>
+<span id="cb45-6"><a></a>3. any line that could give a wrong result without an error, and which</span>
+<span id="cb45-7"><a></a>   check would reveal it</span>
+<span id="cb45-8"><a></a></span>
+<span id="cb45-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="summary" class="title-slide slide level1 center">
+<h1>Summary</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-must-understand-and-what-the-ai-can-write" class="slide level2">
+<h2>What you must understand, and what the AI can write</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You need to understand</th>
+<th>The AI can write</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What a raster is: extent, resolution, CRS, layers</td>
+<td><code>rast()</code> and the reading of any format</td>
+</tr>
+<tr class="even">
+<td>What the cell values mean: units, scale, no-data value, from the documentation</td>
+<td><code>classify()</code>, the conversion</td>
+</tr>
+<tr class="odd">
+<td>What each layer is</td>
+<td>Naming and selecting layers</td>
+</tr>
+<tr class="even">
+<td>Whether a value is an amount or a code, and so how it may be combined</td>
+<td><code>aggregate()</code>, <code>resample()</code> with the right rule</td>
+</tr>
+<tr class="odd">
+<td>What believable values are for your variable and place</td>
+<td>The checking code</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every raster:</strong> read its documentation and write down units, scale, no-data value, CRS and a believable range. Print the raster before computing anything. Ask the AI to write the code and the checks into your <code>.qmd</code>. Render it, and judge the HTML against what you wrote down.</p>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="../index.html">back to the lecture slides</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

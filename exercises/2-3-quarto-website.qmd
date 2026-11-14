@@ -1,0 +1,127 @@
+---
+title: "Ex-2-3: Websites with Quarto, with an AI Assistant"
+abstract: "Quarto"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/2-1-nebraska-yield.csv
+  - worksheets/ex-2-3.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+yields <- read_csv("data/2-1-nebraska-yield.csv", col_types = cols(county_code = "c"))
+per_year <- count(yields, year)
+```
+
+This is an in-class exercise. Before class, work through the lecture **02-3: Websites with Quarto**. In class, you work through the worksheet with an AI assistant writing the configuration and the pages. Your job is everything the AI cannot do: deciding who the site is for and what it holds, keeping out what does not belong, and judging the site by using it.
+
+# Setup {#sec-setup}
+
+1. Use the `ch2-practice` project from [Ex-2-1](2-1-quarto-introduction.qmd) and [Ex-2-2](2-2-quarto-revealjs.qmd). If you do not have it, make it as described in Ex-2-1.
+2. Download the worksheet, [ex-2-3.qmd](worksheets/ex-2-3.qmd), into `ch2-practice/analysis`. If `2-1-nebraska-yield.csv` is not in `ch2-practice/data` yet, download [it](data/2-1-nebraska-yield.csv) there.
+3. Open the worksheet, render it, and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+The rendered worksheet lists the `.qmd` files in your project under "What is in the project now", each with a path starting `analysis/`.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: The site map
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+A. For example:
+
+1. Home, `index.qmd` (at the top of the project folder): two sentences on what the project is, and links to the other pages
+2. Data, `data.qmd`: reads the data and prints its checks
+3. Yields by year, `yields.qmd`: the average yield per year, as a table and a figure, each with its sentence
+
+`index.qmd` is required: it becomes the home page.
+
+B. Everything that was there before: the worksheets (`analysis/ex-2-1.qmd`, `analysis/ex-2-2.qmd`, `analysis/ex-2-3.qmd`) and the deck from Ex-2-2 (`analysis/talk.qmd`). They are class work, not results for your advisor; the worksheets contain the planted mistakes of Ex-2-1, which could be read as your results.
+:::
+
+## Task 2: Predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+Every `.qmd` in the project becomes a page: the three new ones **and** the four that were already there, seven in all. Only the three new ones are in the menu. The other four are built into the output folder, where anyone with the folder can open them, but no visitor finds them by clicking.
+
+There is a second effect: once the folder is a website, clicking Render on a worksheet that is part of the site writes its HTML into the output folder, not next to the worksheet.
+:::
+
+## Task 3: Ask the AI for the site
+
+::: {.callout-note collapse="true" title="What to look for"}
+The blanks, filled in:
+
+```text
+1. Home (index.qmd): two sentences on what the project is, and links
+   to the other pages
+2. Data (data.qmd): reads the data and prints its checks
+3. Yields by year (yields.qmd): the average yield per year, as a table
+   and a figure
+Leave out every file in analysis/.
+...
+check the number of rows (I expect `r nrow(yields)`) and the years covered (I expect
+`r min(yields$year)` to `r max(yields$year)`).
+```
+
+The usual way the AI leaves files out is a `render:` list in `_quarto.yml`, naming only the pages to build:
+
+```yaml
+project:
+  type: website
+  render:
+    - index.qmd
+    - data.qmd
+    - yields.qmd
+```
+
+Files not on the list are not built into the site. Each can still be rendered on its own with its Render button, and its HTML then appears next to it, as before.
+:::
+
+## Task 4: Judge the site
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. If the render stopped, the error names the file. A common cause: a worksheet that is still part of the site and does not render, for example `ex-2-1.qmd` with the `task-5` chunk still broken. One failing page stops the whole website.
+
+B. Three menu entries, in your order, each reachable by clicking.
+
+C. With the worksheets left out: `index.html`, `data.html`, `yields.html`, plus support files (`site_libs/`, `search.json`). If you did not ask for them to be left out, you will also find `analysis/ex-2-1.html`, `analysis/ex-2-2.html`, `analysis/ex-2-3.html` and `analysis/talk.html`. Ask the AI to leave them out, render again, and look again: a full render removes pages that are no longer built.
+
+D. "number of rows: expected `r nrow(yields)`, got `r nrow(yields)`", and the years `r min(yields$year)` to `r max(yields$year)`.
+:::
+
+## Task 5: Add a page
+
+::: {.callout-note collapse="true" title="What you should find"}
+Counties reporting per year: `r paste0(per_year$year, ": ", per_year$n, collapse = ", ")`.
+
+Check three things in the rendered site, not the chat: the new page is in the menu where you asked; its numbers match the list above; and the other pages are unchanged (an AI asked to add one page sometimes also "tidies" the others). If you used a `render:` list, the new page must be added to it too, or it is not built: a common reason a new menu entry leads nowhere.
+:::
+
+## Task 6: Share it
+
+::: {.callout-note collapse="true" title="What you should find"}
+Step 2 works: the menu, the links and the styling, because the pages link to each other and to `site_libs/` inside the same folder, and the whole folder came along.
+
+Step 3 does not: the page opens without its styling, and its menu links point at pages that are not next to it. A website is the folder, not any one file in it. To share it before it is published, send the whole folder, zipped; to put it online, publish the folder (for example with GitHub Pages), after checking, as in Task 4C, that everything in it may be public.
+:::
+
+## Wrap-up
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+A. The three worksheets and the deck. Your advisor would not find them through the menu, but anyone with the folder, or with the site once published, could open them by name.
+
+B. A report is one HTML file, made self-contained with `embed-resources: true`, and can be sent on its own. A site is a folder of pages that link to each other, and is shared as the whole folder or published.
+:::

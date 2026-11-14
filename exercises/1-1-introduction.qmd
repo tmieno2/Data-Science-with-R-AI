@@ -1,0 +1,143 @@
+---
+title: "Ex-1-1: Reading R Code, with an AI Assistant"
+abstract: "R Introduction"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - worksheets/ex-1-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+x <- 5
+x <- x + 2
+v <- c(10, 20, 30)
+# Printed the way R prints them, values separated by spaces
+out <- function(z) paste(z, collapse = " ")
+
+aq <- airquality
+
+june <- aq[aq$Month == 6, ]
+june_missing <- sum(is.na(june$Ozone))
+june_avg <- round(mean(june$Ozone, na.rm = TRUE), 1)
+july <- aq[aq$Month == 7, ]
+july_missing <- sum(is.na(july$Ozone))
+```
+
+This is an in-class exercise. Before class, work through the lecture **01-1: Introduction to R**. In class, you work through the worksheet, with an AI assistant for some of the tasks. Today's job is reading code: predicting what a line does, reading help pages and error messages, and taking apart code an AI wrote.
+
+# Setup {#sec-setup}
+
+1. Install R, then RStudio, if you have not already (lecture slide "R and RStudio").
+2. In RStudio, make an R Project: File, New Project, New Directory, New Project, and call it `ch1-practice`. Inside it, make a folder called `analysis`.
+3. Check that the packages `tidyverse`, `rmarkdown` and `here` are installed (the lecture's Directions asked you to install them before class): run `library(tidyverse)` at the Console. If it says "there is no package called ...", install them now with the "Install packages" request from the lecture. `rmarkdown` lets RStudio render Quarto documents that contain R code.
+4. Download the worksheet, [ex-1-1.qmd](worksheets/ex-1-1.qmd), into `ch1-practice/analysis`.
+5. Open the worksheet in RStudio and click **Render**.
+
+::: {.callout-important title="It worked if"}
+An HTML page opens showing the worksheet. Two chunks, under Tasks 3 and 4, show error messages: that is intended, and those tasks are about reading them.
+
+If RStudio offers to install packages when you click Render, accept. If the render stops with "there is no package called 'rmarkdown'", step 3 did not finish.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Predict, then run
+
+::: {.callout-note collapse="true" title="What R prints"}
+A. `r x`. The second line stores `x + 2`, worked out from the old `x`, back under the same name, replacing it.
+
+B. `r out(v * 2)`. Arithmetic on a vector works element by element.
+
+C. `"3" "4" "5"`. One value in quotation marks makes every value text. No error.
+
+D. `NA`. One value is missing, so the average is unknown.
+
+E. `r mean(c(2, NA, 4), na.rm = TRUE)`, the average of the `r sum(!is.na(c(2, NA, 4)))` values that are there.
+
+F. `r round(10 / 3, digits = 1)`.
+
+G. `r out(seq(2, 10, by = 4))`. From 2, in steps of 4, not past 10.
+
+H. `r v[2]`. Positions count from 1.
+
+The ones most people get wrong are C and D. Both are cases where R gives no error and the result is still not what you wanted.
+:::
+
+## Task 2: Read a help page
+
+::: {.callout-note collapse="true" title="What the help pages say"}
+A. One day of air quality readings in New York.
+
+B. `r nrow(aq)` rows ("observations") and `r ncol(aq)` columns ("variables").
+
+C. May to September 1973 (May 1 to September 30).
+
+D. Mean ozone in parts per billion, from 1 pm to 3 pm, at Roosevelt Island.
+
+E. `times` repeats the whole vector, `each` repeats each value before moving to the next:
+
++ `rep(c(1, 2), times = 3)` prints `r out(rep(c(1, 2), times = 3))`
++ `rep(c(1, 2), each = 3)` prints `r out(rep(c(1, 2), each = 3))`
+
+The same six values, in a different order. The help page is how you find out which input does which, without guessing.
+:::
+
+## Task 3: Read the errors
+
+::: {.callout-note collapse="true" title="What each error means"}
+A and B:
+
++ `object 'Airquality' not found`: no object has that name. R treats capital and small letters as different, and the table is `airquality`. Fix: `mean(airquality$Ozone)`. That line then runs and prints `NA`, because `Ozone` has missing values; add `na.rm = TRUE` if you want the average of the rest.
++ `could not find function "nrows"`: no such function. It is `nrow()`. Fix: `n_rows <- nrow(airquality)`, which stores `r nrow(aq)`.
++ `non-numeric argument to binary operator`: `"153"` is in quotation marks, so it is text, and `+` cannot add text. Fix: `day_count <- 153`. (`as.numeric(day_count) + 1` also works.)
+
+C. The AI usually explains all three correctly, because the messages are clear and the code is in front of it. What it cannot know, unless you say so, is what you **meant**: that you wanted the average of the values that are there, or a count of rows. That is why the request asks you to say what you expected.
+:::
+
+## Task 4: Installing versus loading
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `could not find function "glimpse"`. Rendering runs the document in a **fresh** R session, which knows nothing about what you did in the Console. In the Console you had loaded dplyr; the document had not.
+
+B. `library(dplyr)`, above `glimpse(airquality)`, in the same chunk or an earlier one. In your own documents, the `library()` lines go in the first chunk, so every later chunk can use the packages.
+
+C. Installing is a one-time step per computer. In the document, it would download and install the package again at every render, which is slow and needs an internet connection.
+
+This is also the check that a document is complete: if it renders, it does not depend on anything typed into the Console and forgotten.
+:::
+
+## Task 5: Take apart code an AI wrote
+
+::: {.callout-note collapse="true" title="Answers"}
+A. `hot_days`, a table (the rows of `airquality` with `Temp` above 90); `n_hot`, a single number (how many rows `hot_days` has); `avg_ozone`, a single number (the average ozone on those days, rounded).
+
+B. `library()`, `nrow()`, `mean()` and `round()` are built into R. `filter()` comes from dplyr.
+
+C. Take the `Ozone` column of `hot_days`; average it, leaving out missing values; round the average to 1 decimal place; store it as `avg_ozone`.
+
+D. How many hot days had no ozone reading. You would want the number of hot days, the number with `Ozone` missing, and the number the average actually uses.
+
+E. The AI usually explains each line correctly and often points at `na.rm = TRUE`. It cannot say how many values it removes, because it has not seen the data, only the code.
+:::
+
+## Task 6: Ask for code, with checks
+
+::: {.callout-note collapse="true" title="What you should find"}
+**The prediction.** June has 30 days, and the table has one row per day, so 30 rows. Whether any `Ozone` values are missing you cannot know in advance; the help page does not say.
+
+**The result.** `r nrow(june)` days in June. `Ozone` is missing on `r june_missing` of them, so the average, `r june_avg` parts per billion, uses only `r nrow(june) - june_missing` days.
+
+The day count matches and the code is right. The finding is about the data: more than two thirds of June has no ozone reading. For comparison, July is missing `r july_missing` of `r nrow(july)`. A June average from `r nrow(june) - june_missing` days may not represent the month, and anyone reading it should be told how many days it rests on.
+
+This is what `na.rm = TRUE` hides: the code ran, the number looks reasonable, and only the check "days the average uses" showed how little it rests on. Without that check, nothing would have told you.
+
+The blank of the request, filled in: `I expect 30 days in June.` The missing-value count and the average are printed as "got Y" only, because you could not know them in advance.
+:::

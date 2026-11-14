@@ -1,0 +1,159 @@
+---
+title: "Ex-9-4: Two Vector Layers, with an AI Assistant"
+abstract: "Spatial Data"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/9-4-co-counties.gpkg
+  - data/9-4-hp-boundary.gpkg
+  - data/9-4-README.txt
+  - worksheets/ex-9-4.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+suppressMessages({
+  library(sf)
+  library(dplyr)
+})
+co <- st_read("data/9-4-co-counties.gpkg", quiet = TRUE)
+hp <- st_read("data/9-4-hp-boundary.gpkg", quiet = TRUE)
+km2 <- function(x) as.numeric(units::set_units(st_area(x), km^2))
+
+n_co <- nrow(co)
+n_hp <- nrow(hp)
+same_crs <- st_crs(co) == st_crs(hp)
+inv <- sum(!st_is_valid(co)) + sum(!st_is_valid(hp))
+
+any_ <- st_filter(co, hp)
+all_ <- st_filter(co, hp, .predicate = st_within)
+n_any <- nrow(any_)
+n_all <- nrow(all_)
+all_names <- paste(all_$name, collapse = ", ")
+
+# Task 3: share of each county over the aquifer
+co_u <- st_transform(co, 26913)
+hp_u <- st_union(st_transform(hp, 26913))
+pieces <- st_intersection(co_u, hp_u) |>
+  mutate(over_km2 = km2(geom))
+share <- st_drop_geometry(pieces) |>
+  left_join(tibble(name = co_u$name, county_km2 = km2(co_u)), by = "name") |>
+  mutate(share = over_km2 / county_km2) |>
+  arrange(share)
+n_small <- sum(share$share < 0.05)
+small_names <- paste0(share$name[share$share < 0.05], " (",
+                      round(100 * share$share[share$share < 0.05], 1), "%)", collapse = ", ")
+n_half <- sum(share$share > 0.5)
+
+# Task 4: within 20 km, no part over
+zone <- st_buffer(hp_u, 20000)
+near <- st_filter(co_u, zone)
+near_only <- filter(near, !name %in% any_$name)
+n_near <- nrow(near_only)
+near_names <- paste(near_only$name, collapse = " and ")
+
+# Task 5: pieces and their total
+n_pieces <- nrow(pieces)
+total_pieces <- round(sum(pieces$over_km2))
+in_state <- round(km2(st_intersection(hp_u, st_union(co_u))))
+largest <- pieces$name[which.max(pieces$over_km2)]
+largest_km2 <- round(max(pieces$over_km2))
+hp_total <- round(sum(km2(hp)))
+
+# Task 6: Maria
+co_m <- st_transform(co, 26913)
+hp_m <- st_transform(hp, 26913)
+maria_over <- suppressWarnings(st_crop(co_m, hp_m))
+n_maria <- nrow(maria_over)
+maria_km2 <- round(sum(km2(maria_over)))
+co_km2 <- round(sum(km2(co_m)))
+```
+
+This is an in-class exercise. Before class, work through the lecture **09-4: Two Vector Layers: Relations, Subsetting, Buffers and Clipping**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: deciding which relation and which distance your question means, asking for the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-9-4.qmd](worksheets/ex-9-4.qmd), and the data files [9-4-co-counties.gpkg](data/9-4-co-counties.gpkg), [9-4-hp-boundary.gpkg](data/9-4-hp-boundary.gpkg) and [9-4-README.txt](data/9-4-README.txt).
+2. Use the R Project folder `ch9-practice` from the earlier Chapter 9 exercises, or make one, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy the three data files into `ch9-practice/data`, and the worksheet into `ch9-practice/analysis`.
+4. Ask the AI to install the `sf` package if you have not already.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch9-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look at the two layers
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r n_co` counties and `r n_hp` aquifer polygons. Both layers are in NAD83 longitude and latitude, EPSG 4269, so the CRSs are the same (`r same_crs`). There are `r inv` invalid shapes.
+
+B. The eastern plains: the aquifer reaches into Colorado from Nebraska and Kansas, along the eastern edge of the state, and stops well short of the mountains.
+
+C. Any rough count is fine, as long as you wrote it down. Most counties on the eastern plains touch the aquifer, but the aquifer's western edge cuts through most of them, so few lie entirely over it.
+:::
+
+## Task 2: Counties over the aquifer, two ways
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_any` counties have some part over the aquifer; `r n_all` lies entirely over it (`r all_names`).
+
+The two counts are far apart because the aquifer's western edge runs through the middle of the eastern counties, not along county lines. "The counties over the aquifer" is not one set of counties until you say which relation you mean. The default, intersects, gives `r n_any`; the AI uses it unless told otherwise, and your request named both.
+:::
+
+## Task 3: How much of each county is over the aquifer?
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_small` of the `r n_any` counties have less than 5% of their area over the aquifer: `r small_names`. `r n_half` have more than half.
+
+This is the finding of the exercise: the first count of `r n_any` includes counties whose link to the aquifer is a strip along their edge, and the second count of `r n_all` leaves out counties that are mostly over it. Neither count is a good definition for a study of irrigation from the aquifer. A common choice is a threshold on the share, for example "more than half the county's area over the aquifer", which gives `r n_half` counties. Whatever you choose, the share table is what lets you defend it.
+
+A request that does it: "For each county in counties_any, compute the share of its area that lies over the aquifer, in a CRS in metres, and print all of them, smallest first, with the county names and their areas over the aquifer in km²", followed by the closing instructions.
+
+No count or type check could have shown this. Only the question "how much of each county?", which came from knowing what the study is for.
+:::
+
+## Task 4: Counties near the aquifer
+
+::: {.callout-note collapse="true" title="What you should find"}
+EPSG 26913 is NAD83 / UTM zone 13N, in **metres**, so the distance is 20000.
+
+`r n_near` counties lie within 20 km of the aquifer with no part over it: `r near_names`.
+
+The blanks of the request, filled in: `20 km`, `26913`, and your estimate from the map.
+:::
+
+## Task 5: Cut the aquifer at county lines
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_pieces` pieces, one for each county with some part over the aquifer, and no invalid pieces.
+
+The total to check against is the area of the aquifer inside Colorado, `r format(in_state, big.mark = ",")` km², which the AI can compute by cutting the aquifer at the state's outline (the counties merged into one). The pieces add up to `r format(total_pieces, big.mark = ",")` km², so the check passes. The whole aquifer is `r format(hp_total, big.mark = ",")` km², which is the wrong total to expect: most of it lies in other states.
+
+The largest piece is in `r largest` County, `r format(largest_km2, big.mark = ",")` km².
+:::
+
+## Task 6: Maria's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Transforms the counties and the aquifer to UTM zone 13N, in metres; cuts the counties to the rectangle around the aquifer; computes each piece's area in km²; adds them up.
+
+B. Line 3. `st_crop()` cuts to the aquifer's **bounding box**, the rectangle from its westernmost to easternmost and southernmost to northernmost points, not to its outline. The aquifer runs from South Dakota to Texas, so its rectangle covers all of eastern Colorado and more: `r n_maria` of the `r nrow(co)` counties keep a piece, many of them whole. The rectangle also depends on the CRS: the aquifer's bounding box in UTM 13N is not the same rectangle as its bounding box in longitude and latitude, but in either CRS it is a rectangle, not the outline.
+
+C. Much larger: `r format(maria_km2, big.mark = ",")` km², against `r format(in_state, big.mark = ",")` km² over the aquifer (Task 5), and against `r format(co_km2, big.mark = ",")` km² for all of Colorado. Most of the counties' area east of the rectangle's western edge was kept, over the aquifer or not. Cutting to the outline needs `st_intersection()`.
+
+D. A total that must be preserved: the pieces should add up to the aquifer's area inside Colorado. A map of `over` with the aquifer's outline on top would show the straight edge at once.
+
+E. The AI usually notices `st_crop()` when asked whether each line cuts or keeps, because "crop" to a bounding box is in its documentation. Compare its list with yours; treat its answer as something to check, not something to accept.
+:::

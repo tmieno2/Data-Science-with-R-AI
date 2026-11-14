@@ -1,0 +1,184 @@
+---
+title: "Ex-9-5: Spatial Joins, with an AI Assistant"
+abstract: "Spatial Data"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/9-5-corn-yield-points.gpkg
+  - data/9-5-treatment-blocks.gpkg
+  - data/9-5-soy-yield-points.gpkg
+  - data/9-5-seed-rate-points.gpkg
+  - data/9-5-README.txt
+  - worksheets/ex-9-5.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+suppressMessages({
+  library(sf)
+  library(dplyr)
+})
+pts <- st_read("data/9-5-corn-yield-points.gpkg", quiet = TRUE)
+blk <- st_read("data/9-5-treatment-blocks.gpkg", quiet = TRUE)
+soy <- st_read("data/9-5-soy-yield-points.gpkg", quiet = TRUE)
+seed <- st_read("data/9-5-seed-rate-points.gpkg", quiet = TRUE)
+
+n_pts <- nrow(pts)
+n_blk <- nrow(blk)
+crs_corn <- st_crs(pts)$Name
+same_corn <- st_crs(pts) == st_crs(blk)
+n_rates <- n_distinct(blk$target_rate)
+rates <- paste(sort(unique(blk$target_rate)), collapse = ", ")
+blk_per_rate <- n_blk / n_rates
+
+# Task 2
+yp <- st_join(pts, select(blk, block_id, target_rate))
+n_yp <- nrow(yp)
+n_none <- sum(is.na(yp$block_id))
+n_in <- n_pts - n_none
+pct_in <- round(100 * n_in / n_pts)
+n_multi <- sum(lengths(st_intersects(pts, blk)) > 1)
+blk_km <- round(sum(as.numeric(st_area(blk))))
+field_km <- round(as.numeric(st_area(st_convex_hull(st_union(pts)))))
+
+# Task 3
+by_rate <- yp |>
+  st_drop_geometry() |>
+  filter(!is.na(block_id)) |>
+  group_by(target_rate) |>
+  summarise(n_points = n(), mean_yield = round(mean(yield), 1))
+mean_out <- round(mean(yp$yield[is.na(yp$block_id)]), 1)
+
+# Task 4
+crs_soy <- st_crs(soy)$Name
+same_soy <- st_crs(soy) == st_crs(seed)
+units_soy <- st_crs(soy)$units_gdal
+centre <- round(st_coordinates(st_transform(st_centroid(st_union(soy)), 4326)), 1)
+
+# Task 5
+ss <- st_join(soy, seed, join = st_is_within_distance, dist = 10)
+n_soy <- nrow(soy)
+n_ss <- nrow(ss)
+matches <- ss |> st_drop_geometry() |> group_by(yield_id) |> summarise(k = sum(!is.na(seed_id)))
+n_soy_none <- sum(matches$k == 0)
+n_soy_multi <- sum(matches$k > 1)
+max_k <- max(matches$k)
+
+# Task 6
+pb <- st_join(blk, pts)
+n_pb <- nrow(pb)
+n_blk_empty <- sum(lengths(st_intersects(blk, pts)) == 0)
+area_true <- blk |> mutate(a = as.numeric(st_area(geom))) |> st_drop_geometry() |>
+  group_by(target_rate) |> summarise(area_m2 = round(sum(a)))
+area_maria <- pb |> mutate(a = as.numeric(st_area(geom))) |> st_drop_geometry() |>
+  group_by(target_rate) |> summarise(area_m2 = round(sum(a)), n_points = n())
+ratio <- round(mean(area_maria$area_m2 / area_true$area_m2))
+```
+
+This is an in-class exercise. Before class, work through the lecture **09-5: Spatial Joins: Matching Rows by Location**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: deciding what one row of the result is, knowing how many matches to expect, asking for the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-9-5.qmd](worksheets/ex-9-5.qmd), and the data files:
+   + [9-5-corn-yield-points.gpkg](data/9-5-corn-yield-points.gpkg) and [9-5-treatment-blocks.gpkg](data/9-5-treatment-blocks.gpkg)
+   + [9-5-soy-yield-points.gpkg](data/9-5-soy-yield-points.gpkg) and [9-5-seed-rate-points.gpkg](data/9-5-seed-rate-points.gpkg)
+   + [9-5-README.txt](data/9-5-README.txt)
+2. Use the R Project folder `ch9-practice` from the earlier Chapter 9 exercises, or make one, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy the five data files into `ch9-practice/data`, and the worksheet into `ch9-practice/analysis`.
+4. Ask the AI to install the `sf` package if you have not already.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch9-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look at the corn field
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r format(n_pts, big.mark = ",")` yield points and `r n_blk` plots, both in `r crs_corn` (same CRS: `r same_corn`).
+
+B. No. The plots cover only part of the field; the map shows many yield points between and around them. (The share is the answer to Task 2.)
+
+C. No. The plots do not overlap, so a point can lie in at most one. A point exactly on a shared boundary would match both, which is why the check for "more than one plot" is still worth asking for.
+:::
+
+## Task 2: Give each yield point its plot
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r format(n_yp, big.mark = ",")` rows, one per yield point, as expected. **`r format(n_none, big.mark = ",")` points have no plot**; only `r format(n_in, big.mark = ",")` (`r pct_in`%) lie inside one. `r n_multi` points match more than one plot.
+
+This is the main finding of the task. The plots cover `r format(blk_km, big.mark = ",")` m² of a field of about `r format(field_km, big.mark = ",")` m², so most of the combine's points are outside the trial: in the gaps between plots and around them. The files record no nitrogen rate for those points, so they have no `target_rate` and should not be in an analysis of the trial.
+
+The join kept them, with NA, because a spatial join keeps every target row. Nothing went wrong in the code; the check for points with no plot is what tells you how much of your data the analysis is really about.
+:::
+
+## Task 3: Average yield by nitrogen rate
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_rates` rows, one per rate (`r rates` lb per acre), each applied to `r blk_per_rate` plots. The point counts add up to `r format(n_in, big.mark = ",")`:
+
+```{r}
+#| echo: false
+knitr::kable(by_rate)
+```
+
+Had the points with no plot stayed in, `group_by(target_rate)` would have added a sixth row, `NA`, holding `r format(n_none, big.mark = ",")` points with a mean of `r mean_out`, the largest group in the table. A check of the number of rows (expected `r n_rates`) catches it.
+:::
+
+## Task 4 (if time allows): Where is the soybean field?
+
+::: {.callout-note collapse="true" title="What you should find"}
+Both files record `r crs_soy`, in `r units_soy`s (same CRS: `r same_soy`). Transformed to longitude and latitude, the field's centre is at longitude `r centre[1]`, latitude `r centre[2]`: **in the Atlantic Ocean**, west of Portugal. UTM zone 28N covers longitudes 18 to 12 degrees west, nowhere near the US.
+
+So the CRS recorded in the files is wrong. The numbers are metres, as the README says, but they do not belong to zone 28N, and the files do not say which CRS they do belong to. Whoever produced the files has to be asked.
+
+What you can still do:
+
+1. **Yes.** Matching within 10 m uses distances computed from the numbers themselves, in two layers that carry the same label. The numbers are metres (README), so distances inside the field are right even though the label is wrong.
+2. **No.** Joining to counties needs the field's true location. With the recorded CRS, it matches no county.
+3. **No**, for the same reason: PRISM covers the US, and the field, as recorded, is in the ocean. The extraction would return NA for every point.
+
+This is why the four checks of lecture 09-1 include the bounding box and a map: a CRS label that is wrong gives no error until you combine the layer with one whose location is right.
+:::
+
+## Task 5: Match each soybean yield point to nearby seed-rate points
+
+::: {.callout-note collapse="true" title="What you should find"}
+The CRS is in metres, so the distance is 10.
+
+`r format(n_soy, big.mark = ",")` yield points before; **`r format(n_ss, big.mark = ",")` rows after the join**, because `r n_soy_multi` yield points have more than one seed-rate point within 10 m (up to `r max_k`), and each match is a row. After the summary, `r format(n_soy, big.mark = ",")` rows again.
+
+`r n_soy_none` yield points have no seed-rate point within 10 m, so their mean seed rate is NA. They should be left out of any analysis of seed rate and yield, and the number left out reported. A larger distance would match more of them, but with seed-rate points farther away that may not describe what was planted at that spot; the distance is a decision about the planter and the combine, not about the code.
+:::
+
+## Task 6: Maria's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. The join keeps one row per plot and yield point inside it (`r format(n_pb, big.mark = ",")` rows here), plus one row with NA for each plot with no point. The summary computes each row's plot area, drops the shapes, and adds up the areas and counts the rows for each rate.
+
+B. Five plots of roughly `r round(area_true$area_m2[1] / 5)` m² each, so about `r format(area_true$area_m2[1], big.mark = ",")` m² per rate. Maria gets about `r ratio` times that, because each plot's area is added once **per yield point** in it:
+
+```{r}
+#| echo: false
+knitr::kable(left_join(rename(area_true, true_area_m2 = area_m2), rename(area_maria, maria_area_m2 = area_m2), by = "target_rate"))
+```
+
+No error: every number is a real area, just added too many times. It is the same failure as Nebraska's area counted once per well in the lecture.
+
+C. Here, yes: every plot has yield points (`r n_blk_empty` plots without one). For a plot with no point, `n()` would count its one NA row as 1 point.
+
+D. A total that must not change: the plots' area by rate, computed before the join, should equal the one after. Or: sum the areas from the plots layer, not from the joined table, and use the join only for the counts.
+
+E. The AI usually spots the repeated area once it is asked what one row of `plot_yield` is. Compare its list with yours.
+:::

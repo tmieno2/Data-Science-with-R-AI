@@ -1,0 +1,163 @@
+---
+title: "Ex-6-1: Organising a Research Project, with an AI Assistant"
+abstract: "Organising Research"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/6-1-messy-project.zip
+  - worksheets/ex-6-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+
+unz_dir <- file.path(tempdir(), "ex-6-1")
+unlink(unz_dir, recursive = TRUE)
+unzip("data/6-1-messy-project.zip", exdir = unz_dir)
+messy <- file.path(unz_dir, "corn-messy")
+
+raw_file   <- file.path(messy, "corn_yields.csv")
+fixed_file <- file.path(messy, "corn_yields_fixed.csv")
+raw   <- read_csv(raw_file, col_types = cols(FIPS = "c"))
+fixed <- read_csv(fixed_file, col_types = cols(FIPS = "c"))
+
+raw_lines   <- length(readLines(raw_file))
+fixed_lines <- length(readLines(fixed_file))
+
+removed <- anti_join(raw, fixed, by = names(raw))
+added   <- anti_join(fixed, raw, by = names(raw))
+
+avg <- function(d) {
+  d |> group_by(Irrigated) |> summarise(m = round(mean(Yield), 1)) |> pull(m, Irrigated)
+}
+raw_avg   <- avg(raw)
+fixed_avg <- avg(fixed)
+raw_gap   <- round(raw_avg[["1"]] - raw_avg[["0"]], 1)
+fixed_gap <- round(fixed_avg[["1"]] - fixed_avg[["0"]], 1)
+
+jan_clean <- read_csv(file.path(messy, "corn_clean.csv"), col_types = cols(FIPS = "c"))
+v2_rows <- sum(fixed$Yield > 120)
+```
+
+This is an in-class exercise. Before class, work through the lecture **06-1: Organising a Research Project**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what each file is, deciding where it belongs, asking for the right steps and checks, and judging whether the project rebuilds.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-6-1.qmd](worksheets/ex-6-1.qmd), and Jan's project folder, [6-1-messy-project.zip](data/6-1-messy-project.zip).
+2. Make an R Project called `ch6-practice` in RStudio (File, New Project, New Directory, New Project), with a subfolder `analysis`.
+3. Unzip the download into `ch6-practice`, so that you have `ch6-practice/corn-messy/`.
+4. Put the worksheet into `ch6-practice/analysis`.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch6-practice` and nothing longer, and `list.files(here::here("corn-messy"))` lists `r length(list.files(messy))` files.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look and sort
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. One reasonable reading:
+
+| File | What it is | Why |
+|---|---|---|
+| `corn_yields.csv` | data as received, probably | `notes.txt` says the data came from NASS; nothing in the folder writes this file |
+| `corn_yields_fixed.csv` | **cannot tell** | Nothing in the folder writes it, so it was made by hand or by code that is gone. `notes.txt` says only "fixed the data". |
+| `corn_clean.csv` | data made by code | `analysis_final.R` writes it |
+| `yield_by_irrigation.png` | a result | `analysis_final.R` saves it |
+| `analysis_final.R` | code | |
+| `analysis_final_v2.R` | code | |
+| `notes.txt` | a note | |
+
+B. `corn_yields.csv` has `r raw_lines` lines (`r raw_lines - 1` data rows); `corn_yields_fixed.csv` has `r fixed_lines` (`r fixed_lines - 1` data rows).
+
+C. `corn_yields.csv`, because it has the most rows and no code makes it. To be sure, you would need to know where it was downloaded and that nobody edited it since; in a real project, you would download it again and compare.
+:::
+
+## Task 2: What is the difference between the two data files?
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r nrow(raw)` rows against `r nrow(fixed)`. `r nrow(removed)` rows are in `corn_yields.csv` and missing from the fixed file, and `r nrow(added)` rows are in the fixed file only.
+
+A. All `r nrow(removed)` missing rows are **non-irrigated** fields (`Irrigated` is 0), and they are the `r nrow(removed)` lowest non-irrigated yields in the file: from `r min(removed$Yield)` to `r max(removed$Yield)` bushels per acre. No irrigated row was touched.
+
+B. The irrigated average is `r raw_avg[["1"]]` in both files. The non-irrigated average rises from `r raw_avg[["0"]]` to `r fixed_avg[["0"]]`. So the gap between irrigated and non-irrigated yields shrinks from `r raw_gap` to `r fixed_gap` bushels per acre, which is the number the analysis is about.
+
+C. Nothing records it. "Fixed the data" does not say which rows, or why. The rows may have been real errors, or they may have been real low yields from a dry county, which is exactly the variation an irrigation study needs. You cannot tell from the data.
+
+So `corn_yields.csv` is the raw data. Ask Jan which rows were removed and why. If there is a good reason, the removal becomes a line in the cleaning step, with a sentence above it giving the reason, where anyone can see it and undo it. Until then, it does not happen.
+
+This is the point of the task: a file edited by hand looks exactly like a raw file. Only the original, kept untouched, let you see what was done.
+:::
+
+## Task 3: Lay out the project
+
+::: {.callout-note collapse="true" title="One reasonable answer"}
+| File | Goes to | Why |
+|---|---|---|
+| `corn_yields.csv` | `data/raw/` | The data as received |
+| `corn_yields_fixed.csv` | nowhere | An undocumented edit (Task 2). It stays in `corn-messy/` until Jan explains it. |
+| `corn_clean.csv` | nowhere | Made by code; the cleaning step rebuilds it, from the raw file |
+| `yield_by_irrigation.png` | nowhere | Made by code; the summary step rebuilds it |
+| `analysis_final.R` | nowhere | Rewritten as steps in Task 4; the original stays in `corn-messy/` |
+| `analysis_final_v2.R` | nowhere | See Task 6 |
+| `notes.txt` | into `README.md` | Where the data came from belongs in the README |
+
+The AI cannot know that `corn_yields_fixed.csv` is not raw: its name says "fixed", and it may well propose it as the data to use. That was your call, from Task 2.
+
+The check prints `TRUE` and then `corn_yields.csv`, alone.
+:::
+
+## Task 4: Rewrite Jan's analysis as steps
+
+::: {.callout-note collapse="true" title="What you should find"}
+**4a.** `r nrow(raw)` rows and 4 columns, with `FIPS` as text. A good check: the number of rows equals the number of data rows you counted in Task 1. Jan's `corn_clean.csv` had `r nrow(jan_clean)`, because it was made from the edited file.
+
+**4b.** Average yield `r raw_avg[["1"]]` for irrigated and `r raw_avg[["0"]]` for non-irrigated fields: the same as the raw file's averages in Task 2. A good check: there are 2 groups, and the averages match Task 2.
+
+Jan's figure does not match your new one: it was drawn from the edited file, so its non-irrigated box is missing the `r nrow(removed)` lowest yields. Your figure is now the one you can explain.
+:::
+
+## Task 5: The test
+
+::: {.callout-note collapse="true" title="What you should find"}
+Three files come back: `data/processed/corn_clean.rds`, `results/mean-yield-by-irrigation.csv` and `results/yield_by_irrigation.png`. The fingerprint of `data/raw/corn_yields.csv` is the same before and after.
+
+If a step fails, the error names it. The usual causes: a path not built with `here::here()`, or a step that uses an object it never read (the summary step must read `corn_clean.rds` itself).
+
+If `run-all.R` also tries to render `ex-6-1.qmd`, its pattern lists every `.qmd` in `analysis/` instead of only names starting with two digits. Rendering the worksheet from inside the worksheet would start the test again from inside itself, over and over.
+:::
+
+## Task 6: Read Jan's other script
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Changes the working directory; loads the tidyverse; keeps rows with a yield above 120; fits a regression of yield on irrigation; prints its summary; saves the filtered table as `corn_yields.csv`.
+
+B. Line 1. The folder `C:/Users/jan/Desktop/corn` exists only on Jan's computer.
+
+C. `corn`, in the `filter()` line. Nothing in this script reads or makes it. It works only if something else made `corn` earlier in the same R session (or R restored it from `.RData`). In a fresh session, such as a render, it fails with "object 'corn' not found".
+
+D. The last line. It saves the table over `corn_yields.csv`, the raw data, without asking. Whatever `corn` held, the original raw file is gone.
+
+E. `analysis_final.R` made `corn` from `corn_yields_fixed.csv`, keeping 4 columns. So the regression used the edited file: `r v2_rows` of its `r nrow(fixed)` rows have a yield above 120, so the filter dropped `r nrow(fixed) - v2_rows` rows, because the hand edit had already removed every low yield. And after the last line, `corn_yields.csv` itself would hold those `r v2_rows` rows and 4 columns: the `r nrow(removed)` rows you found in Task 2 would be gone from the raw file too, and nobody could find the edit again.
+
+F. The AI usually spots the path and the overwrite, and often the missing `corn`. It cannot answer E: that depends on what Jan ran before, which only the folder (and `notes.txt`) can tell you.
+:::
+
+## Task 7: Does it rebuild anywhere?
+
+::: {.callout-note collapse="true" title="What you should find"}
+If it fails on your neighbour's computer, the error names the step and usually the line: almost always a path, or a package they have not installed. Fix the step, not their computer. A project that rebuilds on someone else's computer, from the raw data, with no help from you, has passed the test from the lecture.
+:::

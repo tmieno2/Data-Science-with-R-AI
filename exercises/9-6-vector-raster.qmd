@@ -1,0 +1,182 @@
+---
+title: "Ex-9-6: Vector Meets Raster, with an AI Assistant"
+abstract: "Spatial Data"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/9-6-ndre.tif
+  - data/9-6-treatment-blocks.gpkg
+  - data/9-6-corn-yield-points.gpkg
+  - data/9-6-co-counties.gpkg
+  - data/9-6-ppt-2012aug.tif
+  - data/9-6-README.txt
+  - worksheets/ex-9-6.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+suppressMessages({
+  library(sf)
+  library(terra)
+  library(dplyr)
+})
+ndre <- rast("data/9-6-ndre.tif")
+blk <- st_read("data/9-6-treatment-blocks.gpkg", quiet = TRUE)
+pts <- st_read("data/9-6-corn-yield-points.gpkg", quiet = TRUE)
+co <- st_read("data/9-6-co-counties.gpkg", quiet = TRUE)
+ppt <- rast("data/9-6-ppt-2012aug.tif")
+
+inside <- function(v, r) relate(vect(v), vect(ext(r), crs = crs(r)), "within")[, 1]
+
+# Task 1
+crs_ndre <- crs(ndre, describe = TRUE)$name
+crs_vec <- st_crs(blk)$Name
+cell_m <- round(res(ndre) * c(111320 * cos(40.04 * pi / 180), 110574), 1)
+blk_u <- st_transform(blk, crs(ndre))
+blk_w <- round(mean(sqrt(as.numeric(st_area(blk)))), 0)
+ndre_range <- round(as.numeric(global(ndre, range, na.rm = TRUE)), 2)
+n_blk_in <- sum(inside(blk_u, ndre))
+n_pts_in <- sum(inside(st_transform(pts, crs(ndre)), ndre))
+
+# Task 2
+ep <- terra::extract(ndre, vect(st_transform(pts, crs(ndre))))
+n_ep <- nrow(ep)
+n_ep_na <- sum(is.na(ep[[2]]))
+ep_range <- round(range(ep[[2]], na.rm = TRUE), 2)
+
+# Task 3
+eb <- terra::extract(ndre, vect(blk_u), exact = TRUE)
+by_blk <- eb |>
+  filter(!is.na(NDRE)) |>
+  group_by(ID) |>
+  summarise(ndre = sum(NDRE * fraction) / sum(fraction), n_cells = n()) |>
+  mutate(block_id = blk$block_id[ID], target_rate = blk$target_rate[ID])
+min_cells <- min(by_blk$n_cells)
+default_b <- terra::extract(ndre, vect(blk_u), fun = mean, na.rm = TRUE)[[2]]
+max_rule_diff <- signif(max(abs(default_b - by_blk$ndre)), 1)
+by_rate <- by_blk |> group_by(target_rate) |> summarise(mean_ndre = round(mean(ndre), 3))
+rate_gap <- round(diff(range(by_rate$mean_ndre)), 3)
+field_sd <- round(sd(ep[[2]], na.rm = TRUE), 3)
+
+# Task 4
+n_co <- nrow(co)
+tot <- sum(ppt)
+names(tot) <- "ppt_total"
+ec <- terra::extract(tot, vect(co), exact = TRUE) |>
+  filter(!is.na(ppt_total)) |>
+  group_by(ID) |>
+  summarise(ppt_mm = sum(ppt_total * fraction) / sum(fraction))
+co_ppt <- tibble(ID = seq_len(n_co), name = co$name) |> left_join(ec, by = "ID")
+n_noval <- sum(is.na(co_ppt$ppt_mm))
+co_in <- inside(co, ppt)
+n_in <- sum(co_in)
+partial <- co_ppt$name[!co_in & !is.na(co_ppt$ppt_mm)]
+n_partial <- length(partial)
+ppt_south <- round(ymin(ppt), 2)
+co_lat <- round(st_bbox(co)[c("ymin", "ymax")], 1)
+
+# Task 5: Maria
+rep1 <- filter(blk, replication == 1)
+vals <- suppressWarnings(terra::extract(ndre, st_transform(rep1, crs(ndre)), fun = mean))
+maria <- left_join(blk, rename(vals, block_id = ID), by = "block_id")
+got_ids <- maria$block_id[!is.na(maria$NDRE)]
+got_reps <- unique(maria$replication[!is.na(maria$NDRE)])
+n_val <- sum(!is.na(maria$NDRE))
+```
+
+This is an in-class exercise. Before class, work through the lecture **09-6: Vector Meets Raster: Cropping, Masking and Extracting Values**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what the raster holds and whether it covers your area, asking for the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-9-6.qmd](worksheets/ex-9-6.qmd), and the data files:
+   + [9-6-ndre.tif](data/9-6-ndre.tif), [9-6-treatment-blocks.gpkg](data/9-6-treatment-blocks.gpkg) and [9-6-corn-yield-points.gpkg](data/9-6-corn-yield-points.gpkg)
+   + [9-6-co-counties.gpkg](data/9-6-co-counties.gpkg) and [9-6-ppt-2012aug.tif](data/9-6-ppt-2012aug.tif)
+   + [9-6-README.txt](data/9-6-README.txt)
+2. Use the R Project folder `ch9-practice` from the earlier Chapter 9 exercises, or make one, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy the six data files into `ch9-practice/data`, and the worksheet into `ch9-practice/analysis`.
+4. Ask the AI to install the `sf`, `terra` and `tidyterra` packages if you have not already.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch9-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look at the drone image and the field
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. No. The raster is in `r crs_ndre` (longitude and latitude); the plots and points are in `r crs_vec` (metres). Transform the vector layers to the raster's CRS: transforming a raster recomputes every cell and loses detail, transforming points and polygons does not.
+
+B. A cell is about `r cell_m[1]` m by `r cell_m[2]` m (the cell size is printed in degrees; the AI can convert it). A plot is roughly `r blk_w` m across if it were square (the plots are long strips, so their real widths differ). So a plot covers a few hundred cells.
+
+C. Yes: all `r nrow(blk)` plots (`r n_blk_in` inside the raster's rectangle) and all `r format(nrow(pts), big.mark = ",")` yield points (`r format(n_pts_in, big.mark = ",")`).
+:::
+
+## Task 2: NDRE at each yield point
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r format(n_ep, big.mark = ",")` rows, one per point; `r n_ep_na` points with a missing value; values from `r ep_range[1]` to `r ep_range[2]`, inside the raster's own range of `r ndre_range[1]` to `r ndre_range[2]`.
+
+The blanks, filled in: `EPSG 4326` (WGS 84 longitude and latitude), `3830`, `0` (Task 1C showed every point inside the raster), and the raster's range from Task 1.
+
+If the AI did not transform the points first, the HTML shows the warning `[extract] transforming vector data to the CRS of the raster`, and the values are still right. Asking for the transformation keeps the code saying what it does.
+:::
+
+## Task 3: Average NDRE in each plot
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r nrow(by_blk)` rows, no plot without a value, every plot inside the raster, and the smallest plot covers `r min_cells` cells. With so many small cells per plot, the cell-counting rule barely matters: the default rule (cell centre inside) and the weighted rule differ by at most `r max_rule_diff` in any plot.
+
+Mean of the plot averages by nitrogen rate:
+
+```{r}
+#| echo: false
+knitr::kable(by_rate)
+```
+
+The largest difference between rates is `r rate_gap`, while NDRE at the yield points (Task 2) varies across the field with a standard deviation of `r field_sd`. Whatever relation there is between nitrogen and greenness here is small next to the variation across the field, which is worth knowing before reading anything into the order of the five numbers.
+:::
+
+## Task 4: Rain in Colorado's counties
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_co` rows, but the checks fail:
+
++ **`r n_noval` counties have no value.**
++ Only **`r n_in` of the `r n_co` counties** lie entirely inside the raster's rectangle.
++ `r n_partial` more counties have a value but are only **partly** covered: `r paste(partial, collapse = ", ")`.
+
+The colleague's file was made for a Nebraska project. It covers latitudes from `r ppt_south` degrees north up to Nebraska's northern border, and Colorado runs from `r co_lat[1]` to `r co_lat[2]` degrees north. So the raster covers only a narrow strip along Colorado's northern border, which the map with the raster's rectangle shows at once.
+
+Which values to use:
+
++ The `r n_in` counties entirely inside the raster: usable.
++ The `r n_noval` counties with no value: nothing to use, and the NA says so.
++ The `r n_partial` partly covered counties: **do not use**. Their value is the average over their northern edge only, and nothing in the number says so. This is the silent failure of the task.
+
+Next step: download PRISM for Colorado and the same days (lecture 09-7), and extract again. The check "counties not entirely inside the raster's rectangle" is the one to keep in every extraction request.
+:::
+
+## Task 5: Maria's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Reads the raster; reads the plots; keeps the five plots of replication 1; extracts their mean NDRE, after transforming them to the raster's CRS; merges the values onto all plots, treating `ID` as `block_id`.
+
+B. `ID` is the **row number** within `rep1`: 1 to 5. The replication-1 plots have `block_id` `r paste(rep1$block_id, collapse = ", ")`. So the merge puts the five values on plots `r paste(got_ids, collapse = ", ")`, which are replication `r paste(got_reps, collapse = ", ")`, and leaves the five plots she wanted empty.
+
+C. Both pass: `r n_val` plots have a value and `r nrow(blk) - n_val` have none. The counts are exactly right; the plots are wrong. A count cannot tell one plot from another.
+
+D. A check on **which** plots got a value: "replication of the plots with a value: expected 1, got `r paste(got_reps, collapse = ", ")`", or "block_id of the plots with a value: expected `r paste(rep1$block_id, collapse = ", ")`". Line 5 should first turn `ID` into the plots' own IDs, `block_id = rep1$block_id[ID]`, and then merge by `block_id`, as on the lecture's polygon example.
+
+E. The AI usually explains that `ID` is a row number when asked how values are matched back. Compare its list with yours.
+:::

@@ -1,0 +1,894 @@
+---
+title: "07-1: Dates and Text"
+abstract: "Chapter 7: Date and String"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(lubridate)
+library(stringr)
+data(pizzaplace, package = "gt")
+pizza <- pizzaplace
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Two kinds of column cause more quiet mistakes than any other: **dates** and **text**. An AI assistant can write the code that converts a date or cleans a text column. It knows every function. What it cannot do is:
+
++ see how the dates in your file are written
++ know whether `03/04/2025` means 4 March or 3 April
++ see every spelling of a name that occurs in your data
++ tell whether the result is right
+
+Those are your job. So today is about:
+
+1. **The concept**: what a date is to R, and what pattern matching on text is, and what has to be true for each to work
+2. **Reading code**: recognising what a line of date or text code does, without memorising it
+3. **Asking AI**: what to put in your request
+4. **Checking**: how to tell whether the code the AI wrote did the right thing
+
+### Directions
+
++ Ask your AI assistant to install the `tidyverse`, `here` and `gt` packages if you have not already. The `tidyverse` includes `lubridate` (dates) and `stringr` (text).
++ The examples use `pizzaplace`, a table that comes with the `gt` package: a year of orders from a pizza shop, one row per pizza sold, `r format(nrow(pizza), big.mark = ",")` rows. Its columns include `date` (the day of the order), `name` (the pizza, such as `thai_ckn`) and `price`. On these slides the table is called `pizza`.
+
+:::
+
+# Dates: the concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## A date stored as text, and a date stored as a date
+
+A file stores a date as characters, such as `2015-01-01`. When it is read into R, the column is still **text** (R says `character`): a row of characters that happens to look like a date. Only after it is converted is it a **date** (R says `Date`): a value that R knows is a day in the calendar. The two print almost the same. They do not behave the same.
+
+::: {.panel-tabset}
+
+### What R sees
+
+```{r}
+#| label: what-r-sees
+class(pizza$date)
+class(ymd(pizza$date))
+```
+
+`ymd()` converts text written year, month, day into a date. Converting is called **parsing** in R's help pages and on these slides.
+
+### Sorting
+
+Three dates written month/day/year, sorted as text and as dates:
+
+```{r}
+#| label: sort-text
+as_text <- c("12/15/2014", "01/03/2015", "06/20/2015")
+sort(as_text)
+sort(mdy(as_text))
+```
+
+Text is sorted character by character, from the left, so `01/...` comes first whatever the year. The December 2014 date ends up last. No error. Only the dates sort in calendar order.
+
+### Subtracting
+
+How many days from the first order to the last?
+
+```{r}
+#| label: subtract-text
+#| error: true
+max(pizza$date) - min(pizza$date)
+```
+
+Text cannot be subtracted, and R says so. As dates:
+
+```{r}
+#| label: subtract-date
+max(ymd(pizza$date)) - min(ymd(pizza$date))
+```
+
+### Grouping by month
+
+To count orders per month from text, you would take the characters that hold the month. Characters 6 and 7 of `2015-01-15` are the month, `r substr("2015-01-15", 6, 7)`. Characters 6 and 7 of the same day written `01/15/2015` are `r substr("01/15/2015", 6, 7)`. It depends on how the text was written, and nothing warns you when it is wrong.
+
+From a date, `month()` gives the month whatever the text looked like:
+
+```{r}
+#| label: group-month
+pizza |>
+  mutate(date = ymd(date)) |>
+  count(month = month(date)) |>
+  head(4)
+```
+
+:::
+
+## How date code is written
+
+Date code comes in two kinds: code that **parses** text into dates, and code that **uses** dates once they exist. Each follows one pattern.
+
+::: {.panel-tabset}
+
+### Parsing: the pattern
+
+```{r}
+#| eval: false
+table_name <- table_name |> mutate(date_column = parser(text_column))
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `mutate(...)` | Adds a column to the table, or replaces one with the same name | Needed to keep the result in the table |
+| `date_column =` | The name of the new date column. Often the same name as the text column, which replaces it. | Yes |
+| `parser` | The function that reads the text. In `lubridate`, its name gives the **order** of the pieces: `ymd` is year, month, day. | Yes |
+| `text_column` | The text to parse | **Yes, the only required input** |
+
+A real line that follows the pattern:
+
+```{r}
+#| label: parse-example
+pizza_dated <- pizza |> mutate(date = ymd(date))
+```
+
+### Every parser follows the pattern
+
+| Text looks like | Parser | Package |
+|---|---|---|
+| `2015-03-04` | `ymd(x)` | lubridate (tidyverse) |
+| `03/04/2015` (month first) | `mdy(x)` | lubridate |
+| `04/03/2015` (day first) | `dmy(x)` | lubridate |
+| `2015-03-04 11:38:36` | `ymd_hms(x)` | lubridate |
+| `03/04/2015` | `as.Date(x, format = "%m/%d/%Y")` | built into R |
+
+`lubridate`'s parsers do not care about the separators: `mdy()` reads `03/04/2015`, `03-04-2015` and `March 4, 2015` alike. What they need is the **order**.
+
+`as.Date()` instead takes a `format`, written with codes: `%Y` four-digit year, `%y` two-digit year, `%m` month as a number, `%b` or `%B` month as a word, `%d` day.
+
+### Using dates: the pattern
+
+Once a column is a date, two kinds of line are common: taking a **part** of each date, and **arithmetic** with dates.
+
+| Code | What it gives |
+|---|---|
+| `year(date)`, `month(date)`, `mday(date)` | the year, the month (1 to 12), the day of the month |
+| `wday(date, label = TRUE)` | the day of the week, as Sun, Mon, ... |
+| `yday(date)` | the day of the year, 1 to 366 |
+| `floor_date(date, "month")` | the first day of the date's month, still a date, so months of different years stay apart |
+| `date2 - date1` | the number of days between them |
+| `date + days(7)` | the date a week later |
+| `date %m+% months(1)` | the same day one month later (see "Adding a month" under "Dates: the silent failures") |
+| `date >= ymd("2015-05-01")`, `filter(table, date >= ymd("2015-05-01"))` | TRUE or FALSE for each date, in calendar order; inside `filter()`, the rows on or after that day |
+| `seq(first_date, last_date, by = "day")` | every date from the first to the last |
+| `format(date, "%d %B %Y")` | the date turned back into text, written as you choose (for example `15 December 2010`), for labels in tables and figures; it is text again, so do this last |
+
+### Variations you will see
+
++ `lubridate::ymd(...)`: the package name, then `::`, then the function.
++ `as.Date(x, "%m/%d/%Y")`: base R; the format is the second input, named or not.
++ `parse_date_time(x, orders = c("mdy", "dmy"))`: tries more than one order. It decides which order to use from the values themselves; the order you list them in decides only when the values do not. A value that fits both orders, such as `03/04/2025`, can be read either way with no warning, and since nothing fails to parse, the count of failures stays at 0. Only the range of the dates and the rows per month reveal it. Ask why the AI used it.
++ `mutate(across(c(start, end), mdy))`: the same parser applied to several columns at once.
+
+:::
+
+## Date formats, and what `03/04/2025` means
+
+::: {.panel-tabset}
+
+### Many ways to write one day
+
+All of these are 15 December 2010:
+
++ `2010-12-15` (the international standard, year first)
++ `12/15/2010` (the usual US order, month first)
++ `15/12/2010` (most of the rest of the world, day first)
++ `Dec 15 10`
++ `15 December 2010`
+
+The parser has to match the way **your** file writes them, and only looking at the file tells you which that is.
+
+### `03/04/2025`
+
+Month first, it is 4 March. Day first, it is 3 April. Both parsers accept it without complaint:
+
+```{r}
+#| label: ambiguous
+mdy("03/04/2025")
+dmy("03/04/2025")
+```
+
+The text alone cannot tell you which is right. Two things can:
+
++ **Who wrote it**: US software and people usually write month first; most other countries write day first.
++ **The other values in the column**: a first number above 12 can only be a day. If a column holds `25/03/2025`, it is written day first.
+
+### Two-digit years
+
+A two-digit year has lost its century, so the parser guesses one:
+
+```{r}
+#| label: two-digit-years
+mdy("01/01/68")
+mdy("01/01/69")
+```
+
+`68` became 2068 and `69` became 1969. A birth year or a weather record from 1968 would land 100 years in the future. And a format that expects two digits reads only two of a four-digit year:
+
+```{r}
+#| label: format-y
+as.Date("03/04/2025", format = "%m/%d/%y")
+```
+
+The year `2025` was read as `20`, so 2020. No error.
+
+:::
+
+## Dates: the silent failures
+
+As with reading files (lecture 03-1), some failures stop with an **error** and some give a wrong result with **no error**. This deck calls the second kind **silent failures**. These are the common ones for dates.
+
+::: {.panel-tabset}
+
+### Text that does not fit becomes missing
+
+A value the parser cannot read becomes `NA` (missing). R gives a **warning**, not an error, so the code carries on:
+
+```{r}
+#| label: parse-fail
+#| warning: true
+ymd(c("2015-01-05", "Jan 5 2015", "2015-13-01"))
+```
+
+The second value is written in another format; the third has a month 13. In a rendered document the warning is one short line that is easy to scroll past, and in a column of thousands you would not see the `NA`s at all. The check: **count the missing values before and after parsing**. Any increase is text that failed to parse.
+
+### The wrong order
+
+If a column written day first is parsed month first, two things happen at once, and only one of them is visible:
+
+```{r}
+#| label: wrong-order
+#| warning: true
+day_first <- c("25/03/2025", "05/03/2025")
+mdy(day_first)
+```
+
+`25/03/2025` has no month 25, so it becomes `NA` (the warning is visible). `05/03/2025` is accepted as 3 May instead of 5 March, a wrong date with no warning. The check: **the range of the dates**, and the number of rows in each month. Dates outside the period the data should cover, or months that should be empty, reveal it.
+
+### Adding a month
+
+Adding a month to 31 January asks for 31 February, which does not exist:
+
+```{r}
+#| label: add-month
+ymd("2015-01-31") + months(1)
+ymd("2015-01-31") %m+% months(1)
+```
+
+Plain `+` gives `NA`, without a warning. `%m+%` moves to the last day of the target month. If the AI builds dates by adding months, look at which operator it used, and count the missing values afterwards.
+
+:::
+
+# Text: the concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What pattern matching is
+
+::: {.panel-tabset}
+
+### Exact comparison
+
+R compares text character by character. To R, these are four different values:
+
+```{r}
+#| label: exact
+counties <- c("Lancaster", "LANCASTER", "Lancaster  County", "lancaster")
+counties == "Lancaster"
+```
+
+Only the first equals `"Lancaster"`: case differs in two, and the third has more characters (including two spaces). So counting, grouping or joining on this column treats one county as four.
+
+### Pattern matching
+
+**Pattern matching** asks a different question: does the text **contain** a given sequence of characters, anywhere? The sequence is called the **search pattern** (in code, the input named `pattern`).
+
+```{r}
+#| label: detect-intro
+str_detect(counties, "Lancaster")
+```
+
+The third value now matches too, because it contains `Lancaster`. Pattern matching is how code finds rows by part of their text, replaces part of a value, or takes a value apart. For example, pizzas with chicken have `ckn` in their name:
+
+```{r}
+#| label: detect-ckn
+unique(pizza$name[str_detect(pizza$name, "ckn")])
+```
+
+### Regular expressions
+
+A **regular expression** is a search pattern written in a small language in which some characters have a special meaning. `"ckn"` is a regular expression with no special characters, so it means just those three letters. With special characters, one search pattern can say more:
+
++ `"^ckn"`: `ckn` at the **start** of the text
++ `"ckn$"`: `ckn` at the **end**
++ `"ckn|chicken"`: either one
+
+```{r}
+#| label: regex-anchor
+unique(pizza$name[str_detect(pizza$name, "^ckn")])
+```
+
+The table of special characters is on the slide "Regular expressions". You do not need to write regular expressions; you need to recognise that a search pattern is one, and to check what it matched.
+
+:::
+
+## How text code is written
+
+Almost every function in `stringr`, the tidyverse package for text, starts with `str_` and follows one pattern.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+str_function(text, pattern, replacement)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `str_function` | What to do with the matches: detect, replace, extract, count, split | Yes |
+| `text` | The text to work on, usually a column, always the **first** input | **Yes** |
+| `pattern` | The search pattern, a regular expression saying what to look for, the **second** input | Yes, for functions that look for something |
+| `replacement` | What a match becomes | Only for `str_replace()` and `str_replace_all()` |
+
+A real line that follows the pattern, making pizza names readable:
+
+```{r}
+#| label: str-example
+str_replace_all("thai_ckn", "_", " ")
+```
+
+### Every function follows the pattern
+
+| Code | What it gives |
+|---|---|
+| `str_detect(text, pattern)` | TRUE or FALSE for each value: does it contain the search pattern? |
+| `str_count(text, pattern)` | how many times each value contains it |
+| `str_replace(text, pattern, replacement)` | the **first** match in each value replaced |
+| `str_replace_all(text, pattern, replacement)` | **every** match replaced |
+| `str_remove_all(text, pattern)` | every match deleted |
+| `str_extract(text, pattern)` | the part of each value that matched |
+| `str_split(text, pattern)` | each value cut into pieces where the search pattern occurs |
+
+Some take no search pattern, only the text: `str_to_lower()` and `str_to_upper()` (change case), `str_trim()` (remove spaces at the start and end), `str_squish()` (also turn runs of spaces inside into one), `str_pad()` (add characters until a set width, such as leading zeros), and `str_c()` (join pieces into one text).
+
+### Variations you will see
+
++ `filter(table, str_detect(name, "ckn"))`: keep the rows that match; `mutate(name = str_to_lower(name))`: change a column.
++ `grepl("ckn", x)`, `sub()`, `gsub("_", " ", x)`: the base R versions. Note the order: in base R the **search pattern comes first** and the text later.
++ `str_detect(x, regex("corn", ignore_case = TRUE))`: the search pattern ignores upper and lower case.
++ `str_detect(x, fixed("."))`: the search pattern is taken literally, with no special characters.
+
+:::
+
+## Regular expressions: characters with a special meaning
+
+::: {.panel-tabset}
+
+### The table
+
+| In a search pattern | Means | Example | Matches |
+|---|---|---|---|
+| `.` | any one character | `"c.n"` | `can`, `con`, `c5n` |
+| `^` | the start of the text | `"^ckn"` | `ckn_pesto`, not `thai_ckn` |
+| `$` | the end of the text | `"ckn$"` | `thai_ckn`, not `ckn_pesto` |
+| `[0-9]` or `\\d` | one digit | `"[0-9]"` | any value with a digit |
+| `+` | one or more of the previous | `"[0-9]+"` | `7`, `2015` |
+| `\\s` | a space (or tab) | `"\\s+"` | one or more spaces |
+| `\\.` | a real dot | `"\\."` | `.` only |
+
+And `|` means **or**: `"veg|garden"` matches text containing either word.
+
+The two backslashes are how R writes one backslash inside quotes. They turn a special character back into an ordinary one.
+
+### A special character used by mistake
+
+Removing the dot from `3.5`:
+
+```{r}
+#| label: dot
+str_replace_all("3.5", ".", "")
+str_replace_all("3.5", fixed("."), "")
+```
+
+`.` means any character, so every character was removed, leaving empty text. No error. `fixed(".")` (or `"\\."`) means the dot itself. Text with `.`, `(`, `+`, `$` or `?` in it, such as `Bros.` or `($)`, needs this care.
+
+:::
+
+## Text: the silent failures
+
+::: {.panel-tabset}
+
+### A search pattern that matches more than intended
+
+You want the pepperoni pizzas, and the AI uses the search pattern `"pep"`:
+
+```{r}
+#| label: pep
+unique(pizza$name[str_detect(pizza$name, "pep")])
+```
+
+`peppr_salami` is a pepper salami pizza. It contains `pep` too, so it is counted as pepperoni. No error, and a count or a total that is too large. The check: **list the distinct values the search pattern matched**, and read them.
+
+### A search pattern that matches less than intended
+
+Text that means the same thing but is written differently does not match:
+
+```{r}
+#| label: less
+crops <- c("Wheat", "wheat", "WHEAT", "Winter  wheat", "Barley")
+sum(str_detect(crops, "wheat"))
+```
+
+`Wheat` and `WHEAT` were missed, because upper and lower case are different characters. The usual fix makes the text consistent first:
+
+```{r}
+#| label: less-fix
+cleaned <- str_squish(str_to_lower(crops))
+cleaned
+```
+
+The check: **the distinct values, with a count of each, before and after cleaning**. Here `r n_distinct(crops)` distinct values became `r n_distinct(cleaned)`. Whether that is right depends on what you know: is winter wheat its own crop, or wheat?
+
+### Only the first match
+
+`str_replace()` changes the first match in each value; `str_replace_all()` changes every one:
+
+```{r}
+#| label: first-only
+str_replace("pep_msh_pep", "_", " ")
+str_replace_all("pep_msh_pep", "_", " ")
+```
+
+On a column where most values have one `_`, the first version looks right on every row you happen to look at. The check: **a few rows before and after**, including one with more than one match.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+Dates and text follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document with one plain-English sentence above each chunk, you render, and you judge the HTML.
+
+For dates and text, the HTML matters because the failures are silent. A warning that some values failed to parse is one line in the chat that scrolls away; in the HTML it sits under the chunk that caused it, next to the check that counts the missing values.
+
+Every request that asks for code ends with the **closing instructions**, the same lines as in 03-1. The full text is under **Recommended requests**.
+
+## Look at the column before you ask
+
+::: {.panel-tabset}
+
+### Why
+
+You cannot tell the AI how dates are written, or which spellings mean the same thing, without looking. Two things to look at:
+
++ **Dates**: a handful of raw values, from different parts of the file. Do they put the year, the month or the day first? Is any first or second number above 12? Is the year written with two digits or four?
++ **Text**: every distinct value, with how often it occurs. That is the only way to see every spelling.
+
+### Distinct values of a text column
+
+```{r}
+#| label: look-distinct
+pizza |> count(size)
+```
+
+`r n_distinct(pizza$size)` sizes, each spelled one way, so this column needs no cleaning. On a column typed by people, this list is where you find `Corn`, `corn` and `CORN`.
+
+### Raw values of a date column
+
+```{r}
+#| label: look-dates
+pizza$date[c(1, 20000, 40000)]
+```
+
+Year first, four digits, then month, then day: `ymd()`. Looking at rows from different parts of the file matters: the first few rows may not represent the rest.
+
+:::
+
+## What to put in your request
+
+The AI already knows the functions. Your request supplies what it cannot know, most of it from looking at the data:
+
+1. **The column**: which table and column, and what it holds
+2. **How it is written**: for dates, the order of year, month and day, with an example value; for text, the spellings you found
+3. **What you want back**: a date column; or the one spelling each group should have, such as all lower case
+4. **What you expect**: the first and last date the data should cover, how many values fail to parse (usually 0), how many distinct values there should be after cleaning
+5. **Ask for checks**: missing values before and after, the range of dates, distinct values before and after, a few rows before and after (see "Checking the result")
+6. **The closing instructions**
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can look at the column itself. Still write down how the dates are written and what range you expect **before** it runs, so you have something to compare against.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Convert the date column and count the orders in each month.
+```
+
+The AI has to guess how the dates are written, and nothing in its answer will tell you whether any failed to parse or landed in the wrong month.
+
+### Strong
+
+An example for the pizza orders:
+
+```text
+The table pizza has a text column date, written year-month-day with a
+four-digit year, for example 2015-01-01. The data should cover every day
+of 2015. Convert date into a date column, using the tidyverse, then
+count the orders in each month.
+
+Check: the number of dates that failed to parse (I expect 0), the first
+and last date (2015-01-01 and 2015-12-31), the number of distinct dates
+(365), and three rows showing the text beside the parsed date.
+
+Put the code in my Quarto document analysis/dates.qmd, under the
+heading "Orders per month", as R code chunks. Above each chunk, write
+one plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### What came back
+
+What the AI's answer looks like in the rendered HTML: a sentence, then the chunk it describes.
+
+Convert the text dates to dates, keeping the original text in a column of its own so the two can be compared.
+
+```{r}
+#| label: ai-parse
+orders <- pizza |>
+  mutate(date_text = date, date = ymd(date))
+```
+
+Print the checks: failed dates, first and last date, distinct dates, and three rows of text beside date.
+
+```{r}
+#| label: ai-check
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+cat(
+  paste("dates that failed to parse: expected 0, got", sum(is.na(orders$date))),
+  paste("first date: expected 2015-01-01, got", min(orders$date)),
+  paste("last date: expected 2015-12-31, got", max(orders$date)),
+  paste("distinct dates: expected 365, got", n_distinct(orders$date)),
+  sep = "\n"
+)
+orders |> select(date_text, date) |> slice(c(1, 20000, 40000))
+```
+
+### Orders per month
+
+Count the orders in each month, using the parsed date.
+
+```{r}
+#| label: ai-month
+orders |> count(month = month(date, label = TRUE)) |> head(3)
+```
+
+Of the four checks, three pass. The distinct-dates check **fails**: `r n_distinct(orders$date)` distinct dates, not 365. The code is fine; the slide "Checks that come from knowing the data" finds out why.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checking dates: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The four checks
+
+| | Ask the AI to print | Why | What only you can supply |
+|---|---|---|---|
+| 1 | the number of dates that failed to parse (missing after, minus missing before) | Text in another format, or written in another order, becomes `NA` with only a warning | how many blank dates the file has, usually 0 |
+| 2 | the first and last date | Day and month swapped, or a two-digit year given the wrong century, push dates outside the period | the period the data should cover |
+| 3 | the number of rows in each month (or year) | Swapped day and month fill months that should be empty | which months should have data |
+| 4 | a few rows with the text beside the parsed date | Shows directly whether `03/04` became March or April | how the text is written |
+
+### Asking for them
+
+```text
+After converting, print: the number of dates that failed to parse, the
+first and last date, the number of rows in each month, and <number>
+rows showing the original text beside the parsed date.
+```
+
+Better, with what you expect, so the HTML says which passed:
+
+```text
+I expect <number> dates to fail to parse, dates from <first date> to
+<last date>, and rows in every month from <first month> to <last
+month>. Print each check on its own line as "name of check: expected X,
+got Y".
+```
+
+:::
+
+## Checking text: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The four checks
+
+| | Ask the AI to print | Why | What only you can supply |
+|---|---|---|---|
+| 1 | the distinct values with their counts, before and after cleaning | Spellings left unmerged, or different things wrongly merged | how many distinct values there should be |
+| 2 | the distinct values a search pattern matched | A search pattern that matches more than intended | which values you meant |
+| 3 | a few rows before and after the change | `str_replace()` changing only the first match, a special character used by mistake | what the result should look like |
+| 4 | the number of rows before and after | Filtering on a search pattern can drop rows you meant to keep | how many rows should remain |
+
+### Reading the HTML
+
+A student asked for readable pizza names (underscores as spaces, each word capitalised) and expected the `r n_distinct(pizza$name)` distinct names to stay `r n_distinct(pizza$name)`. In the HTML:
+
+```{r}
+#| label: chk-text
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+named <- pizza |>
+  mutate(name_nice = str_to_title(str_replace(name, "_", " ")))
+
+cat(
+  paste("distinct names: expected 32, got", n_distinct(named$name_nice)),
+  paste("rows: expected 49574, got", nrow(named)),
+  sep = "\n"
+)
+named |>
+  distinct(name, name_nice) |>
+  filter(name %in% c("thai_ckn", "five_cheese", "pep_msh_pep"))
+```
+
+Both counts pass, yet `pep_msh_pep` became `Pep Msh_pep`. The AI used `str_replace()`, which changes only the first underscore. Only the rows before and after showed it, and only because one shown row had two underscores. You would ask for `str_replace_all()`.
+
+:::
+
+## Checks that come from knowing the data
+
+The checks above apply to any date or text column. The most useful checks come from what you know about **this** data.
+
+::: {.panel-tabset}
+
+### A shop open every day?
+
+The date check found `r n_distinct(orders$date)` distinct dates in a year of 365 days. A pizza shop may close on some days. Ask:
+
+```text
+Using the table orders, list every day of 2015 that has no orders, with
+its day of the week.
+
+Put the code in my Quarto document analysis/dates.qmd, under the
+heading "Days without orders", as R code chunks. Above each chunk, write
+one plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+The AI's code and what it printed. It makes every day of 2015 with `seq()` (a sequence of dates, one day apart), then keeps the days that do not occur in `orders`:
+
+```{r}
+#| label: chk-closed
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+every_day <- seq(ymd("2015-01-01"), ymd("2015-12-31"), by = "day")
+no_orders <- every_day[!every_day %in% orders$date]
+data.frame(date = no_orders, weekday = wday(no_orders, label = TRUE))
+```
+
+Christmas Day, four Mondays in a row in October, and two days in September. Believable closures, not a parsing problem. But a daily average over "every day of the year" must know these days are missing.
+
+### Do the names agree with the type?
+
+Every pizza with `ckn` in its name should have the type `chicken`, and no other pizza should:
+
+```{r}
+#| label: chk-ckn
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+pizza |> count(has_ckn = str_detect(name, "ckn"), type)
+```
+
+They agree: all `r format(sum(str_detect(pizza$name, "ckn")), big.mark = ",")` rows whose name contains `ckn` are `chicken`, and no other row is. A check like this tests the search pattern against a second column you trust.
+
+:::
+
+## Your turn: read the AI's code
+
+A student asked an AI to "add up the sales of vegetable items" from a file of shop sales whose dates look like `03/04/2025`, and got this:
+
+```{r}
+#| eval: false
+sales <- read.csv("C:/Users/kim/Desktop/sales.csv")
+sales$day <- as.Date(sales$day, "%m/%d/%y")
+veg <- sales[grepl("veg", sales$item), ]
+sum(veg$amount)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each of the four lines do?
+
+B. Which line will fail on your computer, and why?
+
+C. Which two problems give a wrong result **without** an error?
+
+D. Which check would have caught each one?
+
+### Answers
+
+A. Reads the file; converts `day` from text to dates, month first; keeps the rows whose `item` contains `veg`; adds up `amount` over those rows.
+
+B. Line 1. The folder `C:/Users/kim/...` exists only on Kim's computer.
+
+C. Line 2 uses `%y`, a two-digit year, for four-digit years, so every date lands in 2020 (it reads `20` of `2025`). Line 3 is case sensitive, so it would miss a value such as `Veg box`, and would also match one such as `vegan cookies`, if the file has them. (Whether `03/04` is month first is a third question: only the source of the file can tell you.)
+
+D. The first and last date would show 2020. The distinct values of `item` that matched, and the distinct values that did not, would show both search pattern problems.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at the data. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at a column
+
+```text
+In the table <table name>, show me <number> values of the column
+<column> from the start, the middle and the end of the table, and every
+distinct value of <text column> with the number of rows that have it,
+most common first. Do not change anything.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Convert dates
+
+```text
+The table <table name> has a text column <column>, written <the order
+of year, month and day>, for example <one value from the column>. The
+data should cover <first date> to <last date>. Convert it into a date
+column using the tidyverse, keeping the original text in a column
+<name for the text column>.
+
+Check: the number of dates that failed to parse (I expect <number>),
+the first and last date, the number of rows in each month, and
+<number> rows showing the text beside the parsed date.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Clean a text column
+
+```text
+In the table <table name>, the column <column> holds <what it holds>.
+I looked at its distinct values and found these differences in
+spelling: <what differs: case, spaces, punctuation, other words>. Make
+a new column <new column name> in which each <thing> is written one
+way, <the way you want, such as all lower case>. Keep the original
+column.
+
+Check: the distinct values with their counts before and after (I
+expect <number> after), the number of rows before and after, and every
+original spelling next to what it became.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Find rows by a search pattern
+
+```text
+In the table <table name>, I want the rows where <column> means <what
+you are looking for>. Write the search pattern so that it matches <values it
+must match> and does not match <values it must not match>.
+
+Check: every distinct value of <column> that the search pattern matched, every
+distinct value it did not match, and the number of rows matched.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. For every date format and every search pattern in it, say exactly
+which text it would and would not match. Then list any line that could
+give a wrong result without an error, and what check would reveal it.
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| A date stored as text sorts, subtracts and groups wrongly; only a parsed date is a date | The parser and its arguments |
+| How the dates in your file are written, and what `03/04/2025` means there | `mdy()`, `dmy()`, `as.Date(format = ...)` |
+| That a failed parse becomes missing with only a warning | The count of failures |
+| That text matches only character for character, and a search pattern can match more or less than you meant | `str_detect()`, `str_replace_all()`, the regular expression |
+| How many distinct values a clean column should have, and which spellings mean the same thing | `str_to_lower()`, `str_squish()` and the rest |
+
+**Every date or text column:** look at the raw values first, and write down how they are written and what you expect. Ask the AI to write the code and the checks into your `.qmd`. Render it, and judge the HTML against what you wrote down.

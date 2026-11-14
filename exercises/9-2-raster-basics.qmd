@@ -1,0 +1,164 @@
+---
+title: "Ex-9-2: Raster Data, with an AI Assistant"
+abstract: "Spatial Data"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/9-2-tmax-colorado.tif
+  - data/9-2-co-counties.gpkg
+  - data/9-2-README.txt
+  - worksheets/ex-9-2.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+suppressMessages({
+  library(terra)
+  library(sf)
+  library(tidyterra)
+  library(ggplot2)
+})
+f <- "data/9-2-tmax-colorado.tif"
+raw <- rast(f)
+dims <- dim(raw)
+res_m <- res(raw)[1]
+ext_raw <- round(as.vector(ext(raw)))
+raw_rng <- global(raw, "range")
+raw_na <- global(raw, "isNA")$isNA
+n_9999 <- sum(values(raw[[1]]) == -9999)
+n_cells <- ncell(raw)
+
+tmax <- classify(raw, cbind(-9999, NA)) / 10
+rng <- global(tmax, "range", na.rm = TRUE)
+avg <- round(global(tmax, "mean", na.rm = TRUE)$mean, 1)
+ext_ll <- round(as.vector(ext(project(tmax, "EPSG:4269"))), 1)
+
+counties <- st_read("data/9-2-co-counties.gpkg", quiet = TRUE)
+co_epsg <- st_crs(counties)$epsg
+
+mid <- (xmin(tmax) + xmax(tmax)) / 2
+west <- round(global(crop(tmax, ext(xmin(tmax), mid, ymin(tmax), ymax(tmax))), "mean", na.rm = TRUE)$mean, 1)
+east <- round(global(crop(tmax, ext(mid, xmax(tmax), ymin(tmax), ymax(tmax))), "mean", na.rm = TRUE)$mean, 1)
+
+maria <- round(global(raw / 10, "mean", na.rm = TRUE)$mean, 1)
+```
+
+This is an in-class exercise. Before class, work through the lecture **09-2: Raster Data**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: finding out what the cell values mean, asking for the right thing and the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-9-2.qmd](worksheets/ex-9-2.qmd), and the data files [9-2-tmax-colorado.tif](data/9-2-tmax-colorado.tif), [9-2-co-counties.gpkg](data/9-2-co-counties.gpkg) and [9-2-README.txt](data/9-2-README.txt).
+2. Use the `ch9-practice` R Project from exercise 9-1, or make one: a folder with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy the three data files into `ch9-practice/data`, and the worksheet into `ch9-practice/analysis`.
+4. Ask the AI to install the `terra`, `tidyterra` and `sf` packages if you have not already.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch9-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look and predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. Daily maximum air temperature, three layers: 1, 2 and 3 June 2023.
+
+B. Tenths of a degree Celsius, stored as whole numbers: 215 means 21.5 °C.
+
+C. -9999, in the cells outside Colorado.
+
+D. NAD83 / Conus Albers, EPSG 5070, in metres. The extent will be in metres, not degrees, so it cannot be compared with longitudes and latitudes directly.
+
+E. Early June daytime highs in Colorado run from cold on the high mountains to hot on the eastern plains. Something like 0 to 35 °C is a believable range; stored in tenths, that is 0 to 350. A prediction in that region is fine; the point is to have one before you look.
+:::
+
+## Task 2: Look at the raster
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r dims[1]` rows, `r dims[2]` columns, `r dims[3]` layers named `r paste(names(raw), collapse = ", ")`. Cells are `r format(res_m, big.mark = ",")` by `r format(res_m, big.mark = ",")` metres. The extent runs from `r format(ext_raw[1], big.mark = ",")` to `r format(ext_raw[2], big.mark = ",")` in x and `r format(ext_raw[3], big.mark = ",")` to `r format(ext_raw[4], big.mark = ",")` in y, metres in EPSG 5070.
+
+The values run from `r raw_rng$min[1]` to `r raw_rng$max[1]` on the first day, and **no cell is missing** (`r raw_na[1]` missing cells). Against the README, both are expected: -9999 has not been declared as no data yet, and the values are still in tenths. Which is why this task only looks: any average computed now would be wrong.
+:::
+
+## Task 3: Declare the no-data value and convert
+
+::: {.callout-note collapse="true" title="What you should find"}
+After marking -9999 as missing and dividing by 10:
+
+| Day | Smallest (°C) | Largest (°C) | Average (°C) |
+|---|---|---|---|
+| 1 June | `r rng$min[1]` | `r rng$max[1]` | `r avg[1]` |
+| 2 June | `r rng$min[2]` | `r rng$max[2]` | `r avg[2]` |
+| 3 June | `r rng$min[3]` | `r rng$max[3]` | `r avg[3]` |
+
+`r format(n_9999, big.mark = ",")` of `r format(n_cells, big.mark = ",")` cells are missing in every layer, about `r round(100 * n_9999 / n_cells)`%: the Albers rectangle around Colorado is larger than the state, and is tilted against its borders. The extent, transformed to longitude and latitude, runs from `r ext_ll[1]` to `r ext_ll[2]` and `r ext_ll[3]` to `r ext_ll[4]`, around Colorado.
+
+**The order matters.** Declare -9999 as missing first, then divide. Divide first and the code must look for -999.9 instead, and an AI that does not notice will declare nothing.
+:::
+
+## Task 4: A map with the counties
+
+::: {.callout-note collapse="true" title="What you should find"}
+The raster is in EPSG 5070 and the counties in EPSG `r co_epsg`, so the CRS check says they differ.
+
+For a map that does not matter: `ggplot2` draws every layer in the CRS of the first one, transforming the others as it draws, so the county lines sit on the raster's state outline. For any **calculation** that combines the two, such as the average temperature in each county (lecture 09-6), they must share a CRS first. Transform the counties to the raster's CRS, not the other way round: projecting the raster recomputes every cell value.
+
+A map like the one below is what to expect:
+
+```{r}
+#| label: ref-map-92
+#| echo: false
+#| fig-width: 9
+#| fig-height: 4
+ggplot() +
+  geom_spatraster(data = tmax) +
+  geom_sf(data = counties, fill = NA, colour = "grey30", linewidth = 0.2) +
+  facet_wrap(~lyr, labeller = as_labeller(c(tmax_2023_06_01 = "1 June 2023",
+                                            tmax_2023_06_02 = "2 June 2023",
+                                            tmax_2023_06_03 = "3 June 2023"))) +
+  scale_fill_viridis_c(option = "inferno", na.value = "transparent",
+                       name = "Maximum temperature (°C)") +
+  theme_void() +
+  theme(legend.position = "bottom", legend.key.width = unit(2, "cm"))
+```
+
+On the map, the cold cells follow the Rocky Mountains through the middle and west of the state, and the eastern plains are warm on all three days. Without the no-data declaration, the -9999 cells would set the bottom of the colour scale and every real temperature would be drawn in nearly the same colour.
+:::
+
+## Task 5: A check from knowing the place
+
+::: {.callout-note collapse="true" title="What you should find"}
+The mountains are in the west of Colorado and the plains in the east, and temperature falls with height, so the western half should be cooler.
+
+| Day | West half (°C) | East half (°C) |
+|---|---|---|
+| 1 June | `r west[1]` | `r east[1]` |
+| 2 June | `r west[2]` | `r east[2]` |
+| 3 June | `r west[3]` | `r east[3]` |
+
+The check passes on all three days. Had the grid been stored mirrored, with east and west swapped, this check would have failed while every number check passed.
+:::
+
+## Task 6: Maria's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Line 1 reads the raster and divides every value by 10. Line 2 averages each layer, skipping missing cells.
+
+B. The path. `C:/Users/maria/Downloads` exists only on Maria's computer.
+
+C. -9999 was never declared as no data. After line 1 it is -999.9, a number, so `na.rm = TRUE` does not skip it. The averages come out at `r paste(maria, collapse = ", ")` °C.
+
+D. The smallest value (-999.9 °C is impossible) and the number of missing cells (0, where the cells outside Colorado should be missing). An average below -100 °C is also impossible on its face, but only if you look at it with a believable range in mind.
+
+E. The AI cannot see the README, so it can only find this problem if it asks what the values mean or guesses -9999 from experience. Compare its list with yours.
+:::

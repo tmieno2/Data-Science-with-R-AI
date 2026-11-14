@@ -1,0 +1,421 @@
+ticket,site,date,farm,crop,bushels
+T0001,North,09/01/2025,Prairie View LLC,Corn,1061
+T0002,North,09/01/2025,Kowalski Grain,Soybeans,880
+T0003,North,09/01/2025,Miller Farms,Soybeans,833
+T0004,North,09/01/2025,Ortiz Ag,Corn,1025
+T0005,South,01/09/2025,ORTIZ AG,Corn,1016
+T0006,South,01/09/2025,Prairie View LLC,Corn,955
+T0007,North,09/01/2025,Miller Farms,Soybeans,865
+T0008,North,09/01/2025,Two Rivers Farm,SOYBEANS,875
+T0009,North,09/02/2025,Schmidt Bros,SOYBEANS,941
+T0010,North,09/02/2025,Hansen Family Farm,Popcorn,732
+T0011,North,09/02/2025,Ortiz Ag,Corn,997
+T0012,North,09/02/2025,Schmidt Bros.,corn,1051
+T0013,North,09/02/2025,Ortiz Ag,Corn,996
+T0014,North,09/02/2025,Kowalski Grain,Corn,1015
+T0015,North,09/03/2025,Prairie View LLC,corn,1041
+T0016,South,03/09/2025,Lindgren Acres,Soybeans,877
+T0017,South,03/09/2025,Hansen Family Farm,Popcorn,741
+T0018,South,03/09/2025,Lindgren Acres,Corn,1066
+T0019,North,09/03/2025,Lindgren Acres,Corn,1024
+T0020,North,09/04/2025,Hansen Family Farm,Popcorn,741
+T0021,South,04/09/2025,Lindgren Acres,Soybeans,769
+T0022,North,09/04/2025,Miller Farms,Soy beans,893
+T0023,North,09/05/2025,Lindgren Acres,Corn,960
+T0024,North,09/05/2025,Schmidt Bros.,Soybeans,900
+T0025,South,05/09/2025,Schmidt Bros,Soybeans,894
+T0026,North,09/05/2025,Two Rivers Farm,Soybeans,885
+T0027,North,09/06/2025,Kowalski Grain,Corn,1136
+T0028,North,09/06/2025,Kowalski Grain,SOYBEANS,966
+T0029,South,06/09/2025,Schmidt Bros.,Soybeans,917
+T0030,South,06/09/2025,Prairie View LLC,Corn,1042
+T0031,North,09/07/2025,Two Rivers Farm,Corn,1047
+T0032,North,09/07/2025,Schmidt Bros,Soybeans,894
+T0033,North,09/07/2025,Two Rivers Farm,Popcorn,787
+T0034,North,09/07/2025,Prairie View LLC,Soybeans,966
+T0035,South,08/09/2025,Prairie View LLC,Corn,1011
+T0036,North,09/08/2025,ORTIZ AG,Soybeans,957
+T0037,North,09/08/2025,Schmidt Bros,Corn,954
+T0038,South,08/09/2025,Schmidt Bros.,Corn,1032
+T0039,South,08/09/2025,Prairie View LLC,Soybeans,831
+T0040,North,09/08/2025,Kowalski Grain,Soy beans,875
+T0041,North,09/08/2025,Hansen Family Farm,Popcorn,803
+T0042,North,09/09/2025,Miller  Farms,Corn,968
+T0043,South,09/09/2025,Prairie View LLC,Soybeans,978
+T0044,North,09/09/2025,Hansen Family Farm,Corn,957
+T0045,North,09/09/2025,Two Rivers Farm,Corn,934
+T0046,North,09/09/2025,Miller Farms,SOYBEANS,909
+T0047,South,09/09/2025,Prairie View LLC,corn,1014
+T0048,North,09/10/2025,Lindgren Acres,Soybeans,906
+T0049,South,10/09/2025,Lindgren Acres,Corn,1002
+T0050,North,09/10/2025,Lindgren Acres,Soybeans,909
+T0051,South,10/09/2025,ORTIZ AG,Corn,1001
+T0052,North,09/10/2025,Schmidt Bros.,corn,945
+T0053,North,09/10/2025,ORTIZ AG,Soybeans,823
+T0054,North,09/10/2025,Hansen Family Farm,Popcorn,698
+T0055,North,09/10/2025,miller farms,CORN,952
+T0056,North,09/10/2025,Ortiz Ag,Corn,930
+T0057,North,09/11/2025,Kowalski Grain,Corn,1004
+T0058,South,11/09/2025,Schmidt Bros.,corn,962
+T0059,North,09/11/2025,Lindgren Acres,CORN,957
+T0060,North,09/11/2025,Hansen Family Farm,Corn,985
+T0061,North,09/11/2025,Ortiz Ag,Soybeans,912
+T0062,North,09/11/2025,Two Rivers Farm,CORN,1019
+T0063,North,09/12/2025,Schmidt Bros,Soybeans,958
+T0064,North,09/12/2025,Lindgren Acres,Corn,1011
+T0065,South,12/09/2025,Kowalski Grain,corn,1023
+T0066,South,12/09/2025,Kowalski Grain,Soybeans,882
+T0067,South,12/09/2025,Kowalski Grain,Corn,899
+T0068,North,09/12/2025,Kowalski Grain,Soybeans,928
+T0069,South,12/09/2025,Schmidt Bros.,Corn,1008
+T0070,North,09/12/2025,Hansen Family Farm,Corn,1037
+T0071,South,13/09/2025,Two Rivers Farm,Corn,957
+T0072,South,13/09/2025,Prairie View LLC,Soybeans,906
+T0073,North,09/13/2025,Schmidt Bros,Soybeans,939
+T0074,North,09/13/2025,Schmidt Bros,Corn,1063
+T0075,South,14/09/2025,Lindgren Acres,Soybeans,915
+T0076,South,14/09/2025,Hansen Family Farm,Popcorn,785
+T0077,South,15/09/2025,Lindgren Acres,corn,1018
+T0078,South,15/09/2025,Schmidt Bros.,Soy beans,922
+T0079,South,15/09/2025,Two Rivers Farm,Soybeans,849
+T0080,North,09/15/2025,Schmidt Bros.,Corn,941
+T0081,South,15/09/2025,Two Rivers Farm,Soybeans,902
+T0082,South,15/09/2025,Hansen Family Farm,Soybeans,979
+T0083,North,09/16/2025,Lindgren Acres,Soybeans,862
+T0084,North,09/16/2025,Two Rivers Farm,Soybeans,951
+T0085,South,16/09/2025,Schmidt Bros.,Soybeans,898
+T0086,North,09/16/2025,Schmidt Bros,SOYBEANS,962
+T0087,South,16/09/2025,Two Rivers Farm,Popcorn,721
+T0088,North,09/16/2025,Schmidt Bros,Soybeans,817
+T0089,North,09/16/2025,Ortiz Ag,Soybeans,805
+T0090,North,09/17/2025,Lindgren Acres,Corn,939
+T0091,North,09/17/2025,Hansen Family Farm,Soybeans,885
+T0092,South,17/09/2025,Schmidt Bros,Corn,920
+T0093,South,18/09/2025,Lindgren Acres,Soybeans,957
+T0094,South,18/09/2025,Two Rivers Farm,Soybeans,871
+T0095,South,18/09/2025,Prairie View  LLC,CORN,866
+T0096,North,09/18/2025,Two Rivers Farm,Corn,1012
+T0097,North,09/19/2025,Hansen Family Farm,Corn,997
+T0098,North,09/19/2025,Lindgren Acres,Soybeans,927
+T0099,North,09/19/2025,miller farms,Soybeans,871
+T0100,North,09/19/2025,Two Rivers Farm,Popcorn,805
+T0101,South,19/09/2025,Lindgren Acres,CORN,1019
+T0102,North,09/19/2025,Miller  Farms,soybeans,766
+T0103,South,20/09/2025,Lindgren Acres,SOYBEANS,1006
+T0104,North,09/21/2025,Ortiz Ag,Corn,977
+T0105,North,09/21/2025,Schmidt Bros.,Corn,937
+T0106,North,09/21/2025,Two Rivers Farm,Corn,947
+T0107,South,21/09/2025,Ortiz Ag,Soybeans,930
+T0108,South,21/09/2025,Prairie View  LLC,Soybeans,925
+T0109,North,09/21/2025,Schmidt Bros.,Corn,1040
+T0110,North,09/21/2025,Prairie View LLC,Corn,1040
+T0111,South,21/09/2025,miller farms,Soybeans,971
+T0112,South,21/09/2025,Ortiz Ag,Soybeans,819
+T0113,North,09/21/2025,Kowalski Grain,Corn,987
+T0114,South,21/09/2025,Two Rivers Farm,Soybeans,879
+T0115,North,09/22/2025,Lindgren Acres,corn,992
+T0116,South,22/09/2025,Ortiz Ag,Corn,1006
+T0117,South,22/09/2025,Kowalski Grain,Corn,1055
+T0118,South,22/09/2025,Two Rivers Farm,Corn,994
+T0119,North,09/23/2025,Kowalski Grain,Soybeans,972
+T0120,North,09/23/2025,Lindgren Acres,Corn,1064
+T0121,North,09/23/2025,Hansen Family Farm,popcorn,728
+T0122,North,09/23/2025,Hansen Family Farm,popcorn,707
+T0123,North,09/24/2025,Miller Farms,SOYBEANS,906
+T0124,North,09/24/2025,Ortiz Ag,Soybeans,930
+T0125,North,09/24/2025,Kowalski Grain,Soybeans,898
+T0126,North,09/25/2025,Two Rivers Farm,popcorn,743
+T0127,South,26/09/2025,Miller Farms,Corn,1038
+T0128,North,09/26/2025,Hansen Family Farm,Corn,1031
+T0129,South,26/09/2025,Lindgren Acres,SOYBEANS,1002
+T0130,North,09/27/2025,Ortiz Ag,Soybeans,895
+T0131,North,09/27/2025,Ortiz Ag,Corn,1062
+T0132,North,09/27/2025,Schmidt Bros.,Soybeans,908
+T0133,North,09/28/2025,ORTIZ AG,Soybeans,930
+T0134,North,09/28/2025,Lindgren Acres,CORN,1054
+T0135,North,09/29/2025,Miller Farms,CORN,985
+T0136,South,29/09/2025,Prairie View LLC,Corn,867
+T0137,South,29/09/2025,Ortiz Ag,Soybeans,1001
+T0138,South,29/09/2025,Two Rivers Farm,Corn,1013
+T0139,North,09/30/2025,Prairie View LLC,CORN,949
+T0140,South,30/09/2025,ORTIZ AG,Corn,1004
+T0141,South,30/09/2025,Ortiz Ag,SOYBEANS,863
+T0142,North,09/30/2025,Prairie View LLC,Corn,956
+T0143,South,30/09/2025,Hansen Family Farm,Popcorn,722
+T0144,North,09/30/2025,Lindgren Acres,Soy beans,814
+T0145,South,30/09/2025,Two Rivers Farm,Popcorn,813
+T0146,South,30/09/2025,Prairie View LLC,Soybeans,832
+T0147,South,30/09/2025,Two Rivers Farm,Popcorn,701
+T0148,North,09/30/2025,ORTIZ AG,Soybeans,927
+T0149,North,10/01/2025,Kowalski Grain,Corn,945
+T0150,North,10/01/2025,Miller Farms,Soybeans,869
+T0151,South,01/10/2025,Kowalski Grain,Corn,916
+T0152,North,10/01/2025,Prairie View LLC,Soy beans,823
+T0153,South,01/10/2025,Schmidt Bros,SOYBEANS,965
+T0154,South,02/10/2025,Ortiz Ag,corn,996
+T0155,North,10/02/2025,Kowalski Grain,Soybeans,891
+T0156,North,10/02/2025,Two Rivers Farm,Soybeans,884
+T0157,North,10/02/2025,Prairie View LLC,Corn,1016
+T0158,South,03/10/2025,Miller Farms,corn,1022
+T0159,South,03/10/2025,Prairie View  LLC,Corn,1015
+T0160,South,03/10/2025,Lindgren Acres,Corn,1039
+T0161,North,10/03/2025,Hansen Family Farm,corn,1068
+T0162,North,10/03/2025,Ortiz Ag,Corn,1018
+T0163,South,03/10/2025,Schmidt Bros.,Corn,955
+T0164,South,04/10/2025,Schmidt Bros,CORN,1073
+T0165,North,10/04/2025,Kowalski Grain,Corn,973
+T0166,South,04/10/2025,Kowalski Grain,Soybeans,945
+T0167,North,10/04/2025,Schmidt Bros.,Corn,993
+T0168,North,10/04/2025,Prairie View LLC,Soybeans,1001
+T0169,North,10/04/2025,Ortiz Ag,Soy beans,888
+T0170,North,10/05/2025,Schmidt Bros.,Corn,964
+T0171,North,10/05/2025,Ortiz Ag,Corn,947
+T0172,North,10/05/2025,Hansen Family Farm,SOYBEANS,957
+T0173,South,05/10/2025,Ortiz Ag,Corn,925
+T0174,South,05/10/2025,Prairie View LLC,Corn,1004
+T0175,North,10/05/2025,Lindgren Acres,Soybeans,851
+T0176,South,05/10/2025,miller farms,Corn,1030
+T0177,North,10/06/2025,Hansen Family Farm,Corn,903
+T0178,North,10/06/2025,Ortiz Ag,Corn,1070
+T0179,South,06/10/2025,Prairie View LLC,Soybeans,889
+T0180,South,06/10/2025,miller farms,corn,986
+T0181,North,10/06/2025,Two Rivers Farm,Popcorn,736
+T0182,South,07/10/2025,Prairie View LLC,Corn,1057
+T0183,North,10/07/2025,Prairie View  LLC,Soybeans,896
+T0184,South,07/10/2025,Schmidt Bros.,corn,1003
+T0185,North,10/08/2025,Two Rivers Farm,Soy beans,853
+T0186,South,08/10/2025,Hansen Family Farm,popcorn,769
+T0187,North,10/09/2025,Kowalski Grain,corn,917
+T0188,North,10/09/2025,Prairie View LLC,Corn,1015
+T0189,North,10/09/2025,Ortiz Ag,Corn,924
+T0190,South,09/10/2025,Prairie View LLC,soybeans,865
+T0191,North,10/10/2025,ORTIZ AG,Soybeans,886
+T0192,South,10/10/2025,Schmidt Bros,SOYBEANS,1002
+T0193,South,10/10/2025,Hansen Family Farm,Corn,962
+T0194,South,10/10/2025,Miller  Farms,Corn,954
+T0195,North,10/10/2025,Two Rivers Farm,Popcorn,828
+T0196,North,10/11/2025,Lindgren Acres,corn,992
+T0197,North,10/11/2025,Hansen Family Farm,Corn,883
+T0198,South,11/10/2025,Miller Farms,corn,990
+T0199,South,11/10/2025,Lindgren Acres,Soybeans,886
+T0200,South,12/10/2025,Hansen Family Farm,Soybeans,909
+T0201,North,10/12/2025,Ortiz Ag,Corn,961
+T0202,North,10/13/2025,Ortiz Ag,Corn,1018
+T0203,South,13/10/2025,Kowalski Grain,soybeans,934
+T0204,North,10/13/2025,Schmidt Bros,Corn,1111
+T0205,South,13/10/2025,Miller Farms,Corn,1044
+T0206,North,10/13/2025,Hansen Family Farm,popcorn,733
+T0207,North,10/13/2025,Schmidt Bros.,Corn,915
+T0208,South,14/10/2025,Hansen Family Farm,Corn,1011
+T0209,South,14/10/2025,Prairie View  LLC,Soybeans,944
+T0210,South,14/10/2025,Ortiz Ag,Corn,966
+T0211,North,10/14/2025,Lindgren Acres,Corn,1028
+T0212,South,15/10/2025,Lindgren Acres,Corn,895
+T0213,North,10/15/2025,Two Rivers Farm,Popcorn,706
+T0214,South,15/10/2025,Two Rivers Farm,Corn,1074
+T0215,North,10/15/2025,Two Rivers Farm,Corn,989
+T0216,North,10/15/2025,Kowalski Grain,corn,997
+T0217,South,15/10/2025,Lindgren Acres,Soybeans,868
+T0218,South,15/10/2025,Prairie View LLC,Corn,965
+T0219,South,15/10/2025,Prairie View LLC,Soybeans,937
+T0220,North,10/15/2025,Schmidt Bros.,CORN,996
+T0221,North,10/16/2025,Hansen Family Farm,Popcorn,717
+T0222,South,16/10/2025,Two Rivers Farm,Popcorn,780
+T0223,South,16/10/2025,ORTIZ AG,CORN,957
+T0224,North,10/16/2025,Hansen Family Farm,soybeans,860
+T0225,North,10/17/2025,Two Rivers Farm,Soybeans,883
+T0226,North,10/17/2025,Kowalski Grain,Corn,1001
+T0227,North,10/17/2025,Lindgren Acres,Soybeans,890
+T0228,South,18/10/2025,Lindgren Acres,Corn,1003
+T0229,South,18/10/2025,Two Rivers Farm,Popcorn,804
+T0230,North,10/18/2025,Two Rivers Farm,CORN,976
+T0231,North,10/18/2025,Schmidt Bros.,Corn,960
+T0232,South,18/10/2025,Two Rivers Farm,popcorn,661
+T0233,North,10/18/2025,Prairie View LLC,Corn,1078
+T0234,South,19/10/2025,Two Rivers Farm,Popcorn,796
+T0235,North,10/19/2025,Two Rivers Farm,Corn,1096
+T0236,North,10/19/2025,Two Rivers Farm,Corn,1036
+T0237,North,10/19/2025,Two Rivers Farm,Popcorn,766
+T0238,North,10/19/2025,Miller  Farms,Soybeans,957
+T0239,South,19/10/2025,ORTIZ AG,CORN,1088
+T0240,South,20/10/2025,Hansen Family Farm,Popcorn,720
+T0241,South,20/10/2025,Lindgren Acres,Soybeans,931
+T0242,North,10/20/2025,Schmidt Bros,Corn,977
+T0243,North,10/20/2025,Prairie View LLC,Corn,993
+T0244,South,21/10/2025,Lindgren Acres,Soy beans,908
+T0245,North,10/21/2025,Kowalski Grain,Corn,1000
+T0246,North,10/21/2025,Prairie View LLC,SOYBEANS,864
+T0247,North,10/21/2025,Kowalski Grain,CORN,1129
+T0248,North,10/22/2025,Kowalski Grain,Corn,1007
+T0249,North,10/22/2025,Kowalski Grain,Corn,1089
+T0250,North,10/22/2025,Schmidt Bros,corn,1021
+T0251,North,10/22/2025,Lindgren Acres,CORN,886
+T0252,North,10/23/2025,Miller Farms,Soybeans,876
+T0253,North,10/23/2025,Hansen Family Farm,Corn,952
+T0254,North,10/24/2025,Hansen Family Farm,Popcorn,759
+T0255,South,24/10/2025,Kowalski Grain,Soybeans,851
+T0256,South,24/10/2025,Prairie View LLC,Corn,1001
+T0257,North,10/24/2025,Miller Farms,Corn,982
+T0258,North,10/24/2025,Lindgren Acres,Soybeans,942
+T0259,South,24/10/2025,Miller Farms,Soybeans,962
+T0260,North,10/24/2025,Prairie View LLC,Soybeans,890
+T0261,North,10/24/2025,Schmidt Bros,Corn,885
+T0262,South,25/10/2025,Schmidt Bros.,corn,956
+T0263,South,25/10/2025,Lindgren Acres,Soy beans,957
+T0264,North,10/25/2025,Schmidt Bros,Corn,1031
+T0265,North,10/25/2025,Kowalski Grain,Soybeans,938
+T0266,North,10/25/2025,Two Rivers Farm,Popcorn,646
+T0267,North,10/25/2025,Prairie View LLC,Soybeans,794
+T0268,South,25/10/2025,Lindgren Acres,Soybeans,968
+T0269,South,26/10/2025,Prairie View LLC,Corn,1094
+T0270,North,10/26/2025,Schmidt Bros.,Soybeans,890
+T0271,South,26/10/2025,Two Rivers Farm,Soy beans,978
+T0272,North,10/26/2025,Kowalski Grain,Corn,938
+T0273,South,27/10/2025,Hansen Family Farm,Soybeans,917
+T0274,South,27/10/2025,Two Rivers Farm,corn,912
+T0275,North,10/27/2025,Two Rivers Farm,Popcorn,701
+T0276,South,27/10/2025,miller farms,Corn,1011
+T0277,North,10/28/2025,Schmidt Bros.,Corn,878
+T0278,South,28/10/2025,Ortiz Ag,corn,1014
+T0279,South,28/10/2025,ORTIZ AG,Corn,1062
+T0280,North,10/28/2025,Kowalski Grain,Soybeans,941
+T0281,North,10/28/2025,Hansen Family Farm,Corn,917
+T0282,North,10/29/2025,Hansen Family Farm,Soybeans,819
+T0283,North,10/29/2025,ORTIZ AG,SOYBEANS,866
+T0284,North,10/29/2025,Prairie View LLC,CORN,1161
+T0285,South,29/10/2025,Ortiz Ag,CORN,933
+T0286,South,30/10/2025,Prairie View LLC,Corn,979
+T0287,North,10/30/2025,Prairie View LLC,Corn,862
+T0288,North,10/30/2025,Two Rivers Farm,popcorn,703
+T0289,North,10/30/2025,Two Rivers Farm,popcorn,771
+T0290,North,10/30/2025,Lindgren Acres,Corn,1025
+T0291,South,30/10/2025,Hansen Family Farm,Soybeans,899
+T0292,North,10/31/2025,Ortiz Ag,Soybeans,926
+T0293,South,31/10/2025,Miller Farms,Soybeans,875
+T0294,South,31/10/2025,Two Rivers Farm,Popcorn,768
+T0295,North,10/31/2025,Prairie View  LLC,CORN,1016
+T0296,North,11/01/2025,Kowalski Grain,Corn,986
+T0297,North,11/01/2025,Miller Farms,Corn,945
+T0298,North,11/01/2025,Miller Farms,Soybeans,858
+T0299,North,11/01/2025,Ortiz Ag,Corn,1062
+T0300,South,01/11/2025,Prairie View LLC,Corn,939
+T0301,North,11/01/2025,Kowalski Grain,Soybeans,924
+T0302,South,01/11/2025,Miller Farms,corn,1047
+T0303,North,11/01/2025,Ortiz Ag,Soybeans,954
+T0304,North,11/02/2025,Kowalski Grain,corn,997
+T0305,North,11/02/2025,Miller Farms,Corn,1161
+T0306,South,02/11/2025,Ortiz Ag,SOYBEANS,927
+T0307,South,03/11/2025,Two Rivers Farm,corn,997
+T0308,South,03/11/2025,ORTIZ AG,Corn,1068
+T0309,North,11/03/2025,Miller  Farms,SOYBEANS,897
+T0310,North,11/03/2025,Two Rivers Farm,soybeans,890
+T0311,North,11/03/2025,Prairie View LLC,Corn,959
+T0312,North,11/03/2025,ORTIZ AG,Soybeans,905
+T0313,North,11/04/2025,Two Rivers Farm,SOYBEANS,924
+T0314,North,11/04/2025,Two Rivers Farm,Popcorn,803
+T0315,North,11/04/2025,Miller Farms,Corn,892
+T0316,South,04/11/2025,Miller Farms,Soybeans,906
+T0317,North,11/05/2025,Prairie View LLC,Corn,1000
+T0318,North,11/05/2025,Miller  Farms,Corn,917
+T0319,South,06/11/2025,Miller Farms,corn,1007
+T0320,North,11/06/2025,ORTIZ AG,Soybeans,924
+T0321,South,06/11/2025,Hansen Family Farm,corn,992
+T0322,South,06/11/2025,Two Rivers Farm,CORN,900
+T0323,South,06/11/2025,Miller Farms,soybeans,924
+T0324,South,06/11/2025,Two Rivers Farm,Soybeans,1045
+T0325,North,11/06/2025,Two Rivers Farm,Soy beans,981
+T0326,South,06/11/2025,Miller Farms,Corn,953
+T0327,South,07/11/2025,Kowalski Grain,Corn,975
+T0328,North,11/07/2025,Miller Farms,CORN,1080
+T0329,North,11/07/2025,Prairie View LLC,Corn,959
+T0330,North,11/08/2025,Miller Farms,Corn,962
+T0331,South,08/11/2025,Kowalski Grain,SOYBEANS,846
+T0332,North,11/08/2025,Schmidt Bros.,soybeans,944
+T0333,North,11/08/2025,Two Rivers Farm,Corn,1022
+T0334,North,11/08/2025,Schmidt Bros,Corn,986
+T0335,South,08/11/2025,Lindgren Acres,corn,932
+T0336,North,11/08/2025,ORTIZ AG,Corn,984
+T0337,South,08/11/2025,Prairie View LLC,Soybeans,962
+T0338,South,09/11/2025,Ortiz Ag,Soybeans,893
+T0339,North,11/09/2025,Prairie View  LLC,CORN,965
+T0340,North,11/09/2025,Schmidt Bros.,Corn,995
+T0341,South,09/11/2025,Schmidt Bros.,Soy beans,902
+T0342,North,11/10/2025,ORTIZ AG,corn,1008
+T0343,North,11/10/2025,Lindgren Acres,Soybeans,947
+T0344,South,10/11/2025,Prairie View LLC,Soybeans,911
+T0345,South,11/11/2025,Miller Farms,Soybeans,978
+T0346,North,11/11/2025,Miller  Farms,Soybeans,927
+T0347,North,11/11/2025,Ortiz Ag,Corn,1147
+T0348,North,11/11/2025,Schmidt Bros,CORN,1014
+T0349,North,11/11/2025,Kowalski Grain,Corn,941
+T0350,South,12/11/2025,Two Rivers Farm,Soybeans,920
+T0351,North,11/12/2025,Kowalski Grain,Corn,1022
+T0352,South,12/11/2025,Miller Farms,Corn,1039
+T0353,South,13/11/2025,Ortiz Ag,corn,947
+T0354,North,11/13/2025,Hansen Family Farm,Popcorn,732
+T0355,North,11/13/2025,Schmidt Bros.,Corn,978
+T0356,North,11/13/2025,Lindgren Acres,Corn,967
+T0357,North,11/13/2025,Ortiz Ag,Corn,1065
+T0358,North,11/14/2025,Schmidt Bros,Soybeans,876
+T0359,North,11/14/2025,Prairie View LLC,Corn,1028
+T0360,North,11/14/2025,Hansen Family Farm,Soybeans,821
+T0361,North,11/15/2025,Kowalski Grain,Corn,997
+T0362,South,15/11/2025,Hansen Family Farm,Popcorn,809
+T0363,South,15/11/2025,Miller  Farms,Corn,907
+T0364,South,15/11/2025,Kowalski Grain,Corn,1029
+T0365,North,11/15/2025,ORTIZ AG,Corn,1043
+T0366,North,11/15/2025,Schmidt Bros.,Soybeans,907
+T0367,South,15/11/2025,Kowalski Grain,soybeans,984
+T0368,North,11/16/2025,Kowalski Grain,Soybeans,892
+T0369,South,16/11/2025,Lindgren Acres,Soybeans,937
+T0370,North,11/16/2025,Kowalski Grain,Corn,1009
+T0371,North,11/17/2025,Hansen Family Farm,Corn,1059
+T0372,North,11/17/2025,Lindgren Acres,Corn,986
+T0373,South,17/11/2025,Prairie View LLC,soybeans,815
+T0374,North,11/17/2025,Miller Farms,Soybeans,940
+T0375,South,18/11/2025,Kowalski Grain,Corn,988
+T0376,South,18/11/2025,miller farms,Soy beans,828
+T0377,South,18/11/2025,Kowalski Grain,CORN,932
+T0378,North,11/18/2025,Two Rivers Farm,Soybeans,830
+T0379,South,19/11/2025,Prairie View LLC,Corn,1023
+T0380,North,11/19/2025,Miller Farms,Corn,987
+T0381,North,11/19/2025,Ortiz Ag,Corn,991
+T0382,North,11/20/2025,Kowalski Grain,Corn,1000
+T0383,South,20/11/2025,Schmidt Bros,Corn,978
+T0384,North,11/21/2025,Schmidt Bros,Soy beans,889
+T0385,North,11/21/2025,Prairie View LLC,Corn,952
+T0386,North,11/21/2025,Lindgren Acres,Corn,1051
+T0387,South,21/11/2025,Hansen Family Farm,Popcorn,777
+T0388,North,11/21/2025,Schmidt Bros.,Corn,970
+T0389,North,11/21/2025,Prairie View LLC,Soybeans,989
+T0390,North,11/22/2025,Miller Farms,Corn,1027
+T0391,South,23/11/2025,Ortiz Ag,Soybeans,888
+T0392,North,11/23/2025,Prairie View LLC,soybeans,983
+T0393,South,23/11/2025,Kowalski Grain,CORN,1043
+T0394,South,24/11/2025,ORTIZ AG,Soybeans,951
+T0395,North,11/24/2025,Prairie View  LLC,Soy beans,880
+T0396,North,11/24/2025,Schmidt Bros.,CORN,979
+T0397,North,11/24/2025,Prairie View LLC,Corn,1026
+T0398,South,24/11/2025,Ortiz Ag,Corn,1092
+T0399,North,11/24/2025,ORTIZ AG,Soybeans,918
+T0400,South,24/11/2025,Prairie View LLC,Soybeans,900
+T0401,South,25/11/2025,Prairie View LLC,Soybeans,939
+T0402,North,11/25/2025,Ortiz Ag,SOYBEANS,956
+T0403,North,11/25/2025,Schmidt Bros,Corn,1177
+T0404,South,25/11/2025,Miller  Farms,Soybeans,903
+T0405,North,11/25/2025,ORTIZ AG,Soybeans,884
+T0406,North,11/25/2025,Kowalski Grain,Soybeans,946
+T0407,North,11/26/2025,Kowalski Grain,Soybeans,940
+T0408,South,26/11/2025,Prairie View LLC,Corn,1021
+T0409,South,26/11/2025,Miller Farms,SOYBEANS,856
+T0410,North,11/27/2025,Two Rivers Farm,Popcorn,668
+T0411,North,11/27/2025,Schmidt Bros.,Corn,1008
+T0412,North,11/28/2025,Lindgren Acres,Soybeans,881
+T0413,North,11/28/2025,Miller Farms,Soybeans,809
+T0414,North,11/28/2025,Lindgren Acres,Soy beans,859
+T0415,South,28/11/2025,Hansen Family Farm,SOYBEANS,910
+T0416,North,11/29/2025,Kowalski Grain,Corn,979
+T0417,North,11/29/2025,Hansen Family Farm,popcorn,732
+T0418,North,11/30/2025,Lindgren Acres,Soybeans,928
+T0419,North,11/30/2025,Prairie View  LLC,Corn,979
+T0420,South,30/11/2025,Two Rivers Farm,corn,952

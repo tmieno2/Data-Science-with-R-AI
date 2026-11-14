@@ -1,0 +1,282 @@
+---
+title: "Ex-9-3 worksheet: Communicating with Maps"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch9-practice/analysis/ex-9-3.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-9-3. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from lecture 02-1, "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the data before anyone writes code.
+2. **Predict** what a correct result looks like, or decide what the map must say, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found or decided. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there.
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction or your message **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in. Where a request says `<the figure standard>` or `<the map standard>`, paste your copy of that block.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work, and every map, by reading the rendered HTML, not the chat window.
+
+**The data.** `9-3-ne-counties.gpkg` holds the counties of Nebraska, in NAD83 longitude and latitude (EPSG 4269), with the county code in `countyfp`. `9-3-ne-corn-yield.csv` holds corn yields by county and year, in bushels per acre, as reported by USDA. 2002 was a drought year in Nebraska.
+
+# Task 1: Look and predict, no AI
+
+Open `data/9-3-ne-corn-yield.csv` in a plain text editor.
+
+**A. What does one row represent? How many rows are there, and which years?**
+
+Your answer:
+
+**B. What do the county codes look like, and what must be true of them to match `countyfp` in the county layer?**
+
+Your answer:
+
+**C. Nebraska has 93 counties. If every county had every year, how many rows would there be? What does the real number tell you?**
+
+Your answer:
+
+**D. To show how hard the 2002 drought hit each county, would you map the 2002 yield itself? If not, what would you map?**
+
+Your answer:
+
+# Task 2: Build the table the map is drawn from
+
+**Prediction:** how many counties should the map draw, and how many of them will have a 2002 value?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+In my R project, data/9-3-ne-counties.gpkg has the 93 counties of
+Nebraska (EPSG 4269), with the county code in countyfp.
+data/9-3-ne-corn-yield.csv has one row per <...>, <...> to <...>, with
+corn yield in bushels per acre in corn_yield and the county code, with
+leading zeros, in county_code.
+
+For each county, compute how far its 2002 yield was from its own
+average over the other years, in percent. Then build a table with one row
+per county, starting from all 93 counties, with this value joined to
+it. Do not draw a map yet.
+
+Check: the number of counties in the table (I expect <...>), the number
+of counties appearing more than once (I expect 0), the number with a
+value and the number without one, the names of the counties without
+one, and the smallest and largest value.
+
+Put the code in my Quarto document analysis/ex-9-3.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: how many counties have no 2002 value, and where are they? What would a map that left them out suggest to a reader?**
+
+Your answer:
+
+# Task 3: Message, designs, choice
+
+**My message**, one sentence the reader should take away, supported by the table from Task 2:
+
+Your answer:
+
+**My reader**, who will see the map and what they already know:
+
+Your answer:
+
+**Is the message about where?** If not, a chart would be better; rewrite the message or say so.
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+In my R project, the table built under "Task 2" has one row per
+Nebraska county, with its geometry and the percent difference between
+its 2002 corn yield and its own average. The data file
+data/9-3-ne-corn-yield.csv also has the raw yields.
+
+The message: <...>.
+The reader: <...>.
+For a value with a midpoint, the midpoint is <...>.
+
+Draw three different designs for this message, one after another: the
+raw 2002 yield, the percent difference with one hue from light to dark,
+and the percent difference with two hues diverging from the midpoint. Under
+each, write one sentence saying what that design makes easy to see and
+what it hides. Do not choose one for me. Print the table the maps are
+drawn from, with the number of places drawn, drawn more than once, with
+a value, and without one.
+
+<the figure standard>
+
+<the map standard>
+
+Put the code in my Quarto document analysis/ex-9-3.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: which design do I choose, and why, in terms of my message and my reader? What does each of the other two hide?**
+
+Your answer:
+
+# Task 4: Critique and improve a map
+
+A classmate asked for "a map of Nebraska corn yields in the 2002 drought" and got this. Read it, then render it once on its own by removing the `eval: false` line, and look at it in the HTML.
+
+```{r}
+#| label: task-4-given
+#| eval: false
+library(sf)
+library(dplyr)
+library(readr)
+library(ggplot2)
+counties <- st_read(here::here("data", "9-3-ne-counties.gpkg"), quiet = TRUE)
+yield <- read_csv(here::here("data", "9-3-ne-corn-yield.csv"), show_col_types = FALSE)
+map_data <- inner_join(counties, filter(yield, year == 2002), by = c("countyfp" = "county_code"))
+ggplot(map_data) +
+  geom_sf(aes(fill = corn_yield)) +
+  scale_fill_gradientn(colours = rainbow(7)) +
+  theme_grey()
+```
+
+**A. First, without the AI: list every problem you see, using the checklist from lecture 09-3, the figure standard and the map standard.**
+
+Your answer:
+
+**B. Now ask the AI to critique it, and compare its list with yours:**
+
+```text
+The code below draws a map. Its intended message is: <...>. The reader
+is <...>.
+
+Do not change the code. Answer each question with yes or no and one
+sentence of explanation:
+1. Can someone who has not seen the data state the message within a
+   few seconds?
+2. Is the message about where?
+3. Does the colour scale match the kind of value?
+4. Are places with no data visible and named, and distinguishable from
+   low values?
+5. Does every colour carry information?
+6. Is everything on the map needed for the message?
+7. Does it meet each item of the figure standard and the map standard?
+
+<the figure standard>
+
+<the map standard>
+
+<paste the code from task-4-given here>
+```
+
+**What did the AI find that I missed, or miss that I found?**
+
+Your answer:
+
+**C. Ask for the improved map:**
+
+```text
+The code below draws a map. Its message should be: <...>. The reader
+is <...>.
+
+Change the map so that the message is the first thing a reader sees.
+Keep the original map, and put the new one below it. Above the new one,
+list each change and why, in plain English.
+
+<paste the code from task-4-given here>
+
+<the figure standard>
+
+<the map standard>
+
+Put the code in my Quarto document analysis/ex-9-3.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: does the new map meet the standards? Which change made the biggest difference to the message?**
+
+Your answer:
+
+# Task 5: Check the map against its data
+
+**Prediction:** which part of the state should hold the counties furthest below normal?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+The map under the heading "Task 4" is drawn from the table <...>. Below
+the map, print: the number of places drawn (I expect <...>), the number
+drawn more than once (I expect 0), the number with a value and without
+one, and the CRS of every layer on the map. Then print the five places
+with the highest and the five with the lowest value, so I can check
+them against the colours on the map.
+
+Put the code in my Quarto document analysis/ex-9-3.qmd, under the
+heading "Task 5", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML: do the five lowest and five highest counties have the colours the legend says they should?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which decision today could the AI not have made for you?**
+
+Your answer:
+
+**B. Which of the problems in Task 4 would a reader have noticed, and which would have misled them without their noticing?**
+
+Your answer:
+
+**C. Add one line to your copy of the map standard: something the AI got wrong today that the standard did not cover.**
+
+Your answer:

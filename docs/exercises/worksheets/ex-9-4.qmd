@@ -1,0 +1,268 @@
+---
+title: "Ex-9-4 worksheet: Two Vector Layers"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch9-practice/analysis/ex-9-4.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-9-4. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the layers before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match, and does every map show what you meant?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+**The question for today:** which Colorado counties lie over the High Plains aquifer, and how much of the aquifer lies in each?
+
+# Task 1: Look at the two layers
+
+Read `data/9-4-README.txt` first. Then send this request:
+
+```text
+In my R project, data/9-4-co-counties.gpkg and data/9-4-hp-boundary.gpkg
+are vector layers. Read both, as co_counties and aquifer. For each,
+print the CRS, the number of
+features, the geometry type, the bounding box and the number of invalid
+shapes. Then draw one map with both layers together, the second layer's
+outline on top.
+
+Put the code in my Quarto document analysis/ex-9-4.qmd, under the
+heading "Task 1: Look at the two layers", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-1
+```
+
+**A. How many features does each layer have? Are the two CRSs the same?**
+
+Your answer:
+
+**B. From the map: which part of Colorado does the aquifer lie under?**
+
+Your answer:
+
+**C. From the map, before any code: roughly how many counties have some part over the aquifer? How many lie entirely over it?**
+
+Your answer:
+
+# Task 2: Counties over the aquifer, two ways
+
+**Prediction** (from Task 1C): counties with any part over the aquifer, and counties entirely over it.
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Using the layers co_counties and the aquifer outline, both in EPSG <...>,
+keep the counties that have any part over the aquifer, whole, in a layer
+called counties_any, and the counties that lie entirely over the
+aquifer, in a layer called counties_all. I expect about <...> and about
+<...>.
+
+Then check: the number of counties before and after, for each layer, and
+draw a map of all counties with counties_any filled in one colour,
+counties_all in another, and the aquifer outline on top.
+
+Put the code in my Quarto document analysis/ex-9-4.qmd, under the
+heading "Task 2: Counties over the aquifer, two ways", as R code chunks.
+Above each chunk, write one plain-English sentence saying what it does
+and why. Build every path with here::here(); no setwd(), no absolute
+paths. Print each check on its own line as "name of check: expected X,
+got Y". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: how far apart are the two counts? Which relation did the AI use for each? Was your prediction close?**
+
+Your answer:
+
+# Task 3: How much of each county is over the aquifer?
+
+A county "over the aquifer" by the first count may have only a small part over it. Before choosing between the two counts, find out how small.
+
+**Prediction.** Will any county in `counties_any` have less than 5% of its area over the aquifer? Which ones, from the map?
+
+Your answer:
+
+**My request to the AI.** Write it yourself this time. It should ask for the share of each county's area in `counties_any` that lies over the aquifer, say in which kind of CRS areas are computed, say how to print the result so you can find the small shares, and end with the closing instructions (heading "Task 3: How much of each county is over the aquifer?").
+
+```text
+
+
+
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: which counties have the smallest shares? If your study were about irrigation from this aquifer, which set of counties would you use, and why?**
+
+Your answer:
+
+# Task 4: Counties near the aquifer
+
+**Prediction.** How many counties lie within 20 km of the aquifer without any part over it? Look at the map from Task 2.
+
+Your answer:
+
+**Which CRS?** Distances must be computed in a CRS in metres. Colorado lies in UTM zone 13N; its EPSG code is 26913. Write down the units you expect the AI to print for this CRS:
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Using co_counties and the aquifer outline, find the counties within
+<...> of the aquifer that have no part over it. Do the distance work in
+EPSG <...>, and print the CRS and its units. Keep the counties whole, in
+a layer called counties_near. I expect about <...>.
+
+Then check: the number of counties found, print their names, and draw a
+map of the zone around the aquifer, the counties found filled, and the
+other counties in grey.
+
+Put the code in my Quarto document analysis/ex-9-4.qmd, under the
+heading "Task 4: Counties near the aquifer", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: which counties, and do they sit where the map says they should?**
+
+Your answer:
+
+# Task 5: Cut the aquifer at county lines
+
+**Prediction.** You will cut the aquifer into one piece per county. What total should the pieces add up to? (Hint: not the area of the whole aquifer, which lies under eight states.)
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Cut the aquifer outline at the boundaries of co_counties, keeping the
+county columns, in a layer called aquifer_pieces. Then compute the area
+of each piece in km2, in a CRS in metres.
+
+Then check: the number of pieces (I expect <...>), the number of invalid
+pieces, and that the pieces add up to <...>. Draw a map of the pieces
+filled by area.
+
+Put the code in my Quarto document analysis/ex-9-4.qmd, under the
+heading "Task 5: Cut the aquifer at county lines", as R code chunks.
+Above each chunk, write one plain-English sentence saying what it does
+and why. Build every path with here::here(); no setwd(), no absolute
+paths. Print each check on its own line as "name of check: expected X,
+got Y". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML: did the total match? Which county holds the largest piece of the aquifer?**
+
+Your answer:
+
+# Task 6: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Maria asked an AI for "how much of each Colorado county lies over the aquifer, and the total", and kept this:
+
+```{r}
+#| label: task-6
+#| eval: false
+co <- st_transform(co_counties, 26913)
+hp <- st_transform(aquifer, 26913)
+over <- st_crop(co, hp)
+over$km2 <- as.numeric(st_area(over)) / 1e6
+sum(over$km2)
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. Which line cuts to the wrong shape, and what shape does it cut to?**
+
+Your answer:
+
+**C. Compare the total from the last line with your answer to Task 5. Larger or smaller, and why?**
+
+Your answer:
+
+**D. What check from today would have caught the problem?**
+
+Your answer:
+
+**E. Now send this request, and compare the AI's answer with yours.**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. which spatial relation each line uses, and whether it keeps whole
+   features or cuts them
+2. every distance, and the units it is in given the CRS at that line
+3. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+co <- st_transform(co_counties, 26913)
+hp <- st_transform(aquifer, 26913)
+over <- st_crop(co, hp)
+over$km2 <- as.numeric(st_area(over)) / 1e6
+sum(over$km2)
+```
+
+Your answer:
+
+# Wrap-up
+
+**A. In one sentence each: what is the difference between "intersects" and "within", and between keeping and cutting?**
+
+Your answer:
+
+**B. Which check today showed you something the first count did not?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

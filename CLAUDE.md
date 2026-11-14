@@ -28,7 +28,10 @@ code is written" and "How writing code is written" are the model.
 should do their own research this way: the AI writes code into a `.qmd`, with
 one plain-English sentence above each chunk; the student renders it and
 assesses the HTML, not the chat. Frame it as how to do research with AI, which
-the exercises practise, never as a rule of this course. Every recommended request ends with the same
+the exercises practise, never as a rule of this course. It is taught in full
+on the slide "Working with AI on your own research" in
+`lectures/Chapter-2-Quarto/02-1-Quarto-introduction.qmd`; later decks give a
+short reminder and point back to that slide. Every recommended request ends with the same
 "closing instructions" (which `.qmd` and heading, a sentence above each chunk,
 `here::here()` paths, checks printed as "expected X, got Y", render to HTML).
 The canonical wording is the "Closing instructions" tab of the "Recommended

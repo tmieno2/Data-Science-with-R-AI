@@ -1,0 +1,309 @@
+---
+title: "Ex-3-2 worksheet: The Core Operations of Data Wrangling"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch3-practice/analysis/ex-3-2.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-3-2. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the data before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+**The data.** `data/3-2-county_crops.csv` holds corn and soybean yields (bushels per acre) for counties in Colorado, Kansas and Nebraska, 2000 to 2018, and `weeks_severe_drought`: how many of the 23 weeks from May to September the county spent in severe drought or worse.
+
+# Task 1: Read and look
+
+**My request to the AI.** Nothing to fill in yet; this request is how you find out what to fill in later:
+
+```text
+In my R project, data/3-2-county_crops.csv is a csv file. Read it into
+a table called crops using the tidyverse, keeping county_code as text.
+Then print the number of rows, the type of every column, the number of
+missing values in each column, every value of state_name with the
+number of rows that have it, the number of distinct counties in each
+state, and the smallest and largest year.
+
+Put the code in my Quarto document analysis/ex-3-2.qmd, under the
+heading "Task 1", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-1
+```
+
+**A. How many rows? What is one row?**
+
+Your answer:
+
+**B. How is each state written in `state_name`? How many rows and how many counties does each state have?**
+
+Your answer:
+
+**C. Which columns have missing values, and how many?**
+
+Your answer:
+
+# Task 2: Keep rows
+
+You want the Nebraska rows for 2012, a drought year.
+
+**Prediction.** At most how many rows can the result have, and why? Which values should `state_name` and `year` take in the result?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Task 1:
+
+```text
+In my table crops, one row is <...>. Keep the rows where state_name is
+<...> and year is 2012. Rows where state_name or year is missing should
+be dropped. Call the result ne_2012.
+
+Then check the number of rows before and after (I expect at most <...>
+after), the values of state_name and year in the result, and the number
+of rows kept plus the number dropped.
+
+Put the code in my Quarto document analysis/ex-3-2.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: did every check match my prediction?**
+
+Your answer:
+
+# Task 3: Split the rows in two
+
+You want two tables: the county-years with a soybean yield below 40, and those with a soybean yield of 40 or more.
+
+**Prediction.** The two tables together should have how many rows? Why?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+From my table crops, make two tables: soy_low, the rows where soy_yield
+is below 40, and soy_high, the rows where soy_yield is 40 or more.
+
+Then check the number of rows of soy_low, of soy_high, and of the two
+together (I expect the two together to have <...> rows).
+
+Put the code in my Quarto document analysis/ex-3-2.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: did the check pass? If not, where did the other rows go? Use what you found in Task 1.**
+
+Your answer:
+
+# Task 4: Create a column
+
+You want the share of the May to September season (23 weeks) spent in severe drought or worse, as a percentage.
+
+**Prediction.** What is the smallest and largest value the new column can take? Pick one row of the table and work out its value by hand.
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+In my table crops, add a column <...> equal to <...>. Where
+weeks_severe_drought is missing, the new column should be missing.
+
+Then check the smallest and largest value of the new column (I expect
+between <...> and <...>), its number of missing values (I expect
+<...>), and print the row for <the county and year you worked out by
+hand> so I can compare.
+
+Put the code in my Quarto document analysis/ex-3-2.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: did the range and my hand calculation match?**
+
+Your answer:
+
+# Task 5: Summarise by group
+
+You want, for each state, the average corn yield and the average soybean yield over all its county-years.
+
+**Prediction.** How many rows should the result have? The numbers of rows behind the averages should add up to what? From Task 1, which averages do you expect to be a problem?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+From my table crops, where one row is <...>, make a table called
+by_state with one row per <...>, holding the average corn_yield and the
+average soy_yield. Leave out missing values when averaging, and also
+give, for each group, the number of rows and the number of non-missing
+values of soy_yield.
+
+Then check the number of rows of by_state (I expect <...>), and that
+the numbers of rows add up to <...>.
+
+Put the code in my Quarto document analysis/ex-3-2.qmd, under the
+heading "Task 5", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML.** Which of the six averages would you put in a report as they are, which with a note, and which not at all? Why?
+
+Your answer:
+
+# Task 6: Sort
+
+You want the county-years with the lowest corn yields.
+
+**Prediction.** From what you know about corn, what is a believable lowest county yield in a very bad year?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Sort the table crops by corn_yield, smallest first, and show the first
+<...> rows. Then check: print the first and last values of corn_yield
+in the sorted table, and the number of rows with a corn_yield below
+<the lowest yield you find believable>.
+
+Put the code in my Quarto document analysis/ex-3-2.qmd, under the
+heading "Task 6", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-6
+```
+
+**Reading the HTML: is every value at the top of the list believable? If not, what would you do before averaging corn yields?**
+
+Your answer:
+
+# Task 7: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Sam asked an AI for "the average corn yield of each Nebraska county since 2010, lowest first" and kept this:
+
+```{r}
+#| label: task-7
+#| eval: false
+crops |>
+  filter(state_name == "nebraska", year >= 2010) |>
+  group_by(county_name) |>
+  mutate(avg_corn = mean(corn_yield)) |>
+  arrange(avg_corn)
+```
+
+**A. Read the chain in words, saying "then" at each `|>`.**
+
+Your answer:
+
+**B. What does this code return, and why? There is no error.**
+
+Your answer:
+
+**C. Suppose that problem is fixed. One more line gives a result that is not "one row per county". Which line, and what should it be?**
+
+Your answer:
+
+**D. Sam later removes the `filter()` line to get every county in all three states. What goes wrong with `group_by(county_name)` then? (Hint: are county names unique across states?)**
+
+Your answer:
+
+**E. Now send this request, and compare the AI's answer with yours:**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+crops |>
+  filter(state_name == "nebraska", year >= 2010) |>
+  group_by(county_name) |>
+  mutate(avg_corn = mean(corn_yield)) |>
+  arrange(avg_corn)
+```
+
+Your answer:
+
+# Wrap-up
+
+**A. Which check caught a real problem today? Would you have noticed the problem without it?**
+
+Your answer:
+
+**B. In Tasks 3 and 5, the same feature of the data changed the result. What was it, and what would you now say about it in every request that uses that column?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

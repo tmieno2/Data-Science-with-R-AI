@@ -1,0 +1,137 @@
+---
+title: "Ex-2-2: Presentations with Quarto, with an AI Assistant"
+abstract: "Quarto"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/2-1-nebraska-yield.csv
+  - worksheets/ex-2-2.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+yields <- read_csv("data/2-1-nebraska-yield.csv", col_types = cols(county_code = "c"))
+by_year <- yields |>
+  group_by(year) |>
+  summarise(counties = n(), average_yield = round(mean(corn_yield)))
+avg <- setNames(by_year$average_yield, by_year$year)
+cnt <- setNames(by_year$counties, by_year$year)
+first_year <- min(yields$year)
+last_year <- max(yields$year)
+
+# Counties that report in the last year, and how they did in the year before
+in_last <- unique(yields$county_name[yields$year == last_year])
+same_prev <- yields |>
+  filter(county_name %in% in_last, year == last_year - 1)
+same_prev_avg <- round(mean(same_prev$corn_yield))
+```
+
+This is an in-class exercise. Before class, work through the lecture **02-2: Presentations with Quarto**. In class, you work through the worksheet with an AI assistant building the slides. Your job is everything the AI cannot do: deciding who the talk is for, what it says and in what order, and judging the deck as the audience will see it.
+
+# Setup {#sec-setup}
+
+1. Use the `ch2-practice` project from [Ex-2-1](2-1-quarto-introduction.qmd). If you do not have it, make it as described there.
+2. Download the worksheet, [ex-2-2.qmd](worksheets/ex-2-2.qmd), into `ch2-practice/analysis`. If `2-1-nebraska-yield.csv` is not in `ch2-practice/data` yet, download [it](data/2-1-nebraska-yield.csv) there.
+3. Open the worksheet, render it, and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+The rendered worksheet shows a table with `r nrow(by_year)` rows, one per year from `r first_year` to `r last_year`, under "The numbers for the talk".
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task. Most of this exercise is decisions, so there is rarely one right answer; the boxes say what makes an answer good.
+
+## Task 1: Audience, time and message
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+A. About 5, at one per minute, plus a title slide and the Checks slide after the end.
+
+B. The table:
+
+| Year | Counties | Average yield (bushels per acre) |
+|---|---|---|
+`r paste0("| ", by_year$year, " | ", by_year$counties, " | ", by_year$average_yield, " |", collapse = "\n")`
+
+A good message is one sentence a farmer could repeat, with a number they can say aloud, for example: "Average county corn yields in Nebraska stayed close to 200 bushels per acre from `r first_year` to `r last_year - 1`, and `r last_year` was higher." A message such as "Yields varied over time" says nothing that could be wrong, so it says nothing.
+
+C. Yes. `r last_year` has only `r cnt[as.character(last_year)]` counties, against `r min(cnt[as.character(first_year:(last_year - 1))])` to `r max(cnt[as.character(first_year:(last_year - 1))])` in the other years. Its average is over a different, smaller set of counties. Of those `r length(in_last)` counties, the `r nrow(same_prev)` that also reported in `r last_year - 1` averaged `r same_prev_avg` that year, against `r avg[as.character(last_year - 1)]` for all counties: they tend to be higher-yielding counties. So part of the rise in `r last_year` comes from which counties reported, not from the weather or the farmers. A claim such as "a record year" needs that caveat, on the slide or in what you say.
+:::
+
+## Task 2: The outline
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+For example:
+
+1. "We looked at corn yields in Nebraska counties, `r first_year` to `r last_year`": what the data is, in one figure or two bullets
+2. "Yields stayed close to 200 bushels per acre": a figure of the average yield per year
+3. "`r last_year` was higher, but fewer counties reported": the same figure with the number of counties marked, or a second figure
+4. "What this means for you": two or three bullets you write yourself
+
+Each title is a sentence that a reader of the overview alone would understand, and the four together tell the message. "Data", "Results" and "Conclusion" fail this test.
+:::
+
+## Task 3: Ask the AI for the deck
+
+::: {.callout-note collapse="true" title="What to look for"}
+Your filled-in request should name the audience ("farmers at a county extension meeting, who know yields in bushels per acre but no statistics"), the time (5 minutes), your message, and your outline. The checks: `r nrow(yields)` rows, years `r first_year` to `r last_year`.
+
+On the Checks slide, both lines should match: "number of rows: expected `r nrow(yields)`, got `r nrow(yields)`", and the years.
+:::
+
+## Task 4: Judge the deck
+
+::: {.callout-note collapse="true" title="What is often found"}
+What the AI produces varies, so your list will differ from your neighbour's. Failures that are common in decks made by AI:
+
++ **Titles changed.** The AI shortened your sentences into topics, or added slides of its own (an "Introduction", a "Questions?" slide). Check 1.
++ **A claim stronger than the data.** "Record yields in `r last_year`" with no word about the `r cnt[as.character(last_year)]` counties. Check 3.
++ **Figure text too small**, especially when two figures are placed side by side. Check 5.
++ **Too much on one slide**, often a table of every year plus bullets plus a figure. Check 4.
++ **Messages from loading packages** on the first slide, when the setup chunk was not hidden. Check 6.
+
+A deck that passes all of them on the first try is possible. Check every item anyway: a request says what you asked for, not what you got.
+:::
+
+## Task 5: Fix what failed
+
+::: {.callout-note collapse="true" title="What to look for"}
+A good fix request names the slide by its title, describes the problem as it looks in the rendered deck ("the axis text cannot be read when the window is half its width"), and says what it should look like instead, not how to code it. For small figure text, the right fix is a smaller canvas (`fig-width`, `fig-height`), not a larger `out-width`.
+
+"Do not change any other slide" matters: step through the whole deck again after the fix, because an AI asked to change one slide sometimes rewrites others.
+:::
+
+## Task 6: Present it
+
+::: {.callout-note collapse="true" title="What to look for"}
+A 5-slide talk usually takes longer than people expect: most first attempts run over. If your neighbour remembered something other than your message, look at which slide they remembered it from: that slide may say more, or more loudly, than the one that carries the message.
+:::
+
+## Task 7: Send it
+
+::: {.callout-note collapse="true" title="What you should find"}
+With `embed-resources: true` in the header, the copy opens as slides, with its figures. Without it, the copy opens as a plain white page with every title and bullet one after another, and no figures: the styling, the slide machinery and the figures are all in the `talk_files/` folder that was left behind. Since your request asked for `embed-resources: true`, the copy fails only if the AI left it out.
+
+The setting goes under `revealjs:`:
+
+```yaml
+format:
+  revealjs:
+    embed-resources: true
+```
+:::
+
+## Wrap-up
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+A. The audience and the time (only you know who will be in the room), the message (a choice about what matters, which the data does not make for you), and whether the `r last_year` caveat belongs on a slide or in what you say.
+
+B. Usually check 5 (figure text) or check 4 (a slide too full): both are about how the slide looks at the size it is shown, which the `.qmd` does not show.
+:::

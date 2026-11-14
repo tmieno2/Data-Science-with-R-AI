@@ -1,0 +1,139 @@
+---
+title: "Ex-8-3: Tables in Your Paper, with an AI Assistant"
+abstract: "Make Tables"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/8-1-county-crops.csv
+  - worksheets/ex-8-3.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+library(gt)
+
+crops <- read_csv("data/8-1-county-crops.csv", show_col_types = FALSE)
+
+drought_table <- function(min_weeks) {
+  crops |>
+    mutate(drought = weeks_extreme >= min_weeks) |>
+    group_by(state_name) |>
+    summarise(
+      none = mean(corn_yield[!drought]),
+      with = mean(corn_yield[drought]),
+      diff = with - none,
+      n = n(),
+      n_with = sum(drought),
+      share = mean(drought)
+    ) |>
+    arrange(diff)
+}
+t1 <- drought_table(1)
+t4 <- drought_table(4)
+co <- function(t, col) t[[col]][t$state_name == "Colorado"]
+pct <- function(x) round(100 * x)
+```
+
+This is an in-class exercise. Before class, work through the lecture **08-3: Tables in Your Paper** (and 08-1 for the table standard). It is short. In class, you work through the worksheet with an AI assistant writing the code.
+
+# Setup {#sec-setup}
+
+1. Use the `ch8-practice` project from Ex-8-1. If you do not have it, follow the setup of [Ex-8-1](8-1-make-table.qmd).
+2. Download the worksheet, [ex-8-3.qmd](worksheets/ex-8-3.qmd), into `ch8-practice/analysis`, and make sure [8-1-county-crops.csv](data/8-1-county-crops.csv) is in `ch8-practice/data`.
+3. Ask your AI assistant to install `gt` and `officer` if you have not already. You also need Word, or another program that opens `.docx` files (LibreOffice, Google Docs).
+4. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch8-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r co(t1, "n_with")` / `r co(t1, "n")` = `r round(100 * co(t1, "share"), 1)`%, so `r pct(co(t1, "share"))`% when rounded to a whole percent.
+
+B. Either works, as long as the format matches:
+
++ As a share between 0 and 1 (`r round(co(t1, "share"), 3)`): `fmt_percent()` multiplies by 100, which is right.
++ As a percentage between 0 and 100 (`r round(100 * co(t1, "share"), 1)`): the format must **not** multiply again. Use `fmt_number()` with "%" in the header, or `fmt_percent(scale_values = FALSE)`.
+:::
+
+## Task 2: The table, in gt
+
+::: {.callout-note collapse="true" title="What you should find"}
+A table that meets the standard, with the rows ordered by the difference:
+
+```{r}
+#| label: task-2-table
+#| echo: false
+threshold <- 1
+t1 |>
+  select(state_name, none, with, diff, share) |>
+  gt() |>
+  cols_label(
+    state_name = "State",
+    none = "Without extreme drought",
+    with = "With extreme drought",
+    diff = "Difference",
+    share = "County-years with extreme drought"
+  ) |>
+  tab_spanner(label = "Average corn yield (bushels per acre)", columns = c(none, with, diff)) |>
+  fmt_number(columns = c(none, with, diff), decimals = 0) |>
+  fmt_percent(columns = share, decimals = 0) |>
+  tab_header(title = "Corn yields with and without extreme drought, by state, 2000 to 2018") |>
+  tab_source_note(paste0(
+    "Extreme drought: at least ", threshold, " week from May to September in US Drought Monitor category D3 or D4."
+  )) |>
+  tab_source_note(paste0(
+    "County-years: Colorado ", t1$n[t1$state_name == "Colorado"],
+    ", Kansas ", t1$n[t1$state_name == "Kansas"],
+    ", Nebraska ", format(t1$n[t1$state_name == "Nebraska"], big.mark = ","), "."
+  )) |>
+  tab_source_note("Source: USDA NASS county yields; US Drought Monitor.")
+```
+
+**The trap.** If the share was computed as a percentage (`r round(100 * co(t1, "share"), 1)` for Colorado) and then formatted with `fmt_percent()`, the table shows Colorado as `r format(round(100 * 100 * co(t1, "share")), big.mark = ",")`%. Your check ("expected `r pct(co(t1, "share"))`%") fails, and that is how you would know. If your AI computed a share between 0 and 1 and used `fmt_percent()`, or a percentage and used `fmt_number()`, the check passes.
+
+The line to explain is the one starting `fmt_percent(` or `fmt_number(` with the share column in it: it changes how the number is shown, and `fmt_percent()` also multiplies it by 100 unless told `scale_values = FALSE`.
+:::
+
+## Task 3: Save it for a paper
+
+::: {.callout-note collapse="true" title="What you should find"}
+The read-back check should print a Colorado share of `r pct(co(t1, "share"))`%. In the Word file the numbers, headers, the header over several columns, and the notes should all be there; `gtsave()` puts the title above the table as a Word caption ("Table 1: ...").
+
+What can differ: the width. A table that fits a wide HTML page can be wider than a Word page with margins, and fonts and line spacing follow Word's defaults. These are things to fix in the code (shorter headers, a narrower table), not by editing the Word file, because the next render replaces the file.
+:::
+
+## Task 4: Change a decision upstream
+
+::: {.callout-note collapse="true" title="What you should find"}
+With 4 or more weeks, every number except the number of county-years per state changes. For Colorado:
+
+| | 1 week or more | 4 weeks or more |
+|---|---|---|
+| Share with extreme drought | `r pct(co(t1, "share"))`% | `r pct(co(t4, "share"))`% |
+| Average yield without | `r round(co(t1, "none"))` | `r round(co(t4, "none"))` |
+| Average yield with | `r round(co(t1, "with"))` | `r round(co(t4, "with"))` |
+
+The Colorado share should now show as `r pct(co(t4, "share"))`% (`r co(t4, "n_with")` of `r co(t4, "n")`), which is the new expected value for your check.
+
+The Word file changed on the render, with no typing.
+
+Check the notes too. A note that says "at least 1 week" as typed text is now wrong. Ask the AI to build the note from the same threshold the code uses (the Task 2 request asked for this), so the note changes with the numbers. A hand-typed table would need all 12 numbers retyped, and each retyping is a chance for an error that no check in your code would ever see.
+
+Change the definition back to 1 week if your table should match Ex-8-1.
+:::

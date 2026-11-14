@@ -1,0 +1,2005 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <title>Data Science with R (AECN 896-05) – 06-2: Version Control: Keeping a History of Your Project</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <!--
+    Support for collapsible "Transcript" panels in revealjs decks.
+
+    Include it from a deck's YAML header, with the path relative to the qmd:
+
+        format:
+          revealjs:
+            include-in-header: ../transcript-support.html
+
+    Then add a transcript anywhere inside a slide (or inside a single tab of a
+    tabset, which is the usual case):
+
+        <details class="transcript">
+        <summary>Transcript</summary>
+
+        What the lecturer says about this tab.
+
+        </details>
+
+    On a tab whose figure fills the whole slide there is no free rectangle to
+    overlay, so add "inline" and the panel joins the flow when opened, pushing the
+    figure down instead of covering it:
+
+        <details class="transcript inline">
+
+    Use it only where it is needed. Measure rather than guess: an open panel must
+    not overlap a ".cell-output-display". The collapsed pill still costs 0px in
+    both variants, which is the property the whole design exists to preserve.
+
+    It must live in the header rather than the body of a qmd: raw HTML placed
+    above the first "##" heading becomes its own untitled slide.
+
+    <details> is a native HTML element, so the collapse/expand works with no
+    JavaScript at all, including in a self-contained (embed-resources) file. The
+    script at the bottom adds one behaviour on top: collapsing an open panel when
+    the reader moves on. Without it everything still works, panels just keep their
+    open state.
+
+    Audience: students reviewing after class. These are not presenter notes -
+    reveal's own ".notes" blocks are the presenter-only mechanism.
+  -->
+  <style>
+  /* The panel is positioned against the slide rather than sitting in its normal
+     flow. That is the whole point: collapsed it costs the slide no vertical
+     space, and opened it overlays the content instead of pushing it off the
+     bottom edge. Each panel lives inside its own tab, and hidden tabs do not
+     render, so only the visible tab's transcript is ever shown. */
+  .reveal details.transcript {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    width: auto;
+    font-size: 0.55em;
+    line-height: 1.45;
+    text-align: left;
+    border-radius: 6px;
+    /* custom.scss styles every bare <details> as an "answer box" (grey border
+       plus padding) for Quarto's folded-code blocks. Opt out of both here so the
+       collapsed pill is not sitting inside a grey rectangle. */
+    border: none;
+    padding: 0;
+  }
+
+  /* Collapsed: a small pill that hugs the top-right corner. */
+  .reveal details.transcript > summary {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+    outline: none;
+    /* custom.scss pulls every bare <summary> with a negative margin; undo it. */
+    margin: 0;
+    padding: 0.15em 0.7em;
+    border: 1px solid #06a666;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #06a666;
+    font-weight: 600;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .reveal details.transcript > summary::-webkit-details-marker { display: none; }
+  .reveal details.transcript > summary::before { content: "\25B8\00A0"; }
+  .reveal details.transcript[open] > summary::before { content: "\25BE\00A0"; }
+
+  /* Opened: a tall, narrow panel down the right-hand side, where slide content
+     rarely reaches. It starts below the tab bar so tab names stay clickable
+     while a transcript is open, and runs down to just above the footer.
+
+     Measured as a share of the 700px logical slide. A top-level tab bar ends at
+     12.4-13%, so 21% clears it everywhere.
+
+     A tab bar that sits lower on the slide is cleared HORIZONTALLY instead: the
+     panel occupies x 62-100%, and no tab row measured so far reaches past x 66%.
+     Cases seen, all fine:
+       00-1  nested tabset          18.9%, names reach x 15%
+       00-1  tabset below prose     40.8%, names reach x 59%
+       01-2  nested tabset          29.6%, names reach x 46%
+     So the rule to preserve is not "top clears every tab bar" but "no tab NAME
+     overlaps the panel's rectangle". Re-check that if a deck grows a long tab row
+     sitting low on the slide. */
+  .reveal details.transcript[open] {
+    top: 21%;
+    width: 36%;
+    max-height: 75%;
+    overflow-y: auto;
+    padding: 0.55em 0.85em 0.7em;
+    background: #f4fbf8;
+    border: 1px solid #06a666;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+  }
+  .reveal details.transcript[open] > summary {
+    display: block;
+    padding: 0 0 0.4em 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .reveal details.transcript p { margin: 0.35em 0; }
+
+  /* Opt-out, applied per tab as class="transcript inline".
+     Some figures are rendered at out-width 80% and span x 1.4-98.6% of the slide,
+     running from just under the tab bar down to y ~95%. There is no rectangle
+     left to overlay, so on those tabs the panel joins the normal flow when opened
+     and pushes the figure down; the slide is "scrollable: true", so the figure
+     stays reachable. Note this rule only touches [open]: collapsed, the pill is
+     still absolutely positioned at the top-right corner and still costs 0px. */
+  .reveal details.transcript.inline[open] {
+    position: static;
+    width: auto;
+    max-height: none;
+    overflow-y: visible;
+    margin: 0 0 0.9em 0;
+  }
+
+  /* No .slide-logo rule here: no deck in this course sets a "logo:" in its YAML,
+     so the bottom-right corner the panel would collide with is already free. If
+     a logo is ever added, move it out of the way with
+     .reveal .slide-logo { right: auto !important; left: 56px !important; }
+     where 56px clears reveal's menu button at x 8-43px. */
+  </style>
+
+  <script>
+  // Collapse any open transcript when the reader moves to another slide or
+  // another tab, so a panel left open never reappears over unrelated content.
+  (function () {
+    function closeAll() {
+      document.querySelectorAll("details.transcript[open]")
+        .forEach(function (d) { d.open = false; });
+    }
+
+    // Slide changes come from reveal, which is not ready when this runs.
+    function hookReveal() {
+      if (window.Reveal && typeof Reveal.on === "function") {
+        Reveal.on("slidechanged", closeAll);
+        Reveal.on("overviewshown", closeAll);
+        return true;
+      }
+      return false;
+    }
+    if (!hookReveal()) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (hookReveal() || ++tries > 100) clearInterval(timer);
+      }, 100);
+    }
+
+    // Tab changes are plain clicks; capture so this runs before the tab switches.
+    document.addEventListener("click", function (e) {
+      var el = e.target;
+      if (el && el.closest && el.closest('.panel-tabset [role="tab"]')) closeAll();
+    }, true);
+  })();
+  </script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">06-2: Version Control: Keeping a History of Your Project</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="how-this-lecture-works" class="title-slide slide level1 center">
+<h1>How this lecture works</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-will-and-will-not-learn-today" class="slide level2 scrollable">
+<h2>What you will and will not learn today</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">The plan</a></li><li><a href="#tabset-1-2">Directions</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<p>An AI assistant can run every git command there is, and get each one right. What it cannot do is:</p>
+<ul>
+<li>decide which of your changes belong together</li>
+<li>know why you made them</li>
+<li>know which files must never leave your computer</li>
+<li>know whether it is safe to send your work to GitHub, where others can see it</li>
+</ul>
+<p>Those four are your job. So today is about:</p>
+<ol type="1">
+<li><strong>The concept</strong>: what version control is for, and what each of its steps does (stage, commit, push, pull, branch, merge, pull request)</li>
+<li><strong>Reading code</strong>: recognising what a git command will do, and reading what git prints</li>
+<li><strong>Asking AI</strong>: what to tell the AI, and what it must not do on its own</li>
+<li><strong>Checking</strong>: what to look at before you let the AI commit or push</li>
+</ol>
+<p>You will not learn to type git commands from memory.</p>
+</div>
+<div id="tabset-1-2">
+<ul>
+<li>Getting a repository onto your computer (cloning) is in lecture 02-0. This lecture is about what to do with one.</li>
+<li>To follow along on your own project you need git, a free GitHub account, and a few one-time settings. The <strong>Before class</strong> section of exercise 6-2 lists them, each with a check whose answer you know (for example, <code>git config --global pull.rebase</code> prints <code>false</code>). Do it before class; an AI assistant can help.</li>
+<li>The git output on these slides comes from a small practice repository that is built in a temporary folder each time the slides are made. Every output is real. Where the code that produced an output is shown, <code>put()</code> writes a file into that repository and <code>git()</code> runs one git command in it; both are small functions written for these slides.</li>
+</ul>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="the-concept" class="title-slide slide level1 center">
+<h1>The concept</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-version-control-is-for" class="slide level2">
+<h2>What version control is for</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">The folder you already have</a></li><li><a href="#tabset-2-2">What you want to answer</a></li><li><a href="#tabset-2-3">Why a synced folder is not this</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb1-1"><a></a>analysis.qmd</span>
+<span id="cb1-2"><a></a>analysis_v2.qmd</span>
+<span id="cb1-3"><a></a>analysis_v2_new.qmd</span>
+<span id="cb1-4"><a></a>analysis_final.qmd</span>
+<span id="cb1-5"><a></a>analysis_final_USE_THIS.qmd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>You do not know what is <strong>different</strong> between any two of them.</li>
+<li>You do not know <strong>why</strong> any of them exists.</li>
+<li>You do not know <strong>which one produced the numbers in your paper</strong>.</li>
+<li>You cannot go back to a moment you did not think to save.</li>
+</ul>
+<p>You have the files. What is missing is a record of what changed, when, and why.</p>
+</div>
+<div id="tabset-2-2">
+<ul>
+<li>“What did I change last Tuesday, and why?”</li>
+<li>“Put the whole project back the way it was before I started the revision.”</li>
+<li>“Which version of the code produced the table in the submitted paper?”</li>
+<li>“My coauthor changed the cleaning step this week. Which lines?”</li>
+<li>“The AI edited six files. What exactly did it change?”</li>
+</ul>
+<p><strong>Version control</strong> is a record of a project’s history that answers these. <strong>Git</strong> is the program that keeps that record, on your computer. <strong>GitHub</strong> is a website that keeps a copy of it, so others can see and add to it.</p>
+</div>
+<div id="tabset-2-3">
+<p>Dropbox, Google Drive and OneDrive keep old copies of each file. That is not the same:</p>
+<ul>
+<li><strong>A change spans files.</strong> Renaming a column changes three steps at once, for one reason. Git records that as one change. A synced folder records three unrelated file times.</li>
+<li><strong>Nothing records why.</strong> There is no place for the reason, and the reason is what you need later.</li>
+<li><strong>You cannot go back to a moment.</strong> You restore files one at a time and hope you found them all.</li>
+</ul>
+<p>Keep a git repository on your computer’s own disk, not inside a synced folder; sync programs and git can each change files the other is using. For a copy elsewhere, use GitHub.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="repository-and-commit" class="slide level2">
+<h2>Repository and commit</h2>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">A repository</a></li><li><a href="#tabset-3-2">A commit</a></li><li><a href="#tabset-3-3">What a commit is not</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<p>A <strong>repository</strong> is your project folder plus its full history. Making a folder a repository adds one hidden folder, <code>.git</code>, where git keeps the history. Every other file stays an ordinary file you edit as usual.</p>
+<ul>
+<li>One repository per research project, at the project root, next to the <code>.Rproj</code> file.</li>
+<li>The history is on your disk. Git needs no internet connection; GitHub is optional.</li>
+</ul>
+</div>
+<div id="tabset-3-2">
+<p>A <strong>commit</strong> is a stored copy of the whole project at one moment, with a message saying why. The history is the list of commits, each one pointing back to the one before it.</p>
+<p><img data-src="git-figures/history.png" style="width:60.0%" alt="Four commits, A to D, from left to right, each with an arrow pointing back to the one before it. A label main points to D, and a label HEAD points to main"></p>
+<p><code>main</code> is the name of the line of commits; <code>HEAD</code> marks the one you are on (more on both under Branch and merge).</p>
+<ul>
+<li><strong>Complete</strong>: going back to a commit gives you the whole project as it was, not one old file among new ones.</li>
+<li><strong>Permanent</strong>: it stays in the history. Only the few commands under “Commands that can lose work” can remove it from a branch, and even then git keeps it for a while.</li>
+<li><strong>It carries a reason</strong>: the message.</li>
+</ul>
+</div>
+<div id="tabset-3-3">
+<ul>
+<li><strong>Not saving a file.</strong> You save without thinking. You commit on purpose, when you have finished something that makes sense on its own, a few times a day.</li>
+<li><strong>Not a backup.</strong> A backup protects against losing your computer. A commit protects against losing track of what changed and why. Have both; GitHub gives you a copy of the history.</li>
+<li><strong>Not only the changes.</strong> A commit stores the whole project. The list of changed lines you see for a commit (git calls it a <strong>diff</strong>) is worked out by comparing it with the commit before.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="stage-then-commit" class="slide level2">
+<h2>Stage, then commit</h2>
+
+<img data-src="git-figures/three-places.png" style="width:100.0%" alt="Three boxes from left to right: your project folder, staging area, repository. An arrow labelled git add, or tick Staged, leads from the first to the second; an arrow labelled git commit, or click Commit, leads from the second to the third" class="r-stretch"><ul>
+<li><strong>Your project folder</strong>: the files as you see and edit them, with every change you have made. Git’s messages call this the <strong>working directory</strong>; that is not the same as R’s working directory from 03-1.</li>
+<li><strong>Staging</strong> (git’s word: <code>add</code>): choosing which of those changes go into the next commit.</li>
+<li><strong>Committing</strong>: storing the staged changes as one commit, with a message.</li>
+</ul>
+<div title="Why the middle step exists">
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Why the middle step exists</strong></p>
+</div>
+<div class="callout-content">
+<p>A morning’s work often holds several unrelated changes: a fix to the cleaning step, a half-finished figure, a line you added to find a bug. Staging lets you commit the fix alone, with its own message, and leave the rest for later. Without it, every commit would be “everything I touched since the last one”.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="what-goes-into-one-commit" class="slide level2">
+<h2>What goes into one commit</h2>
+<p>This is your decision, not the AI’s: it cannot know which changes belong together or why you made them.</p>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">One change</a></li><li><a href="#tabset-4-2">The message</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<ul>
+<li><strong>One thing.</strong> You can describe it in one line without the word “and”.</li>
+<li><strong>Complete.</strong> The project still renders afterwards, so every commit in the history is a state you could go back to.</li>
+<li><strong>Small enough to read.</strong> A diff of 900 lines will not be read, by you or anyone.</li>
+</ul>
+<p>When to commit:</p>
+<ul>
+<li>When you would be annoyed to lose the last hour.</li>
+<li><strong>Before anything risky</strong>: a large rewrite, a step that overwrites files, and <strong>before you let an AI edit your project</strong>. Afterwards, the diff shows exactly what it changed, and you can undo any of it.</li>
+</ul>
+</div>
+<div id="tabset-4-2">
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb2-1"><a></a>Drop fields with zero yield before averaging</span>
+<span id="cb2-2"><a></a></span>
+<span id="cb2-3"><a></a>NASS writes 0 for counties with no harvested acres. Including them</span>
+<span id="cb2-4"><a></a>pulled the average irrigated yield down by 4 bu/ac.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li><strong>First line</strong>: what the commit does, in under about 50 characters, written as an instruction (“Drop fields…”, not “dropped” or “changes”).</li>
+<li><strong>Then a blank line and a few sentences</strong>, if the reason is not obvious. Say <strong>why</strong>. What changed is already in the diff; why is only in your head, and you will forget it.</li>
+</ul>
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p>A message such as <code>update</code>, <code>fix</code> or <code>changes</code> tells a reader nothing. AI assistants write messages like “Update files” unless told the reason. Give it the reason.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="what-stays-out-of-the-repository" class="slide level2">
+<h2>What stays out of the repository</h2>
+<p>Also your decision. Everything committed is kept for good, and anyone with a copy of the repository has all of it.</p>
+<div class="panel-tabset">
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">In, out, and it depends</a></li><li><a href="#tabset-5-2"><code>.gitignore</code></a></li><li><a href="#tabset-5-3">A key that was committed</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>What</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>In</strong></td>
+<td><code>.qmd</code> and <code>.R</code> files, <code>README.md</code>, <code>.gitignore</code>, <code>renv.lock</code>, the <code>.Rproj</code> file</td>
+<td>Written by you, small, text</td>
+</tr>
+<tr class="even">
+<td><strong>Never</strong></td>
+<td>Passwords and API keys (often in a file called <code>.Renviron</code>), data under a data use agreement, data that identifies people</td>
+<td>Permanent once committed, visible to anyone with a copy</td>
+</tr>
+<tr class="odd">
+<td><strong>Usually out</strong></td>
+<td>Rendered HTML and its <code>_files</code> folders, <code>data/processed/</code>, <code>results/</code></td>
+<td>Your steps rebuild them (06-1)</td>
+</tr>
+<tr class="even">
+<td><strong>Out</strong></td>
+<td><code>.Rhistory</code>, <code>.RData</code>, <code>.Rproj.user/</code>, <code>.DS_Store</code></td>
+<td>Files RStudio and macOS write for themselves</td>
+</tr>
+<tr class="odd">
+<td><strong>Depends</strong></td>
+<td><code>data/raw/</code></td>
+<td>In if small and you may share it; out if large (GitHub refuses files over 100 MB) or restricted</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-5-2">
+<p>A text file at the project root listing what git should ignore. Each line is a file name or a pattern; <code>*</code> stands for any characters, and a name ending in <code>/</code> means a folder.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb3-1"><a></a># files RStudio and macOS write</span>
+<span id="cb3-2"><a></a>.Rhistory</span>
+<span id="cb3-3"><a></a>.RData</span>
+<span id="cb3-4"><a></a>.Rproj.user/</span>
+<span id="cb3-5"><a></a>.DS_Store</span>
+<span id="cb3-6"><a></a></span>
+<span id="cb3-7"><a></a># secrets</span>
+<span id="cb3-8"><a></a>.Renviron</span>
+<span id="cb3-9"><a></a></span>
+<span id="cb3-10"><a></a># rendered output, rebuilt by rendering</span>
+<span id="cb3-11"><a></a>*.html</span>
+<span id="cb3-12"><a></a>*_files/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Important</strong></p>
+</div>
+<div class="callout-content">
+<p><code>.gitignore</code> only affects files git is <strong>not already tracking</strong>. A file committed once stays in the history even if you add it to <code>.gitignore</code> later. Write <code>.gitignore</code> <strong>before</strong> the first commit.</p>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-5-3">
+<p>Deleting a password in a later commit does not remove it: the earlier commit still holds it, and anyone who copies the repository gets every commit.</p>
+<p>If a key ever reaches GitHub, <strong>replace the key</strong> (make a new one, cancel the old one) at once. Do not try to erase it from the history.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="branch-and-merge" class="slide level2">
+<h2>Branch and merge</h2>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">A branch</a></li><li><a href="#tabset-6-2">When research needs one</a></li><li><a href="#tabset-6-3">Merging</a></li><li><a href="#tabset-6-4">Merge conflict</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<p>A <strong>branch</strong> is a name that points at a commit and moves forward as you commit. Your main line of work is a branch called <code>main</code>. Making a new branch lets you work on a separate line of commits; <code>main</code> stays as it was.</p>
+<p><img data-src="git-figures/branch.png" style="width:70.0%" alt="Commits A, B, C on a top row with main pointing to C. Commits E and F on a lower row, E pointing back to C. A label revision points to F, and HEAD points to revision"></p>
+<p><strong>Switching</strong> to a branch changes the files in your folder to match that branch. <code>HEAD</code> in the figure means “the branch you are on”.</p>
+</div>
+<div id="tabset-6-2">
+<ul>
+<li><strong>A revision.</strong> The paper is submitted. Work on a branch called <code>revision</code>, and <code>main</code> stays exactly what you submitted.</li>
+<li><strong>An idea you doubt.</strong> Try it on a branch. If it does not work, delete the branch, and nothing of it is left in <code>main</code>.</li>
+<li><strong>An AI’s larger change.</strong> Let it work on a branch, read what it did, then decide whether to bring it into <code>main</code>.</li>
+</ul>
+<p>For a project you work on alone, <code>main</code> and well-made commits are enough until one of these comes up.</p>
+</div>
+<div id="tabset-6-3">
+<p><strong>Merging</strong> brings the commits of one branch into another. On <code>main</code>, merge <code>revision</code>, and its commits become part of <code>main</code>.</p>
+<p><img data-src="git-figures/merge.png" style="width:75.0%" alt="Commits A to D on the top row and E, F on a lower row branching from C. A merge commit M on the top row points back to both D and F. main points to M, HEAD points to main, and revision points to F"></p>
+<p>If the two branches changed different files, or different parts of a file, git combines them without asking. If both changed <strong>the same lines</strong>, git stops: that is a merge conflict, the next tab.</p>
+</div>
+<div id="tabset-6-4">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git merge units-in-labels
+Auto-merging analysis/02-summary.qmd
+CONFLICT (content): Merge conflict in analysis/02-summary.qmd
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+</div>
+</div>
+<p>Both branches changed the same line of <code>analysis/02-summary.qmd</code>, the label of the y-axis. Git wrote both versions into the file, between marker lines:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>Draw yields of irrigated and non-irrigated fields.
+
+```{r}
+corn &lt;- readRDS(here::here("data", "processed", "corn_clean.rds"))
+ggplot2::ggplot(corn, ggplot2::aes(x = factor(Irrigated), y = Yield)) +
+  ggplot2::geom_boxplot() +
+  ggplot2::labs(
+    title = "Corn yield by irrigation",
+    x = "Irrigated",
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+    y = "Corn yield"
+=======
+    y = "Yield (bu/ac)"
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; units-in-labels
+  )
+```</code></pre>
+</div>
+</div>
+<ul>
+<li>Between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code> and <code>=======</code>: the line on the branch you are on (<code>HEAD</code>, here <code>main</code>).</li>
+<li>Between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>: the line on the branch you are merging in.</li>
+</ul>
+<p>Which label is right is a question about what your readers need, not about text, so git leaves it to you. The fix: edit the file to the version you want, delete the three marker lines, then stage and commit. An AI can do the editing; the choice is yours.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="push-pull-and-github" class="slide level2">
+<h2>Push, pull, and GitHub</h2>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">A remote</a></li><li><a href="#tabset-7-2">Two things that can stop a pull</a></li><li><a href="#tabset-7-3">Why push</a></li><li><a href="#tabset-7-4">A pull request</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
+<p>A <strong>remote</strong> is a copy of your repository somewhere else, usually on GitHub. By convention it is called <code>origin</code>.</p>
+<p><img data-src="git-figures/remote.png" style="width:60.0%" alt="Two boxes, your computer on the left and GitHub on the right, with four arrows between them: git clone (dashed, toward your computer), git push (toward GitHub), git fetch and git pull (toward your computer)"></p>
+<ul>
+<li><strong>Push</strong>: send your new commits to the remote.</li>
+<li><strong>Pull</strong>: get the commits others have pushed, and merge them into yours. A pull can stop with a merge conflict, for the same reason and with the same fix as on the previous slide.</li>
+<li><strong>Fetch</strong>: get them without merging, to look first.</li>
+</ul>
+</div>
+<div id="tabset-7-2">
+<p>If a pull stops and git says it needs to know how to reconcile divergent branches, the one-time setting <code>git config --global pull.rebase false</code> is missing. It tells git to merge on a pull (the default this lecture assumes), not to rewrite your commits.</p>
+<p>When a pull has to merge, git opens a text editor for the merge message. <code>git pull --no-edit</code> accepts git’s standard message instead. Ask an AI agent for <code>--no-edit</code>: it cannot type into an editor, and would wait forever.</p>
+</div>
+<div id="tabset-7-3">
+<ul>
+<li><strong>A copy off your computer</strong>, history included.</li>
+<li><strong>Your coauthors and advisor</strong> see the same history and add to it.</li>
+<li><strong>The paper.</strong> Many journals ask for the code. A repository can be private while you work and made public when you publish; making it public shows its <strong>entire history</strong>, so read the history first.</li>
+</ul>
+</div>
+<div id="tabset-7-4">
+<p>A <strong>pull request</strong> is a proposal, made on GitHub, to merge one branch into another. Its page shows every changed line, and people can comment on single lines before anyone presses <strong>Merge</strong>.</p>
+<ul>
+<li>With a coauthor: they push a branch, open a pull request, you read and comment, and one of you merges.</li>
+<li>With an AI: the AI works on a branch and opens a pull request; you read the diff on the page, as carefully as a coauthor’s, and merge only what you understand.</li>
+<li>Alone: optional, but it gives you one page that lists everything a branch changed.</li>
+</ul>
+<p>After a merge on GitHub, <code>main</code> on GitHub has a commit your computer does not. <strong>Pull</strong> to get it.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="going-back" class="slide level2">
+<h2>Going back</h2>
+<p>Each commit has an <strong>identifier</strong>, a code git gives it, such as <code>a3f9c21</code>; <code>git log --oneline</code> lists them. Going back always names either a file or a commit:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You want</th>
+<th>What git does</th>
+<th>What is lost</th>
+<th>When it is safe</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A. Throw away the uncommitted changes to one file</td>
+<td><code>git restore &lt;file&gt;</code> puts the file back as it was at the last commit</td>
+<td>Those uncommitted changes, for good: git never stored them</td>
+<td>After reading <code>git diff &lt;file&gt;</code> and deciding you want none of it</td>
+</tr>
+<tr class="even">
+<td>B. Undo a change that is already committed</td>
+<td><code>git revert &lt;identifier&gt;</code> adds a new commit that reverses that commit</td>
+<td>Nothing: both commits stay in the history</td>
+<td>Always, even after a push, because it only adds</td>
+</tr>
+<tr class="odd">
+<td>C. One file as it was at an earlier commit</td>
+<td><code>git restore --source &lt;identifier&gt; &lt;file&gt;</code> puts that version of the file in your folder, as an uncommitted change</td>
+<td>Any uncommitted changes to that file</td>
+<td>After reading <code>git diff &lt;file&gt;</code>; then commit it, with a message saying why</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>A and C can lose work, and only work you never committed. That is the strongest reason to commit often.</li>
+<li>B is the way to undo anything already on GitHub: the history shows both the change and its undoing. If later commits changed the same lines, B stops with a conflict, with the same fix as for a merge.</li>
+<li>Undoing by rewriting the history (<code>reset</code>, <code>commit --amend</code>, <code>rebase</code>) also exists. It is in the table “Commands that can lose work”, and it is never needed for the three cases above.</li>
+</ul>
+</section>
+<section id="a-working-day" class="slide level2">
+<h2>A working day</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>What it is for</th>
+<th>Who decides</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. Pull</td>
+<td>Start from the newest version, including your coauthors’ work</td>
+<td>Routine</td>
+</tr>
+<tr class="even">
+<td>2. Work</td>
+<td>Edit, render, read the HTML</td>
+<td>You, or the AI</td>
+</tr>
+<tr class="odd">
+<td>3. Look at what changed</td>
+<td>Find the debugging line, the file you did not mean to touch</td>
+<td><strong>You</strong></td>
+</tr>
+<tr class="even">
+<td>4. Stage and commit one change</td>
+<td>One change, with a message saying why</td>
+<td><strong>You</strong>: what goes in, and the reason</td>
+</tr>
+<tr class="odd">
+<td>5. Push</td>
+<td>A copy on GitHub, for you and others</td>
+<td><strong>You</strong>: after checking what is in it</td>
+</tr>
+</tbody>
+</table>
+
+<img data-src="git-figures/rstudio-git-pane.png" style="width:45.0%" alt="RStudio's Git tab, with buttons Diff, Commit, Pull (blue arrow down), Push (green arrow up), History and More, above a list of files with Staged checkboxes" class="r-stretch"><p>RStudio’s <strong>Git</strong> tab has a button for each step. A commit made by clicking, by typing a command, or by asking an AI is the same commit.</p>
+</section></section>
+<section>
+<section id="reading-git-commands" class="title-slide slide level1 center">
+<h1>Reading git commands</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="how-git-commands-are-written" class="slide level2">
+<h2>How git commands are written</h2>
+<p>An AI that works with git runs commands in a terminal and shows them to you. Every git command follows the same pattern.</p>
+<div class="panel-tabset">
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">The pattern</a></li><li><a href="#tabset-8-2">The common verbs</a></li><li><a href="#tabset-8-3">Commands that can lose work</a></li><li><a href="#tabset-8-4">Variations you will see</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1">
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb6-1"><a></a>git  verb  target  --option value</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>git</code></td>
+<td>The program</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>verb</code></td>
+<td>What to do: <code>status</code>, <code>add</code>, <code>commit</code>, <code>push</code>, …</td>
+<td><strong>Yes</strong>, exactly one</td>
+</tr>
+<tr class="odd">
+<td><code>target</code></td>
+<td>Which files, branch or remote. Left out, it usually means “all” or “the current one”</td>
+<td>Depends on the verb</td>
+</tr>
+<tr class="even">
+<td><code>--option value</code></td>
+<td>Changes what the verb does: <code>-m "message"</code>, <code>--staged</code>, <code>--force</code></td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>A real line that follows the pattern:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb7-1"><a></a>git add analysis/01-clean.qmd</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Stage the changes in <code>analysis/01-clean.qmd</code>, and only that file.</p>
+</div>
+<div id="tabset-8-2">
+<p>The column that matters is the last one: what the command changes.</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>What it does</th>
+<th>What it changes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>git status</code></td>
+<td>Lists changed, staged and untracked files</td>
+<td>Nothing</td>
+</tr>
+<tr class="even">
+<td><code>git diff</code></td>
+<td>Shows changed lines (<code>--staged</code>: the staged ones)</td>
+<td>Nothing</td>
+</tr>
+<tr class="odd">
+<td><code>git log</code></td>
+<td>Lists commits</td>
+<td>Nothing</td>
+</tr>
+<tr class="even">
+<td><code>git add &lt;files&gt;</code></td>
+<td>Stages changes</td>
+<td>Only what is staged</td>
+</tr>
+<tr class="odd">
+<td><code>git commit -m "&lt;message&gt;"</code></td>
+<td>Makes a commit from what is staged</td>
+<td>Adds to the history</td>
+</tr>
+<tr class="even">
+<td><code>git switch &lt;branch&gt;</code></td>
+<td>Moves to a branch (<code>-c</code>: makes a new one)</td>
+<td>The files in your folder</td>
+</tr>
+<tr class="odd">
+<td><code>git merge &lt;branch&gt;</code></td>
+<td>Brings another branch’s commits into this one</td>
+<td>Adds to the history; can stop with a conflict</td>
+</tr>
+<tr class="even">
+<td><code>git push</code></td>
+<td>Sends new commits to the remote</td>
+<td><strong>The copy on GitHub</strong></td>
+</tr>
+<tr class="odd">
+<td><code>git pull</code></td>
+<td>Gets new commits from the remote and merges them</td>
+<td>The history and your files</td>
+</tr>
+<tr class="even">
+<td><code>git restore &lt;file&gt;</code></td>
+<td>Puts a file back as it was at the last commit</td>
+<td><strong>Throws away uncommitted changes to it, for good</strong></td>
+</tr>
+<tr class="odd">
+<td><code>git revert &lt;identifier&gt;</code></td>
+<td>Adds a commit that reverses an earlier one</td>
+<td>Adds to the history</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-8-3">
+<p>These are the commands to stop and read before they run:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Command</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>git restore &lt;file&gt;</code>, <code>git checkout -- &lt;file&gt;</code></td>
+<td>Throws away uncommitted changes to a file</td>
+</tr>
+<tr class="even">
+<td><code>git reset --hard</code></td>
+<td>Throws away <strong>all</strong> uncommitted changes</td>
+</tr>
+<tr class="odd">
+<td><code>git push --force</code></td>
+<td>Replaces the history on GitHub with yours, deleting commits others pushed</td>
+</tr>
+<tr class="even">
+<td><code>git commit --amend</code>, <code>git rebase</code></td>
+<td>Rewrites commits that may already be on GitHub</td>
+</tr>
+<tr class="odd">
+<td><code>git clean -fd</code></td>
+<td>Deletes every untracked file</td>
+</tr>
+</tbody>
+</table>
+<p>Committed work can almost always be recovered. Uncommitted work, once thrown away, cannot.</p>
+</div>
+<div id="tabset-8-4">
+<ul>
+<li><code>git add .</code> or <code>git add -A</code>: stage <strong>every</strong> change in the folder, including files you did not mean to commit.</li>
+<li><code>git commit -am "&lt;message&gt;"</code>: stage every change to tracked files and commit, in one command.</li>
+<li><code>gh repo create</code>, <code>gh pr create</code>: commands of <code>gh</code>, GitHub’s own program, for things that happen on GitHub (make a repository, open a pull request).</li>
+<li><code>git -C &lt;folder&gt; status</code>: run the command in another folder.</li>
+<li><code>git add . &amp;&amp; git commit -m "..."</code>: <code>&amp;&amp;</code> runs the second command only if the first succeeded.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="reading-what-git-prints" class="slide level2">
+<h2>Reading what git prints</h2>
+<p>The practice repository, after the figure title in the summary step was changed and two new files appeared:</p>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">git status</a></li><li><a href="#tabset-9-2">git diff</a></li><li><a href="#tabset-9-3">git log</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git status
+On branch main
+Changes not staged for commit:
+  (use "git add &lt;file&gt;..." to update what will be committed)
+  (use "git restore &lt;file&gt;..." to discard changes in working directory)
+    modified:   analysis/02-summary.qmd
+
+Untracked files:
+  (use "git add &lt;file&gt;..." to include in what will be committed)
+    .Renviron
+    analysis/03-regression.qmd
+
+no changes added to commit (use "git add" and/or "git commit -a")</code></pre>
+</div>
+</div>
+<ul>
+<li>First line: the branch you are on.</li>
+<li>“Changes not staged for commit”: tracked files that changed. “modified” means edited.</li>
+<li>“Untracked files”: files git has never stored. <code>.Renviron</code> is here because there is no <code>.gitignore</code> yet, so <code>git add .</code> would commit the key in it.</li>
+</ul>
+</div>
+<div id="tabset-9-2">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git diff
+diff --git a/analysis/02-summary.qmd b/analysis/02-summary.qmd
+index d8cc48b..bc72b0c 100644
+--- a/analysis/02-summary.qmd
++++ b/analysis/02-summary.qmd
+@@ -5,7 +5,7 @@ corn &lt;- readRDS(here::here("data", "processed", "corn_clean.rds"))
+ ggplot2::ggplot(corn, ggplot2::aes(x = factor(Irrigated), y = Yield)) +
+   ggplot2::geom_boxplot() +
+   ggplot2::labs(
+-    title = "Corn yield by irrigation",
++    title = "Corn yield by irrigation, 2008",
+     x = "Irrigated",
+     y = "Yield (bu/ac)"
+   )</code></pre>
+</div>
+</div>
+<ul>
+<li><code>--- a/</code> and <code>+++ b/</code>: the file, before and after.</li>
+<li>A line starting with <code>-</code> was removed; a line starting with <code>+</code> was added; other lines are shown for context.</li>
+<li>Here, one line: the figure title gained its year.</li>
+</ul>
+</div>
+<div id="tabset-9-3">
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git log --oneline --graph --decorate
+*   1f43de3 (HEAD -&gt; main) Keep the units in the y-axis label
+|\  
+| * b5a5559 (units-in-labels) Give the units in the y-axis label
+* | 4e77786 Name the crop in the y-axis label
+|/  
+* 3686623 Start the project</code></pre>
+</div>
+</div>
+<ul>
+<li>One commit per line, newest first, each with the first 7 characters of its identifier (see Going back) and the first line of its message.</li>
+<li><code>*</code> marks a commit; the lines on the left show the two branches and where they were merged.</li>
+<li><code>(HEAD -&gt; main)</code>: the commit you are on, and the branch you are on.</li>
+</ul>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="asking-ai" class="title-slide slide level1 center">
+<h1>Asking AI</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="working-with-ai-on-your-own-research" class="slide level2 scrollable">
+<h2>Working with AI on your own research</h2>
+<p>The way of working from lecture 02-1, “Working with AI on your own research” (the AI writes into a <code>.qmd</code>, you render and read the HTML) gains three habits once the project has a history:</p>
+<ol type="1">
+<li><strong>Commit before the AI starts.</strong> Then every change it makes shows up in <code>git diff</code>, and any of it can be undone.</li>
+<li><strong>Read the diff after it finishes,</strong> as well as the HTML. The HTML shows what the code produced; the diff shows every line it touched, including in files you did not ask about.</li>
+<li><strong>Commit what you accept,</strong> with a message saying why, and only then push.</li>
+</ol>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Requests in this lecture ask the AI to run git, not to write R code into a <code>.qmd</code>, so they do not end with the closing instructions from 03-1. They end with the <strong>git safety instructions</strong>, under <strong>Recommended requests</strong>: show each command that changes anything before running it, and never run the commands that can lose work.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-put-in-your-request" class="slide level2 scrollable">
+<h2>What to put in your request</h2>
+<p>The AI can see your files and run any command. What it cannot know:</p>
+<ol type="1">
+<li><strong>Which changes belong together</strong>: name the files (or the change) for this commit.</li>
+<li><strong>Why you made them</strong>: give the reason, so the message can say it.</li>
+<li><strong>What must stay out</strong>: files with keys, restricted data, large files; or ask it to show you the list first.</li>
+<li><strong>Where it goes</strong>: which branch, and whether it may push at all.</li>
+<li><strong>What it must not do</strong>: the git safety instructions.</li>
+</ol>
+<div title="Using a chat assistant?">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Using a chat assistant?</strong></p>
+</div>
+<div class="callout-content">
+<p>It cannot run anything. It gives you commands to paste into RStudio’s <strong>Terminal</strong> tab. Read each one against “How git commands are written” before you press Enter, and paste the output back if you are unsure what it means.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="a-weak-request-and-a-strong-one" class="slide level2">
+<h2>A weak request and a strong one</h2>
+<div class="panel-tabset">
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">Weak</a></li><li><a href="#tabset-10-2">Strong</a></li><li><a href="#tabset-10-3">What came back</a></li></ul>
+<div class="tab-content">
+<div id="tabset-10-1">
+<div class="sourceCode" id="cb11"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb11-1"><a></a>Commit and push my changes.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A typical reply runs:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb12-1"><a></a>git add .</span>
+<span id="cb12-2"><a></a>git commit -m "Update files"</span>
+<span id="cb12-3"><a></a>git push</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>git add .</code> stages every change, including <code>.Renviron</code> with its key and the unfinished <code>03-regression.qmd</code>. The message says nothing. The push sends all of it to GitHub before you have looked.</p>
+</div>
+<div id="tabset-10-2">
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb13-1"><a></a>In my project, I added the year, 2008, to the figure title in</span>
+<span id="cb13-2"><a></a>analysis/02-summary.qmd, because the figure will be shown next to</span>
+<span id="cb13-3"><a></a>figures for other years. Commit only that file, with a message that</span>
+<span id="cb13-4"><a></a>says so. Do not stage anything else; .Renviron must never be</span>
+<span id="cb13-5"><a></a>committed. Show me git status and git diff --staged before you</span>
+<span id="cb13-6"><a></a>commit. Do not push.</span>
+<span id="cb13-7"><a></a></span>
+<span id="cb13-8"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb13-9"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb13-10"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb13-11"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb13-12"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-10-3">
+<p>The AI stages the one file and shows what is staged, before committing:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git add analysis/02-summary.qmd</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git diff --staged
+diff --git a/analysis/02-summary.qmd b/analysis/02-summary.qmd
+index d8cc48b..bc72b0c 100644
+--- a/analysis/02-summary.qmd
++++ b/analysis/02-summary.qmd
+@@ -5,7 +5,7 @@ corn &lt;- readRDS(here::here("data", "processed", "corn_clean.rds"))
+ ggplot2::ggplot(corn, ggplot2::aes(x = factor(Irrigated), y = Yield)) +
+   ggplot2::geom_boxplot() +
+   ggplot2::labs(
+-    title = "Corn yield by irrigation",
++    title = "Corn yield by irrigation, 2008",
+     x = "Irrigated",
+     y = "Yield (bu/ac)"
+   )</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git status --short
+M  analysis/02-summary.qmd
+?? .Renviron
+?? analysis/03-regression.qmd</code></pre>
+</div>
+</div>
+<p><code>git status --short</code> prints one line per file: <code>M</code> (letter in the first column) means staged, <code>??</code> means untracked. One file is staged, with the one line you meant to change; <code>.Renviron</code> and <code>03-regression.qmd</code> are untracked and stay out. You say yes, and it commits:</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git log --oneline --decorate -1
+a86ecb2 (HEAD -&gt; main) Add the year to the figure title</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="checking-before-you-let-it-commit-or-push" class="title-slide slide level1 center">
+<h1>Checking before you let it commit or push</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="checking-what-to-look-at-and-why" class="slide level2">
+<h2>Checking: what to look at, and why</h2>
+<div class="panel-tabset">
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">The six checks</a></li><li><a href="#tabset-11-2">Asking for them</a></li><li><a href="#tabset-11-3">Reading the result</a></li></ul>
+<div class="tab-content">
+<div id="tabset-11-1">
+<p>Run them before every commit and push the AI makes. You know each right answer before you look:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Ask the AI to show</th>
+<th>Why</th>
+<th>What only you know</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td><code>git status</code>: the branch</td>
+<td>A commit on the wrong branch goes to the wrong line of work</td>
+<td>which branch this belongs on</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><code>git status</code>: the staged files</td>
+<td><code>git add .</code> takes everything</td>
+<td>which files you meant to change</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td><code>git diff --staged</code></td>
+<td>Every line that will be committed, including ones you did not ask for</td>
+<td>what the change should be</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>the staged files, for keys, restricted data and large files</td>
+<td>Once pushed, they are public to anyone with access, for good</td>
+<td>which files are secret or restricted</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>the commit message</td>
+<td>It is the only record of why</td>
+<td>the reason</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td><code>git remote -v</code>, and the push command itself</td>
+<td>Pushing to the wrong repository, or with <code>--force</code></td>
+<td>where the project lives</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-11-2">
+<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb18-1"><a></a>Before you commit, show me: the branch, the list of staged files,</span>
+<span id="cb18-2"><a></a>and git diff --staged. I expect only &lt;the files you changed&gt; on branch</span>
+<span id="cb18-3"><a></a>&lt;branch name&gt;, and no .Renviron or data files.</span>
+<span id="cb18-4"><a></a></span>
+<span id="cb18-5"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb18-6"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb18-7"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb18-8"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb18-9"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-11-3">
+<p>The weak request’s <code>git add .</code>, run on the practice repository, with the check printed:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code that ran the check</summary>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">put</span>(<span class="st">"analysis/02-summary.qmd"</span>, <span class="fu">summary_lines</span>(<span class="st">"Corn yield by irrigation, 2008"</span>, <span class="st">"Yield (bu/ac)"</span>, <span class="at">debug =</span> <span class="cn">TRUE</span>))</span>
+<span id="cb19-2"><a></a><span class="fu">invisible</span>(<span class="fu">git</span>(<span class="st">"add"</span>, <span class="st">"."</span>, <span class="at">show =</span> <span class="cn">FALSE</span>))</span>
+<span id="cb19-3"><a></a>staged <span class="ot">&lt;-</span> <span class="fu">git</span>(<span class="st">"diff"</span>, <span class="st">"--staged"</span>, <span class="st">"--name-only"</span>, <span class="at">show =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb19-4"><a></a>branch <span class="ot">&lt;-</span> <span class="fu">git</span>(<span class="st">"branch"</span>, <span class="st">"--show-current"</span>, <span class="at">show =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb19-5"><a></a><span class="fu">cat</span>(</span>
+<span id="cb19-6"><a></a>  <span class="fu">paste</span>(<span class="st">"branch: expected main, got"</span>, branch),</span>
+<span id="cb19-7"><a></a>  <span class="fu">paste</span>(<span class="st">"staged files: expected 1, got"</span>, <span class="fu">length</span>(staged)),</span>
+<span id="cb19-8"><a></a>  <span class="fu">paste</span>(<span class="st">"staged files:"</span>, <span class="fu">paste</span>(staged, <span class="at">collapse =</span> <span class="st">", "</span>)),</span>
+<span id="cb19-9"><a></a>  <span class="fu">paste</span>(<span class="st">".Renviron staged: expected FALSE, got"</span>, <span class="st">".Renviron"</span> <span class="sc">%in%</span> staged),</span>
+<span id="cb19-10"><a></a>  <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb19-11"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>branch: expected main, got main
+staged files: expected 1, got 3
+staged files: .Renviron, analysis/02-summary.qmd, analysis/03-regression.qmd
+.Renviron staged: expected FALSE, got TRUE</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code that ran the check</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">git</span>(<span class="st">"diff"</span>, <span class="st">"--staged"</span>, <span class="st">"--"</span>, <span class="st">"analysis/02-summary.qmd"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>$ git diff --staged -- analysis/02-summary.qmd
+diff --git a/analysis/02-summary.qmd b/analysis/02-summary.qmd
+index bc72b0c..495df63 100644
+--- a/analysis/02-summary.qmd
++++ b/analysis/02-summary.qmd
+@@ -2,6 +2,7 @@ Draw yields of irrigated and non-irrigated fields.
+ 
+ ```{r}
+ corn &lt;- readRDS(here::here("data", "processed", "corn_clean.rds"))
++print(nrow(corn))  # debugging
+ ggplot2::ggplot(corn, ggplot2::aes(x = factor(Irrigated), y = Yield)) +
+   ggplot2::geom_boxplot() +
+   ggplot2::labs(</code></pre>
+</div>
+<details class="code-fold">
+<summary>Code that ran the check</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">invisible</span>(<span class="fu">git</span>(<span class="st">"reset"</span>, <span class="st">"-q"</span>, <span class="at">show =</span> <span class="cn">FALSE</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>The branch is right; the other two checks fail. Three files are staged instead of one, and one of them is the key. The staged diff of <code>02-summary.qmd</code> shows a second problem: the only line it adds is a debugging line, which nobody meant to commit. Nothing is committed yet, so nothing is lost: unstage (<code>git restore --staged</code>), add a <code>.gitignore</code>, and stage only what you meant.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-the-ai-may-run-on-its-own" class="slide level2">
+<h2>What the AI may run on its own</h2>
+<p>One question decides it: <strong>could this command lose work that git has not stored, or change something other people already have?</strong></p>
+<div class="panel-tabset">
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Read-only: no approval needed</a></li><li><a href="#tabset-12-2">Say yes after reading the command</a></li><li><a href="#tabset-12-3">Never</a></li></ul>
+<div class="tab-content">
+<div id="tabset-12-1">
+<ul>
+<li><code>status</code>, <code>diff</code>, <code>log</code>, <code>show</code>: “what changed since Tuesday?”, “what is this conflict about?”</li>
+<li>Drafting a commit message from the diff, or the lines of a <code>.gitignore</code>, as text for you to read</li>
+</ul>
+</div>
+<div id="tabset-12-2">
+<ul>
+<li><code>add</code> and <code>commit</code>: once you have checked what is staged</li>
+<li><code>switch</code>, and making a branch: commit first if there are uncommitted changes</li>
+<li><code>merge</code> and <code>pull</code>: they change your files; commit first, so you can see what changed</li>
+<li><code>revert</code>: adds a commit that undoes another; safe even after a push</li>
+<li><code>restore</code>: only after reading <code>git diff</code> for that file, because it throws away its uncommitted changes</li>
+<li><code>push</code>: after the six checks</li>
+<li><code>gh repo create</code> and anything else that makes something on GitHub: check whether it is <strong>private</strong></li>
+</ul>
+</div>
+<div id="tabset-12-3">
+<ul>
+<li><code>reset --hard</code>, <code>clean</code>: throw away uncommitted work, in every file at once</li>
+<li><code>push --force</code>, <code>rebase</code>, <code>commit --amend</code> on pushed commits: rewrite history your coauthors already have</li>
+</ul>
+<p>If an AI suggests one of these to “fix” an error, stop and ask it what the error means first. A refused push, for example, usually means someone else pushed first: the fix is <code>git pull --no-edit</code>, then push again.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="your-turn-read-the-ais-commands" class="slide level2">
+<h2>Your turn: read the AI’s commands</h2>
+<p>A student asked an AI to “save my work to GitHub, it says the push failed”, and it ran:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb24-1"><a></a>git add -A</span>
+<span id="cb24-2"><a></a>git commit -m "update"</span>
+<span id="cb24-3"><a></a>git push --force</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="panel-tabset">
+<ul id="tabset-13" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-13-1">Questions</a></li><li><a href="#tabset-13-2">Answers</a></li></ul>
+<div class="tab-content">
+<div id="tabset-13-1">
+<p>A. In plain words, what does each command do?</p>
+<p>B. Why did the first push probably fail?</p>
+<p>C. Which command can delete someone else’s work, and whose?</p>
+<p>D. What else might have gone into the commit without the student knowing?</p>
+<p>E. Rewrite the request so the AI could not do this.</p>
+</div>
+<div id="tabset-13-2">
+<p>A. Stages every change in the folder; commits it with the message “update”; replaces the history on GitHub with the student’s own.</p>
+<p>B. Someone (a coauthor, or the student from another computer, or a pull request merged on GitHub) pushed commits the student did not have. Git refuses a push that would drop them.</p>
+<p>C. <code>git push --force</code>. It deletes from GitHub the commits the student did not have, which are someone else’s work.</p>
+<p>D. Anything in the folder that is not in <code>.gitignore</code>: a <code>.Renviron</code> with a key, rendered HTML, data files, half-finished steps.</p>
+<p>E. Say which files to commit and why, ask to see <code>git status</code> and <code>git diff --staged</code> first, say “if the push is refused, pull with git pull –no-edit and show me what came in; never use –force”, and end with the git safety instructions.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="recommended-requests" class="title-slide slide level1 center">
+<h1>Recommended requests</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="requests-you-can-copy" class="slide level2">
+<h2>Requests you can copy</h2>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know. Every request that has the AI run a command that changes something ends with the git safety instructions.</p>
+<div class="panel-tabset">
+<ul id="tabset-14" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-14-1">Git safety instructions</a></li><li><a href="#tabset-14-2">Start a repository</a></li><li><a href="#tabset-14-3">Commit one change</a></li><li><a href="#tabset-14-4">Push</a></li><li><a href="#tabset-14-5">Try something on a branch</a></li><li><a href="#tabset-14-6">Merge conflict</a></li><li><a href="#tabset-14-7">Pull request</a></li><li><a href="#tabset-14-8">Undo a change</a></li><li><a href="#tabset-14-9">Explain commands</a></li></ul>
+<div class="tab-content">
+<div id="tabset-14-1">
+<p>The lines that end every request in which the AI may run a command that changes your files, your history or GitHub. Requests that only read (status, diff, log) may leave them out.</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb25-1"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb25-2"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb25-3"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb25-4"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb25-5"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot run commands: it gives them to you to run in the Terminal tab. Then these lines remind it to explain each one, and you are the one who says yes by pressing Enter.</p>
+</div>
+<div id="tabset-14-2">
+<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb26-1"><a></a>Make my project folder &lt;project folder&gt; a git repository, with main</span>
+<span id="cb26-2"><a></a>as the branch. Before the first commit, write a .gitignore that leaves</span>
+<span id="cb26-3"><a></a>out &lt;files and folders to leave out&gt;. Then show me git status, so I can</span>
+<span id="cb26-4"><a></a>check that none of &lt;files that must never be committed&gt; is listed.</span>
+<span id="cb26-5"><a></a>Commit with the message "Start the project". Do not push.</span>
+<span id="cb26-6"><a></a></span>
+<span id="cb26-7"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb26-8"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb26-9"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb26-10"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb26-11"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-3">
+<div class="sourceCode" id="cb27"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb27-1"><a></a>I changed &lt;what you changed, in which files&gt;, because &lt;why&gt;. Commit</span>
+<span id="cb27-2"><a></a>only &lt;the files for this change&gt;, with a message whose first line says</span>
+<span id="cb27-3"><a></a>what the change does and whose second paragraph says why. Show me</span>
+<span id="cb27-4"><a></a>git status and git diff --staged before you commit.</span>
+<span id="cb27-5"><a></a></span>
+<span id="cb27-6"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb27-7"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb27-8"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb27-9"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb27-10"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-4">
+<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb28-1"><a></a>Push my commits on &lt;branch name&gt; to GitHub. First show me git remote -v,</span>
+<span id="cb28-2"><a></a>the commits that are not yet on GitHub (git log origin/&lt;branch name&gt;..HEAD</span>
+<span id="cb28-3"><a></a>--oneline), and the files they change. If the push is refused, do not</span>
+<span id="cb28-4"><a></a>force it: pull with git pull --no-edit, show me what came in, and wait.</span>
+<span id="cb28-5"><a></a></span>
+<span id="cb28-6"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb28-7"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb28-8"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb28-9"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb28-10"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-5">
+<div class="sourceCode" id="cb29"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb29-1"><a></a>Make a branch called &lt;branch name&gt; and switch to it. I want to try</span>
+<span id="cb29-2"><a></a>&lt;the change you are unsure about&gt;. Commit there as you go. When I say</span>
+<span id="cb29-3"><a></a>so, show me git diff main...&lt;branch name&gt; (three dots: only what</span>
+<span id="cb29-4"><a></a>changed on the branch since it split from main), and merge into main</span>
+<span id="cb29-5"><a></a>(git merge --no-edit) only if I agree.</span>
+<span id="cb29-6"><a></a></span>
+<span id="cb29-7"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb29-8"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb29-9"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb29-10"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb29-11"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-6">
+<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb30-1"><a></a>Merging &lt;the branch being merged in&gt; into &lt;the branch you are on&gt;</span>
+<span id="cb30-2"><a></a>stopped with a conflict.</span>
+<span id="cb30-3"><a></a>For each conflicted file, show me the two versions of each conflicting</span>
+<span id="cb30-4"><a></a>part and explain in one plain-English sentence how they differ. Do not</span>
+<span id="cb30-5"><a></a>choose for me. When I tell you which to keep, edit the file, show me</span>
+<span id="cb30-6"><a></a>the result, and commit it.</span>
+<span id="cb30-7"><a></a></span>
+<span id="cb30-8"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb30-9"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb30-10"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb30-11"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb30-12"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-7">
+<div class="sourceCode" id="cb31"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb31-1"><a></a>Push the branch &lt;branch name&gt; to GitHub and open a pull request into</span>
+<span id="cb31-2"><a></a>main, with a title that says what the branch does and a description of</span>
+<span id="cb31-3"><a></a>why. Then give me the link. Do not merge it.</span>
+<span id="cb31-4"><a></a></span>
+<span id="cb31-5"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb31-6"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb31-7"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb31-8"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb31-9"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-8">
+<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb32-1"><a></a>I want to undo &lt;the uncommitted changes to a file, or the commit whose</span>
+<span id="cb32-2"><a></a>message is ...&gt;. First show me git status and exactly what will change,</span>
+<span id="cb32-3"><a></a>and say in one plain-English sentence what will be lost. If it is</span>
+<span id="cb32-4"><a></a>already committed, undo it by adding a new commit; never rewrite the</span>
+<span id="cb32-5"><a></a>history.</span>
+<span id="cb32-6"><a></a></span>
+<span id="cb32-7"><a></a>Before you run any command that changes my files, my history or GitHub,</span>
+<span id="cb32-8"><a></a>show me the command, say in one plain-English sentence what it does,</span>
+<span id="cb32-9"><a></a>and wait for me to say yes. Never run git push --force, git reset</span>
+<span id="cb32-10"><a></a>--hard, git rebase, git commit --amend or git clean. After each</span>
+<span id="cb32-11"><a></a>command, show me what git printed.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-14-9">
+<div class="sourceCode" id="cb33"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb33-1"><a></a>Explain these git commands to me. For each, write one plain-English</span>
+<span id="cb33-2"><a></a>sentence saying what it does, and whether it changes my files, my</span>
+<span id="cb33-3"><a></a>history, GitHub, or nothing. Then list any that could lose work.</span>
+<span id="cb33-4"><a></a></span>
+<span id="cb33-5"><a></a>&lt;paste the commands here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="summary" class="title-slide slide level1 center">
+<h1>Summary</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-must-understand-and-what-the-ai-can-run" class="slide level2">
+<h2>What you must understand, and what the AI can run</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You need to understand</th>
+<th>The AI can run</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What a commit is: the whole project, at one moment, with a reason</td>
+<td><code>git commit</code></td>
+</tr>
+<tr class="even">
+<td>Which changes make one commit, and why you made them</td>
+<td><code>git add</code>, and a first draft of the message</td>
+</tr>
+<tr class="odd">
+<td>Which files must never be committed</td>
+<td>The <code>.gitignore</code></td>
+</tr>
+<tr class="even">
+<td>What a branch and a merge are for, and which side of a conflict is right</td>
+<td><code>git switch</code>, <code>git merge</code>, the edit that resolves it</td>
+</tr>
+<tr class="odd">
+<td>What push, pull and a pull request do, and who sees what you push</td>
+<td><code>git push</code>, <code>git pull</code>, <code>gh pr create</code></td>
+</tr>
+<tr class="even">
+<td>Which commands can lose work, and how to go back safely</td>
+<td>None of them without your yes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every change the AI makes:</strong> commit before it starts, read <code>git status</code> and <code>git diff --staged</code> before it commits, and check the branch, the files and the remote before it pushes.</p>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="../index.html">back to the lecture slides</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

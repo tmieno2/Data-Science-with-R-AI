@@ -1,0 +1,209 @@
+---
+title: "Ex-7-1: Dates and Text, with an AI Assistant"
+abstract: "Date and String"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/7-1-grain-deliveries.csv
+  - worksheets/ex-7-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+library(lubridate)
+library(stringr)
+csv <- "data/7-1-grain-deliveries.csv"
+
+n_lines <- length(readLines(csv))
+d <- read_csv(csv, show_col_types = FALSE)
+season <- c(ymd("2025-09-01"), ymd("2025-11-30"))
+fmt <- function(x) format(x, big.mark = ",")
+fd <- function(x) format(x, "%e %B %Y") |> str_trim()
+
+# Task 2: dates as text
+text_min <- min(d$date)
+text_max <- max(d$date)
+
+# Task 3a: everything parsed month first
+naive <- d |> mutate(parsed = suppressWarnings(mdy(date)))
+n_fail <- sum(is.na(naive$parsed))
+fail_by_site <- naive |> filter(is.na(parsed)) |> count(site)
+naive_range <- range(naive$parsed, na.rm = TRUE)
+n_out <- sum(!is.na(naive$parsed) & (naive$parsed < season[1] | naive$parsed > season[2]))
+n_months_naive <- n_distinct(month(naive$parsed[!is.na(naive$parsed)]))
+out_by_site <- naive |>
+  filter(!is.na(parsed), parsed < season[1] | parsed > season[2]) |>
+  count(site)
+# The answer text says every affected row is from South; stop if that changes.
+stopifnot(identical(fail_by_site$site, "South"), identical(out_by_site$site, "South"))
+n_south <- sum(d$site == "South")
+n_north <- sum(d$site == "North")
+south_example <- d$date[d$site == "South"][1]
+south_big <- d$date[d$site == "South" & as.integer(substr(d$date, 1, 2)) > 12][1]
+line_big <- which(d$date == south_big)[1] + 1
+
+truth <- if_else(d$site == "North", mdy(d$date), dmy(d$date))
+south_hidden <- d$site == "South" & !is.na(naive$parsed) & naive$parsed != truth &
+  naive$parsed >= season[1] & naive$parsed <= season[2]
+n_hidden <- sum(south_hidden)
+hidden_example <- d$date[south_hidden][1]
+hidden_true <- truth[south_hidden][1]
+hidden_read <- naive$parsed[south_hidden][1]
+n_south_lucky <- sum(d$site == "South" & !is.na(naive$parsed) & naive$parsed == truth)
+stopifnot(n_fail + n_out + n_hidden + n_south_lucky == sum(d$site == "South"))
+
+# Task 3c: parse_date_time() with both orders
+pdt <- as_date(parse_date_time(d$date, c("mdy", "dmy")))
+pdt_fail <- sum(is.na(pdt))
+pdt_north_wrong <- sum(d$site == "North" & pdt != truth)
+pdt_range <- range(pdt)
+
+# Task 3c: each site in its own order
+good <- d |> mutate(parsed = if_else(site == "North", mdy(date), dmy(date)))
+good_range <- range(good$parsed)
+by_month <- good |> count(month = month(parsed, label = TRUE, abbr = FALSE), wt = bushels)
+bm <- setNames(by_month$n, as.character(by_month$month))
+
+# Task 5: crops
+crop_before <- n_distinct(d$crop)
+crop_lower <- sort(unique(str_squish(str_to_lower(d$crop))))
+d <- d |>
+  mutate(crop_clean = str_replace(str_squish(str_to_lower(crop)), "soy beans", "soybeans"))
+crop_after <- sort(unique(d$crop_clean))
+matched <- sort(unique(d$crop_clean[str_detect(d$crop_clean, "corn")]))
+corn_wrong <- sum(d$bushels[str_detect(d$crop_clean, "corn")])
+corn_right <- sum(d$bushels[d$crop_clean == "corn"])
+popcorn_bu <- sum(d$bushels[d$crop_clean == "popcorn"])
+
+# Task 6: farms
+farm_before <- n_distinct(d$farm)
+farm_squish <- sort(unique(str_squish(str_to_lower(d$farm))))
+n_schmidt_dot <- sum(str_detect(d$farm, fixed("Schmidt Bros.")))
+n_schmidt_nodot <- sum(d$farm == "Schmidt Bros")
+
+# Task 7: Sam's code
+sam <- read.csv(csv)
+sam$date <- as.Date(sam$date, format = "%m/%d/%Y")
+sam_corn <- sam[grepl("corn", tolower(sam$crop)), ]
+sam_total <- sum(tapply(sam_corn$bushels, months(sam_corn$date), sum))
+sam_na <- sum(is.na(sam_corn$date))
+```
+
+This is an in-class exercise. Before class, work through the lecture **07-1: Dates and Text**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing how the dates and names in the file are written, asking for the right thing and the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-7-1.qmd](worksheets/ex-7-1.qmd), and the data file [7-1-grain-deliveries.csv](data/7-1-grain-deliveries.csv).
+2. Make an R Project folder called `ch7-practice`, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy `7-1-grain-deliveries.csv` into `ch7-practice/data`, and the worksheet into `ch7-practice/analysis`.
+4. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch7-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look and predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r n_lines` lines: one line of column names and `r n_lines - 1` data rows, one per truckload.
+
+B. The first rows are written like `09/01/2025`: a two-digit number, a slash, another, a slash, a four-digit year. Since the log starts on 1 September, that looks like month first. But line 6, a South row, says `r d$date[5]`, right after rows of `r d$date[1]`: the same day written the other way round. If you looked further, you may have seen a value such as `r south_big` (line `r line_big`), where the first number is above 12. Hold on to that; Task 3 is about it.
+
+C. Within the first lines or a little further down, the crop column has `Corn` and `corn`, `Soybeans` and `Soy beans`, and `popcorn`. The farm column has `ORTIZ AG` beside `Ortiz Ag`, `miller farms` beside `Miller Farms`, and `Schmidt Bros.` beside `Schmidt Bros`.
+:::
+
+## Task 2: Dates as text
+
+::: {.callout-note collapse="true" title="What you should find"}
+The smallest and largest values of the text column are `r text_min` and `r text_max`. Read month first, as the first rows suggest, the first is 9 January and the second is impossible (there is no month 31). They are the smallest and largest only because text is compared character by character from the left.
+
+If you sorted by date as text, the first rows mix days from different months, all starting with `01/`. The point: until the column is converted, a sort, a minimum, a maximum or a "group by month" on it is meaningless, and none of them gives an error.
+:::
+
+## Task 3: Convert the dates
+
+::: {.callout-note collapse="true" title="What you should find"}
+**3a.** If you told the AI the dates are month first, as the first lines suggest:
+
++ dates that failed to parse: expected 0, got **`r n_fail`**
++ first and last date: expected 1 September to 30 November 2025, got **`r fd(naive_range[1])` to `r fd(naive_range[2])`**
++ months with rows: expected 3, got **`r n_months_naive`**
+
+Three checks fail. `r n_out` further rows got a date that is wrong but looks like a date: they did not fail, they just landed in the wrong month.
+
+**3b.** All `r n_fail` failures, and all `r n_out` dates outside the season, come from the South site (`r n_south` rows); none of the `r n_north` North rows is affected. The South site writes dates **day first**: its first row says `r south_example`, which is 1 September. Day first, a value such as `23/09/2025` has no month 23, so it failed; a value such as `05/10/2025` (5 October) was read as 10 May, so it landed outside the season with no warning at all.
+
+The text-beside-date rows show it too, if one of them is from South.
+
+A further `r n_hidden` South rows are read wrong but stay inside the season: `r hidden_example`, for example, is `r fd(hidden_true)` but was read as `r fd(hidden_read)`. No check catches those. Only knowing how the South site writes dates fixes them, which is why 3c converts each site in its own order rather than just dropping the rows that failed.
+
+**3c.** Parsed by site (North with `mdy()`, South with `dmy()`), every check passes: 0 failures, dates from `r fd(good_range[1])` to `r fd(good_range[2])`, rows in September, October and November only.
+
+If the AI used `parse_date_time()` with both orders instead, nothing fails to parse (`r pdt_fail` failures), but `r pdt_north_wrong` North rows are read day first, and the dates run from `r fd(pdt_range[1])` to `r fd(pdt_range[2])`. The range and month checks show it; the failure count does not.
+
+**The checks, and why.** Each one tied to a way this conversion could go wrong:
+
+1. Failures to parse: text in another format or order becomes `NA` with only a warning.
+2. First and last date: swapped day and month push dates outside the season.
+3. Rows in each month: swapped day and month put rows in months when no harvest happens.
+4. Text beside date: shows directly which way a value such as `05/10/2025` was read.
+
+Only the first check catches the `r n_fail` failures; only checks 2 and 3 catch the `r n_out` silent ones.
+:::
+
+## Task 4: Bushels per month
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r paste(names(bm), fmt(bm), sep = ": ", collapse = "; ")` bushels. The three months add up to `r fmt(sum(bm))`, the same as the total of the `bushels` column, `r fmt(sum(d$bushels))`, so no row was lost.
+
+With the dates from 3a instead, there would be twelve months, and the `r n_fail` rows with a missing date would either show up as a month called `NA` or vanish from the table, depending on the code.
+:::
+
+## Task 5: Crop names
+
+::: {.callout-note collapse="true" title="What you should find"}
+**5a.** `r crop_before` distinct spellings before cleaning. The manager says there are three crops. After lower case and removing extra spaces: `r length(crop_lower)` values, `r paste(crop_lower, collapse = ", ")`. The check "distinct crops: expected 3" fails, because `soy beans` has a space that `soybeans` does not. No change of case finds that; you have to see it in the list and say which spelling it should become. After that: `r paste(crop_after, collapse = ", ")`.
+
+**5b.** The search pattern `"corn"` matches `r paste(matched, collapse = " and ")`. Popcorn contains the letters `corn`. With that search pattern, corn deliveries add up to `r fmt(corn_wrong)` bushels; the right answer, `crop_clean == "corn"` (or the search pattern `"^corn$"`), is `r fmt(corn_right)`. The difference, `r fmt(popcorn_bu)` bushels, is all the popcorn.
+
+Only the check "distinct values the search pattern matched" shows this. The row count of the result looks fine, the total looks believable, and nothing warns you.
+:::
+
+## Task 6: Farm names (if you have time)
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r farm_before` distinct spellings before. After lower case and squishing spaces, `r length(farm_squish)`, not the 8 farms the manager listed: `schmidt bros` and `schmidt bros.` are still two values (`r n_schmidt_nodot` and `r n_schmidt_dot` rows). A full stop is a character like any other.
+
+If the AI fixed this by removing every `.` with the search pattern `"."` and not `fixed(".")` or `"\\."`, every farm name became empty text, which the distinct count (1 instead of 8) would show at once.
+:::
+
+## Task 7: Sam's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Reads the csv; converts `date` from text to dates, month first; keeps the rows whose crop, in lower case, contains `corn`; adds up bushels within each month name.
+
+B. The path `"data/7-1-grain-deliveries.csv"` is relative to the folder R is in. At the Console of the project that is `ch7-practice`, so it works; inside a `.qmd` saved in `analysis/` it is `analysis`, where there is no `data` folder, so rendering fails. `here::here("data", "7-1-grain-deliveries.csv")` works in both.
+
+C. Three problems give wrong results without an error:
+
+1. Every South date is read month first: `r sam_na` corn rows get no date, and others land in the wrong month.
+2. `tapply()` silently leaves out rows whose month is missing, so the monthly totals add up to `r fmt(sam_total)`, not the `r fmt(sum(sam_corn$bushels))` bushels of all the rows it selected.
+3. The search pattern `"corn"` also keeps popcorn.
+
+(The months also come out in alphabetical order, April first, which is untidy rather than wrong.)
+
+D. Failures to parse (expected 0); first and last date, or the number of months (expected September to November); the distinct crop values matched (expected only corn); the sum of the monthly totals against the total of the rows (expected equal).
+:::

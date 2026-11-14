@@ -1,0 +1,167 @@
+---
+title: "Ex-3-2: The Core Operations of Data Wrangling, with an AI Assistant"
+abstract: "Data Wrangling"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/3-2-county_crops.csv
+  - worksheets/ex-3-2.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+crops <- read_csv("data/3-2-county_crops.csv", col_types = cols(county_code = "c"))
+
+n_rows <- nrow(crops)
+na_cols <- colSums(is.na(crops))
+by_state_n <- crops |>
+  group_by(state_name) |>
+  summarise(rows = n(), counties = n_distinct(county_code))
+st <- function(s, col) by_state_n[[col]][by_state_n$state_name == s]
+
+ne_2012 <- filter(crops, state_name == "Nebraska", year == 2012)
+
+soy_low  <- filter(crops, soy_yield < 40)
+soy_high <- filter(crops, soy_yield >= 40)
+
+crops <- mutate(crops, pct_severe_drought = weeks_severe_drought / 23 * 100)
+n_full <- sum(crops$weeks_severe_drought == 23)
+
+by_state <- crops |>
+  group_by(state_name) |>
+  summarise(
+    avg_corn = mean(corn_yield, na.rm = TRUE),
+    avg_soy = mean(soy_yield, na.rm = TRUE),
+    rows = n(),
+    soy_non_missing = sum(!is.na(soy_yield))
+  )
+bs <- function(s, col) by_state[[col]][by_state$state_name == s]
+
+lowest <- crops |> arrange(corn_yield)
+zeros <- filter(crops, corn_yield == 0)
+
+repeated_names <- crops |>
+  distinct(state_name, county_name) |>
+  count(county_name) |>
+  filter(n > 1)
+```
+
+This is an in-class exercise. Before class, work through the lecture **03-2: The Core Operations of Data Wrangling**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what the data contains, asking for the right thing and the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Use the `ch3-practice` project from Ex-3-1. If you do not have it, make an R Project folder called `ch3-practice` with two subfolders, `data` and `analysis` (you may ask the AI how).
+2. Download the worksheet, [ex-3-2.qmd](worksheets/ex-3-2.qmd), and the data file [3-2-county_crops.csv](data/3-2-county_crops.csv).
+3. Copy `3-2-county_crops.csv` into `ch3-practice/data`, and the worksheet into `ch3-practice/analysis`.
+4. Open the project, open the worksheet, and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch3-practice` and nothing longer.
+:::
+
+The data file is a teaching dataset: county yields and drought weeks for Colorado, Kansas and Nebraska, 2000 to 2018, compiled from US Department of Agriculture yields and the US Drought Monitor. No value in it has been changed; the county names were added and `weeks_severe_drought` adds up three Drought Monitor categories.
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Read and look
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r n_rows` rows. One row is one county in one year.
+
+B. `r paste0(by_state_n$state_name, " (", by_state_n$rows, " rows, ", by_state_n$counties, " counties)", collapse = ", ")`. The names are written with a capital first letter and the rest in lower case. Counties do not all have every year: Nebraska's `r st("Nebraska", "counties")` counties over 19 years would be `r st("Nebraska", "counties") * 19` rows, not `r st("Nebraska", "rows")`.
+
+C. Only `soy_yield`: `r na_cols[["soy_yield"]]` missing values, `r round(100 * na_cols[["soy_yield"]] / n_rows)`% of the rows. Every other column is complete.
+:::
+
+## Task 2: Keep rows
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** At most `r st("Nebraska", "counties")` rows, one per Nebraska county, since one row is one county in one year. Only `Nebraska` and `2012` in the result.
+
+**Result.** `r nrow(ne_2012)` rows: not every Nebraska county has a 2012 row. Kept plus dropped is `r nrow(ne_2012)` + `r n_rows - nrow(ne_2012)` = `r n_rows`, so no row was lost on the way, which is what you expect when the condition's columns have no missing values.
+
+The blanks, filled in: one row is "one county in one year", the state is `Nebraska` (not `NEBRASKA` or `nebraska`), and you expect at most `r st("Nebraska", "counties")` rows.
+:::
+
+## Task 3: Split the rows in two
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** Every row has a soybean yield that is either below 40 or not, so the two tables together should have all `r n_rows` rows.
+
+**Result.** `r nrow(soy_low)` + `r nrow(soy_high)` = `r nrow(soy_low) + nrow(soy_high)`. The check fails by `r n_rows - nrow(soy_low) - nrow(soy_high)` rows, exactly the number of missing soybean yields from Task 1. A missing value is neither below 40 nor at least 40, so `filter()` drops those rows from both tables, without a message.
+
+Nothing is wrong with the code. If your prediction was all `r n_rows` rows, the check is what showed it was wrong. In a request that uses `soy_yield`, say what should happen to the rows where it is missing.
+:::
+
+## Task 4: Create a column
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** Between 0 (no week in severe drought) and 100 (all 23 weeks). For a row with `weeks_severe_drought` of 14, the value is 14 / 23 × 100 = `r round(14 / 23 * 100, 1)`.
+
+**Result.** From `r min(crops$pct_severe_drought)` to `r max(crops$pct_severe_drought)`, no missing values. `r n_full` county-years spent the whole season in severe drought or worse.
+
+The blanks, filled in: a column name of your choice, such as `pct_severe_drought`, equal to "weeks_severe_drought divided by 23, times 100"; range 0 to 100; 0 missing values.
+
+If your hand calculation does not match, check whether the AI divided by 23 or by something else, such as 52 weeks in a year. The range check alone would not catch that: dividing by 52 also gives values between 0 and 100.
+:::
+
+## Task 5: Summarise by group
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction.** 3 rows, one per state; the numbers of rows add up to `r n_rows`. From Task 1, the soybean averages may be a problem, since `soy_yield` is often missing.
+
+**Result.**
+
+```{r}
+#| label: show-by-state
+#| echo: false
+knitr::kable(by_state, digits = 1)
+```
+
++ The corn averages rest on every row and can be reported as they are.
++ **Colorado has no soybean yields at all**: `soy_non_missing` is 0, and the average shows as `NaN` ("not a number", the average of nothing). Without `na.rm = TRUE` it would show `NA`. Report no soybean average for Colorado.
++ **Kansas's soybean average rests on `r bs("Kansas", "soy_non_missing")` of its `r bs("Kansas", "rows")` rows** (`r round(100 * bs("Kansas", "soy_non_missing") / bs("Kansas", "rows"))`%). The number is a real average, but of a minority of Kansas county-years, likely the counties where soybeans are grown. Report it with that note, or not at all. Nebraska's rests on `r bs("Nebraska", "soy_non_missing")` of `r bs("Nebraska", "rows")` rows.
+
+This is why the request asked for the number of non-missing values behind each average. Without it, the three soybean averages would look equally trustworthy.
+:::
+
+## Task 6: Sort
+
+::: {.callout-note collapse="true" title="What you should find"}
+The first rows:
+
+```{r}
+#| label: show-lowest
+#| echo: false
+knitr::kable(head(select(lowest, state_name, county_name, year, corn_yield, weeks_severe_drought), 5))
+```
+
+`r nrow(zeros)` county-years have a corn yield of exactly 0: `r paste(zeros$county_name, zeros$year, collapse = " and ")`, both in Colorado. The next lowest is `r lowest$corn_yield[nrow(zeros) + 1]`. A yield is harvest divided by harvested area, so a county with a harvested area should not have a yield of 0, even in the 2002 drought; a total failure usually means the area was not harvested and no yield is reported. These two values are most likely a code for "no harvest" stored as a number, much like `-999` in Ex-3-1.
+
+Before averaging corn yields, decide what these rows mean, ideally by asking whoever produced the data, and say in the `.qmd` what you did (for example, treat them as missing). Treated as missing, they would move the Colorado corn average in Task 5 from `r round(bs("Colorado", "avg_corn"), 1)` to `r round(mean(crops$corn_yield[crops$state_name == "Colorado" & crops$corn_yield > 0]), 1)`; in an analysis of how drought affects yield, two values of 0 count for far more than two ordinary rows.
+
+Sorting is the simplest of the five operations, and here it was the one that found a problem: the top of a sorted column is where impossible values show up.
+:::
+
+## Task 7: Sam's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. "Take `crops`, then keep the rows where `state_name` is `nebraska` and the year is 2010 or later, then group by county name, then add each county's average corn yield to each of its rows, then sort from the lowest average up."
+
+B. A table with no rows. The state is written `Nebraska`, with a capital letter, so nothing equals `"nebraska"`. Every later step works on an empty table without complaint. A check of the rows after the filter (expected about `r st("Nebraska", "counties")` counties times 9 years) would catch it.
+
+C. `mutate()`. It keeps every county-year row and writes the county's average on each. For one row per county, it should be `summarise()`.
+
+D. County names are not unique across states: `r nrow(repeated_names)` names appear in more than one state, for example `r paste(head(repeated_names$county_name, 3), collapse = ", ")`. Grouping by `county_name` alone puts, say, Lincoln County in Colorado and Lincoln County in Nebraska into one group and averages them together. Group by `state_name` and `county_code` (and keep `county_name` for reading). A check of the number of groups against the number of counties from Task 1 (`r sum(by_state_n$counties)`) would catch it: grouping by name alone gives `r n_distinct(crops$county_name)`.
+
+E. The AI usually spots the lower-case `nebraska` if you mention how the state is written; without that, it can only guess, since it has not seen the data. Whether it raises `mutate()` against `summarise()` depends on whether it reads "average of each county" as one row per county. Treat its answer as something to check.
+:::

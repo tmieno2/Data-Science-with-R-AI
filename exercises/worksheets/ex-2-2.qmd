@@ -1,0 +1,178 @@
+---
+title: "Ex-2-2 worksheet: Presentations with Quarto"
+author: "Your name"
+format: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+```
+
+Save this file as `ch2-practice/analysis/ex-2-2.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-2-2. Try each task before you look.
+
+Today you make a 5-minute talk from the Nebraska yield data used in Ex-2-1. The AI builds the slides; you decide what the talk says and to whom, and you judge the deck as the audience will see it.
+
+**Rules:**
+
+A. Decide the audience, the message and the outline **before** you ask the AI for slides.
+
+B. Keep the requests you actually sent in this file, with the blanks filled in.
+
+C. You judge the deck by rendering it and stepping through it, not by reading the chat window.
+
+# The numbers for the talk
+
+Read the data, then compute the number of counties and the average yield in each year, rounded to whole bushels per acre.
+
+```{r}
+#| label: facts
+yields <- read_csv(here::here("data", "2-1-nebraska-yield.csv"), show_col_types = FALSE)
+
+yields |>
+  group_by(year) |>
+  summarise(counties = n(), average_yield = round(mean(corn_yield)))
+```
+
+# Task 1: Audience, time and message, no AI
+
+The talk is for a meeting of Nebraska farmers organised by the county extension office. They know corn yields in bushels per acre; they do not know statistics. You have 5 minutes.
+
+Render this file and read the table above in the HTML.
+
+**A. How many slides, roughly?**
+
+Your answer:
+
+**B. Write the message: the one sentence the audience should remember.**
+
+Your answer:
+
+**C. Is anything in the table a reason to be careful about that sentence? Look at both columns.**
+
+Your answer:
+
+# Task 2: The outline, no AI
+
+**Write the slide titles, in order, each as a sentence, and for each say what the slide shows (a figure of what, or a few bullets about what).**
+
+1.
+2.
+3.
+4.
+
+**Read only your titles, in order. Do they tell the whole story?**
+
+Your answer:
+
+# Task 3: Ask the AI for the deck
+
+**My request to the AI.** Fill in every `<...>` from Tasks 1 and 2, then send it:
+
+```text
+Make a revealjs deck at analysis/talk.qmd from the data in
+data/2-1-nebraska-yield.csv (one row per county and year, with the
+corn yield in bushels per acre). The audience is <who, and what they
+already know>. I have <number> minutes. The message: <one sentence>.
+
+Slides, in order, with these titles:
+<numbered list: each title as a sentence, and what the slide shows>
+
+Hide all code. The sentence above each chunk that the last paragraph
+asks for goes in the speaker notes of that slide, not on the slide.
+Numbers on slides rounded to whole bushels per acre, written as inline
+R. Add a last slide titled "Checks", after the final slide, with the
+checks: number of rows (I expect <number>) and the years covered (I
+expect <first year> to <last year>). Use embed-resources: true.
+
+Put the code in my Quarto document analysis/talk.qmd, under the
+heading "<the title of your first slide>", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+# Task 4: Judge the deck
+
+Open `talk.html` in a web browser. Go through the checks from the lecture, and write for each whether it passes, and if not, on which slide and why.
+
+**1. Press o and read only the titles. Do they tell the story, and are they your outline?**
+
+Your answer:
+
+**2. Does each slide show evidence for its title?**
+
+Your answer:
+
+**3. Is every claim in a title true? Compare with the table under "The numbers for the talk", and with the Checks slide.**
+
+Your answer:
+
+**4. Does anything run off the bottom of a slide?**
+
+Your answer:
+
+**5. Shrink the browser window to half its width. Can you still read the text in every figure?**
+
+Your answer:
+
+**6. Is there any code, warning or message on a slide?**
+
+Your answer:
+
+**7. How many slides, against the 5 minutes?**
+
+Your answer:
+
+# Task 5: Fix what failed
+
+Pick the most serious failure from Task 4. If nothing failed, pick the slide you would most like to improve.
+
+**My request to the AI.** Fill in every `<...>`, then send it:
+
+```text
+In analysis/talk.qmd, the slide "<slide title>" has this problem:
+<what is wrong, as seen in the rendered deck>. Change it so that
+<what it should look like>. Do not change any other slide.
+
+Put the code in my Quarto document analysis/talk.qmd, under the
+heading "<slide title>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**Render and look again. Is it fixed? Did any other slide change?**
+
+Your answer:
+
+# Task 6: Present it
+
+1. Open the deck, press **s** for the speaker view, and give the talk to your neighbour, with the timer running.
+2. Your neighbour writes down one thing they remembered, without looking at the slides.
+
+**How long did it take? What did your neighbour remember, and was it your message?**
+
+Your answer:
+
+# Task 7: Send it
+
+Copy **only** `talk.html` to your Desktop, not the folder next to it, and open the copy.
+
+**Does it open as slides, with its figures? If not, what is missing from the request or the header?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which of your decisions in Tasks 1 and 2 could the AI not have made for you, and why?**
+
+Your answer:
+
+**B. Which check in Task 4 caught something you would not have noticed by reading the `.qmd`?**
+
+Your answer:

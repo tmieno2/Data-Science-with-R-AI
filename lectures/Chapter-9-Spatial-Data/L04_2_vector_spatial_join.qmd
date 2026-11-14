@@ -1,0 +1,747 @@
+---
+title: "09-5: Spatial Joins: Matching Rows by Location"
+abstract: "Chapter 9: Spatial Data"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(sf)
+library(dplyr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+theme_set(lecture_theme())
+
+oi_blue <- "#0072B2"; oi_orange <- "#E69F00"; oi_red <- "#D55E00"
+
+counties <- st_read("ne_counties.gpkg", quiet = TRUE)
+wells    <- st_read("wells_ne.gpkg", quiet = TRUE)
+huc      <- st_read("huc_ia.gpkg", quiet = TRUE)
+nitrogen <- st_read("ia_nitrogen.gpkg", quiet = TRUE)
+
+wells_county  <- st_join(wells, counties)
+county_wells  <- st_join(counties, wells)
+n_wells       <- nrow(wells)
+n_counties    <- nrow(counties)
+n_cw          <- nrow(county_wells)
+n_no_well     <- sum(is.na(county_wells$wellid))
+
+wrong_counts <- county_wells |> st_drop_geometry() |> count(name)
+right_counts <- county_wells |> st_drop_geometry() |> group_by(name) |> summarise(n_wells = sum(!is.na(wellid)))
+loup_wrong <- wrong_counts$n[wrong_counts$name == "Loup"]
+loup_right <- right_counts$n_wells[right_counts$name == "Loup"]
+
+area_km2 <- function(x) as.numeric(units::set_units(st_area(x), km^2))
+ne_km2       <- round(sum(area_km2(counties)))
+ne_km2_join  <- round(sum(area_km2(county_wells)))
+
+huc_join <- st_join(huc, nitrogen)
+n_huc    <- nrow(huc)
+huc_rows <- nrow(huc_join)
+huc_one  <- filter(huc_join, HUC_CODE == "07060004")
+
+pieces <- st_intersection(huc, nitrogen) |>
+  mutate(area = area_km2(geom))
+p_one  <- filter(pieces, HUC_CODE == "07060004")
+simple_one   <- round(mean(huc_one$nitrogen_rate), 1)
+weighted_one <- round(sum(p_one$nitrogen_rate * p_one$area) / sum(p_one$area), 1)
+smallest_share <- round(100 * min(p_one$area) / sum(p_one$area), 1)
+
+coverage <- pieces |>
+  st_drop_geometry() |>
+  group_by(HUC_CODE) |>
+  summarise(covered = sum(area)) |>
+  left_join(tibble(HUC_CODE = huc$HUC_CODE, total = area_km2(huc)), by = "HUC_CODE") |>
+  mutate(share = covered / total)
+n_part_covered <- sum(coverage$share < 0.99)
+min_cover      <- round(100 * min(coverage$share))
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+You have a layer of wells and a layer of counties, and you want to know which county each well is in. Or you have nitrogen use by county and water quality by watershed, and you need them in one table. Neither layer has a column the other one shares. What they share is **location**.
+
+An AI assistant can write the code that matches rows by location. What it cannot do is:
+
++ know which layer should keep one row per feature in your result
++ know whether a feature matching several others, or none, is a problem for your question
++ tell whether the matched table is right
+
+So today is about:
+
+1. **The concept**: what a spatial join is, how it differs from the merge by a key column of lecture 03-3, and what decides the number of rows it returns
+2. **Reading code**: the pattern a join follows, and the summarising step that usually comes after it
+3. **Asking AI**: what to say so the result has the rows you want
+4. **Checking**: row counts before and after, features with no match, totals that must not change, and a map
+
+### Directions
+
++ Ask your AI assistant to install the `sf`, `tidyverse` and `here` packages if you have not already.
++ This lecture assumes lecture 09-1 (vector basics) and lecture 09-4 (spatial relations: intersects, within, within a distance), and the merges of lecture 03-3.
++ The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## A spatial join matches rows by where they are
+
+::: {.panel-tabset}
+
+### The idea
+
+A **spatial join** adds the columns of one layer to the rows of another, matching each row to the features it has a **spatial relation** with (lecture 09-4), usually "intersects".
+
++ The **target** layer is the one whose rows you keep: you want a result with one row per target feature, or close to it.
++ The **source** layer is the one whose columns are brought in.
+
+For each target feature, the join finds the source features that pass the relation and copies their columns onto the target's row.
+
+### Compared with a merge by key column
+
+In lecture 03-3, two tables were merged by a **key column** (a column that identifies each row, such as a county code) that both tables had. A spatial join is the same operation with a different matching rule:
+
+| | Merge by key column (lecture 03-3) | Spatial join |
+|---|---|---|
+| Rows are matched when | the key values are equal | the shapes pass a spatial relation |
+| What both tables need | the same key column | shapes in the same CRS |
+| Typical function | `left_join(a, b, by = "fips")` | `st_join(a, b)` |
+| A row of `a` with no match | kept, with missing values (NA) | kept, with missing values (NA) |
+| A row of `a` with several matches | repeated once per match | repeated once per match |
+
+The last two rows are the same in both. Everything you learned about unmatched rows and repeated rows in lecture 03-3 applies here. With locations, you count the matches of each target feature with `lengths(st_intersects(target, source))` (lecture 09-4), before or after the join. `st_join()` has no `relationship =` or `unmatched =` option and never warns about many matches, so the printed checks are the only guard.
+
+### An example
+
+The wells layer has a well ID and the groundwater pumped (`gw_extracted`, acre-feet), but no county:
+
+```{r}
+#| label: show-wells
+head(wells, 3)
+```
+
+Joined to the counties, each well gets its county's code and name:
+
+```{r}
+#| label: show-join
+wells_county <- st_join(wells, counties)
+head(wells_county, 3)
+```
+
+The wells are the target, so the result is still `r n_wells` wells, now with `countyfp` and `name` columns.
+
+:::
+
+## How many rows come back
+
+The number of rows a join returns is decided by how many source features each target feature matches:
+
+| Each target feature matches | Its rows in the result | Typical case |
+|---|---|---|
+| exactly one source feature | 1 | a well (point) in counties (polygons) that do not overlap |
+| none | 1, with NA in the source's columns | a point outside every polygon |
+| several | **one per match**, each a copy of the target row | a county (polygon) containing many wells; a watershed crossing several counties |
+
+So the same two layers give very different results depending on which is the target:
+
+```{r}
+#| label: rows-both-ways
+c(
+  wells_as_target = nrow(st_join(wells, counties)),
+  counties_as_target = nrow(st_join(counties, wells))
+)
+```
+
+`r n_wells` wells, each inside one county: `r n_wells` rows. `r n_counties` counties as target: `r n_cw` rows, because a county with 50 wells appears 50 times, and the `r n_no_well` counties with no well appear once each with NA for the well's columns (`r n_wells` + `r n_no_well` = `r n_cw`).
+
+:::{.callout-important}
+Before any join, decide which layer is the target and what one row of the result should be. "One row per county with the number of wells in it" is not what `st_join(counties, wells)` returns; it needs a summarising step after the join (next section).
+:::
+
+# How the code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The join
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+joined <- st_join(target, source, join = st_relation, options)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `joined <-` | The result: target rows with source columns added | Needed to keep the result |
+| `target` | The layer whose rows (and shapes) you keep, always **first** | Yes |
+| `source` | The layer whose columns are added, always **second** | Yes |
+| `join =` | The spatial relation | No; **the default is `st_intersects`** |
+| `options` | `dist =` for distance relations; `left = FALSE` to drop unmatched target rows; `largest = TRUE` to keep only the source feature with the largest overlap | No |
+
+The shapes in the result are the target's. The source's shapes are dropped.
+
+### Variations you will see
+
++ `st_join(wells, counties, join = st_within)`: a relation other than the default
++ `st_join(yield_points, seed_points, join = st_is_within_distance, dist = 10)`: every source feature within 10 units of the CRS (lecture 09-4)
++ `st_join(watersheds, counties, largest = TRUE)`: one match per target, the one it overlaps most
++ `st_join(wells, select(counties, name))`: only some source columns brought in
++ `aggregate(wells["gw_extracted"], counties, FUN = sum)`: a join and a summary in one call (next slide), with the source first
+
+### A real example
+
+The example on the previous slide, written out with its checks, as the AI would put it in a `.qmd`:
+
+Join each well to the county it lies in.
+
+```{r}
+#| label: join-example
+wells_county <- st_join(wells, counties, join = st_intersects)
+```
+
+Check the rows and the matches.
+
+```{r}
+#| label: join-example-check
+cat(
+  paste("rows: expected", nrow(wells), "(one per well), got", nrow(wells_county)),
+  paste("wells with no county: expected 0, got", sum(is.na(wells_county$countyfp))),
+  paste("wells matched twice: expected 0, got", sum(duplicated(wells_county$wellid))),
+  sep = "\n"
+)
+```
+
+:::
+
+## Summarising after a join
+
+::: {.panel-tabset}
+
+### The pattern
+
+When the target matches several source features (a county with many wells), the joined table has several rows per target. To get one row per target, summarise by the target's ID:
+
+```{r}
+#| eval: false
+summary_table <- joined |>
+  st_drop_geometry() |>
+  group_by(target_id) |>
+  summarise(new_column = summary_function(source_column))
+```
+
+| Step | What it does |
+|---|---|
+| `st_drop_geometry()` | Removes the shapes. Summarising with shapes attached also merges the shapes of each group, which is slow and not needed |
+| `group_by(target_id)` | One group per target feature, by **its ID column** |
+| `summarise(...)` | One row per group: a count, a sum, a mean of the source's columns |
+
+The result is an ordinary table, which goes back onto the target layer with the key-column merge of lecture 03-3: `left_join(counties, summary_table, by = "countyfp")`.
+
+### A real example
+
+Groundwater pumped per county:
+
+```{r}
+#| label: summarise-example
+gw_by_county <- st_join(counties, wells) |>
+  st_drop_geometry() |>
+  group_by(countyfp, name) |>
+  summarise(
+    n_wells = sum(!is.na(wellid)),
+    gw_total = sum(gw_extracted, na.rm = TRUE),
+    .groups = "drop"
+  )
+arrange(gw_by_county, desc(n_wells)) |> head(3)
+```
+
+`n_wells = sum(!is.na(wellid))` counts the rows that matched a well. The slide on silent failures shows why `n()`, which counts rows, is wrong here.
+
+### Area-weighted summaries
+
+When target and source are both polygons (a watershed crossing several counties), a plain summary gives every overlapping source feature the same weight, however small the overlap. To weight by area, cut first, then summarise:
+
+```{r}
+#| eval: false
+pieces <- st_intersection(target, source) |>     # one piece per overlap (lecture 09-4)
+  mutate(area = st_area(geometry))
+pieces |>
+  st_drop_geometry() |>
+  group_by(target_id) |>
+  summarise(weighted = sum(source_value * area) / sum(area))
+```
+
+Each piece is the part of one target feature inside one source feature, with the columns of both, so its area is the weight.
+
+:::
+
+# What has to be true
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Conditions for a spatial join to be right
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **Both layers are in the right CRS, and the same one** (lecture 09-1). A layer with a wrong CRS lies somewhere else, and matches nothing.
+2. **The right layer is the target.** It decides what one row of the result is.
+3. **The relation matches the question** (lecture 09-4): "in", "overlapping", "within 10 m".
+4. **You know how many matches each target should have**: exactly one, at most one, or several. That decides whether a summarising step is needed and which checks to print.
+5. **For polygons against polygons, you know whether size of overlap matters.** If it does, the summary must be weighted by area.
+
+### With and without an error
+
++ If the two layers have **different** CRSs, `st_join()` stops with an error. Good.
++ Every other failure gives a table with **no error**: rows quietly multiplied, rows with NA where a match was expected, averages that count a sliver of overlap as much as the whole. The next slide shows each one.
+
+:::
+
+## Silent failures
+
+::: {.panel-tabset}
+
+### Several matches multiply rows
+
+After `st_join(counties, wells)`, each county appears once per well. Anything computed from the county's own columns is now counted many times. Nebraska's area, from the counties before and after the join:
+
+```{r}
+#| label: area-twice
+area_km2 <- function(x) as.numeric(units::set_units(st_area(x), km^2))
+c(before = sum(area_km2(counties)), after_join = sum(area_km2(county_wells)))
+```
+
+`r format(ne_km2, big.mark = ",")` km² before, `r format(ne_km2_join, big.mark = ",")` after: each county's area added once per well. No error; a total that should not change did.
+
+### No match still makes a row
+
+Counting wells per county with `n()`, which counts rows:
+
+```{r}
+#| label: count-wrong
+county_wells |> st_drop_geometry() |> count(name) |> filter(name == "Loup")
+```
+
+Loup County has `r loup_right` wells, but it still has one row in the joined table (with NA for the well's columns), so counting rows says `r loup_wrong`. Every county without a well is reported as having one. Counting non-missing well IDs, `sum(!is.na(wellid))`, gives the right number.
+
+### A wrong CRS matches nothing
+
+Suppose the wells' coordinates (longitude and latitude) were labelled with the wrong CRS, here UTM zone 14N, when the layer was made (lecture 09-1). Transformed so the CRSs agree, the join runs without error:
+
+```{r}
+#| label: wrong-crs
+wells_mislabelled <- st_set_crs(st_drop_geometry(wells) |>
+  bind_cols(st_coordinates(wells)) |>
+  st_as_sf(coords = c("X", "Y")), 26914)
+joined_wrong <- st_join(st_transform(wells_mislabelled, st_crs(counties)), counties)
+sum(is.na(joined_wrong$countyfp))
+```
+
+All `r n_wells` wells have no county. Read as metres in UTM zone 14N, numbers such as -98 and 40 put every well within a few metres of one spot on the equator, in the Pacific Ocean, far from any Nebraska county. The number of wells with no match is the check that catches it.
+
+### Every overlap counts the same
+
+Watershed 07060004 (a hydrologic unit, or watershed, in Iowa) overlaps `r nrow(huc_one)` counties. A plain join and mean gives each county the same weight:
+
+```{r}
+#| label: huc-overlaps
+round(sort(p_one$area / sum(p_one$area)), 3)
+```
+
+Those are the shares of the watershed in each county: the smallest is `r smallest_share`% of the watershed, yet it counts as one of `r nrow(huc_one)` equal parts of the plain average. Plain mean of nitrogen rate: `r simple_one` lb/acre; weighted by area: `r weighted_one`. Here the two are close; with a large difference between a sliver county and the rest, they would not be.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For a join, judging the HTML means reading the row counts and the map, since a join that runs is not yet a join that matched the right rows. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+
+## Before you ask: three numbers to write down
+
+::: {.panel-tabset}
+
+### Why
+
+A join's result is right or wrong mostly by its **number of rows**, and you can only judge that number if you wrote down what it should be before the code ran. Look at both layers (the four checks of lecture 09-1, plus a map of the two together), then write down:
+
+1. **What one row of the result should be**: one well, one county, one watershed
+2. **How many matches each target should have**: exactly one, at most one, or several
+3. **How many targets should have no match**: often zero, sometimes some, and you should know why
+
+### For the wells and counties
+
++ One row should be one well, so the target is the wells, and the result should have `r n_wells` rows.
++ Each well should lie in exactly one county, since counties do not overlap.
++ Every well in a Nebraska wells file should be in a Nebraska county, so zero wells without a county.
+
+For "groundwater per county", one row should be one county: `r n_counties` rows after the summarising step, with a count of 0 wells for some counties, and the county totals adding up to the total pumped by all wells.
+
+:::
+
+## What to put in your request
+
+The AI knows `st_join()`. Your request supplies what it cannot know:
+
+1. **The layers**: file names, where they are, their CRSs, and the ID column of each
+2. **The target**: which layer's rows you keep, and what one row of the final table is
+3. **The relation**: "inside", "overlapping", "within 10 m"
+4. **What to do with several matches**: keep all, keep the largest overlap, or summarise (count, sum, mean, area-weighted mean) by the target's ID
+5. **What to do with no match**: keep with NA (the default) or drop, and how many you expect
+6. **Checks**: rows before and after, targets with no match and with several, a total that must not change, a map
+7. **The closing instructions**
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Join the wells to the counties and get the number of wells per county.
+```
+
+The AI has to guess the target. With counties first and `count()` after it, every county without a well reports 1, as on the "Silent failures" slide.
+
+### Strong
+
+```text
+In my R project, data/wells.gpkg (1,000 wells, ID column wellid) and
+data/counties.gpkg (93 counties, ID column countyfp) are both in EPSG
+4269. I want one row per county, with the number of wells in the county
+and the total of gw_extracted, in a table called gw_by_county. Counties
+with no well should be kept, with 0 wells and 0 pumped.
+
+Then check: the number of rows (I expect 93), the number of wells with no
+county (I expect 0), that the well counts add up to 1,000, that the
+county totals add up to the total gw_extracted of all wells, and draw a
+map of the counties filled by number of wells.
+
+Put the code in my Quarto document analysis/wells.qmd, under the heading
+"Wells per county", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on its
+own line as "name of check: expected X, got Y". Render the document to
+HTML.
+```
+
+### What came back
+
+In the rendered HTML, a sentence, then the chunk it describes.
+
+Join each well to its county, with the wells as the target so each well is one row.
+
+```{r}
+#| label: ai-join
+#| eval: false
+wells <- st_read(here::here("data", "wells.gpkg"), quiet = TRUE)
+counties <- st_read(here::here("data", "counties.gpkg"), quiet = TRUE)
+wells_county <- st_join(wells, select(counties, countyfp))
+```
+
+Count wells and add up pumping by county, then put the result back on all 93 counties so those with no well get 0.
+
+```{r}
+#| label: ai-summarise
+by_county <- wells_county |>
+  st_drop_geometry() |>
+  group_by(countyfp) |>
+  summarise(n_wells = n(), gw_total = sum(gw_extracted))
+gw_by_county <- counties |>
+  left_join(by_county, by = "countyfp") |>
+  mutate(n_wells = coalesce(n_wells, 0L), gw_total = coalesce(gw_total, 0))
+```
+
+Here `n()` is right, because the wells are the target: every row is a well. The counties with no well enter through the key-column merge, and `coalesce()` turns their NA into 0.
+
+Print the checks.
+
+```{r}
+#| label: ai-checks
+cat(
+  paste("rows: expected 93, got", nrow(gw_by_county)),
+  paste("wells with no county: expected 0, got", sum(is.na(wells_county$countyfp))),
+  paste("wells counted: expected 1000, got", sum(gw_by_county$n_wells)),
+  paste("total pumped: expected", round(sum(wells$gw_extracted)), "got", round(sum(gw_by_county$gw_total))),
+  sep = "\n"
+)
+```
+
+Every line matches.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checks: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The checks
+
+| | Ask the AI to print | Catches | What only you can supply |
+|---|---|---|---|
+| 1 | rows before and after the join | rows multiplied by several matches; the wrong layer as target | what one row should be |
+| 2 | targets with **no** match | a wrong CRS (everything unmatched), features outside the other layer | how many should be unmatched, and why |
+| 3 | targets with **more than one** match | overlapping source features, points on a shared boundary, a distance too large | whether several matches are possible |
+| 4 | a total that must not change | double counting after a join, values lost by dropping unmatched rows | the total, from the source layer |
+| 5 | a map of the result | anything the counts did not show | what the place looks like |
+
+### Asking for them
+
+One paragraph at the end of your request:
+
+```text
+Print the number of rows of <target> before and after the join, the
+number of <target> features with no match, the number with more than one
+match, and that the total of <column> is the same before and after.
+Draw a map of the joined layer filled by <column>.
+```
+
+### Reading the HTML
+
+The map from the strong request's code, which the HTML shows under the checks:
+
+```{r}
+#| label: chk-map
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+#| fig-height: 4.5
+ggplot(gw_by_county) +
+  geom_sf(aes(fill = n_wells), colour = "grey60") +
+  scale_fill_viridis_c(name = "Wells") +
+  theme_void()
+```
+
+The wells sit in the southern half of the state, most of them in a band of south-central counties, and the northern and eastern counties have none. That matches the map of the wells themselves in lecture 09-1, which is the comparison to make.
+
+:::
+
+## Checks that come from knowing the data
+
+The checks above apply to any join. What you know about the data gives stronger ones.
+
++ **A feature you know.** Pick one well, look up its county on a map, and ask for that well's row.
++ **A share that must be whole.** For watersheds and counties, each watershed's pieces should cover the whole watershed. If they do not, part of it lies outside the area your county data covers.
+
+```{r}
+#| label: chk-coverage
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+coverage <- st_intersection(huc, nitrogen) |>
+  mutate(area = as.numeric(st_area(geom))) |>
+  st_drop_geometry() |>
+  group_by(HUC_CODE) |>
+  summarise(covered = sum(area)) |>
+  left_join(tibble(HUC_CODE = huc$HUC_CODE, total = as.numeric(st_area(huc))), by = "HUC_CODE")
+cat("watersheds fully covered by county data: expected", nrow(huc), "got", sum(coverage$covered / coverage$total > 0.99), "\n")
+```
+
+The check fails: `r n_part_covered` of the `r n_huc` watersheds are only partly covered, one of them only `r min_cover`%, because they extend beyond Iowa and the nitrogen data covers Iowa counties only. An average nitrogen rate for those watersheds describes their Iowa part only. Whether that is acceptable is a decision about the research, not the code; the point is that you now know to make it.
+
+## Your turn: read the AI's code
+
+A student asked an AI to "get the average nitrogen rate for each watershed", and got this:
+
+```{r}
+#| eval: false
+huc_n <- st_join(huc, nitrogen)
+avg <- huc_n |>
+  group_by(HUC_CODE) |>
+  summarise(n_rate = mean(nitrogen_rate))
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each line do, and what is one row of `huc_n`? Of `avg`?
+
+B. Watershed 07060004 overlaps `r nrow(huc_one)` counties. How much does a county covering `r smallest_share`% of it count in its average?
+
+C. What is slow about the second line, and how would you fix it?
+
+D. Which watersheds' averages describe only part of the watershed, and how would you find out?
+
+### Answers
+
+A. The join gives one row per watershed-and-county overlap (`r huc_rows` rows from `r n_huc` watersheds); the summary gives one row per watershed, the plain mean of its counties' rates.
+
+B. Exactly as much as the county covering most of it: each of the `r nrow(huc_one)` counties counts equally. An area-weighted mean (cut with `st_intersection()`, weight by area) fixes that.
+
+C. The shapes are still attached, so `summarise()` also merges the shapes of each group. `st_drop_geometry()` before `group_by()` avoids it.
+
+D. Those extending beyond the counties in `nitrogen`. Print, for each watershed, the share of its area covered by the pieces from `st_intersection()`.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at the layers. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Points into polygons
+
+```text
+In my R project, <path to the point layer> (<number> points, ID column
+<the column that identifies each point>) and <path to the polygon layer>
+(<number> polygons, ID column <the column that identifies each polygon>)
+are both in EPSG <code>. Add to each point the columns <columns> of the
+polygon it lies in, in a layer called <name>. One row should be one point.
+
+Then check: the number of rows before and after (I expect them equal),
+the number of points with no polygon (I expect <number>, because
+<reason>), the number of points matched to more than one polygon (I
+expect 0), and draw a map of the points coloured by <column>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Summarise points by polygon
+
+```text
+Using the layers <point layer> and <polygon layer>, both in EPSG <code>,
+I want one row per polygon with <the summaries: number of points, sum of
+column, mean of column>, in a table called <name>. Polygons with no
+point should be kept, with <0 or NA>.
+
+Then check: the number of rows (I expect <number>), the number of points
+with no polygon, that the point counts add up to <number of points>, that
+the totals of <column> add up to its total over all points, and draw a
+map of the polygons filled by <summary>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Polygons onto polygons, by area
+
+```text
+Using the layers <target polygon layer> (ID column <the column that
+identifies each target>) and <source polygon layer>, both in EPSG
+<code>, I want one row per target polygon with the area-weighted mean of
+<source column>, where each source polygon counts by the area it shares
+with the target. Compute areas in a CRS in metres.
+
+Then check: the number of rows (I expect <number>), the number of target
+polygons with no overlap, and for each target the share of its area
+covered by source polygons (print how many are below 99%). Draw a map of
+the targets filled by the weighted mean.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Match within a distance
+
+```text
+Using the layers <target layer> and <source layer>, both in EPSG
+<code>, whose units are <metres or feet>, match each target feature to
+every source feature within <distance and unit>. Then summarise to one
+row per target, with <the summary> of <source column>.
+
+Then check: the number of rows of the target before, after the join and
+after the summary; the number of targets with no source feature within
+the distance; the largest number of matches for one target; and draw a
+map of a few targets with a circle of the distance around each and the
+source features near them.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. which layer is the target, and what one row of each result is
+2. what happens to a target with no match, and to one with several
+3. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| A spatial join matches rows by location, as a merge matches them by a key column | `st_join()` |
+| The target decides what one row is; several matches repeat it, no match gives NA | |
+| Whether each target should have one match, several, or possibly none, and why | `join =`, `largest =`, `left =` |
+| When to summarise after a join, and by which ID | `st_drop_geometry()`, `group_by()`, `summarise()` |
+| Whether size of overlap matters, and so whether to weight by area | `st_intersection()` and the weighted mean |
+| What totals must not change | The checking code and the map |
+
+**Every spatial join:** write down what one row of the result is, how many matches each target should have, and how many should have none. Ask for rows before and after, targets with no match and with several, a total that must not change, and a map. Render, and judge the HTML against what you wrote down.

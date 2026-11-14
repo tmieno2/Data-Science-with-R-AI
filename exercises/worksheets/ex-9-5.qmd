@@ -1,0 +1,284 @@
+---
+title: "Ex-9-5 worksheet: Spatial Joins"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch9-practice/analysis/ex-9-5.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-9-5. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the layers before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match, and does every map show what you meant?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+**Two field trials today.** A corn field where plots got different amounts of nitrogen, and a soybean field where the planter varied the seeding rate. In both, the yield was measured at points by the combine, and none of the yield points carries the treatment it received. The treatment has to be matched by location.
+
+# Task 1: Look at the corn field
+
+Read `data/9-5-README.txt` first. Then send this request:
+
+```text
+In my R project, data/9-5-corn-yield-points.gpkg and
+data/9-5-treatment-blocks.gpkg are vector layers. Read both. For each,
+print the CRS, the number of features, the geometry type, the bounding
+box and the number of invalid shapes. Then draw one map with both layers
+together, the second layer's outline on top.
+
+Put the code in my Quarto document analysis/ex-9-5.qmd, under the
+heading "Task 1: Look at the corn field", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-1
+```
+
+**A. How many yield points and how many plots? Do the two layers share a CRS?**
+
+Your answer:
+
+**B. From the map: does every yield point lie inside a plot? Roughly what share of the points do?**
+
+Your answer:
+
+**C. Could a yield point lie in two plots at once? Why or why not?**
+
+Your answer:
+
+# Task 2: Give each yield point its plot
+
+**Prediction** (from Task 1): one row of the result is one yield point, so how many rows? How many points with no plot, roughly? How many with more than one plot?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+In my R project, data/9-5-corn-yield-points.gpkg (<...> points, ID
+column point_id) and data/9-5-treatment-blocks.gpkg (<...> plots, ID
+column block_id) are both in EPSG <...>. Add to each yield point the
+columns block_id and target_rate of the plot it lies in, in a layer
+called yield_plot. One row should be one yield point.
+
+Then check: the number of rows before and after (I expect them equal),
+the number of points with no plot (I expect about <...>, because <...>),
+the number of points matched to more than one plot (I expect <...>), and
+draw a map of the points coloured by target_rate, with points that have
+no plot in grey.
+
+Put the code in my Quarto document analysis/ex-9-5.qmd, under the
+heading "Task 2: Give each yield point its plot", as R code chunks.
+Above each chunk, write one plain-English sentence saying what it does
+and why. Build every path with here::here(); no setwd(), no absolute
+paths. Print each check on its own line as "name of check: expected X,
+got Y". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: how many points have no plot? What are those points, and should they be in an analysis of the nitrogen trial?**
+
+Your answer:
+
+# Task 3: Average yield by nitrogen rate
+
+**Prediction.** How many rows should the table have? About how many yield points per nitrogen rate? (The README says how many plots there are; each rate is applied to the same number of plots.)
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Using yield_plot, keep only the points that lie in a plot, and compute
+for each target_rate the number of points and the mean yield, in a table
+called yield_by_rate.
+
+Then check: the number of rows (I expect <...>), that the point counts
+add up to the number of points that lie in a plot, and print the table.
+
+Put the code in my Quarto document analysis/ex-9-5.qmd, under the
+heading "Task 3: Average yield by nitrogen rate", as R code chunks.
+Above each chunk, write one plain-English sentence saying what it does
+and why. Build every path with here::here(); no setwd(), no absolute
+paths. Print each check on its own line as "name of check: expected X,
+got Y". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: did the counts add up? What would the averages have been based on if the points with no plot had stayed in?**
+
+Your answer:
+
+# Task 4 (if time allows): Where is the soybean field?
+
+**Prediction.** The README says this is a US farm, and that the coordinates are in metres. If the CRS recorded in the files is right, where should the field be, in longitude and latitude, roughly?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+In my R project, data/9-5-soy-yield-points.gpkg and
+data/9-5-seed-rate-points.gpkg are vector layers. Read both. For each,
+print the CRS with its name, the number of features and the bounding
+box. Then transform the yield points to longitude and latitude (EPSG
+4326) and print the longitude and latitude of their centre.
+
+Put the code in my Quarto document analysis/ex-9-5.qmd, under the
+heading "Task 4 (if time allows): Where is the soybean field?", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: where does the recorded CRS put the field? What does that tell you about the CRS in the files?**
+
+Your answer:
+
+**Which of these can you still do safely with these two files, and which not? Explain each.**
+
+1. Match yield points to seed-rate points within 10 m of each other.
+2. Find which US county the field is in.
+3. Add PRISM rainfall to the yield points.
+
+Your answer:
+
+# Task 5: Match each soybean yield point to nearby seed-rate points
+
+**Prediction.** The seeding rate is recorded at points, not plots, and the two sets of points do not line up. For each yield point, take every seed-rate point within 10 m. Will some yield points have none? Will some have several? How many rows will the join return, compared with the number of yield points?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Using the layers soy yield points (ID column yield_id) and seed-rate
+points (ID column seed_id), both in EPSG <...>, whose units are <...>,
+match each yield point to every seed-rate point within <...>. Then
+summarise to one row per yield point, with the mean seed_rate of its
+matches and the number of matches, in a table called soy_seed.
+
+Then check: the number of yield points before, the number of rows after
+the join and after the summary; the number of yield points with no
+seed-rate point within the distance; the largest number of matches for
+one yield point; and draw a map of five yield points with a circle of
+the distance around each and the seed-rate points near them.
+
+Put the code in my Quarto document analysis/ex-9-5.qmd, under the
+heading "Task 5: Match each soybean yield point to nearby seed-rate
+points", as R code chunks. Above each chunk, write one plain-English
+sentence saying what it does and why. Build every path with
+here::here(); no setwd(), no absolute paths. Print each check on its
+own line as "name of check: expected X, got Y". Render the document to
+HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML: how many rows did the join return, and why more than the yield points? How many yield points have no seed rate, and what should happen to them in an analysis?**
+
+Your answer:
+
+# Task 6: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Maria asked an AI for "the total area of the plots and the number of yield points for each nitrogen rate", and kept this:
+
+```{r}
+#| label: task-6
+#| eval: false
+plot_yield <- st_join(blocks, yield_points)
+plot_yield |>
+  mutate(area_m2 = as.numeric(st_area(geom))) |>
+  st_drop_geometry() |>
+  group_by(target_rate) |>
+  summarise(area_m2 = sum(area_m2), n_points = n())
+```
+
+**A. In plain words, what does each step do? What is one row of `plot_yield`?**
+
+Your answer:
+
+**B. Each rate has 5 plots. Roughly how large should `area_m2` be for one rate? Will Maria's number be close to that?**
+
+Your answer:
+
+**C. Is `n_points` right here? Would it stay right if one plot had no yield point inside it?**
+
+Your answer:
+
+**D. Which check from today would have caught the problem in B?**
+
+Your answer:
+
+**E. Now send this request, and compare the AI's answer with yours.**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. which layer is the target, and what one row of each result is
+2. what happens to a target with no match, and to one with several
+3. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+plot_yield <- st_join(blocks, yield_points)
+plot_yield |>
+  mutate(area_m2 = as.numeric(st_area(geom))) |>
+  st_drop_geometry() |>
+  group_by(target_rate) |>
+  summarise(area_m2 = sum(area_m2), n_points = n())
+```
+
+Your answer:
+
+# Wrap-up
+
+**A. In Task 2 and Task 5, which layer was the target, and why?**
+
+Your answer:
+
+**B. Which check today showed you something the code ran without complaining about?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

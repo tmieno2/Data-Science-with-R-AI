@@ -1,0 +1,51 @@
+---
+title: "Ex-2-0: Setup Checklist, Clone the Course Datasets"
+abstract: "Github"
+format:
+  html:
+    toc: true
+    toc-location: left
+---
+
+This is a setup checklist, not an exercise: lecture **02-0: Getting a Repository onto Your Computer** has only one task, and this page is it. Do it before the class on Chapter 3, which uses these files. It takes about ten minutes.
+
+# 1. Decide where course material lives
+
+Choose one folder on your computer for everything in this course, for example a folder `courses` in your Documents folder. Write its full path here, or in a note you keep:
+
+> My course folder:
+
+# 2. Clone the datasets repository
+
+The repository is <https://github.com/tmieno2/data-science-course-supplementary-datasets>. Clone it into your course folder, in one of three ways:
+
++ **Sublime Merge**: File, Clone Repository; paste the URL into Source URL; set Destination Path to your course folder; Clone.
++ **RStudio**, if git is installed: File, New Project, Version Control, Git; paste the URL; choose your course folder as the place for the new project.
++ **An AI agent** that can run commands, with this request (fill in the blank):
+
+```text
+Clone the repository
+https://github.com/tmieno2/data-science-course-supplementary-datasets
+into the folder <full path of your course folder>. Do not change any
+file in it. When done, tell me the full path of the new folder and list
+the files at its top level.
+```
+
+# 3. Check it
+
+::: {.callout-important title="It worked if"}
+1. Your course folder now contains a folder named `data-science-course-supplementary-datasets`.
+2. Inside it are the same files as on the GitHub page: `corn_yields.csv`, `corn_yields.dta`, `corn_yields.rds`, `corn_yields.xls`, two `corn_yields_exp` files, `corn_yields_exp_rownames.csv` and `readme.md`. If you cloned with RStudio, it has also added a `.Rproj` file of its own, and possibly a `.gitignore` file.
+3. With hidden files shown (Mac Finder: Cmd + Shift + period; Windows: View, Show, Hidden items), there is also a `.git` folder inside it. That is what makes it a clone and not a download.
+:::
+
+::: {.callout-note collapse="true" title="If it did not work"}
++ `Repository not found`: check the URL; copy it from the GitHub page rather than typing it.
++ `destination path ... already exists`: you cloned it before. Use that copy.
++ A message that git is not found or not recognized, or a window offering to install command line tools (Mac): git is not installed. Use Sublime Merge, or ask the AI how to install git on your system.
++ You cannot find the folder: in Sublime Merge, with the repository open, choose **Repository, Open Containing Folder**.
+:::
+
+# 4. Leave it alone
+
+Do not move, rename or edit anything inside the cloned folder. Chapter 3 copies files **out** of it into your own projects. Keeping the clone unchanged means you can bring in updates later (Chapter 6 explains how).

@@ -1,0 +1,652 @@
+---
+title: "03-2: The Core Operations of Data Wrangling"
+abstract: "Chapter 3: Data Wrangling"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+corn <- read_csv("corn_yields.csv", col_types = cols(FIPS = "c"))
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Once a table is in R, almost every analysis starts by changing it: keeping some rows, keeping some columns, adding a column, summarising by group, sorting. This is called **data wrangling**. An AI assistant writes the code for all of it without effort. What it cannot do is:
+
++ know which rows and columns your question needs
++ know how the values in your table are written, and what a missing value means
++ know what one row of the result should be
++ tell whether the result is right
+
+Those four are your job. So today is about:
+
+1. **The concept**: the five operations, described in words, and what has to be true for each to do what you meant
+2. **Reading code**: the pattern all wrangling code follows, so you can read a chain of steps the AI wrote
+3. **Asking AI**: what to put in your request
+4. **Checking**: how to tell whether the code did what you asked
+
+### Directions
+
++ You need the `tidyverse` package, installed in 03-1. It includes `dplyr`, the package whose functions appear on these slides.
++ The examples use `corn_yields.csv` from 03-1: corn yields for Nebraska counties in 2008, one row per county and irrigation status. On these slides the file sits in the same folder as the slides, so the code uses just its name.
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Five operations, in words
+
+Almost every wrangling request is one of five operations, or several of them in a row. Say what you want in these words, and you have most of a request.
+
+| | You want to | Example request in words | Rows after | Columns after |
+|---|---|---|---|---|
+| A | **Keep rows** that meet a condition | "keep only the irrigated rows" | fewer (or the same) | the same |
+| B | **Keep columns** | "keep only the county name and the yield" | the same | fewer |
+| C | **Create a column** from other columns | "add the yield in tonnes per hectare" | the same | one more |
+| D | **Summarise by group** | "the average yield for irrigated and for non-irrigated rows" | one per group | the groups and the summaries |
+| E | **Sort** | "sort from highest yield to lowest" | the same, reordered | the same |
+
+The last two columns are a first check you can make without reading any code: if "keep columns" changed the number of rows, something other than what you asked for happened.
+
+:::{.callout-important title="What one row is"}
+Every table has an answer to "what is one row?" In `corn_yields.csv`, one row is one county, in one year, with one irrigation status. Operations A, B, C and E leave that answer unchanged. Operation D changes it: after "average yield by irrigation status", one row is one irrigation status. Before asking for a summary, say what one row of the result should be.
+:::
+
+## How wrangling code is written
+
+Whichever operation you ask for, the code the AI writes follows the same pattern.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+new_table <- table_name |>
+  operation(what to do, written with column names) |>
+  operation(what to do, written with column names)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `new_table <-` | The name the result is stored under. Without it, the result is printed and then lost. | Needed to keep the result |
+| `table_name` | The table you start from. It is never changed; the result is a new table. | Yes |
+| <code>&#124;&gt;</code> | The **pipe**: "then". It hands the table on its left to the operation on its right, as that operation's first input. | Needed when there are several steps |
+| `operation(...)` | A function that does one of the five operations | Yes |
+| inside the `( )` | What to do, written with column names as they are, without quotes: a condition, a formula, a list of columns | Yes |
+
+A real line that follows the pattern, with one step:
+
+```{r}
+#| label: first-filter
+irrigated <- corn |>
+  filter(Irrigated == 1)
+nrow(irrigated)
+```
+
+`r nrow(irrigated)` of the `r nrow(corn)` rows are irrigated.
+
+### Every operation follows the pattern
+
+| | Operation | Function you will see | Inside the `( )` | Example |
+|---|---|---|---|---|
+| A | Keep rows | `filter()` | a condition | `filter(Yield > 180)` |
+| B | Keep columns | `select()` | column names; a minus sign drops a column | `select(County_name, Yield)` |
+| C | Create a column | `mutate()` | `new_name = formula` | `mutate(yield_t_ha = Yield * 0.0628)` |
+| D | Summarise by group | `group_by()`, then `summarise()` | the grouping columns; then `new_name = summary` | <code>group_by(Irrigated) &#124;&gt; summarise(avg = mean(Yield))</code> |
+| E | Sort | `arrange()` | columns; `desc()` for largest first | `arrange(desc(Yield))` |
+
+Others you will meet in AI-written code, each a variant of one of the five: `rename()` (change column names), `distinct()` (drop repeated rows), `count()` (number of rows per group, a short form of D), `slice_max()` (the rows with the largest values, A and E together), `relocate()` (move columns).
+
+### Conditions
+
+A condition is a statement that is true or false for each row; `filter()` keeps the rows where it is true. Conditions are written with these pieces:
+
+| Written | Means | Example |
+|---|---|---|
+| `==` | is equal to (two equals signs) | `Irrigated == 1` |
+| `!=` | is not equal to | `County_name != "BUFFALO"` |
+| `>`, `>=`, `<`, `<=` | greater than, at least, less than, at most | `Yield >= 150` |
+| `%in%` | is one of | `County_name %in% c("BUFFALO", "CUSTER")` |
+| `&`, or a comma | and: both must be true | `Irrigated == 1 & Yield > 180` |
+| <code>&#124;</code> | or: at least one must be true | <code>Yield &lt; 120 &#124; Yield &gt; 200</code> |
+| `is.na()` | is missing | `is.na(Yield)` |
+| `!` | not | `!is.na(Yield)` |
+
+Text values go in quotes and must match exactly, capital letters included. Numbers go without quotes.
+
+### Variations you will see
+
+The same operations appear in other forms. They change how the code looks, not what it does:
+
++ `%>%` instead of `|>`. An older pipe from a package; for reading code, the two mean the same thing.
++ `dplyr::filter(...)`: the package name, then `::`, then the function, as in 03-1.
++ No pipe: `filter(corn, Irrigated == 1)`. The table is the first input, which is exactly what the pipe supplies.
++ `summarise(avg = mean(Yield), .by = Irrigated)`: the grouping written inside `summarise()` instead of in a `group_by()` before it.
++ Base R, without `dplyr`: `corn[corn$Irrigated == 1, ]` keeps rows, `corn$yield_t_ha <- corn$Yield * 0.0628` creates a column, `aggregate(Yield ~ Irrigated, data = corn, FUN = mean)` summarises by group.
+
+If you want all your code in one style, say so in your request ("use the tidyverse").
+
+:::
+
+## Reading a chain of steps
+
+AI-written code usually strings several operations together with the pipe. Read it top to bottom, saying "then" at each `|>`:
+
+```{r}
+#| label: chain
+top_irrigated <- corn |>
+  filter(Irrigated == 1) |>
+  mutate(yield_t_ha = Yield * 0.0628) |>
+  select(County_name, Yield, yield_t_ha) |>
+  arrange(desc(Yield))
+head(top_irrigated, 3)
+```
+
+"Take `corn`, **then** keep the irrigated rows, **then** add the yield in tonnes per hectare, **then** keep three columns, **then** sort from the highest yield down." (A bushel of corn is 56 pounds, so 1 bushel per acre is 0.0628 tonnes per hectare.)
+
+:::{.callout-important title="The order of the steps matters"}
+Each step works on the result of the step above it, not on the original table. Two examples:
+
++ Moving `select(County_name, Yield)` to the top gives an error, because the `Irrigated` column is gone by the time `filter()` looks for it.
++ Keeping the rows with a yield above 180 and then averaging gives a different number from averaging and then keeping rows. The code runs either way, so read the order and check it matches what you meant.
+:::
+
+## What has to be true for each operation to work
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **The column names are right.** A wrong column name gives an error, which is the good case.
+2. **The values are written the way the code assumes.** A condition compares against values as they are stored: `"BUFFALO"` is not `"Buffalo"`, and `1` is not `"yes"`.
+3. **Missing values are handled the way you meant.** Each operation treats missing values in its own way, and none of them tells you.
+4. **One row of the result is what you meant.** Especially after summarising: one row per what?
+
+If condition 1 fails, R stops with an error. If 2, 3 or 4 fails, R gives you a table and **no error**. This deck calls those the **silent failures**; the next tabs show one of each.
+
+### Values written differently
+
+```{r}
+#| label: case
+corn |>
+  filter(County_name == "Buffalo") |>
+  nrow()
+```
+
+No rows, and no error. The county names in this file are in capital letters, `"BUFFALO"`, so nothing is equal to `"Buffalo"`. The AI cannot know how your values are written unless it looks or you tell it.
+
+### Missing values in a condition
+
+A tiny table, written into the code, with one yield missing (`NA`, R's mark for a missing value):
+
+```{r}
+#| label: na-table
+small <- tibble(
+  county = c("A", "B", "C", "D"),
+  yield  = c(150, 190, NA, 170)
+)
+```
+
+Keep the rows above 160, and separately the rows at or below 160:
+
+```{r}
+#| label: na-filter
+nrow(filter(small, yield > 160))
+nrow(filter(small, yield <= 160))
+```
+
+`r nrow(filter(small, yield > 160))` + `r nrow(filter(small, yield <= 160))` = `r nrow(filter(small, yield > 160)) + nrow(filter(small, yield <= 160))`, not 4. County C is in neither: a condition on a missing value is neither true nor false, and `filter()` drops the row. Whether that is right depends on your question; the code never asks.
+
+### Missing values in a summary
+
+`small$yield` means the column `yield` of the table `small`.
+
+```{r}
+#| label: na-mean
+mean(small$yield)
+mean(small$yield, na.rm = TRUE)
+```
+
+Without instructions, the average of a column with a missing value is itself missing. With `na.rm = TRUE` ("remove missing values"), the average is over the `r sum(!is.na(small$yield))` values that are there. The second looks fine, but it is an average of fewer values than you may think. If most of a group is missing, its average rests on a few rows, and the result does not say so.
+
+### One row per what?
+
+Operation D is `group_by()` then `summarise()`. Swap `summarise()` for `mutate()` and the result looks similar but means something else:
+
+```{r}
+#| label: summarise-vs-mutate
+by_status <- corn |>
+  group_by(Irrigated) |>
+  summarise(avg_yield = mean(Yield))
+nrow(by_status)
+
+with_avg <- corn |>
+  group_by(Irrigated) |>
+  mutate(avg_yield = mean(Yield))
+nrow(with_avg)
+```
+
+`summarise()` gives one row per group. `mutate()` keeps all `r nrow(with_avg)` rows and writes the group's average on each one. Both are useful; they answer different requests. The number of rows tells you which one you got.
+
+A second thing to watch: after `group_by()`, the table stays grouped until `ungroup()`, including after `mutate()` and, when there are two grouping columns, after `summarise()`. Every later step then works within each group, with no error. The printed table shows a `# Groups:` line when this is the case (`summarise()` also prints a message saying so; `mutate()` does not):
+
+```{r}
+#| label: still-grouped
+with_avg |>
+  head(2)
+```
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For wrangling, judging the HTML means reading the chain of steps: does each sentence say what you asked for, and does the code under it do what the sentence says? Every request for code ends with the **closing instructions**, under **Recommended requests**.
+
+## Look at the values before you ask
+
+::: {.panel-tabset}
+
+### Why
+
+To write a condition, you need to know how the values are written. To ask for a summary, you need to know what the groups are and how many there are. To know what missing values will do, you need to know where they are. None of that is visible in the column names.
+
+### Which values a column takes
+
+`count()` lists every value of a column and how many rows have it:
+
+```{r}
+#| label: look-count
+count(corn, Irrigated)
+```
+
+From this you learn: `Irrigated` is written as 0 and 1, not as "no" and "yes", and a summary by irrigation status will have 2 rows, built from `r sum(corn$Irrigated == 0)` and `r sum(corn$Irrigated == 1)` rows.
+
+### Missing values in each column
+
+```{r}
+#| label: look-na
+colSums(is.na(corn))
+```
+
+No missing values anywhere in this file, so missing values cannot change any result here. In most real data this line is not all zeros, and then it tells you which columns need a decision.
+
+:::
+
+## What to put in your request
+
+The AI already knows the functions. Your request supplies what it cannot know, most of it from looking at the values:
+
+1. **The table**: its name, and what one row of it is
+2. **The operation, in words**, with the exact column names and the values as they are written (`Irrigated` is 1 for irrigated, `County_name` is in capital letters)
+3. **Missing values**: what to do with them in this step (leave them out, keep them, count them)
+4. **What you want back**: the name of the new table, and what one row of it is
+5. **Ask for checks**: the numbers you will compare against (see "Checking the result")
+6. **The closing instructions**: which `.qmd` and heading the code goes under, a sentence above each chunk, paths built with `here::here()`, checks printed as expected and got, and render to HTML
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Get the average corn yield by type.
+```
+
+The AI has to guess which table, which column means "type", and whether you want one number per group or the average written on every row. If it guesses `Commodity`, which has one value in this file, it returns a single row: the code runs, and it answers a question you did not ask.
+
+### Strong
+
+An example for the corn table:
+
+```text
+In my table corn, one row is one county, in 2008, with one irrigation
+status. Irrigated is 1 for irrigated and 0 for non-irrigated. There are
+no missing values. Make a table called yield_by_status with one row per
+irrigation status, holding the average Yield and the number of rows
+behind each average, using the tidyverse.
+
+Then check the number of rows of yield_by_status (I expect 2), and that
+the numbers of rows behind the averages add up to the rows of corn (161).
+
+Put the code in my Quarto document analysis/summary.qmd, under the
+heading "Average yield by irrigation status", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+### What came back
+
+What the AI's answer looks like in the rendered HTML: a sentence, then the chunk it describes, then what it printed.
+
+Group the rows of `corn` by irrigation status, and for each group compute the average yield and count the rows.
+
+```{r}
+#| label: ai-answer-summary
+yield_by_status <- corn |>
+  group_by(Irrigated) |>
+  summarise(avg_yield = mean(Yield), n_rows = n())
+yield_by_status
+```
+
+Check that there is one row per irrigation status and that no row of `corn` was lost or counted twice.
+
+```{r}
+#| label: ai-answer-check
+cat("rows in yield_by_status: expected 2, got", nrow(yield_by_status), "\n")
+cat("rows behind the averages: expected 161, got", sum(yield_by_status$n_rows), "\n")
+```
+
+Both checks pass. `n()` counts the rows in each group; it takes no input. Irrigated corn averaged `r round(yield_by_status$avg_yield[2])` bushels per acre and non-irrigated corn `r round(yield_by_status$avg_yield[1])`.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checking: what to ask for, and why
+
+::: {.panel-tabset}
+
+### Checks for each operation
+
+The AI can write the checking code. It cannot know the right answers. These checks fit each operation:
+
+| | Operation | Ask the AI to print | What only you can supply |
+|---|---|---|---|
+| A | Keep rows | the rows before and after; the values of the condition's columns in the result; and, if missing values are possible, the rows kept plus the rows dropped | how many rows you expect, from counting values first |
+| B | Keep columns | the column names of the result | which columns you need |
+| C | Create a column | the smallest and largest value of the new column, its number of missing values, and one row you can work out by hand | a believable range, and the hand calculation |
+| D | Summarise by group | the number of rows of the result; the number of rows, and of non-missing values, behind each summary; that those add up to the original rows; whether the result is still grouped | how many groups there are |
+| E | Sort | the first and last rows | which row should come first |
+
+### Asking for them
+
+Tell the AI what you expect, so the HTML says which checks passed:
+
+```text
+I expect <number> rows after keeping <the rows you want, in words>, and
+only the values <values you expect> in <the column in the condition>.
+Print each check on its own line as "name of check: expected X, got Y".
+```
+
+You can fill in those blanks only if you counted the values first (under "Look at the values before you ask"). That part only you can do.
+
+### Reading the HTML
+
+A student asked for the irrigated rows with a yield above 180, and the yield in tonnes per hectare. From `count()` they knew there are `r sum(corn$Irrigated == 1)` irrigated rows, so they expected at most that many. They also looked up one county in the file before asking, Phelps, with an irrigated yield of 204, and worked out 204 × 0.0628 = 12.81 tonnes per hectare by hand. The AI wrote the code; in the rendered HTML, you read each line:
+
+```{r}
+#| label: chk-reading
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+high <- corn |>
+  filter(Irrigated == 1, Yield > 180) |>
+  mutate(yield_t_ha = Yield * 0.0628)
+
+cat(
+  paste("rows: expected at most 74, got", nrow(high)),
+  paste("values of Irrigated: expected 1, got", paste(unique(high$Irrigated), collapse = ", ")),
+  paste("smallest Yield: expected above 180, got", min(high$Yield)),
+  paste("yield_t_ha for PHELPS: expected 12.81, got", round(high$yield_t_ha[high$County_name == "PHELPS"], 2)),
+  sep = "\n"
+)
+```
+
++ The rows are fewer than 74, and only irrigated rows are left.
++ No yield at or below 180 got through.
++ The new column matches the value for Phelps worked out by hand before asking.
+
+:::
+
+## Checks that come from knowing the data
+
+The checks above apply to any table. The most useful checks come from what you know about **this** data.
+
+In `corn_yields.csv`, two columns say the same thing in different ways: `Irrigated` is 1 or 0, and `Data item` is a description that contains the word `IRRIGATED` only for irrigated corn. If the file is right, the two always agree. So before trusting `filter(Irrigated == 1)`, ask:
+
+```text
+Using the table corn, count the rows for each combination of Irrigated
+and whether Data item contains the word IRRIGATED. Print the counts as
+one small table.
+
+Put the code in my Quarto document analysis/summary.qmd, under the
+heading "Do Irrigated and Data item agree?", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+The AI's code, and what it printed:
+
+```{r}
+#| label: chk-agree
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+corn |>
+  mutate(says_irrigated = grepl("IRRIGATED", `Data item`)) |>
+  count(Irrigated, says_irrigated)
+```
+
+Only two combinations appear: 0 with `FALSE` and 1 with `TRUE`. The two columns agree on every row, so a condition on `Irrigated` selects what you think it selects. If a row showed 1 with `FALSE`, the file would contradict itself, and you would ask whoever produced it before using either column.
+
+## Your turn: read the AI's code
+
+A student asked an AI for "the average yield of irrigated counties, and the five counties with the highest yields", and got this:
+
+```{r}
+#| eval: false
+corn |>
+  filter(Irrigated == 0) |>
+  summarise(avg_yield = mean(Yield))
+
+corn |>
+  arrange(Yield) |>
+  head(5)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. Read each chain in words, saying "then" at each `|>`.
+
+B. Which line gives the wrong average, without an error? How would you know, from what you looked at before asking?
+
+C. The second chain has two problems. What are they?
+
+D. Rewrite the request so the AI could not make these mistakes.
+
+### Answers
+
+A. "Take `corn`, then keep the rows where `Irrigated` is 0, then compute the average yield." "Take `corn`, then sort by yield, then show the first five rows."
+
+B. `filter(Irrigated == 0)` keeps the **non-irrigated** rows, so the average is `r round(mean(corn$Yield[corn$Irrigated == 0]), 1)`, not `r round(mean(corn$Yield[corn$Irrigated == 1]), 1)`. You know from `count(corn, Irrigated)` and the `Data item` check that 1 means irrigated.
+
+C. `arrange(Yield)` sorts from the **lowest** yield up, so it shows the five lowest. And it starts again from all of `corn`, so non-irrigated rows are included; the request was about irrigated counties.
+
+D. Say that `Irrigated` is 1 for irrigated, ask for the five irrigated rows with the **highest** yield, and ask it to print the values of `Irrigated` in the result and the first and last yields of the sorted table.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at your table. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at the values
+
+```text
+For the table <table name>, print the number of rows, the type of every
+column, the number of missing values in each column, and every value of
+<the columns you will use in a condition or a grouping> with the number
+of rows that have it.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Keep rows
+
+```text
+In my table <table name>, one row is <what one row is>. Keep the rows
+where <the condition in words, with the exact column names and the
+values as they are written>. Rows where <column in the condition> is
+missing should be <kept or dropped>. Call the result <new table name>.
+
+Then check the number of rows before and after (I expect <number>
+after), the values of <the columns in the condition> in the result, and
+the number of rows kept plus the number dropped.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Create a column
+
+```text
+In my table <table name>, add a column <new column name> equal to <the
+formula in words, with the exact column names and their units>. Where
+<the columns it uses> are missing, the new column should be <missing,
+or a value you choose>.
+
+Then check the smallest and largest value of <new column name> (I
+expect between <lowest> and <highest>), its number of missing values
+(I expect <number>), and print <a row you worked out by hand> so I can
+compare.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Summarise by group
+
+```text
+From my table <table name>, where one row is <what one row is>, make a
+table called <new table name> with one row per <the grouping columns>,
+holding <each summary in words, for example the average of a column>.
+Leave out missing values of <column>, and also give, for each group, the
+number of rows and the number of non-missing values of <column>.
+
+Then check the number of rows of <new table name> (I expect <number of
+groups>), and that the numbers of rows add up to <rows in the table>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Sort
+
+```text
+Sort the table <table name> by <column>, <largest first or smallest
+first>, and show the first <number> rows. Then check: the first row
+should have the <largest or smallest> <column>, which I expect to be
+<value, if you know it>; print the first and last values of <column>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+For code you did not write, or code you are not sure about:
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| Which of the five operations you want, in words, and in what order | `filter()`, `select()`, `mutate()`, `group_by()` and `summarise()`, `arrange()` |
+| How the values in your table are written | The condition, with the right quotes and signs |
+| Where the missing values are, and what each step should do with them | `na.rm = TRUE`, `is.na()` and so on |
+| What one row of the result is | Whether to use `summarise()` or `mutate()` |
+| How many rows and groups to expect | The checking code |
+
+Read a chain of steps top to bottom, saying "then" at each `|>`.
+
+**Every wrangling step:** look at the values first and write down how many rows and groups you expect. Ask the AI to write the code and the checks into your `.qmd`. Render it, and judge the HTML against what you wrote down.

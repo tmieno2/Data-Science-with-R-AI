@@ -1,0 +1,165 @@
+---
+title: "Ex-2-1: Quarto Documents and Rendering, with an AI Assistant"
+abstract: "Quarto"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/2-1-nebraska-yield.csv
+  - worksheets/ex-2-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+csv <- "data/2-1-nebraska-yield.csv"
+
+csv_lines <- length(readLines(csv))
+yields_all <- read_csv(csv, col_types = cols(county_code = "c"))
+years <- sort(unique(yields_all$year))
+per_year <- count(yields_all, year)
+n_counties <- n_distinct(yields_all$county_name)
+last_year <- max(years)
+
+# The report as the AI wrote it: the last year dropped in a hidden chunk
+shown <- filter(yields_all, year != last_year)
+shown_mean <- mean(shown$corn_yield)
+typed <- 198.6
+
+full_mean <- format(round(mean(yields_all$corn_yield), 1), nsmall = 1)
+n_last <- per_year$n[per_year$year == last_year]
+above_goal_all <- sum(yields_all$corn_yield > 200)
+above_goal_shown <- sum(shown$corn_yield > 200)
+```
+
+This is an in-class exercise. Before class, work through the lecture **02-1: Quarto Documents and Rendering**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what the data contains, deciding what the reader must see, and judging the result in the rendered HTML.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-2-1.qmd](worksheets/ex-2-1.qmd), and the data file [2-1-nebraska-yield.csv](data/2-1-nebraska-yield.csv).
+2. Make an R Project folder called `ch2-practice`, with two subfolders, `data` and `analysis`. In RStudio: **File, New Project, New Directory, New Project**. You may ask the AI how to make the subfolders.
+3. Copy `2-1-nebraska-yield.csv` into `ch2-practice/data`, and the worksheet into `ch2-practice/analysis`.
+4. Open the worksheet and render it once before you start.
+
+::: {.callout-important title="It worked if"}
+Rendering the blank worksheet makes `ex-2-1.html` next to it, with the heading "Task 1: Look at the data". Do not read "The AI's report" in the HTML yet; Task 2 asks you to predict it.
+
+If the render stops with an error about the file not existing, type `here::here()` in the Console: it should print the path to `ch2-practice` and nothing longer. If it prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look at the data
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r csv_lines` lines: one line of column names and `r csv_lines - 1` data rows.
+
+B. `r min(years)` to `r max(years)`, `r length(years)` years.
+
+C. One county in one year. There are `r n_counties` counties, but not every county has a row in every year: `r paste0(per_year$year, ": ", per_year$n, collapse = ", ")`.
+
+D. No. `county_code` is written with leading zeros (`001`, `003`), so it is a code, not a quantity. `read_csv()` keeps it as text here, but `read.csv()`, which AI assistants often write, would turn `001` into `1`. Nothing in this exercise uses that column; Lecture 03-1 is about exactly this.
+:::
+
+## Task 2: Read the AI's report before rendering it
+
+::: {.callout-note collapse="true" title="What you should find"}
+A.
+
+| Chunk | Runs? | Code shown? | Result shown? |
+|---|---|---|---|
+| `read-yields` | yes | yes | nothing to show |
+| `drop-year` | yes | **no** | **no** (`include: false`) |
+| `by-year` | yes | yes | yes |
+| `overall` | yes | yes | yes |
+
+B. Only `r min(shown$year)` to `r max(shown$year)`. The hidden chunk `drop-year` removes `r last_year` before the table is made.
+
+C. No. The sentence's `r typed` is typed, not computed, so nothing ties it to the number printed above it.
+:::
+
+## Task 3: Render and judge the report
+
+::: {.callout-note collapse="true" title="What you should find"}
+Three problems:
+
+1. **A step is hidden.** The table shows `r length(unique(shown$year))` years, but the file has `r length(years)`. A reader who looked at the data, as you did in Task 1, can see from the HTML that a year is missing; the HTML does not say why. Only the `.qmd` shows the `drop-year` chunk, which has no sentence above it, only an R comment.
+2. **The sentence disagrees with the result above it.** `overall` prints `r round(shown_mean, 1)`; the sentence says `r typed`. A careful reader of the HTML can see this one.
+3. **The sentence says "`r min(years)` to `r max(years)`"**, while the average covers `r min(shown$year)` to `r max(shown$year)`. A reader can see this only by comparing it with the table.
+
+Whether the sentence was typed or computed cannot be seen in the HTML at all: the two look identical. You need the `.qmd`.
+
+**The decision about the data.** Dropping `r last_year` is a choice, not a mistake: that year has only `r n_last` counties, against about 50 in the others. There can be good reasons to drop it or to keep it. It is your choice, as the person responsible for the analysis, not the AI's, and whichever you choose, it must be visible in the HTML with a sentence saying why.
+:::
+
+## Task 4: Ask the AI to fix the report
+
+::: {.callout-note collapse="true" title="What you should find"}
+**If you kept every year:** `yields` has `r nrow(yields_all)` rows, years `r min(years)` to `r max(years)`, and the last sentence reads `r full_mean` bushels per acre.
+
+**If you kept the step that drops `r last_year`:** `r nrow(shown)` rows, years `r min(shown$year)` to `r max(shown$year)`, the step now visible with a sentence, and the last sentence reads `r round(shown_mean, 1)` and says "`r min(shown$year)` to `r max(shown$year)`".
+
+Either way, in the `.qmd` the number in the last sentence should now be written as inline R, for example `` `r knitr::inline_expr("round(mean(yields$corn_yield), 1)")` ``. In the HTML it looks exactly as a typed number would, which is why the check means opening the `.qmd`.
+
+The blanks of the request, filled in for the first choice:
+
+```text
+Remove the chunk that drops `r last_year`.
+...
+Check the number of rows in yields (I expect `r nrow(yields_all)`) and the years it covers
+(I expect `r min(years)` to `r max(years)`).
+```
+:::
+
+## Task 5: Works at the Console, fails on render
+
+::: {.callout-note collapse="true" title="What you should find"}
+Step 3 printed a number, because the green button runs the chunk at your Console, where `yield_goal` exists. Step 4 stopped with:
+
+```text
+Error:
+! object 'yield_goal' not found
+Quitting from ex-2-1.qmd:...-... [task-5]
+```
+
+(the line numbers depend on your file). Rendering starts a new R session, which has never seen `yield_goal`.
+
+The fix is a line `yield_goal <- 200` in a chunk **inside the document**, above `task-5` or in it. After rendering, the count is `r above_goal_all` county-years if you kept every year in Task 4, or `r above_goal_shown` if you kept the step that drops `r last_year`.
+
+If the AI's fix was to tell you to type something at the Console again, it did not fix the document. The test is the render: it starts from nothing, so it shows whether the document works without your Console.
+:::
+
+## Task 6: Send the HTML
+
+::: {.callout-note collapse="true" title="What you should find"}
+The first copy, on its own, is missing the figure, and it also opens without its styling. Rendering wrote the figure into a folder `ex-2-1_files/` next to the HTML, and the HTML only points at it. Copied away from that folder, it has nothing to point at.
+
+With `embed-resources: true`, written under `html:` like this:
+
+```yaml
+format:
+  html:
+    embed-resources: true
+```
+
+the figure and the styling are packed into the HTML file itself. The second copy shows everything. This is the version to send to an advisor or a coauthor, or to submit.
+
+Note that `format: html` on one line has to become the three lines above: `html` turns from a value into a group with a setting under it.
+:::
+
+## Wrap-up
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+A. That the number in the last sentence was typed, or what the hidden `drop-year` chunk did and why. The HTML showed that a year was missing, but not which step removed it or why.
+
+B. The green button runs the chunk at your Console, where anything you typed earlier still exists. The render starts from nothing. Only a render tests the document. To find a missing step before rendering: Session, Restart R, then Run, Run All, which runs every chunk at your Console as a render would.
+
+C. For example: which years the data covers, so a missing year can be noticed; whether dropping a year is acceptable for your question; that the goal is 200 bushels per acre; who will read the HTML and whether it will be sent on its own.
+:::

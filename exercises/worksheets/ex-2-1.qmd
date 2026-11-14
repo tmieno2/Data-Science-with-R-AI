@@ -1,0 +1,249 @@
+---
+title: "Ex-2-1 worksheet: Quarto Documents and Rendering"
+author: "Your name"
+format: html
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+```
+
+Save this file as `ch2-practice/analysis/ex-2-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-2-1. Try each task before you look.
+
+This file is itself a Quarto document. Before you start, render it once (the **Render** button) and find the HTML it makes, so you know it works. Do not read "The AI's report" in the HTML yet; Task 2 asks you to predict it.
+
+**Every task that uses the AI has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the data or the document before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found. Send it to your AI assistant.
+4. **Render and read.** Render this file to HTML, open the HTML, and judge the result there.
+
+A chat assistant cannot edit or render this file: paste its chunks into the right place and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you render or ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+# Task 1: Look at the data, no AI
+
+Open `data/2-1-nebraska-yield.csv` in a plain text editor (not Excel).
+
+**A. How many lines does the file have? How many of them are data rows?**
+
+Your answer:
+
+**B. Which years does it cover?**
+
+Your answer:
+
+**C. What does one row represent?**
+
+Your answer:
+
+**D. `county_code` looks like a number. Is it one? Look at how the codes are written.**
+
+Your answer:
+
+# Task 2: Read the AI's report before rendering it, no AI
+
+A student asked an AI for "the average corn yield in Nebraska counties", and the AI added the section below, under the heading "The AI's report". Read the **source** of that section in this file, not the HTML.
+
+**A. For each of the four chunks (`read-yields`, `drop-year`, `by-year`, `overall`): does it run? Is its code shown in the HTML? Is its result shown?**
+
+Your answer:
+
+**B. Predict: which years will the table printed by `by-year` show?**
+
+Your answer:
+
+**C. Predict: will the number in the last sentence match the number printed by `overall`?**
+
+Your answer:
+
+## The AI's report
+
+Read the Nebraska county yield data.
+
+```{r}
+#| label: read-yields
+yields <- read_csv(here::here("data", "2-1-nebraska-yield.csv"), show_col_types = FALSE)
+```
+
+```{r}
+#| label: drop-year
+#| include: false
+# 2018 has fewer counties reporting
+yields <- filter(yields, year != 2018)
+```
+
+Compute the number of counties and the average yield in each year.
+
+```{r}
+#| label: by-year
+yields |>
+  group_by(year) |>
+  summarise(counties = n(), average_yield = round(mean(corn_yield), 1))
+```
+
+Compute the average yield over all counties and years.
+
+```{r}
+#| label: overall
+mean(yields$corn_yield)
+```
+
+Across 2014 to 2018, the average corn yield in Nebraska counties was 198.6 bushels per acre.
+
+# Task 3: Render and judge the report, no AI
+
+Render this file and read "The AI's report" in the HTML.
+
+**A. Were your predictions in Task 2 right? Which were not?**
+
+Your answer:
+
+**B. Does the report do what it says? List every problem you find, and say for each whether a reader of the HTML alone could have found it.**
+
+Your answer:
+
+**C. One of the problems is a decision about the data, not a mistake in the code. Which one, and whose decision should it be?**
+
+Your answer:
+
+# Task 4: Ask the AI to fix the report
+
+**Prediction.** After the fix, how many rows should `yields` have, and which years? Should the last sentence still say 198.6?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`, then send it:
+
+```text
+Go through analysis/ex-2-1.qmd, the section under the heading "The AI's
+report". For every chunk with include: false or echo: false, tell me
+what it does. <what you decided about the step that drops a year: keep
+it, visible and explained, or remove it>. Replace every number typed
+into a sentence with inline R, rounded to one decimal. Check the number
+of rows in yields (I expect <number>) and the years it covers (I expect
+<first year> to <last year>).
+
+Put the code in my Quarto document analysis/ex-2-1.qmd, under the
+heading "The AI's report", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**Reading the HTML: does every "expected, got" line match? Does the last sentence now agree with the number printed above it? Open the `.qmd`: is that number written as inline R?**
+
+Your answer:
+
+# Task 5: Works at the Console, fails on render
+
+1. Click inside the chunk `task-5` below and use **Run All Chunks Above** (the button with a downward arrow, to the left of the green run button) so that `yields` exists at your Console.
+2. At the **Console**, and only there, type `yield_goal <- 200`.
+3. Delete the line `#| eval: false` from the chunk `task-5`, and click the chunk's green run button.
+4. Now click **Render**.
+
+```{r}
+#| label: task-5
+#| eval: false
+sum(yields$corn_yield > yield_goal)
+```
+
+**Prediction, before step 4: will the render work?**
+
+Your answer:
+
+**What did step 3 print, and what did step 4 do? Copy the error lines here.**
+
+Your answer:
+
+**My request to the AI.** Fill in the blanks from the error, then send it:
+
+```text
+My Quarto document analysis/ex-2-1.qmd fails to render. The error is:
+
+<paste the error lines exactly>
+
+The chunk it names is:
+
+<paste the chunk>
+
+Explain in one plain-English sentence why it fails when rendered, then
+fix it inside the document, not at the Console. The goal is a yield of
+200 bushels per acre.
+
+Put the code in my Quarto document analysis/ex-2-1.qmd, under the
+heading "Task 5: Works at the Console, fails on render", as R code
+chunks. Above each chunk, write one plain-English sentence saying what
+it does and why. Build every path with here::here(); no setwd(), no
+absolute paths. Print each check on its own line as "name of check:
+expected X, got Y". Render the document to HTML.
+```
+
+**Render again. Does it render now? How many county-years are above the goal?**
+
+Your answer:
+
+# Task 6: Send the HTML
+
+**Prediction.** If you send only the HTML file to someone, will they see everything you see?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Using the table yields, draw a figure of the average corn yield in each
+year, with the years along the bottom, using ggplot2. Label the axes in
+words with units. Check the number of years in the figure (I expect
+<number>).
+
+Put the code in my Quarto document analysis/ex-2-1.qmd, under the
+heading "Task 6: Send the HTML", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+The AI's code goes in the chunk below:
+
+```{r}
+#| label: task-6
+```
+
+Then:
+
+1. Copy **only** `ex-2-1.html` to your Desktop (not the folder next to it). Open the copy.
+2. Add `embed-resources: true` to the header of this file (ask the AI where it goes if you are unsure), render again, and repeat step 1.
+
+**What did the first copy look like, and the second? Why?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Name one problem in the AI's report that you could only find by opening the `.qmd`, not by reading the HTML.**
+
+Your answer:
+
+**B. In Task 5, the code ran when you clicked the green button. Why is that not evidence that the document works?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

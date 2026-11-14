@@ -1,0 +1,320 @@
+---
+title: "Ex-6-1 worksheet: Organising a Research Project"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch6-practice/analysis/ex-6-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-6-1. Try each task before you look.
+
+You have been given a coauthor's project folder, `corn-messy`. Jan did the first analysis and then moved on. Today you turn the folder into a project that anyone can rebuild, and find out on the way what Jan did to the data.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for organising your own projects.
+
+1. **Look** at the files before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** Render the document the code went into, open the HTML, and judge the result there: does every "expected, got" line match?
+
+A chat assistant cannot edit, move or render files: paste its chunks into the right `.qmd`, move files yourself, and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. Nothing may write to `data/raw/` once it exists, by hand or by code.
+
+# Task 1: Look and sort, no AI
+
+Open every file in `corn-messy/`: the csv files in a plain text editor (not Excel), the `.R` files in RStudio, the picture and the notes.
+
+**A. For each file, say what it is: data as received, data made by code, code, a result (figure or table), a note, or "cannot tell". Give the reason for each.**
+
+| File | What it is | Why you think so |
+|---|---|---|
+| `corn_yields.csv` | | |
+| `corn_yields_fixed.csv` | | |
+| `corn_clean.csv` | | |
+| `yield_by_irrigation.png` | | |
+| `analysis_final.R` | | |
+| `analysis_final_v2.R` | | |
+| `notes.txt` | | |
+
+**B. How many lines does each of the two `corn_yields` csv files have?**
+
+Your answer:
+
+**C. Which file would you treat as the raw data, and what would you need to know to be sure?**
+
+Your answer:
+
+# Task 2: What is the difference between the two data files?
+
+**Prediction.** From Task 1: how many rows in each file, and what kind of difference do you expect?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Task 1, then send it:
+
+```text
+In my R project, corn-messy/corn_yields.csv and
+corn-messy/corn_yields_fixed.csv should hold the same data. Read both,
+keeping FIPS as text. Check the number of rows in each (I expect <...>
+and <...>). List every row that is in one file but not the other,
+showing FIPS, County_name, Irrigated and Yield. Then compute the
+average Yield for irrigated and for non-irrigated fields in each file.
+
+Put the code in my Quarto document analysis/ex-6-1.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML.**
+
+**A. Which rows differ? What do they have in common?**
+
+Your answer:
+
+**B. How did the difference change the averages?**
+
+Your answer:
+
+**C. Does anything in the folder record why those rows differ? Which file would you use as raw data, and what would you ask Jan?**
+
+Your answer:
+
+# Task 3: Lay out the project
+
+**Plan first, no AI.** Your project root is `ch6-practice`. Decide which files of `corn-messy` the project needs, and where each one goes, using the layout from the lecture (`data/raw/`, `data/processed/`, `analysis/`, `results/`, and a `README.md`). A file may also go nowhere: a step will rebuild it, or it is not used.
+
+**Copy, do not move.** Leave `corn-messy/` exactly as you received it, as the record of Jan's version. Task 2 reads from it, and this worksheet must still render at the end.
+
+| File | Goes to | Why |
+|---|---|---|
+| `corn_yields.csv` | | |
+| `corn_yields_fixed.csv` | | |
+| `corn_clean.csv` | | |
+| `yield_by_irrigation.png` | | |
+| `analysis_final.R` | | |
+| `analysis_final_v2.R` | | |
+| `notes.txt` | | |
+
+**My request to the AI.** Fill in the blanks, send it, compare its plan with yours, then let it (or yourself) make the folders and copy the files:
+
+```text
+Help me organise my research project ch6-practice. It should
+have data/raw/ for data as I received it, data/processed/ for tables
+my code makes, analysis/ for one .qmd per step, numbered in run order,
+and results/ for figures and tables. Here is what is in the folder now:
+<...>
+
+For each file, tell me where you would put it and why, and list any
+file you cannot place without asking me. Do not move or change
+anything until I agree. Copy files out of corn-messy/; never move or
+change anything inside it.
+```
+
+**Where the AI's plan differed from mine, and what I chose:**
+
+Your answer:
+
+**A README.** Write a `README.md` at the project root, by hand or with the AI, with three parts: what the project is (one sentence), where the raw data came from (from `notes.txt`), and what to run in what order (fill this in after Task 4).
+
+**Check.** After copying the files, this chunk should print `TRUE`, then the one file in `data/raw/`. Render this document to see it.
+
+```{r}
+#| label: task-3-check
+#| eval: false
+file.exists(here::here("data", "raw", "corn_yields.csv"))
+list.files(here::here("data", "raw"))
+```
+
+Remove the line `#| eval: false` above once the files are in place, so the check runs when you render.
+
+# Task 4: Rewrite Jan's analysis as steps
+
+Jan's `analysis_final.R` does three jobs in one script: it reads the data, keeps four columns and saves them, then averages and draws the figure. Rewrite it as two steps, each in its own `.qmd` in `analysis/`.
+
+## 4a. The cleaning step
+
+**Prediction:** how many rows should the cleaned table have, if it is made from the raw file you chose in Task 2?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+My project has data/raw/ (read only), data/processed/, analysis/ and
+results/. Write one step: keep the columns FIPS, County_name, Irrigated
+and Yield, with FIPS as text. It reads data/raw/corn_yields.csv and
+saves data/processed/corn_clean.rds. It must not write anything to
+data/raw/. Check <...>.
+
+Put the code in my Quarto document analysis/01-clean.qmd, under the
+heading "Clean", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**Reading the HTML of `01-clean.qmd`: does every check match? Does any line write to `data/raw/`?**
+
+Your answer:
+
+## 4b. The summary step
+
+**Prediction:** the averages for irrigated and non-irrigated fields, from Task 2 (for the file you chose).
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+My project has data/raw/ (read only), data/processed/, analysis/ and
+results/. Write one step: compute the average Yield for irrigated and
+non-irrigated fields, and draw a boxplot of Yield by Irrigated with
+ggplot2. It reads data/processed/corn_clean.rds and saves
+results/mean-yield-by-irrigation.csv and results/yield_by_irrigation.png.
+It must not write anything to data/raw/. Check <...>.
+
+Put the code in my Quarto document analysis/02-summary.qmd, under the
+heading "Summary", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**Reading the HTML of `02-summary.qmd`: do the averages match your prediction? Do they match Jan's figure? If not, why not?**
+
+Your answer:
+
+# Task 5: The test
+
+**Prediction.** If you delete everything in `data/processed/` and `results/` and run both steps, which files should come back?
+
+Your answer:
+
+**My request to the AI.** Fill in the blank from your prediction:
+
+```text
+Write a script run-all.R at my project root that renders every .qmd
+in analysis/ whose name starts with two digits, in the order of those
+numbers, each in its own R session, and stops at the first step that
+fails. run-all.R is a plain R script. Then write the check, as code in
+the Quarto document named below: record a fingerprint (md5) of every
+file in data/raw/, delete everything in data/processed/ and results/,
+run run-all.R, list the files that came back, and compare the
+fingerprints. I expect <...>, and the raw files unchanged.
+
+Put the code in my Quarto document analysis/ex-6-1.qmd, under the
+heading "Task 5", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML: did every file come back, and are the raw files unchanged?**
+
+Your answer:
+
+Finish the README: what to run, in what order.
+
+# Task 6: Read Jan's other script
+
+First, with a neighbour and **without** the AI or running anything. This is `analysis_final_v2.R`, which `notes.txt` thinks is "the newer one":
+
+```{r}
+#| label: task-6
+#| eval: false
+setwd("C:/Users/jan/Desktop/corn")
+library(tidyverse)
+
+corn <- filter(corn, Yield > 120)
+model <- lm(Yield ~ Irrigated, data = corn)
+summary(model)
+write_csv(corn, "corn_yields.csv")
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. Which line stops it from running on your computer?**
+
+Your answer:
+
+**C. Which object does it use without reading or making it? When would that work, and when would it fail?**
+
+Your answer:
+
+**D. Which line destroys something, and what?**
+
+Your answer:
+
+**E. If Jan ran `analysis_final.R` and then this script, in one R session, which data was the regression fitted on?**
+
+Your answer:
+
+**F. Now send this request, and compare the AI's answer with yours. What did it find that you missed, or miss that you found?**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. any line that writes to a file it, or an earlier step, read from
+3. any object it uses that it never reads from a file or makes itself
+
+setwd("C:/Users/jan/Desktop/corn")
+library(tidyverse)
+
+corn <- filter(corn, Yield > 120)
+model <- lm(Yield ~ Irrigated, data = corn)
+summary(model)
+write_csv(corn, "corn_yields.csv")
+```
+
+Your answer:
+
+# Task 7: Does it rebuild anywhere?
+
+1. Restart R (Session, Restart R) and run `run-all.R`.
+2. Zip your whole `ch6-practice` folder and give it to your neighbour. They open the project, delete `data/processed/` and `results/`, and run `run-all.R` **without changing anything**.
+
+**Did it rebuild on your computer? On your neighbour's? If not, what failed and why?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which of the four conditions from the lecture did Jan's folder break, and where?**
+
+Your answer:
+
+**B. What did you find in Task 2 that you could not have found if Jan had saved the edited file over `corn_yields.csv`?**
+
+Your answer:
+
+**C. Name one thing about this project the AI could not have known unless you told it.**
+
+Your answer:

@@ -1,0 +1,1709 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <title>Data Science with R (AECN 896-05) – 09-6: Vector Meets Raster: Cropping, Masking and Extracting Values</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <!--
+    Support for collapsible "Transcript" panels in revealjs decks.
+
+    Include it from a deck's YAML header, with the path relative to the qmd:
+
+        format:
+          revealjs:
+            include-in-header: ../transcript-support.html
+
+    Then add a transcript anywhere inside a slide (or inside a single tab of a
+    tabset, which is the usual case):
+
+        <details class="transcript">
+        <summary>Transcript</summary>
+
+        What the lecturer says about this tab.
+
+        </details>
+
+    On a tab whose figure fills the whole slide there is no free rectangle to
+    overlay, so add "inline" and the panel joins the flow when opened, pushing the
+    figure down instead of covering it:
+
+        <details class="transcript inline">
+
+    Use it only where it is needed. Measure rather than guess: an open panel must
+    not overlap a ".cell-output-display". The collapsed pill still costs 0px in
+    both variants, which is the property the whole design exists to preserve.
+
+    It must live in the header rather than the body of a qmd: raw HTML placed
+    above the first "##" heading becomes its own untitled slide.
+
+    <details> is a native HTML element, so the collapse/expand works with no
+    JavaScript at all, including in a self-contained (embed-resources) file. The
+    script at the bottom adds one behaviour on top: collapsing an open panel when
+    the reader moves on. Without it everything still works, panels just keep their
+    open state.
+
+    Audience: students reviewing after class. These are not presenter notes -
+    reveal's own ".notes" blocks are the presenter-only mechanism.
+  -->
+  <style>
+  /* The panel is positioned against the slide rather than sitting in its normal
+     flow. That is the whole point: collapsed it costs the slide no vertical
+     space, and opened it overlays the content instead of pushing it off the
+     bottom edge. Each panel lives inside its own tab, and hidden tabs do not
+     render, so only the visible tab's transcript is ever shown. */
+  .reveal details.transcript {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    width: auto;
+    font-size: 0.55em;
+    line-height: 1.45;
+    text-align: left;
+    border-radius: 6px;
+    /* custom.scss styles every bare <details> as an "answer box" (grey border
+       plus padding) for Quarto's folded-code blocks. Opt out of both here so the
+       collapsed pill is not sitting inside a grey rectangle. */
+    border: none;
+    padding: 0;
+  }
+
+  /* Collapsed: a small pill that hugs the top-right corner. */
+  .reveal details.transcript > summary {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+    outline: none;
+    /* custom.scss pulls every bare <summary> with a negative margin; undo it. */
+    margin: 0;
+    padding: 0.15em 0.7em;
+    border: 1px solid #06a666;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #06a666;
+    font-weight: 600;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .reveal details.transcript > summary::-webkit-details-marker { display: none; }
+  .reveal details.transcript > summary::before { content: "\25B8\00A0"; }
+  .reveal details.transcript[open] > summary::before { content: "\25BE\00A0"; }
+
+  /* Opened: a tall, narrow panel down the right-hand side, where slide content
+     rarely reaches. It starts below the tab bar so tab names stay clickable
+     while a transcript is open, and runs down to just above the footer.
+
+     Measured as a share of the 700px logical slide. A top-level tab bar ends at
+     12.4-13%, so 21% clears it everywhere.
+
+     A tab bar that sits lower on the slide is cleared HORIZONTALLY instead: the
+     panel occupies x 62-100%, and no tab row measured so far reaches past x 66%.
+     Cases seen, all fine:
+       00-1  nested tabset          18.9%, names reach x 15%
+       00-1  tabset below prose     40.8%, names reach x 59%
+       01-2  nested tabset          29.6%, names reach x 46%
+     So the rule to preserve is not "top clears every tab bar" but "no tab NAME
+     overlaps the panel's rectangle". Re-check that if a deck grows a long tab row
+     sitting low on the slide. */
+  .reveal details.transcript[open] {
+    top: 21%;
+    width: 36%;
+    max-height: 75%;
+    overflow-y: auto;
+    padding: 0.55em 0.85em 0.7em;
+    background: #f4fbf8;
+    border: 1px solid #06a666;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+  }
+  .reveal details.transcript[open] > summary {
+    display: block;
+    padding: 0 0 0.4em 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .reveal details.transcript p { margin: 0.35em 0; }
+
+  /* Opt-out, applied per tab as class="transcript inline".
+     Some figures are rendered at out-width 80% and span x 1.4-98.6% of the slide,
+     running from just under the tab bar down to y ~95%. There is no rectangle
+     left to overlay, so on those tabs the panel joins the normal flow when opened
+     and pushes the figure down; the slide is "scrollable: true", so the figure
+     stays reachable. Note this rule only touches [open]: collapsed, the pill is
+     still absolutely positioned at the top-right corner and still costs 0px. */
+  .reveal details.transcript.inline[open] {
+    position: static;
+    width: auto;
+    max-height: none;
+    overflow-y: visible;
+    margin: 0 0 0.9em 0;
+  }
+
+  /* No .slide-logo rule here: no deck in this course sets a "logo:" in its YAML,
+     so the bottom-right corner the panel would collide with is already free. If
+     a logo is ever added, move it out of the way with
+     .reveal .slide-logo { right: auto !important; left: 56px !important; }
+     where 56px clears reveal's menu button at x 8-43px. */
+  </style>
+
+  <script>
+  // Collapse any open transcript when the reader moves to another slide or
+  // another tab, so a panel left open never reappears over unrelated content.
+  (function () {
+    function closeAll() {
+      document.querySelectorAll("details.transcript[open]")
+        .forEach(function (d) { d.open = false; });
+    }
+
+    // Slide changes come from reveal, which is not ready when this runs.
+    function hookReveal() {
+      if (window.Reveal && typeof Reveal.on === "function") {
+        Reveal.on("slidechanged", closeAll);
+        Reveal.on("overviewshown", closeAll);
+        return true;
+      }
+      return false;
+    }
+    if (!hookReveal()) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (hookReveal() || ++tries > 100) clearInterval(timer);
+      }, 100);
+    }
+
+    // Tab changes are plain clicks; capture so this runs before the tab switches.
+    document.addEventListener("click", function (e) {
+      var el = e.target;
+      if (el && el.closest && el.closest('.panel-tabset [role="tab"]')) closeAll();
+    }, true);
+  })();
+  </script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">09-6: Vector Meets Raster: Cropping, Masking and Extracting Values</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="how-this-lecture-works" class="title-slide slide level1 center">
+<h1>How this lecture works</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-will-and-will-not-learn-today" class="slide level2 scrollable">
+<h2>What you will and will not learn today</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">The plan</a></li><li><a href="#tabset-1-2">Directions</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<p>Weather, soil, satellite images and elevation come as <strong>rasters</strong> (grids of cells, lecture 09-2). Your units of analysis, such as fields, counties and farms, are usually <strong>vector</strong> features (lecture 09-1). Most research that uses both needs one step: putting the raster’s values onto the vector features. An AI assistant can write that step in one line. What it cannot do is:</p>
+<ul>
+<li>know whether the raster covers all of your features</li>
+<li>decide which cells count as “in” a polygon when a cell is only partly inside</li>
+<li>know what the raster’s values mean: their units, and which day each layer is</li>
+<li>tell whether the numbers it returns are right</li>
+</ul>
+<p>So today is about:</p>
+<ol type="1">
+<li><strong>The concept</strong>: cropping, masking and extracting values, and which cells count for a polygon</li>
+<li><strong>Reading code</strong>: the patterns these lines follow</li>
+<li><strong>Asking AI</strong>: what to say about the raster and the features</li>
+<li><strong>Checking</strong>: rows returned, cells per feature, features with no value, and maps</li>
+</ol>
+</div>
+<div id="tabset-1-2">
+<ul>
+<li>Ask your AI assistant to install the <code>sf</code>, <code>terra</code>, <code>tidyterra</code>, <code>tidyverse</code> and <code>here</code> packages if you have not already. <code>terra</code> is the package for rasters; <code>tidyterra</code> lets ggplot draw them.</li>
+<li>This lecture assumes lecture 09-1 (vector basics) and lecture 09-2 (raster basics): what a cell, a layer and a CRS (coordinate reference system) are.</li>
+<li>The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with <code>here::here()</code> (lecture 03-1).</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="the-data-on-these-slides" class="slide level2">
+<h2>The data on these slides</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Two layers</a></li><li><a href="#tabset-2-2">A map</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<ul>
+<li><code>ne_ppt_2012aug.tif</code>: daily precipitation from PRISM (a US weather dataset), in <strong>millimetres</strong>, one layer per day from 1 to 5 August 2012, cells about 3.5 km wide, NAD83 longitude and latitude</li>
+<li><code>ne_counties.gpkg</code>: the 93 counties of Nebraska, in the same CRS</li>
+</ul>
+<p>The slides mostly use the total over the five days, one layer made by adding the five (<code>sum(ppt)</code>).</p>
+</div>
+<div id="tabset-2-2">
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L05_vector_raster_interaction_files/figure-revealjs/data-map-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The question the slides answer: <strong>how much rain fell in each county over those five days?</strong></p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="the-concept" class="title-slide slide level1 center">
+<h1>The concept</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="three-operations" class="slide level2">
+<h2>Three operations</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>What it does</th>
+<th>Shape of the result</th>
+<th>Typical reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Crop</strong></td>
+<td>Cuts the raster to the <strong>rectangle</strong> around the vector features</td>
+<td>a smaller raster</td>
+<td>a smaller file, a map of just your area</td>
+</tr>
+<tr class="even">
+<td><strong>Mask</strong></td>
+<td>Sets every cell <strong>outside</strong> the polygons to missing (NA)</td>
+<td>a raster of the same size</td>
+<td>a map that shows only your area; leaving outside cells out of a calculation</td>
+</tr>
+<tr class="odd">
+<td><strong>Extract</strong></td>
+<td>Reads the raster’s values at the vector features</td>
+<td>a <strong>table</strong>, one row per feature or per cell</td>
+<td>putting weather, soil or crop data onto your fields or counties</td>
+</tr>
+</tbody>
+</table>
+<p>Extracting is the one your analysis depends on. Cropping and masking are usually steps before it, or for maps.</p>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Cropping a raster is like <code>st_crop()</code> for vector layers in lecture 09-4: it cuts to a rectangle, not to the outline. Masking is what cuts to the outline.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="extracting-points-get-one-cell-polygons-get-many" class="slide level2">
+<h2>Extracting: points get one cell, polygons get many</h2>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">Points</a></li><li><a href="#tabset-3-2">Polygons: which cells count</a></li><li><a href="#tabset-3-3">Cells used by each rule</a></li><li><a href="#tabset-3-4">Why it matters</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<p>Each point lies in exactly one cell, so it gets that cell’s value: one value per point and layer. Five layers give five values per point.</p>
+</div>
+<div id="tabset-3-2">
+<p>A polygon covers many cells, some only partly. There are three rules for which cells count, and they give different answers:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L05_vector_raster_interaction_files/figure-revealjs/rule-figure-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+</div>
+<div id="tabset-3-3">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Rule</th>
+<th>Cells used</th>
+<th><code>terra::extract()</code> option</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1. The cell’s <strong>centre</strong> (black dot) is inside</td>
+<td>14</td>
+<td>the default</td>
+</tr>
+<tr class="even">
+<td>2. <strong>Any part</strong> of the cell is inside</td>
+<td>26</td>
+<td><code>touches = TRUE</code></td>
+</tr>
+<tr class="odd">
+<td>3. Every touched cell, <strong>weighted</strong> by the share of it inside (shown by how dark the cell is)</td>
+<td>26, with weights</td>
+<td><code>exact = TRUE</code> (returns a <code>fraction</code> column)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-3-4">
+<p>The rule decides the answer when the cells near the edge differ from those in the middle and when the polygon covers few cells. With 3.5 km cells, a Nebraska county covers between 40 and 941 cell centres, and the rule changes county averages very little. With cells five times wider (about 18 km), 19 counties cover only 1 or 2 cell centres, and the default and weighted averages differ by up to 5.5 mm for the same county (silent failures, later).</p>
+<p>The weighted rule is the most accurate; the default is the fastest. What matters is that you choose, knowing the cell size relative to your polygons.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="how-the-code-is-written" class="title-slide slide level1 center">
+<h1>How the code is written</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="cropping-and-masking" class="slide level2">
+<h2>Cropping and masking</h2>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The pattern</a></li><li><a href="#tabset-4-2">A real example</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>new_raster <span class="ot">&lt;-</span> <span class="fu">raster_function</span>(raster, vector_layer)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>raster_function</code></td>
+<td><code>crop</code> or <code>mask</code>, from <code>terra</code></td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>raster</code></td>
+<td>The raster to cut, always <strong>first</strong></td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>vector_layer</code></td>
+<td>The features that decide which cells stay; an <code>sf</code> layer works, or a <code>terra</code> vector made with <code>vect()</code></td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+<p>The two are usually chained, crop first to make the raster small, then mask: <code>mask(crop(ppt, counties), counties)</code>.</p>
+</div>
+<div id="tabset-4-2">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a>ppt_ne <span class="ot">&lt;-</span> <span class="fu">mask</span>(<span class="fu">crop</span>(ppt_total, <span class="fu">vect</span>(counties)), <span class="fu">vect</span>(counties))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L05_vector_raster_interaction_files/figure-revealjs/crop-mask-map-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The cells outside Nebraska are now missing (NA), drawn transparent. <code>vect()</code> turns the <code>sf</code> layer into a <code>terra</code> vector, which some <code>terra</code> functions require.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="extracting-values" class="slide level2">
+<h2>Extracting values</h2>
+<div class="panel-tabset">
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The pattern</a></li><li><a href="#tabset-5-2">Variations you will see</a></li><li><a href="#tabset-5-3">A real example: points</a></li><li><a href="#tabset-5-4">A real example: polygons</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>values_table <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(raster, vector_layer, <span class="at">fun =</span> summary, <span class="at">exact =</span> TRUE_or_FALSE)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>values_table &lt;-</code></td>
+<td>A <strong>table</strong> (not a layer): column <code>ID</code>, then one column per raster layer</td>
+<td>Needed to keep the result</td>
+</tr>
+<tr class="even">
+<td><code>raster</code></td>
+<td>The raster to read, always <strong>first</strong></td>
+<td>Yes</td>
+</tr>
+<tr class="odd">
+<td><code>vector_layer</code></td>
+<td>Points or polygons, always <strong>second</strong></td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>fun =</code></td>
+<td>For polygons: summarise each polygon’s cells (<code>mean</code>, <code>sum</code>, …) into one row per polygon</td>
+<td>No; without it, one row <strong>per cell</strong></td>
+</tr>
+<tr class="odd">
+<td><code>exact = TRUE</code></td>
+<td>For polygons: add the share of each cell inside (rule 3)</td>
+<td>No; default is rule 1</td>
+</tr>
+<tr class="even">
+<td><code>na.rm = TRUE</code></td>
+<td>Ignore missing cells when summarising</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p><code>ID</code> is the <strong>row number</strong> of the feature in the vector layer: <code>ID == 3</code> is the third county. It is not the county’s own ID.</p>
+</div>
+<div id="tabset-5-2">
+<ul>
+<li><code>terra::extract(ppt, counties, fun = mean, na.rm = TRUE, ID = FALSE)</code>: no <code>ID</code> column; the rows are in the vector layer’s order</li>
+<li><code>terra::extract(ppt, counties, bind = TRUE)</code>: the values added to the vector layer directly, as a <code>terra</code> vector</li>
+<li><code>exactextractr::exact_extract(ppt, counties, "mean")</code>: another package, often written by AI; it always uses rule 3 (weighted by share), and returns a plain table in the layer’s order</li>
+<li><code>terra::zonal(ppt, vect(counties), fun = "mean")</code>: a summary per polygon; the same as <code>extract()</code> with <code>fun</code></li>
+</ul>
+</div>
+<div id="tabset-5-3">
+<p>Precipitation at each well, all five days:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a>ppt_wells <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(ppt, <span class="fu">vect</span>(wells))</span>
+<span id="cb4-2"><a></a><span class="fu">head</span>(ppt_wells, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID ppt_2012_08_01 ppt_2012_08_02 ppt_2012_08_03 ppt_2012_08_04 ppt_2012_08_05
+1  1          3.438         15.859              0          8.652              0
+2  2          8.752         14.504              0          0.413              0
+3  3         12.323         26.124              0          0.049              0</code></pre>
+</div>
+</div>
+<p>One row per well (1000 rows for 1000 wells), one column per day. Putting it back on the wells is a column bind, since the rows are in the same order: <code>bind_cols(wells, select(ppt_wells, -ID))</code>.</p>
+</div>
+<div id="tabset-5-4">
+<p>Average five-day total in each county, rule 3:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>ex <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(ppt_total, <span class="fu">vect</span>(counties), <span class="at">exact =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb6-2"><a></a><span class="fu">head</span>(ex, <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  ID ppt_total  fraction
+1  1    20.734 0.2410224
+2  1    20.515 0.2716368
+3  1    20.718 0.2704296</code></pre>
+</div>
+</div>
+<p>One row per cell per county, with <code>fraction</code> the share of the cell inside the county. Summarised to one row per county, weighting by <code>fraction</code>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a>county_ppt <span class="ot">&lt;-</span> ex <span class="sc">|&gt;</span></span>
+<span id="cb8-2"><a></a>  <span class="fu">group_by</span>(ID) <span class="sc">|&gt;</span></span>
+<span id="cb8-3"><a></a>  <span class="fu">summarise</span>(<span class="at">ppt_mm =</span> <span class="fu">sum</span>(ppt_total <span class="sc">*</span> fraction) <span class="sc">/</span> <span class="fu">sum</span>(fraction)) <span class="sc">|&gt;</span></span>
+<span id="cb8-4"><a></a>  <span class="fu">mutate</span>(<span class="at">countyfp =</span> counties<span class="sc">$</span>countyfp[ID])</span>
+<span id="cb8-5"><a></a><span class="fu">nrow</span>(county_ppt)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 93</code></pre>
+</div>
+</div>
+<p><code>counties$countyfp[ID]</code> turns each row number back into the county’s own ID, so the table can be merged onto the counties by key column (Chapter 3).</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="what-has-to-be-true" class="title-slide slide level1 center">
+<h1>What has to be true</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="conditions-for-extracting-values" class="slide level2 scrollable">
+<h2>Conditions for extracting values</h2>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">The conditions</a></li><li><a href="#tabset-6-2">CRS: two functions, two behaviours</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<ol type="1">
+<li><strong>The raster and the vector are in the same CRS.</strong> A mismatch does not give a clear error: <code>crop()</code> reports a different problem, and <code>extract()</code> transforms with a warning.</li>
+<li><strong>The raster covers every feature, fully.</strong> A feature outside the raster gets no value; one partly outside gets a value from the part that is covered.</li>
+<li><strong>The cell-counting rule suits the cell size.</strong> When cells are large relative to your polygons, the rule changes the answer.</li>
+<li><strong>Missing cells are handled on purpose.</strong> A mean over cells that include NA is NA unless told to ignore them.</li>
+<li><strong>You know what the values are</strong>: their units, and which layer is which day (lecture 09-2).</li>
+<li><strong>Rows are matched back by position.</strong> <code>ID</code> is a row number, so the vector layer must not be re-sorted between extracting and merging back.</li>
+</ol>
+</div>
+<div id="tabset-6-2">
+<p>The counties transformed to UTM zone 14N (metres), the raster left in longitude and latitude:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a>counties_utm <span class="ot">&lt;-</span> <span class="fu">st_transform</span>(counties, <span class="dv">26914</span>)</span>
+<span id="cb10-2"><a></a><span class="fu">crop</span>(ppt_total, <span class="fu">vect</span>(counties_utm))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-error">
+<pre><code>Error: [crop] extents do not overlap</code></pre>
+</div>
+</div>
+<p><code>crop()</code> stops, but its message says the extents do not overlap, not that the CRSs differ: the numbers in metres and the numbers in degrees describe different places. <code>extract()</code> behaves differently:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a>x <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(ppt_total, <span class="fu">vect</span>(counties_utm), <span class="at">fun =</span> mean)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: [extract] transforming vector data to the CRS of the raster</code></pre>
+</div>
+</div>
+<p>It transforms the counties for you and warns, and the result is correct. Do not depend on either behaviour: transform the vector to the raster’s CRS yourself (rasters lose detail when transformed, vectors do not), and ask for the CRS check.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="silent-failures" class="slide level2">
+<h2>Silent failures</h2>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">Edge cells on a coarse raster</a></li><li><a href="#tabset-7-2">A raster that does not cover the area</a></li><li><a href="#tabset-7-3">Missing cells</a></li><li><a href="#tabset-7-4">Rows matched back by position</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
+<p>The same county averages from the coarse raster (cells about 18 km), by the default rule and by the weighted rule:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L05_vector_raster_interaction_files/figure-revealjs/coarse-compare-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Each dot is a county; on the grey line, the two rules agree. 27 counties differ by more than 1 mm, up to 5.5 mm. No error either way. With the 3.5 km cells of the original raster, the two rules give nearly the same numbers; with large cells, they do not.</p>
+</div>
+<div id="tabset-7-2">
+<p>Suppose the raster you were given stopped at 100 degrees west, the eastern part of Nebraska only:</p>
+<div class="cell">
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L05_vector_raster_interaction_files/figure-revealjs/east-map-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Extracting county averages gives a value for every county that touches the raster:</p>
+<ul>
+<li>26 counties entirely west of it get NA, which a count of missing values finds</li>
+<li>9 counties straddling the edge get an average of their <strong>eastern part only</strong>, with no NA and no warning</li>
+</ul>
+<p>The second group is the silent one. The check is whether each county lies entirely inside the raster’s rectangle: here 58 of 93 do.</p>
+</div>
+<div id="tabset-7-3">
+<p>A mean over cells that include NA is NA:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a></a><span class="fu">mean</span>(<span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">12</span>, <span class="cn">NA</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] NA</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">mean</span>(<span class="fu">c</span>(<span class="dv">10</span>, <span class="dv">12</span>, <span class="cn">NA</span>), <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 11</code></pre>
+</div>
+</div>
+<p>So a county with one missing cell gets NA from <code>fun = mean</code>, and with <code>na.rm = TRUE</code> it gets the mean of its other cells. The second is usually what you want, but then a county <strong>entirely</strong> of missing cells gets <code>NaN</code> (not a number), and one mostly of missing cells gets a mean of a few cells. Ask for the number of non-missing cells per feature.</p>
+</div>
+<div id="tabset-7-4">
+<p><code>extract()</code> returns rows in the order of the vector layer at the moment it ran. If the layer is sorted, filtered or joined before the values are bound back by position, each value lands on the wrong feature, with no error. The fix is the one in the polygon example: turn <code>ID</code> into the feature’s own ID column straight away, and merge by that column.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="asking-ai" class="title-slide slide level1 center">
+<h1>Asking AI</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="working-with-ai-on-your-own-research" class="slide level2">
+<h2>Working with AI on your own research</h2>
+<p>The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your <code>.qmd</code> with one plain-English sentence above each chunk, you render, and you judge the HTML. For an extraction, judging the HTML means putting the map of the results next to the map of the raster: the same pattern should appear in both. Every request for code ends with the <strong>closing instructions</strong> of lecture 03-1, under <strong>Recommended requests</strong>.</p>
+</section>
+<section id="look-at-both-before-you-ask" class="slide level2">
+<h2>Look at both before you ask</h2>
+<div class="panel-tabset">
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">What to find out</a></li><li><a href="#tabset-8-2">What to write down</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1">
+<p>From the raster (lecture 09-2): its CRS, cell size, extent (the rectangle it covers), number of layers and what each one is, the units of its values, and how it marks missing cells. From the vector layer (lecture 09-1): its CRS, number of features, and ID column. Then one map of the two together.</p>
+</div>
+<div id="tabset-8-2">
+<p>From those, before any extraction:</p>
+<ul>
+<li>Does the raster’s rectangle contain every feature? If not, which features are partly or wholly outside?</li>
+<li>How many cells does the smallest polygon cover? If only a few, the cell-counting rule matters: ask for the weighted rule.</li>
+<li>What should the result look like: one row per feature, one column per layer, values within the raster’s own range (a county average cannot be above the raster’s largest cell).</li>
+</ul>
+<p>For the precipitation and counties: the raster’s rectangle covers Nebraska, apart from at most a few hundred metres at the eastern edge (the raster stops at -95.312 degrees, the counties at -95.308); the smallest county covers 40 cell centres, so the rule matters little; the result should have 93 rows, and values between 0 and the raster’s largest five-day total, 83.2 mm.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-put-in-your-request" class="slide level2 scrollable">
+<h2>What to put in your request</h2>
+<p>The AI knows <code>terra::extract()</code>. Your request supplies what it cannot know:</p>
+<ol type="1">
+<li><strong>The files</strong>: the raster and the vector layer, where they are, and their CRSs</li>
+<li><strong>What the raster holds</strong>: units, what each layer is (which day, which variable), how missing cells are marked</li>
+<li><strong>What one row of the result is</strong>, and the ID column of the features</li>
+<li><strong>How to summarise each polygon’s cells</strong>: mean, sum, maximum, and the cell-counting rule (weighted by share, unless you have a reason)</li>
+<li><strong>What to do with missing cells</strong></li>
+<li><strong>Checks</strong>: rows, cells per feature, features with no value, whether each feature lies inside the raster, the range of results, a map</li>
+<li><strong>The closing instructions</strong></li>
+</ol>
+</section>
+<section id="a-weak-request-and-a-strong-one" class="slide level2">
+<h2>A weak request and a strong one</h2>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Weak</a></li><li><a href="#tabset-9-2">Strong</a></li><li><a href="#tabset-9-3">What came back</a></li><li><a href="#tabset-9-4">The checks it printed</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb18-1"><a></a>Get the average precipitation for each county from the PRISM file.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The AI has to guess the files, which layer, how to treat edge cells and missing cells, and how to put the numbers back on the counties. It will usually write <code>terra::extract(..., fun = mean)</code> and bind the result by position.</p>
+</div>
+<div id="tabset-9-2">
+<div class="sourceCode" id="cb19"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb19-1"><a></a>In my R project, data/ppt.tif is a raster of daily precipitation in mm,</span>
+<span id="cb19-2"><a></a>one layer per day (5 layers), NAD83 longitude and latitude, with cells</span>
+<span id="cb19-3"><a></a>about 3.5 km wide. data/counties.gpkg has 93 counties, ID column</span>
+<span id="cb19-4"><a></a>countyfp, in the same CRS. I want one row per county with the average</span>
+<span id="cb19-5"><a></a>over the county of the total precipitation of the 5 days, weighting each</span>
+<span id="cb19-6"><a></a>cell by the share of it inside the county, in a table called county_ppt</span>
+<span id="cb19-7"><a></a>with countyfp and ppt_mm. Ignore missing cells.</span>
+<span id="cb19-8"><a></a></span>
+<span id="cb19-9"><a></a>Then check: the CRS of both, the number of rows (I expect 93), the</span>
+<span id="cb19-10"><a></a>number of counties with no value (I expect 0), the number of counties not</span>
+<span id="cb19-11"><a></a>entirely inside the raster's rectangle (I expect 1, Richardson, whose</span>
+<span id="cb19-12"><a></a>eastern tip passes the raster's edge by a few hundred metres), the</span>
+<span id="cb19-13"><a></a>smallest number of cells touched by a county (I expect more than 40),</span>
+<span id="cb19-14"><a></a>and the range of ppt_mm (between 0 and the raster's largest 5-day</span>
+<span id="cb19-15"><a></a>total). Draw a map of the counties filled by ppt_mm.</span>
+<span id="cb19-16"><a></a></span>
+<span id="cb19-17"><a></a>Put the code in my Quarto document analysis/weather.qmd, under the</span>
+<span id="cb19-18"><a></a>heading "County precipitation", as R code chunks. Above each chunk,</span>
+<span id="cb19-19"><a></a>write one plain-English sentence saying what it does and why. Build</span>
+<span id="cb19-20"><a></a>every path with here::here(); no setwd(), no absolute paths. Print each</span>
+<span id="cb19-21"><a></a>check on its own line as "name of check: expected X, got Y". Render the</span>
+<span id="cb19-22"><a></a>document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-3">
+<p>In the rendered HTML, a sentence, then the chunk it describes.</p>
+<p>Read the raster and the counties, and add the five days into one layer of totals.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a></a>ppt <span class="ot">&lt;-</span> <span class="fu">rast</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"ppt.tif"</span>))</span>
+<span id="cb20-2"><a></a>counties <span class="ot">&lt;-</span> <span class="fu">st_read</span>(here<span class="sc">::</span><span class="fu">here</span>(<span class="st">"data"</span>, <span class="st">"counties.gpkg"</span>), <span class="at">quiet =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb20-3"><a></a>ppt_total <span class="ot">&lt;-</span> <span class="fu">sum</span>(ppt)</span>
+<span id="cb20-4"><a></a><span class="fu">names</span>(ppt_total) <span class="ot">&lt;-</span> <span class="st">"ppt_total"</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>For each county, read every cell it touches with the share of the cell inside, and average weighting by that share.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a>county_ppt <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(ppt_total, <span class="fu">vect</span>(counties), <span class="at">exact =</span> <span class="cn">TRUE</span>) <span class="sc">|&gt;</span></span>
+<span id="cb21-2"><a></a>  <span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(ppt_total)) <span class="sc">|&gt;</span></span>
+<span id="cb21-3"><a></a>  <span class="fu">group_by</span>(ID) <span class="sc">|&gt;</span></span>
+<span id="cb21-4"><a></a>  <span class="fu">summarise</span>(<span class="at">ppt_mm =</span> <span class="fu">sum</span>(ppt_total <span class="sc">*</span> fraction) <span class="sc">/</span> <span class="fu">sum</span>(fraction), <span class="at">n_cells =</span> <span class="fu">n</span>()) <span class="sc">|&gt;</span></span>
+<span id="cb21-5"><a></a>  <span class="fu">mutate</span>(<span class="at">countyfp =</span> counties<span class="sc">$</span>countyfp[ID])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+<div id="tabset-9-4">
+<p>Print the checks.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a></a>inside <span class="ot">&lt;-</span> <span class="fu">relate</span>(<span class="fu">vect</span>(counties), <span class="fu">vect</span>(<span class="fu">ext</span>(ppt_total), <span class="at">crs =</span> <span class="fu">crs</span>(ppt_total)), <span class="st">"within"</span>)[, <span class="dv">1</span>]</span>
+<span id="cb22-2"><a></a><span class="fu">cat</span>(</span>
+<span id="cb22-3"><a></a>  <span class="fu">paste</span>(<span class="st">"CRS match: expected TRUE, got"</span>, <span class="fu">st_crs</span>(counties) <span class="sc">==</span> <span class="fu">st_crs</span>(<span class="fu">crs</span>(ppt_total))),</span>
+<span id="cb22-4"><a></a>  <span class="fu">paste</span>(<span class="st">"rows: expected 93, got"</span>, <span class="fu">nrow</span>(county_ppt)),</span>
+<span id="cb22-5"><a></a>  <span class="fu">paste</span>(<span class="st">"counties with no value: expected 0, got"</span>, n_counties <span class="sc">-</span> <span class="fu">nrow</span>(county_ppt)),</span>
+<span id="cb22-6"><a></a>  <span class="fu">paste</span>(<span class="st">"counties not inside the raster: expected 1 (Richardson), got"</span>, <span class="fu">sum</span>(<span class="sc">!</span>inside),</span>
+<span id="cb22-7"><a></a>        <span class="fu">paste0</span>(<span class="st">"("</span>, <span class="fu">paste</span>(counties<span class="sc">$</span>name[<span class="sc">!</span>inside], <span class="at">collapse =</span> <span class="st">", "</span>), <span class="st">")"</span>)),</span>
+<span id="cb22-8"><a></a>  <span class="fu">paste</span>(<span class="st">"fewest cells touched by a county: expected more than 40, got"</span>, <span class="fu">min</span>(county_ppt<span class="sc">$</span>n_cells)),</span>
+<span id="cb22-9"><a></a>  <span class="fu">paste</span>(<span class="st">"ppt_mm range: expected 0 to"</span>, <span class="fu">round</span>(<span class="fu">global</span>(ppt_total, <span class="st">"max"</span>, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)[<span class="dv">1</span>, <span class="dv">1</span>], <span class="dv">1</span>),</span>
+<span id="cb22-10"><a></a>        <span class="st">"got"</span>, <span class="fu">round</span>(<span class="fu">min</span>(county_ppt<span class="sc">$</span>ppt_mm), <span class="dv">1</span>), <span class="st">"to"</span>, <span class="fu">round</span>(<span class="fu">max</span>(county_ppt<span class="sc">$</span>ppt_mm), <span class="dv">1</span>)),</span>
+<span id="cb22-11"><a></a>  <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb22-12"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>CRS match: expected TRUE, got TRUE
+rows: expected 93, got 93
+counties with no value: expected 0, got 0
+counties not inside the raster: expected 1 (Richardson), got 1 (Richardson)
+fewest cells touched by a county: expected more than 40, got 56
+ppt_mm range: expected 0 to 83.2 got 0 to 41.3</code></pre>
+</div>
+</div>
+<p>Every line matches, including the one you expected to show a county outside the raster: Richardson’s eastern edge, on the Missouri River, reaches about 354 m past the raster’s last column. You knew that from looking at the extent before asking, and a sliver that small cannot move a county average. On another raster, the same check is the one that catches a county left half covered.</p>
+<p>The fewest-cells line counts every cell the county touches (56); the 40 on the “Look at both before you ask” slide counted only the cells whose centre is inside.</p>
+<p>The AI tested “inside the rectangle” with <code>terra::relate()</code>. The <code>sf</code> version, <code>st_within(counties, st_as_sfc(st_bbox(ppt_total)))</code>, reports 13 counties outside instead, because in longitude and latitude <code>sf</code> draws the rectangle’s edges as the shortest paths over the globe, which curve away from the lines of latitude. If a check gives a surprising count, ask the AI why before acting on it.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="checking-the-result" class="title-slide slide level1 center">
+<h1>Checking the result</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="checks-what-to-ask-for-and-why" class="slide level2">
+<h2>Checks: what to ask for, and why</h2>
+<div class="panel-tabset">
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">The checks</a></li><li><a href="#tabset-10-2">Reading the HTML</a></li></ul>
+<div class="tab-content">
+<div id="tabset-10-1">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Ask the AI to print</th>
+<th>Catches</th>
+<th>What only you can supply</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>the CRS of both</td>
+<td>a mismatch that <code>crop()</code> reports with a confusing message and <code>extract()</code> repairs with a warning</td>
+<td>the CRS from the documentation</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>rows of the result</td>
+<td>one row per cell when you wanted one per feature; features dropped</td>
+<td>what one row should be</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>features with no value (NA or NaN)</td>
+<td>features outside the raster, or over missing cells</td>
+<td>how many should have none</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>features not entirely inside the raster’s rectangle</td>
+<td>features with a value from only part of their area</td>
+<td>(usually 0)</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>cells per feature, smallest</td>
+<td>polygons covered by so few cells that the rule matters</td>
+<td>how big your polygons are</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>the range of the results</td>
+<td>wrong units, wrong layer, missing-cell codes read as values</td>
+<td>the raster’s own range</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>a map of the results next to a map of the raster</td>
+<td>anything the numbers did not show</td>
+<td>what the pattern should look like</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-10-2">
+<p>The map from the strong request, next to the raster it came from:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a>counties_ppt <span class="ot">&lt;-</span> <span class="fu">left_join</span>(counties, <span class="fu">select</span>(county_ppt, countyfp, ppt_mm), <span class="at">by =</span> <span class="st">"countyfp"</span>)</span>
+<span id="cb24-2"><a></a><span class="fu">ggplot</span>(counties_ppt) <span class="sc">+</span></span>
+<span id="cb24-3"><a></a>  <span class="fu">geom_sf</span>(<span class="fu">aes</span>(<span class="at">fill =</span> ppt_mm), <span class="at">colour =</span> <span class="st">"white"</span>, <span class="at">linewidth =</span> <span class="fl">0.2</span>) <span class="sc">+</span></span>
+<span id="cb24-4"><a></a>  <span class="fu">scale_fill_viridis_c</span>(<span class="at">name =</span> <span class="st">"mm"</span>) <span class="sc">+</span></span>
+<span id="cb24-5"><a></a>  <span class="fu">theme_void</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<div>
+<figure>
+<p><img data-src="L05_vector_raster_interaction_files/figure-revealjs/chk-maps-1.png" width="2160"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The wetter counties sit where the raster map on “The data on these slides” shows heavier rain, and the scale runs over the same values. A result whose pattern does not match the raster’s is the sign of values bound back to the wrong features.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="checks-that-come-from-knowing-the-data" class="slide level2">
+<h2>Checks that come from knowing the data</h2>
+<p>The checks above apply to any extraction. What you know about the data gives stronger ones.</p>
+<ul>
+<li><strong>A value you can look up.</strong> A weather station’s own record for one county and one day should be close to the county’s value for that day.</li>
+<li><strong>A believable range.</strong> A county average of five days of summer rain in Nebraska above about 100 mm would be extraordinary. A result of 500 mm points to the wrong units (some files store tenths of a millimetre) or a missing-value code such as -9999 read as a value (lecture 09-2).</li>
+<li><strong>Totals that must agree.</strong> For a raster of counts or amounts (people, tonnes) rather than rates, the sum over all features should equal the raster’s sum over the same area.</li>
+</ul>
+<div class="sourceCode" id="cb25"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb25-1"><a></a>For three counties of my choice, &lt;county names&gt;, print the number of</span>
+<span id="cb25-2"><a></a>cells used, their smallest and largest value, and the county's result,</span>
+<span id="cb25-3"><a></a>so I can check the result lies between them.</span>
+<span id="cb25-4"><a></a></span>
+<span id="cb25-5"><a></a>Put the code in my Quarto document analysis/analysis.qmd, under the</span>
+<span id="cb25-6"><a></a>heading "Checks", as R code chunks. Above each chunk, write one</span>
+<span id="cb25-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb25-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb25-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb25-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="your-turn-read-the-ais-code" class="slide level2">
+<h2>Your turn: read the AI’s code</h2>
+<p>A student asked an AI to “add mean precipitation to my county table”, and got this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a>ppt <span class="ot">&lt;-</span> <span class="fu">rast</span>(<span class="st">"ppt.tif"</span>)</span>
+<span id="cb26-2"><a></a>counties <span class="ot">&lt;-</span> <span class="fu">st_read</span>(<span class="st">"counties.gpkg"</span>) <span class="sc">|&gt;</span> <span class="fu">arrange</span>(name)</span>
+<span id="cb26-3"><a></a>vals <span class="ot">&lt;-</span> terra<span class="sc">::</span><span class="fu">extract</span>(ppt, <span class="fu">st_transform</span>(counties, <span class="dv">32614</span>), <span class="at">fun =</span> mean)</span>
+<span id="cb26-4"><a></a>counties_ppt <span class="ot">&lt;-</span> <span class="fu">bind_cols</span>(<span class="fu">st_read</span>(<span class="st">"counties.gpkg"</span>), vals)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="panel-tabset">
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Questions</a></li><li><a href="#tabset-11-2">Answers</a></li></ul>
+<div class="tab-content">
+<div id="tabset-11-1">
+<p>A. What does each line do?</p>
+<p>B. Which line puts values on the wrong counties, and why is there no error?</p>
+<p>C. What does line 3 do with the CRS, and what would <code>crop()</code> have done in its place?</p>
+<p>D. What happens to a county with one missing cell?</p>
+</div>
+<div id="tabset-11-2">
+<p>A. Reads the raster; reads the counties and sorts them by name; extracts the mean of each layer for each county, after transforming the counties to UTM zone 14N; binds the values onto a fresh copy of the counties, which is in the file’s order.</p>
+<p>B. Line 4. The values are in alphabetical order (line 2 sorted the counties) but are bound to the counties in the file’s order. Both have the same number of rows, so <code>bind_cols()</code> has nothing to complain about.</p>
+<p>C. It transforms the counties away from the raster’s CRS; <code>extract()</code> transforms them back with a warning, so the values are right. <code>crop()</code> would stop with “extents do not overlap”.</p>
+<p>D. Without <code>na.rm = TRUE</code>, its mean is NA.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="recommended-requests" class="title-slide slide level1 center">
+<h1>Recommended requests</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="requests-you-can-copy" class="slide level2">
+<h2>Requests you can copy</h2>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> found by looking at the files. Every request for code ends with the closing instructions.</p>
+<div class="panel-tabset">
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Look at a raster and a layer</a></li><li><a href="#tabset-12-3">Values at points</a></li><li><a href="#tabset-12-4">Summaries over polygons</a></li><li><a href="#tabset-12-5">Crop and mask for a map</a></li><li><a href="#tabset-12-6">Explain code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-12-1">
+<p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb27-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb27-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb27-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb27-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb27-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb27-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
+</div>
+<div id="tabset-12-2">
+<div class="sourceCode" id="cb28"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb28-1"><a></a>In my R project, &lt;path to the raster&gt; is a raster and &lt;path to the</span>
+<span id="cb28-2"><a></a>vector layer&gt; is a vector layer. For the raster, print its CRS, cell</span>
+<span id="cb28-3"><a></a>size, extent, number of layers, layer names, and smallest and largest</span>
+<span id="cb28-4"><a></a>value. For the layer, print its CRS, number of features and bounding</span>
+<span id="cb28-5"><a></a>box. Then print whether every feature lies entirely inside the raster's</span>
+<span id="cb28-6"><a></a>rectangle, and draw one map with the raster and the features' outlines</span>
+<span id="cb28-7"><a></a>on top.</span>
+<span id="cb28-8"><a></a></span>
+<span id="cb28-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb28-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb28-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb28-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb28-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb28-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-3">
+<div class="sourceCode" id="cb29"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb29-1"><a></a>In my R project, &lt;path to the raster&gt; holds &lt;what the values are, with</span>
+<span id="cb29-2"><a></a>units&gt;, one layer per &lt;what each layer is&gt;, in EPSG &lt;code&gt;. &lt;path to the</span>
+<span id="cb29-3"><a></a>point layer&gt; has &lt;number&gt; points, ID column &lt;the column that identifies</span>
+<span id="cb29-4"><a></a>each point&gt;. Add the raster's value at each point, one column per layer,</span>
+<span id="cb29-5"><a></a>to the point layer, in a layer called &lt;name&gt;. Transform the points to</span>
+<span id="cb29-6"><a></a>the raster's CRS first.</span>
+<span id="cb29-7"><a></a></span>
+<span id="cb29-8"><a></a>Then check: the number of rows before and after (I expect them equal),</span>
+<span id="cb29-9"><a></a>the number of points with a missing value (I expect &lt;number&gt;), the range</span>
+<span id="cb29-10"><a></a>of each new column, and draw a map of the points coloured by &lt;layer&gt;.</span>
+<span id="cb29-11"><a></a></span>
+<span id="cb29-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb29-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb29-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb29-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb29-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb29-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-4">
+<div class="sourceCode" id="cb30"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb30-1"><a></a>In my R project, &lt;path to the raster&gt; holds &lt;what the values are, with</span>
+<span id="cb30-2"><a></a>units&gt;, in EPSG &lt;code&gt;. &lt;path to the polygon layer&gt; has &lt;number&gt;</span>
+<span id="cb30-3"><a></a>polygons, ID column &lt;the column that identifies each polygon&gt;. I want one</span>
+<span id="cb30-4"><a></a>row per polygon with the &lt;mean, sum, or other summary&gt; of &lt;which</span>
+<span id="cb30-5"><a></a>layers&gt;, weighting each cell by the share of it inside the polygon, and</span>
+<span id="cb30-6"><a></a>&lt;ignoring or keeping&gt; missing cells, in a table with the polygon's ID</span>
+<span id="cb30-7"><a></a>column. Match rows back by the ID column, not by position.</span>
+<span id="cb30-8"><a></a></span>
+<span id="cb30-9"><a></a>Then check: the number of rows (I expect &lt;number&gt;), the number of</span>
+<span id="cb30-10"><a></a>polygons with no value, the number not entirely inside the raster's</span>
+<span id="cb30-11"><a></a>rectangle, the smallest number of cells in a polygon, and the range of</span>
+<span id="cb30-12"><a></a>the results. Draw a map of the polygons filled by the result next to a</span>
+<span id="cb30-13"><a></a>map of the raster.</span>
+<span id="cb30-14"><a></a></span>
+<span id="cb30-15"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb30-16"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb30-17"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb30-18"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb30-19"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb30-20"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-5">
+<div class="sourceCode" id="cb31"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb31-1"><a></a>Crop &lt;path to the raster&gt; to the area of &lt;path to the polygon layer&gt;,</span>
+<span id="cb31-2"><a></a>then set every cell outside the polygons to missing, and draw a map of</span>
+<span id="cb31-3"><a></a>the result with the polygons' outlines on top, missing cells</span>
+<span id="cb31-4"><a></a>transparent, and a legend titled "&lt;title with units&gt;".</span>
+<span id="cb31-5"><a></a></span>
+<span id="cb31-6"><a></a>Then check: the CRS of both, and the number of cells with a value before</span>
+<span id="cb31-7"><a></a>and after.</span>
+<span id="cb31-8"><a></a></span>
+<span id="cb31-9"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb31-10"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb31-11"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb31-12"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb31-13"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb31-14"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-6">
+<div class="sourceCode" id="cb32"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb32-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb32-2"><a></a>sentence. Then list:</span>
+<span id="cb32-3"><a></a>1. what one row of each result is, and how the values are matched back</span>
+<span id="cb32-4"><a></a>   to the features</span>
+<span id="cb32-5"><a></a>2. which cells count for each polygon, and what happens to missing cells</span>
+<span id="cb32-6"><a></a>3. any line that could give a wrong result without an error, and what</span>
+<span id="cb32-7"><a></a>   check would reveal it</span>
+<span id="cb32-8"><a></a></span>
+<span id="cb32-9"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="summary" class="title-slide slide level1 center">
+<h1>Summary</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-must-understand-and-what-the-ai-can-write" class="slide level2">
+<h2>What you must understand, and what the AI can write</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You need to understand</th>
+<th>The AI can write</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Crop cuts to a rectangle, mask to the outline, extract reads values</td>
+<td><code>crop()</code>, <code>mask()</code>, <code>extract()</code></td>
+</tr>
+<tr class="even">
+<td>A point gets one cell; a polygon gets many, by a rule you choose</td>
+<td><code>exact = TRUE</code>, <code>touches = TRUE</code></td>
+</tr>
+<tr class="odd">
+<td>Whether the raster covers every feature, fully</td>
+<td>The coverage check</td>
+</tr>
+<tr class="even">
+<td>What the values are: units, which layer is which day, how missing cells are marked</td>
+<td><code>sum()</code>, <code>na.rm =</code></td>
+</tr>
+<tr class="odd">
+<td>That <code>ID</code> is a row number, and the result must be matched back by an ID column</td>
+<td><code>counties$countyfp[ID]</code>, the merge</td>
+</tr>
+<tr class="even">
+<td>What a correct result looks like: rows, range, a pattern on the map</td>
+<td>The checking code and the maps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every extraction:</strong> look at the raster and the features together, and write down whether the raster covers every feature, how many cells the smallest polygon covers, and the range the results must fall in. Ask for rows, features with no value, coverage, cells per feature, the range and a map. Render, and judge the HTML against what you wrote down.</p>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="../index.html">back to the lecture slides</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

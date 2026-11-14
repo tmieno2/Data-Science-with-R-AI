@@ -1,0 +1,322 @@
+---
+title: "Ex-6-2: Version Control, with an AI Assistant"
+abstract: "Organising Research"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/6-2-starter-project.zip
+  - worksheets/ex-6-2.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every output quoted in the answer boxes, by doing the tasks on a
+# copy of the starter project with git, so they always match. Students never
+# see this chunk.
+work <- file.path(tempdir(), "ex-6-2")
+unlink(work, recursive = TRUE)
+unzip("data/6-2-starter-project.zip", exdir = work)
+proj <- file.path(work, "ch6-git")
+# What a student's folder also holds: the worksheet, and RStudio's own folder.
+file.copy("worksheets/ex-6-2.qmd", file.path(proj, "analysis"))
+dir.create(file.path(proj, ".Rproj.user"))
+writeLines("", file.path(proj, ".Rproj.user", "placeholder"))
+
+Sys.setenv(
+  GIT_AUTHOR_NAME = "A Student", GIT_AUTHOR_EMAIL = "student@example.com",
+  GIT_COMMITTER_NAME = "A Student", GIT_COMMITTER_EMAIL = "student@example.com"
+)
+git <- function(...) {
+  suppressWarnings(system2(
+    "git", c("-C", shQuote(proj), "-c", "commit.gpgsign=false", "-c", "color.ui=false", ...),
+    stdout = TRUE, stderr = TRUE
+  ))
+}
+show <- function(x) paste(x, collapse = "\n")
+
+all_files <- sort(list.files(proj, all.files = TRUE, recursive = TRUE, no.. = TRUE))
+all_files <- all_files[!grepl("^\\.Rproj\\.user/|_files/", all_files)]
+
+git("init", "-q", "-b", "main")
+
+# Wrap-up B: what `git add .` would take with no .gitignore.
+naive <- git("status", "--short", "--untracked-files=all")
+naive <- sub("^\\?\\? ", "", naive)
+n_files_dir <- sum(grepl("_files/", naive))
+naive <- c(naive[!grepl("_files/|^\\.Rproj\\.user/", naive)], paste0("analysis/01-clean_files/ (", n_files_dir, " files)"),
+           ".Rproj.user/ (RStudio's own files)")
+naive <- sort(naive)
+
+gitignore <- c(
+  "# files RStudio writes", ".Rhistory", ".RData", ".Rproj.user/", ".DS_Store", "",
+  "# secrets", ".Renviron", "",
+  "# rendered output and files the steps rebuild", "*.html", "*_files/", "data/processed/"
+)
+writeLines(gitignore, file.path(proj, ".gitignore"))
+status_short <- git("status", "--short", "--untracked-files=all")
+to_commit <- sub("^\\?\\? ", "", status_short)
+not_ignored_bad <- intersect(c(".Renviron", ".Rhistory", "data/processed/corn_clean.rds"), to_commit)
+git("add", ".")
+git("commit", "-q", "-m", shQuote("Start the project"))
+
+# Task 3
+clean <- file.path(proj, "analysis", "01-clean.qmd")
+set_cutoff <- function(n) {
+  x <- readLines(clean)
+  x <- sub("Yield > [0-9]+\\)", paste0("Yield > ", n, ")"), x)
+  writeLines(x, clean)
+}
+set_cutoff(100)
+readme <- file.path(proj, "README.md")
+writeLines(c(readLines(readme), "", "Data: USDA NASS Quick Stats, county corn yields for Nebraska, 2008."), readme)
+cat("\n% answered", file = file.path(proj, "analysis", "ex-6-2.qmd"), append = TRUE)
+
+git("add", "analysis/01-clean.qmd")
+staged_diff <- git("diff", "--staged")
+git("commit", "-q", "-m", shQuote("Drop yields of 100 bu/ac or less"), "-m",
+    shQuote("In this data, a yield of 100 or less would be a data entry error, not a harvest."))
+git("add", "README.md")
+git("commit", "-q", "-m", shQuote("Say where the data comes from"))
+log3 <- git("log", "--oneline")
+diff_clean <- git("diff", "HEAD~2", "HEAD", "--", "analysis/01-clean.qmd")
+
+# Task 5
+git("add", "analysis/ex-6-2.qmd")
+git("commit", "-q", "-m", shQuote("Answer Tasks 1 to 4"))
+git("switch", "-q", "-c", "try-cutoff-150")
+set_cutoff(150)
+git("add", "analysis/01-clean.qmd")
+git("commit", "-q", "-m", shQuote("Try a cutoff of 150 bu/ac"))
+git("switch", "-q", "main")
+set_cutoff(120)
+git("add", "analysis/01-clean.qmd")
+git("commit", "-q", "-m", shQuote("Use a cutoff of 120 bu/ac"))
+merge_out <- git("merge", "try-cutoff-150")
+conflict_lines <- readLines(clean)
+conflict_lines <- conflict_lines[seq(grep("^<<<<<<<", conflict_lines) - 1, grep("^>>>>>>>", conflict_lines))]
+set_cutoff(120)
+x <- readLines(clean)
+x <- x[!grepl("^(<<<<<<<|=======|>>>>>>>)", x)]
+x <- x[!duplicated(x) | !grepl("Yield > ", x)]
+writeLines(x, clean)
+git("add", "analysis/01-clean.qmd")
+git("commit", "-q", "-m", shQuote("Keep the 120 bu/ac cutoff"))
+graph <- git("log", "--oneline", "--graph")
+tracked <- git("ls-files")
+
+corn <- read.csv(file.path(proj, "data", "raw", "corn_yields.csv"))
+kept <- function(n) sum(corn$Yield > n)
+min_dry <- min(corn$Yield[corn$Irrigated == 0])
+```
+
+This is an in-class exercise. Before class, work through the lecture **06-2: Version Control: Keeping a History of Your Project**. In class, you work through the worksheet with an AI assistant running git. Your job is everything the AI cannot do: deciding what is tracked and what goes into each commit, saying why, choosing a side in a conflict, and checking before anything is pushed.
+
+# Before class {#sec-before-class}
+
+Do this once, at home, before class. An AI assistant can help with each step; the check after each one tells you it worked. Type the commands in RStudio's **Terminal** tab (next to the Console).
+
+1. **Git.** Check: `git --version` prints a version number, such as `git version 2.47.1`. If it says the command is not found, ask your AI assistant how to install git on your system. On a Mac, a window offering to install the "command line developer tools" is the installer; click Install.
+2. **Your name and email**, which git writes into every commit:
+
+    ```text
+    git config --global user.name "Your Name"
+    git config --global user.email "you@example.com"
+    ```
+
+    Check: `git config --global user.name` and `git config --global user.email` print yours. Use an email you will keep after you graduate, and add it to your GitHub account.
+3. **What a pull does when both sides have new commits.** Without this one-time setting, `git pull` stops with "Need to specify how to reconcile divergent branches":
+
+    ```text
+    git config --global pull.rebase false
+    ```
+
+    Check: `git config --global pull.rebase` prints `false`.
+4. **The text editor git opens when it needs a message** (for example, for a merge). Saving and closing it finishes that step; in nano, press Ctrl+O, then Enter, then Ctrl+X:
+
+    ```text
+    git config --global core.editor "nano"
+    ```
+
+    Check: `git config --global core.editor` prints `nano`.
+5. **A GitHub account**, free, at [github.com](https://github.com), with two-factor sign-in turned on.
+6. **Signing in to GitHub from your computer.** The simplest way is GitHub's own program, `gh` (install it from [cli.github.com](https://cli.github.com), then reopen the Terminal tab), and `gh auth login`, answering:
+
+    | Question | Answer |
+    |---|---|
+    | Where do you use GitHub? | GitHub.com |
+    | Preferred protocol for Git operations | HTTPS |
+    | Authenticate Git with your GitHub credentials? | **Yes** |
+    | How would you like to authenticate? | Login with a web browser |
+
+    Check: `gh auth status` says "Logged in to github.com". Answering **No** to the third question gives no error now, and the first push fails later.
+
+    If you do not use `gh`, ask your AI assistant how to let git sign in to GitHub on your system. Then make the repository in Task 6 by hand on github.com (the worksheet says how); the push in Task 6 is the check.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-6-2.qmd](worksheets/ex-6-2.qmd), and the project, [6-2-starter-project.zip](data/6-2-starter-project.zip).
+3. Unzip the project anywhere on your computer's own disk, **not** inside Dropbox, Google Drive or OneDrive. You get a folder `ch6-git`.
+4. Open `ch6-git/ch6-git.Rproj` in RStudio, and put the worksheet into `ch6-git/analysis`.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch6-git` and nothing longer, and RStudio's title bar shows `ch6-git`.
+
+The Files pane hides names that start with a dot. To see `.Renviron` there, click the gear icon in the Files pane and choose **Show Hidden Files**.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look and decide
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. One reasonable set of decisions:
+
+| File or folder | Decision | Why |
+|---|---|---|
+| `ch6-git.Rproj` | track | Marks the project root; `here` needs it |
+| `README.md` | track | Written by you |
+| `.Renviron` | **keep out, always** | Holds an API key |
+| `.Rhistory` | keep out | Written by RStudio |
+| `.Rproj.user/` | keep out | RStudio's settings for your computer |
+| `analysis/01-clean.qmd`, `02-summary.qmd` | track | The steps |
+| `analysis/ex-6-2.qmd` | track | Your own work |
+| `analysis/01-clean.html`, `01-clean_files/` | keep out | Rendering `01-clean.qmd` rebuilds them |
+| `data/raw/corn_yields.csv` | track | Raw, small (`r round(file.size(file.path(proj, "data", "raw", "corn_yields.csv")) / 1024)` KB) and public. It could not be rebuilt by code. |
+| `data/processed/corn_clean.rds` | keep out | `01-clean.qmd` rebuilds it |
+
+B. A `.gitignore` that does it:
+
+````text
+`r show(gitignore)`
+````
+
+C. `.Renviron` holds `NASS_API_KEY=` and a key (a fake one here). R reads this file when the project opens, so code can use the key without it being written in the code. Committed and pushed, the key would be in the history for anyone who can see the repository, even after you deleted the file in a later commit. The fix would be a new key.
+:::
+
+## Task 2: Start the repository
+
+::: {.callout-note collapse="true" title="What you should find"}
+With that `.gitignore`, `git status` lists `r length(to_commit)` files to be committed:
+
+````text
+`r show(status_short)`
+````
+
+`??` means untracked: git has not stored the file yet. `.Renviron`, `.Rhistory`, the rendered HTML and `data/processed/` are not listed, so they will not be committed.
+
+If `analysis/01-clean.html` or a file under `.Rproj.user/` is listed, a line of the `.gitignore` is missing or misspelled. If `data/processed/corn_clean.rds` is listed and you did not mean it to be, add `data/processed/`. Fix the `.gitignore` before the first commit: once a file is committed, adding it to `.gitignore` does not take it out of the history.
+:::
+
+## Task 3: Two changes, two commits
+
+::: {.callout-note collapse="true" title="What you should find"}
+Two commits, because the two changes are unrelated: one changes the analysis, one documents the data. The worksheet is in neither. For example:
+
+```text
+Drop yields of 100 bu/ac or less
+
+In this data, a yield of 100 or less would be a data entry error, not a harvest.
+```
+
+The second commit, for the README:
+
+```text
+Say where the data comes from
+```
+
+The second needs no reason: what it does is the reason.
+
+Before the first commit, `git diff --staged` shows only the cutoff line:
+
+````text
+`r show(staged_diff)`
+````
+
+`git log --oneline` then shows 3 commits (your identifiers will differ, because they depend on your name and the time):
+
+````text
+`r show(log3)`
+````
+:::
+
+## Task 4: Read the history
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. The AI can only report the "why" that you wrote. For "Start the project" and the README commit it can say what changed and little else. For the cutoff commit it should repeat your reason, because the message holds it. A commit whose message was "update" would leave it guessing, and it may guess without saying so.
+
+B. One line, the cutoff:
+
+````text
+`r show(diff_clean)`
+````
+:::
+
+## Task 5: A branch and a merge conflict
+
+::: {.callout-note collapse="true" title="What you should find"}
+The merge stops, because both branches changed the same line in different ways:
+
+````text
+`r show(merge_out)`
+````
+
+The conflicting lines in the file look like this:
+
+````text
+`r show(conflict_lines)`
+````
+
+The line between `<<<<<<< HEAD` and `=======` is on `main`, the branch you are on (120). The line between `=======` and `>>>>>>> try-cutoff-150` is on the branch you are merging in (150).
+
+Which to keep is a research decision. In this data, a cutoff of 100 keeps `r kept(100)` of `r nrow(corn)` rows, 120 keeps `r kept(120)`, and 150 keeps `r kept(150)`. The two sides of the conflict are 120 and 150, but you may also write a third version, such as going back to 100. Nothing in the data says any of these yields is an error, and the lowest non-irrigated yield is `r min_dry`. So the cutoff that drops nothing, 100, is the easiest to defend; any higher cutoff needs a documented reason. Either way, the commit message records the reason.
+
+After you keep one and commit, `git log --oneline --graph` shows the two lines of work joining. The answers here kept 120, to show the merge; your identifiers, messages and choice may differ:
+
+````text
+`r show(graph)`
+````
+:::
+
+## Task 6: Put it on GitHub
+
+::: {.callout-note collapse="true" title="What you should find"}
+The checks: branch `main`; no uncommitted changes to tracked files, except this worksheet if you kept typing; `git ls-files .Renviron` prints nothing; the GitHub page says **Private** next to the name.
+
+GitHub then holds exactly the files `git ls-files` listed, `r length(tracked)` of them:
+
+````text
+`r show(tracked)`
+````
+
+`.Renviron`, `.Rhistory`, the rendered HTML and `data/processed/` are not there. If one of them is, it was committed: do not push again until you have asked why. If it is `.Renviron`, treat the key as public, and replace it.
+
+If you made the repository by hand on github.com, the result is the same once the push succeeds. If the push asks for a password, signing in (Before class, step 6) is not finished.
+
+If the push is refused with a message about "rejected" or "fetch first", someone (or you, on GitHub's website) changed the repository on GitHub. Pull, read what came in, then push. Never force it.
+:::
+
+## Task 7: A pull request (if time allows)
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. **Files changed** shows `README.md` only, with the new section as green lines starting with `+`. If any other file is listed, the branch carries a change you did not ask for: ask about it before merging.
+
+B. The pull brings in two commits: the one that added "How to run" (made on your computer, on the branch), and a merge commit whose message starts `Merge pull request #1`. GitHub made the merge commit when you clicked **Merge pull request**, which is why it existed on GitHub and not on your computer until you pulled.
+:::
+
+## Wrap-up
+
+::: {.callout-note collapse="true" title="What you should find"}
+B. With no `.gitignore`, `git add .` would have taken every file in the folder:
+
+````text
+`r show(naive)`
+````
+
+`.Renviron` (the key), `.Rhistory`, the rendered HTML and its `_files` folder, `data/processed/corn_clean.rds`, and RStudio's own `.Rproj.user/` files would all be in the first commit, and so in the history for good.
+:::

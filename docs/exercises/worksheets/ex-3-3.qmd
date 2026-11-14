@@ -1,0 +1,279 @@
+---
+title: "Ex-3-3 worksheet: Reshaping and Merging"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch3-practice/analysis/ex-3-3.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-3-3. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the data before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+**The data.** Two files, for counties in Colorado, Kansas and Nebraska, 2014 to 2018:
+
++ `data/3-3-corn_yield_wide.csv`: corn yields, in bushels per acre
++ `data/3-3-drought.csv`: `weeks_severe_drought`, how many of the 23 weeks from May to September the county spent in severe drought or worse
+
+The goal: one table with each county's corn yield and drought weeks for each year, to study how drought affects yield.
+
+# Task 1: Read and look
+
+**My request to the AI.** Nothing to fill in; this request is how you find out what to fill in later:
+
+```text
+In my R project, data/3-3-corn_yield_wide.csv and data/3-3-drought.csv
+are csv files. Read them into tables called yield_wide and drought
+using the tidyverse, keeping every column whose name contains "code" or
+"fips" as text. For each table, print the number of rows and columns,
+the column names and types, the first 5 rows, and the number of missing
+values in each column.
+
+Put the code in my Quarto document analysis/ex-3-3.qmd, under the
+heading "Task 1", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-1
+```
+
+**A. In `yield_wide`, what is one row? Where is the year?**
+
+Your answer:
+
+**B. In `drought`, what is one row? Which columns should identify it?**
+
+Your answer:
+
+**C. How is a county identified in each table? Write down how the two ways relate: what are the first two digits of `fips`, and what are the last three?** (Colorado's state code is 08, Kansas's 20, Nebraska's 31.)
+
+Your answer:
+
+**D. Why are there missing values in `yield_wide`?**
+
+Your answer:
+
+# Task 2: Wide to long
+
+To match the drought table, the yields need one row per county and year.
+
+**Prediction.** If you keep the missing yields, how many rows will the long table have? If you drop them? What should the total of all yields be, before and after?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Task 1:
+
+```text
+In my table yield_wide, one row is <...>, and the columns <...> all
+hold corn yields in bushels per acre; their names contain the year.
+Make a long table called yield_long with one row per <...>, with a
+column year and a column corn_yield. Turn year into a whole number.
+Missing yields should be dropped.
+
+Then check the number of rows (I expect <...>), the number of missing
+values (I expect 0), the type of year, and that the total of corn_yield
+is the same as the total of the yield columns in yield_wide.
+
+Put the code in my Quarto document analysis/ex-3-3.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: did every check match my prediction?**
+
+Your answer:
+
+# Task 3: Look at the keys
+
+Before merging, check that the key columns really identify each row, in both tables.
+
+**Prediction.** How many county-year pairs should appear more than once in `yield_long`? In `drought`?
+
+Your answer:
+
+**My request to the AI.** Fill in the blanks for each table:
+
+```text
+In the table yield_long, I think <...> identify each row. In the table
+drought, I think <...> identify each row. For each table, print the
+number of rows, the number of distinct values of the key columns
+together, the key values that appear more than once with all their
+rows, and the type and first few values of each key column.
+
+Put the code in my Quarto document analysis/ex-3-3.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML.** Did the keys identify each row? If not:
+
+**A. Which rows repeat? What do they have in common?**
+
+Your answer:
+
+**B. Are the repeated rows exact copies, or do their values differ? Why does that matter for what you do next?**
+
+Your answer:
+
+**C. If you merged without dealing with them, how many rows would the merged table have, and what would that do to an average over county-years?**
+
+Your answer:
+
+# Task 4: Merge
+
+**Prediction.** How many rows should the merged table have? How many rows of `yield_long` should fail to find drought data?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Tasks 1 to 3:
+
+```text
+In my R project I have two tables. In yield_long, one row is <...>,
+identified by <...>. In drought, one row is <...>, identified by <...>.
+<What has to be done so the keys match, and what to do about the
+repeated rows you found in Task 3>. Add weeks_severe_drought to
+yield_long, keeping every row of yield_long, in a table called merged.
+Stop with an error if a row of yield_long matches more than one row of
+drought.
+
+Then check the number of rows of each table and of the result (I
+expect <...>), the number of repeated keys in each table (I expect 0),
+and the number of rows of each table with no match in the other (I
+expect <...> and <...>).
+
+Put the code in my Quarto document analysis/ex-3-3.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: did every check match my prediction? Read the sentence above the chunk that builds the key: does the code do what it says for all three states?**
+
+Your answer:
+
+# Task 5: Long to wide, for a report (if time allows)
+
+You want a table for a report: one row per state, one column per year, holding the average corn yield of the counties in `merged`.
+
+**Prediction.** How many rows and columns? Should any cell be missing?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+From my table merged, where one row is <...>, compute the average
+corn_yield and the number of counties for each state and year. Then
+make a wide table called report with one row per <...>, identified by
+<...>, and one column for each value of year, filled with the average
+corn yield. Make a second wide table, report_n, the same way but filled
+with the number of counties.
+
+Then check the number of rows and columns of report (I expect <...>),
+and the number of missing values in it (I expect <...>).
+
+Put the code in my Quarto document analysis/ex-3-3.qmd, under the
+heading "Task 5", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML.** Look at `report_n`. Is every average in `report` equally trustworthy? What would you put in a note under the table?
+
+Your answer:
+
+# Task 6: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Kim did not look at the files first, sent the AI "merge my yield and drought data", and kept this (`yield_long` was made correctly, with a `fips` column built as text):
+
+```{r}
+#| label: task-6
+#| eval: false
+drought <- read.csv(here::here("data", "3-3-drought.csv"))
+merged <- inner_join(yield_long, drought, by = "fips")
+```
+
+**A. What does each line do?**
+
+Your answer:
+
+**B. What happens to `fips` when `read.csv()` reads it, and which state's counties does that affect?**
+
+Your answer:
+
+**C. Suppose the first problem is fixed. The key is still incomplete. What is missing, and what happens to the number of rows?**
+
+Your answer:
+
+**D. Which checks from Task 4 would have caught each problem?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which check caught a real problem today? Would you have noticed the problem without it?**
+
+Your answer:
+
+**B. In Task 3 you looked before merging. What would you have seen in Task 4 if you had not?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

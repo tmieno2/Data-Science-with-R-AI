@@ -1,0 +1,907 @@
+---
+title: "09-3: Communicating with Maps"
+abstract: "Chapter 9: Spatial Data"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(sf)
+library(terra)
+library(tidyterra)
+library(dplyr)
+library(tidyr)
+library(readr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+
+counties <- st_read("ne_counties.gpkg", quiet = TRUE)
+corn <- st_read("ne_corn_acres.gpkg", quiet = TRUE)
+wells <- read_csv("wells_ne.csv", show_col_types = FALSE) |>
+  st_as_sf(coords = c("longdd", "latdd"), crs = 4269)
+ppt <- rast("ne_ppt_2012aug.tif")
+
+# One row per county (all 93), with 2023 corn acres where reported
+corn_2023 <- counties |>
+  left_join(
+    corn |> st_drop_geometry() |> filter(year == 2023),
+    by = c("countyfp" = "county_code")
+  ) |>
+  mutate(
+    land_acres = as.numeric(st_area(geom)) / 4046.856,
+    share = 100 * acre / land_acres
+  )
+n_reported <- sum(!is.na(corn_2023$acre))
+n_missing <- sum(is.na(corn_2023$acre))
+
+top_total <- corn_2023 |> st_drop_geometry() |> arrange(desc(acre)) |> slice(1)
+top_share <- corn_2023 |> st_drop_geometry() |> arrange(desc(share)) |> slice(1)
+
+# Change 2020 to 2023, all 93 counties, NA where a year is missing
+change <- counties |>
+  left_join(
+    corn |>
+      st_drop_geometry() |>
+      filter(year %in% c(2020, 2023)) |>
+      pivot_wider(names_from = year, values_from = acre, names_prefix = "y") |>
+      filter(!is.na(y2020), !is.na(y2023)) |>
+      mutate(pct_change = 100 * (y2023 - y2020) / y2020),
+    by = c("countyfp" = "county_code")
+  )
+n_change <- sum(!is.na(change$pct_change))
+n_up <- sum(change$pct_change > 0, na.rm = TRUE)
+
+# Cut a value into named classes, with "No data" as a class of its own
+to_classes <- function(x, breaks, labels) {
+  out <- as.character(cut(x, breaks, labels = labels))
+  out[is.na(x)] <- "No data"
+  factor(out, levels = c(labels, "No data"))
+}
+share_labels <- c("Under 10%", "10 to 20%", "20 to 30%", "30 to 40%", "40% or more")
+acre_labels <- c("Under 50,000", "50,000 to 100,000", "100,000 to 150,000",
+                 "150,000 to 200,000", "200,000 or more")
+change_labels <- c("Fell more than 15%", "Fell 5 to 15%", "Fell 1 to 5%", "Within 1%",
+                   "Rose 1 to 5%", "Rose 5 to 15%", "Rose more than 15%")
+
+corn_2023 <- corn_2023 |>
+  mutate(
+    share_class = to_classes(share, c(0, 10, 20, 30, 40, 100), share_labels),
+    acre_class = to_classes(acre, c(0, 50000, 1e5, 1.5e5, 2e5, Inf), acre_labels)
+  )
+change <- change |>
+  mutate(change_class = to_classes(pct_change, c(-Inf, -15, -5, -1, 1, 5, 15, Inf), change_labels))
+
+seq_colours <- viridisLite::viridis(5, direction = -1)
+share_colours <- c(setNames(seq_colours, share_labels), "No data" = "grey88")
+acre_colours <- c(setNames(seq_colours, acre_labels), "No data" = "grey88")
+change_colours <- c(setNames(scales::brewer_pal(palette = "BrBG")(7), change_labels), "No data" = "grey55")
+
+# The legend in one row below the map: Nebraska's only empty corner, below
+# the panhandle, is too small for a legend at readable size
+legend_below <- list(
+  guides(fill = guide_legend(nrow = 1, title.position = "top")),
+  theme(legend.position = "bottom")
+)
+
+# Which year ends up on top when all years are drawn: the last row per county
+top_year <- corn |>
+  st_drop_geometry() |>
+  group_by(county_code) |>
+  summarise(year = max(year)) |>
+  count(year, sort = TRUE)
+top_year_text <- paste0(top_year$year, " for ", top_year$n, ifelse(top_year$n == 1, " county", " counties"), collapse = ", ")
+
+n_rows_corn <- nrow(corn)
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+A map is a figure in which position means place. Everything in lecture 04-1 about figures applies: a map exists to convey one fact or idea to a reader. An AI assistant can draw any map in seconds. What it cannot know is:
+
++ what you want the reader to take away
++ who the reader is
++ whether a map is the right figure for that at all
++ whether the map shows every place it should
+
+So today is about:
+
+1. **The message**: when a map is the right figure, and what to map
+2. **Reading code**: recognising what each line of map code does
+3. **Design**: the choices that decide whether a map conveys its message, collected in a **map standard** to add to every map request
+4. **Checking**: what must be true of the data before a map can be right
+
+### Directions
+
++ Lectures 04-1 (communicating with figures), 09-1 (vector data) and 09-2 (raster data) come first.
++ Ask your AI assistant to install `sf`, `terra`, `tidyterra` and `tidyverse` if you have not already.
++ The data on these slides is about Nebraska: county boundaries, corn harvested acres by county for 2020 to 2023, irrigation wells, and daily precipitation. The files sit in the same folder as the slides.
+
+:::
+
+# Start from the message
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## A map only when the message is about where
+
+::: {.panel-tabset}
+
+### The rule
+
+Before any map, write the one sentence the reader should take away, and who the reader is (lecture 04-1). Then ask: **is the sentence about where?** A map makes location easy to see and almost everything else hard: comparing two counties' values on a map means matching two shades of colour against a legend.
+
+| The message is about | Best figure |
+|---|---|
+| Where something is high or low, or a pattern across space | A map |
+| Which places rank highest, or how two places compare | A sorted bar or dot chart |
+| How a value changes over time | A line chart, or a few maps if the change is about where |
+
+### Message A, about where
+
+"On 2 August 2012, rain fell in two bands, one across the south of Nebraska and one across the north-east, while the west stayed dry."
+
+```{r}
+#| label: msg-where
+#| fig-height: 4.5
+ggplot() +
+  geom_spatraster(data = ppt[[2]]) +
+  geom_sf(data = st_union(counties), fill = NA, colour = "grey40", linewidth = 0.3) +
+  scale_fill_viridis_c(direction = -1, na.value = "transparent", name = "Precipitation,\n2 August 2012 (mm)") +
+  theme_void()
+```
+
+The pattern across the state is the message, and only a map shows it.
+
+### Message B, a ranking
+
+"`r top_total$name` County harvested the most corn acres in Nebraska in 2023."
+
+```{r}
+#| label: msg-rank
+#| fig-height: 4.5
+corn_2023 |>
+  st_drop_geometry() |>
+  filter(!is.na(acre)) |>
+  slice_max(acre, n = 10) |>
+  ggplot(aes(x = acre, y = reorder(name, acre))) +
+  geom_col(fill = "#0072B2") +
+  scale_x_continuous(labels = scales::label_comma(), expand = expansion(mult = c(0, 0.05))) +
+  labs(x = "Corn harvested, 2023 (acres)", y = NULL) +
+  theme(panel.grid.major.y = element_blank(), panel.border = element_blank())
+```
+
+A ranking. On a map, the reader would have to find ten counties and compare their shades; sorted bars make it a glance.
+
+:::
+
+## What to map: totals or rates
+
+::: {.panel-tabset}
+
+### The problem
+
+Places on a map differ in size, and the eye reads **area**. A large county with a middling value covers more of the page than a small county with a high one. So the choice of what to map is part of the message:
+
++ **Total**, such as acres of corn: the right choice when the message is about where the amount is.
++ **Rate**, such as the share of land in corn, or acres per square kilometre: the right choice when the message is about how intensely a place does something.
+
+### Total acres
+
+```{r}
+#| label: total-map
+#| fig-height: 4.5
+ggplot(corn_2023) +
+  geom_sf(aes(fill = acre_class), colour = "white", linewidth = 0.2) +
+  scale_fill_manual(values = acre_colours, name = "Corn harvested, 2023 (acres)") +
+  theme_void() +
+  legend_below
+```
+
+`r top_total$name` County, the largest total at `r format(top_total$acre, big.mark = ",")` acres, is also one of the largest counties: corn covers only `r round(top_total$share)`% of its land.
+
+### Share of land
+
+```{r}
+#| label: share-map
+#| fig-height: 4.5
+ggplot(corn_2023) +
+  geom_sf(aes(fill = share_class), colour = "white", linewidth = 0.2) +
+  scale_fill_manual(values = share_colours, name = "Share of county land in corn, 2023") +
+  theme_void() +
+  legend_below
+```
+
+`r top_share$name` County has the highest share, `r round(top_share$share)`%. Same data, a different map, and a different message. Neither is wrong; only the message decides.
+
+:::
+
+# How map code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The shape every map shares
+
+You will not write map code from memory. You need to look at any map code the AI writes and say **which layer is drawn, and which column is shown by what**. A map in `ggplot2` has the same shape as any figure in lecture 04-1, with one difference: each layer usually has its own data.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| label: shape-pattern
+#| echo: true
+#| eval: false
+ggplot() +
+  geom_sf(data = layer, aes(fill = column)) +
+  geom_sf(data = other_layer) +
+  scale_fill_...() +
+  labs(...) +
+  theme_void()
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `ggplot()` | Starts the figure. Often empty, because each layer brings its own data | Yes |
+| `geom_sf(data = layer, ...)` | Draws one vector layer. Points, lines or polygons, decided by the layer's geometry type | **Yes, at least one layer** |
+| `aes(fill = column)` | Which column sets the colour: `fill` is the inside of a polygon, `colour` a point, a line or a polygon's border | No; without it every feature is the same colour |
+| `+` | Adds the next layer. **Later layers are drawn on top** | Between layers |
+| `scale_fill_...()` | The colours, and the legend title | No; each has a default |
+| `labs()`, `theme_void()` | Titles; `theme_void()` removes axes, gridlines and background | No |
+
+**How to tell you can read it:** for any map code, you can list the layers from bottom to top, and say which column sets the colour of each.
+
+### Every map layer has this shape
+
+| Mark | In the code | What it draws |
+|---|---|---|
+| Vector layer | `geom_sf(data = layer)` | Polygons, lines or points, whichever the layer holds |
+| Raster | `geom_spatraster(data = raster)` (from `tidyterra`) | One coloured square per cell; the fill is the cell value |
+| Text | `geom_sf_text(data = layer, aes(label = column))` | A label at the centre of each feature |
+| Small maps | `facet_wrap(~ year)` | One map per value of a column, with one shared colour scale |
+
+Settings outside `aes()`, such as `colour = "white"` or `linewidth = 0.2`, are the same for every feature: they do not carry information.
+
+### One real example
+
+The share map from the previous slide, with the wells added. `corn_2023` has one row per county (all 93) with 2023 acres, and `share_class`, the share of the county's land in corn cut into five classes plus "No data".
+
+```{r}
+#| label: shape-example
+#| echo: true
+#| fig-height: 4.5
+ggplot() +
+  geom_sf(data = corn_2023, aes(fill = share_class), colour = "white", linewidth = 0.2) +
+  geom_sf(data = wells, shape = 21, fill = "white", colour = "grey20", size = 1) +
+  scale_fill_manual(values = share_colours, name = "Share of county land in corn, 2023") +
+  theme_void() +
+  theme(legend.position = "bottom")
+```
+
+| Layer, bottom to top | Data | Shown by |
+|---|---|---|
+| Counties | `corn_2023` | `share_class` sets the fill; borders white and thin for every county |
+| Wells | `wells` | one small white point with a dark outline per well, visible on light and dark counties alike; no column shown |
+
+### Layers and CRS
+
++ **Each layer is drawn in the CRS of the first layer.** `ggplot2` transforms the others as it draws, so a map can combine layers in different CRSs and still line up. That does **not** make them safe to combine in a calculation (lecture 09-1).
++ `coord_sf(crs = 26914)` added to the code draws the whole map in another CRS.
++ The AI may also write `ggplot(layer) + geom_sf(aes(fill = column))`, with the data in `ggplot()`. It means the same; any layer without its own `data =` then uses that table.
+
+:::
+
+# Design choices
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Colour on a map
+
+::: {.panel-tabset}
+
+### Three kinds of scale
+
+The same three kinds of colour scale as in lecture 04-1, with the same rule: the kind of value decides.
+
+| The value is | Scale | Example |
+|---|---|---|
+| An amount, from low to high | One hue, light to dark (sequential) | acres, share of land, precipitation |
+| Above or below a meaningful midpoint | Two hues, diverging from a neutral middle at the midpoint | change since 2020, with no change at the middle |
+| A category | Distinct hues | land-cover type, irrigated or not |
+
+All scales on these slides are from the viridis and ColorBrewer families, which colour-blind readers can tell apart.
+
+### Above or below a midpoint
+
+"Between 2020 and 2023, corn acres fell in most counties that report both years."
+
+```{r}
+#| label: diverging
+#| fig-height: 5
+ggplot(change) +
+  geom_sf(aes(fill = change_class), colour = "white", linewidth = 0.2) +
+  scale_fill_manual(values = change_colours, name = "Change in corn acres, 2020 to 2023", drop = FALSE) +
+  guides(fill = guide_legend(nrow = 2, title.position = "top")) +
+  theme_void() +
+  theme(legend.position = "bottom")
+```
+
+Brown for a fall, blue-green for a rise, white for a change within 1%, with the classes symmetric around zero. `r n_up` of the `r n_change` counties with both years rose. The `r 93 - n_change` counties without both years are a darker grey, because light grey is too close to the white middle.
+
+### Continuous or classes
+
++ **A continuous scale** (previous tabs) shows every difference, but the reader cannot match a shade to a number closely.
++ **Classes**, such as "20 to 30%", give a few colours the reader can match to the legend exactly, at the cost of hiding differences inside a class.
+
+Use classes when the reader needs to read values off the map; a continuous scale when the overall pattern is the message. Five or six classes are as many as a reader can tell apart. In `ggplot2`, the legend of a continuous scale has no entry for missing values, which is one more reason the maps on these slides use classes: "No data" can be one of them.
+
+:::
+
+## Places with no data
+
+::: {.panel-tabset}
+
+### The problem
+
+In the 2023 data, only `r n_reported` of Nebraska's 93 counties report corn acres. If the map is drawn from the corn table alone, the other `r n_missing` are simply **not there**:
+
+```{r}
+#| label: holes
+#| fig-height: 4.5
+corn |>
+  filter(year == 2023) |>
+  ggplot() +
+  geom_sf(aes(fill = acre), colour = "white", linewidth = 0.2) +
+  scale_fill_viridis_c(direction = -1, labels = scales::label_comma(), name = "Corn harvested,\n2023 (acres)") +
+  theme_void()
+```
+
+The reader sees a state with pieces missing, or, on a white page, reads the gaps as "no corn". Neither is what the data says: the data says nothing about those counties.
+
+### The fix
+
+Start from **all** the places (the county layer), join the values to it, and give the places without a value a class of their own, "No data", named in the legend. Every map of corn acres from the "What to map" slide on is drawn this way. The step that keeps every county:
+
+```{r}
+#| echo: true
+#| eval: false
+corn_2023 <- counties |>
+  left_join(filter(corn_table, year == 2023), by = c("countyfp" = "county_code"))
+```
+
+The layer comes first, so all 93 counties stay, and the `r n_missing` without a 2023 value get `NA`.
+
++ On a light-to-dark scale, light grey has no hue, unlike every colour of the scale, so it cannot be read as a low value.
++ On a diverging scale the middle is nearly white, so light grey can look like "no change". Use a darker grey there, and name it in the legend.
++ On a raster, cells outside the area were never measured: draw them transparent, not grey or black.
+
+:::
+
+## Other choices that decide whether the message lands
+
+::: {.panel-tabset}
+
+### Leave out what the message does not need
+
++ **Longitude and latitude axes and gridlines**: the reader knows where Nebraska is. `theme_void()` removes them. Keep them only if the reader needs to read coordinates.
++ **Heavy borders**: thin white or light grey lines separate places without competing with the colours.
++ **A scale bar and a north arrow** (from the `ggspatial` package): only when distance or direction matters to the message, or the area is unfamiliar to the reader.
+
+### Points on polygons
+
+Layers drawn later sit on top, so the layer that carries the message goes last. With many points, small points let the reader see where they crowd together:
+
+```{r}
+#| label: points
+#| fig-height: 4.5
+ggplot() +
+  geom_sf(data = counties, fill = "grey95", colour = "grey75", linewidth = 0.2) +
+  geom_sf(data = wells, colour = "#0072B2", size = 0.5) +
+  theme_void()
+```
+
+The counties are context, so they are light; the wells are the message, so they are the darkest thing on the map.
+
+### Several maps
+
+Several maps of the same variable, such as one per day, must share **one** colour scale, or the same colour means different values in different maps. `facet_wrap()` does that by default:
+
+```{r}
+#| label: facets
+#| fig-height: 5.5
+ggplot() +
+  geom_spatraster(data = ppt) +
+  geom_sf(data = st_union(counties), fill = NA, colour = "grey40", linewidth = 0.3) +
+  facet_wrap(~lyr, ncol = 2, labeller = as_labeller(function(x) format(as.Date(sub("ppt_", "", x), "%Y_%m_%d"), "%e %B %Y"))) +
+  scale_fill_viridis_c(direction = -1, na.value = "transparent", name = "Precipitation\n(mm)") +
+  theme_void() +
+  theme(legend.position = "inside", legend.position.inside = c(0.75, 0.2),
+        strip.text = element_text(margin = margin(t = 6, b = 4)))
+```
+
+Five days, one scale, no-data cells transparent, and the legend in the empty sixth panel.
+
+:::
+
+# What a finished map looks like
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The map standard
+
+A map is a figure, so it must meet the **figure standard** from lecture 04-1. On top of that, every map must meet this standard. Each item has a yes or no answer.
+
+1. If the message is not about where, say so and suggest a chart
+   instead.
+2. Map a rate rather than a total when places differ in size and the
+   message is about intensity; say which you mapped and why.
+3. The colour scale suits the value: one hue from light to dark for
+   amounts; two hues diverging from a neutral middle at the midpoint
+   given in my request for values above or below it; distinct hues for
+   categories. Readable by colour-blind readers.
+4. Start from the full layer of places. Places with no data inside the
+   mapped area drawn in a grey that the colour scale does not use (light
+   grey, or a darker grey on a diverging scale whose middle is nearly
+   white) and labelled "No data" in the legend; never left out, never
+   shown as zero. Raster cells outside the area, which were never
+   measured, are transparent.
+5. No longitude and latitude axes or gridlines, unless the reader needs
+   to read coordinates.
+6. Boundaries thin and light; the layer that carries the message drawn
+   on top.
+7. Several maps of the same variable share one colour scale.
+8. No scale bar or north arrow unless distance or direction matters to
+   the message.
+9. Item 7 of the figure standard does not apply: a map's shape is the
+   place's shape.
+
+The copyable version, to add to every map request after the figure standard, is in **Recommended requests** at the end of this deck.
+
+## Before and after
+
+Message: "In 2023, corn covered the largest share of land in south-central and eastern Nebraska." Reader: an extension audience who knows the state.
+
+::: {.panel-tabset}
+
+### Before
+
+```{r}
+#| label: before
+#| fig-height: 4.5
+corn |>
+  filter(year == 2023) |>
+  ggplot() +
+  geom_sf(aes(fill = acre)) +
+  theme_grey()
+```
+
+A **deliberately bad example**: what comes back when a request names only the data and the year.
+
+### After
+
+```{r}
+#| label: after
+#| echo: true
+#| fig-height: 5
+ggplot(corn_2023) +
+  geom_sf(aes(fill = share_class), colour = "white", linewidth = 0.2) +
+  scale_fill_manual(values = share_colours, name = "Share of county land in corn") +
+  labs(title = "Corn covers the most land in south-central\nand eastern Nebraska",
+       subtitle = "Corn harvested in 2023 as a share of each county's land") +
+  guides(fill = guide_legend(nrow = 1, title.position = "top")) +
+  theme_void(base_size = 16) +
+  theme(legend.position = "bottom")
+```
+
+`share_class` was made earlier in the same document: `share` cut into five classes, with the counties without a value in a class "No data".
+
+### What changed
+
+| Before | After | Map standard item |
+|---|---|---|
+| Total acres | Share of land, because the message is about where corn dominates | 2 |
+| `r n_missing` counties missing | All 93 counties, `r n_missing` named "No data" | 4 |
+| Longitude and latitude axes, grey background | None | 5 |
+| Dark default borders | Thin white borders | 6 |
+| Legend titled `acre`, a column name | Legend in plain words | Figure standard 1 |
+| Legend beside the map | Legend in one row below the map, where it costs no width | Figure standard 3 |
+| Default blue shades | Five classes from a colour-blind-safe scale | 3 |
+| No title | A title that states the finding | |
+
+:::
+
+# A map must be correct before it can communicate
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What must be true of the data
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **One row per place drawn.** A table with several rows per place (one per year) draws several shapes on top of each other.
+2. **Every place is there**: the map starts from the full layer of places, and the values are joined to it.
+3. **The layers line up**: every layer has the right CRS (lecture 09-1), so the wells sit inside the state.
+4. **The colour column has the right type**: a county code stored as a number gets a colour gradient, as in lecture 04-1.
+
+### Several rows per place
+
+The corn file has one row per county **and year**, `r n_rows_corn` rows for four years. Drawn without choosing a year:
+
+```{r}
+#| label: all-years
+#| fig-height: 4.5
+ggplot(corn) +
+  geom_sf(aes(fill = acre), colour = "white", linewidth = 0.2) +
+  scale_fill_viridis_c(direction = -1, labels = scales::label_comma(), name = "Corn harvested\n(acres)") +
+  theme_void()
+```
+
+No error, and it looks like a finished map. But each county is drawn up to four times, one shape on top of the other, and the one on top is the last row of that county in the file, which is sorted by year: `r top_year_text`. The map mixes four years and says nothing about it.
+
+### The check
+
+Ask the AI to print the table the map is drawn from, next to the map, with the counts that matter:
+
+```{r}
+#| label: check-table
+#| echo: true
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+map_table <- st_drop_geometry(corn_2023)
+cat("places drawn: expected 93, got", nrow(map_table), "\n")
+cat("places drawn more than once: expected 0, got", sum(duplicated(map_table$countyfp)), "\n")
+cat("places with a value plus No data: expected 93, got",
+    sum(!is.na(map_table$acre)), "+", sum(is.na(map_table$acre)), "\n")
+```
+
+The map table has one row per county and every county in it. The same lines for `corn` itself would say `r n_rows_corn` places drawn and `r sum(duplicated(corn$county_code))` drawn more than once.
+
+:::
+
+# Judging a map
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The checklist
+
+Apply it to any map, yours or the AI's, by looking at it **in the rendered HTML**, at the size a reader will see it. Each question has a yes or no answer.
+
+1. Can someone who has not seen the data state the message within a few seconds?
+2. Is the message about where?
+3. Does the colour scale match the kind of value?
+4. Are places with no data visible and named, and distinguishable from low values?
+5. Does every colour carry information?
+6. Is everything on the map needed for the message?
+7. Does it meet each item of the figure standard and the map standard?
+8. Does the table printed next to the map have one row per place drawn, with every place in it?
+
+A "no" to any question is something to fix or a reason to choose a different design.
+
+## Your turn: judge a map
+
+The message is meant to be: "Irrigation wells are concentrated along the Platte River and in the south of the state."
+
+```{r}
+#| label: your-turn
+#| fig-height: 4.5
+ggplot() +
+  geom_sf(data = counties, fill = "grey70", colour = "black", linewidth = 0.8) +
+  geom_sf(data = wells, aes(colour = wellid), size = 1.5) +
+  scale_colour_gradientn(colours = rainbow(7)) +
+  theme_grey()
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What in this map carries information, and what is decoration?
+
+B. Which items of the map standard does it fail?
+
+C. Write the request you would send to fix it.
+
+### Answers
+
+A. The positions of the wells carry the message. The colour shows `wellid`, a registration number with no meaning for the message: decoration that the reader will try to interpret. The rainbow scale is also hard for colour-blind readers.
+
+B. Item 5 (longitude and latitude axes and gridlines), item 6 (heavy black borders and dark grey fill compete with the wells; large points hide where they crowd), item 3 (a colour scale for a value that should not be shown at all), and the figure standard's plain-word legend.
+
+C. Something like: "The message: irrigation wells are concentrated along the Platte River and in the south. The reader: an extension audience. Draw the wells as small points of one colour on light county outlines, with no colour scale and no axes", followed by the figure standard, the map standard and the closing instructions. A layer of rivers would help a reader who does not know where the Platte runs.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+Maps follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document, you render, and you judge the HTML.
+
+For maps, the HTML matters even more:
+
++ A map's colours, legend and text only exist at the size it is shown in the document.
++ The map sits next to the sentence that says what it shows, so you can check that the two agree.
++ The table the map is drawn from, with its counts of places, can be printed right next to it.
+
+Every map request ends with the **figure standard**, the **map standard**, and then the **closing instructions**. All three are under **Recommended requests**.
+
+## What to put in a map request
+
+The AI already knows how to draw any map. Your request supplies what it cannot know:
+
+1. **The data**: the files, their CRS (lecture 09-1), what one row is, which column the map shows and its units
+2. **The places**: the full layer of places, so that none goes missing
+3. **The message**: the one sentence the reader should take away
+4. **The reader**: who will see it, and what they already know about the area
+5. **Totals or rates**, and for a value with a midpoint, what the midpoint is
+6. **Alternatives, not one answer**: two or three designs to choose from
+7. **The figure standard, the map standard**, then the **closing instructions**
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the files and look for itself. It still cannot know your message or your reader. Write those down **before** it runs.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Make a map of corn acres in Nebraska for 2023.
+```
+
+What comes back is the "Before" map: total acres, the counties without data missing, default colours and axes. Nothing in the request said otherwise.
+
+### Strong
+
+```text
+In my R project, data/counties.gpkg has the 93 counties of Nebraska
+(EPSG 4269), with the county code in countyfp. data/corn_acres.gpkg
+has one row per county and year, 2020 to 2023, with corn harvested in
+acres in the column acre and the county code in county_code.
+
+The message: in 2023, corn covered the largest share of land in
+south-central and eastern Nebraska. The reader: an extension audience
+who knows the state but has not seen this data.
+
+Map the 2023 share of each county's land in corn (acres harvested
+divided by the county's area in acres), starting from all 93 counties.
+Print the table the map is drawn from, with the number of counties
+drawn, drawn more than once, with a value, and without one.
+
+[the figure standard, pasted here]
+
+[the map standard, pasted here]
+
+Put the code in my Quarto document analysis/maps.qmd, under the heading
+"Corn share map", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### What came back
+
+A version of what an AI returns, the code behind the "After" map. You should be able to say which part does what:
+
+```{r}
+#| ref.label: after
+#| echo: true
+#| eval: false
+```
+
++ `ggplot(corn_2023)` and `geom_sf(aes(fill = share_class))`: one layer, the counties, with the share class setting the fill
++ `colour = "white", linewidth = 0.2`: thin white borders, the same for every county
++ `scale_fill_manual()`: the five colours and the grey for "No data"
++ `labs()`: the title and subtitle; `guides()` and `theme(legend.position = "bottom")`: the legend in one row below the map; `theme_void()`: no axes, no gridlines, no background
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** know: the message, the reader, what you found in the data. Every map request ends with the figure standard, the map standard and the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### The map standard
+
+Paste this into every map request, after the figure standard from lecture 04-1 and before the closing instructions:
+
+```text
+Every map must also meet this standard:
+1. If the message is not about where, say so and suggest a chart
+   instead.
+2. Map a rate rather than a total when places differ in size and the
+   message is about intensity; say which you mapped and why.
+3. The colour scale suits the value: one hue from light to dark for
+   amounts; two hues diverging from a neutral middle at the midpoint
+   given in my request for values above or below it; distinct hues for
+   categories. Readable by colour-blind readers.
+4. Start from the full layer of places. Places with no data inside the
+   mapped area drawn in a grey that the colour scale does not use (light
+   grey, or a darker grey on a diverging scale whose middle is nearly
+   white) and labelled "No data" in the legend; never left out, never
+   shown as zero. Raster cells outside the area, which were never
+   measured, are transparent.
+5. No longitude and latitude axes or gridlines, unless the reader needs
+   to read coordinates.
+6. Boundaries thin and light; the layer that carries the message drawn
+   on top.
+7. Several maps of the same variable share one colour scale.
+8. No scale bar or north arrow unless distance or direction matters to
+   the message.
+9. Item 7 of the figure standard does not apply: a map's shape is the
+   place's shape.
+```
+
+Keep your own copy, next to your copy of the figure standard, and add to it each time you find something the AI keeps getting wrong.
+
+### Ask for map designs
+
+```text
+In my R project, <path to the layer of places> has <the places>
+(<CRS>), and <path to the data> has one row per <what one row is>. The
+map shows <column>, which means <...> and is measured in <units>, for
+<which year or subset>.
+
+The message: <the one sentence the reader should take away>.
+The reader: <who will see it, and what they already know>.
+For a value with a midpoint, the midpoint is <the midpoint>.
+
+Draw <three> different designs for this message, one after another,
+for example <a total and a rate>, or <a continuous scale and classes>.
+Under each, write one sentence saying what that design makes easy to
+see and what it hides. Do not choose one for me. Print the table the
+maps are drawn from, with the number of places drawn, drawn more than
+once, with a value, and without one.
+
+<the figure standard>
+
+<the map standard>
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+Then choose one, and write in your document which one and why, in terms of the message.
+
+### Improve a map
+
+```text
+The code below draws a map. Its message should be: <one sentence>. The
+reader is <who>.
+
+Change the map so that the message is the first thing a reader sees.
+Keep the original map, and put the new one below it. Above the new one,
+list each change and why, in plain English.
+
+<paste the code here>
+
+<the figure standard>
+
+<the map standard>
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Critique a map
+
+```text
+The code below draws a map. Its intended message is: <one sentence>.
+The reader is <who>.
+
+Do not change the code. Answer each question with yes or no and one
+sentence of explanation:
+1. Can someone who has not seen the data state the message within a
+   few seconds?
+2. Is the message about where?
+3. Does the colour scale match the kind of value?
+4. Are places with no data visible and named, and distinguishable from
+   low values?
+5. Does every colour carry information?
+6. Is everything on the map needed for the message?
+7. Does it meet each item of the figure standard and the map standard?
+
+<the figure standard>
+
+<the map standard>
+
+<paste the code here>
+```
+
+### Check a map against its data
+
+```text
+The map under the heading "<heading>" is drawn from the table
+<table name>. Below the map, print: the number of places drawn
+(I expect <number>), the number drawn more than once (I expect 0), the
+number with a value and without one, and the CRS of every layer on the
+map. Then print the five places with the highest and the five with the
+lowest value, so I can check them against the colours on the map.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list the layers of the map from bottom to top, and for
+each, which column sets its colour, if any.
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What is yours, and what you can hand off
+
+| You decide | The AI can write |
+|---|---|
+| The message, and whether it is about where | Any map, and a chart instead |
+| Totals or rates | The calculation of the rate |
+| The kind of colour scale, and the midpoint | The scale and its colours |
+| That every place must be on the map | The join to the full layer of places |
+| Which design to use, and why | Two or three alternatives |
+| Whether the map is right | The table and counts printed next to it |
+
+**Every map:** write the message and the reader first. Ask for alternatives, with the figure standard, the map standard and the closing instructions. Render, read the HTML with the checklist, and check the table behind the map.

@@ -1,0 +1,159 @@
+---
+title: "Ex-9-1: Vector Layers and Their CRS, with an AI Assistant"
+abstract: "Spatial Data"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/9-1-co-counties.shp
+  - data/9-1-co-counties.shx
+  - data/9-1-co-counties.dbf
+  - data/9-1-stations.csv
+  - data/9-1-README.txt
+  - worksheets/ex-9-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+suppressMessages({
+  library(sf)
+  library(dplyr)
+  library(readr)
+})
+shp <- "data/9-1-co-counties.shp"
+co_raw <- st_read(shp, quiet = TRUE)
+n_co <- nrow(co_raw)
+crs_raw <- st_crs(co_raw)$input
+bb_raw <- round(st_bbox(co_raw), 1)
+sqdeg <- round(sum(st_area(co_raw)), 1)
+
+co <- st_set_crs(co_raw, 4269)
+area_km2 <- units::set_units(st_area(co), km^2)
+total_km2 <- round(sum(as.numeric(area_km2)))
+largest <- co$name[which.max(area_km2)]
+largest_km2 <- round(max(as.numeric(area_km2)))
+smallest <- co$name[which.min(area_km2)]
+smallest_km2 <- round(min(as.numeric(area_km2)))
+
+st_tab <- read_csv("data/9-1-stations.csv", show_col_types = FALSE)
+n_st <- nrow(st_tab)
+st <- st_as_sf(st_tab, coords = c("easting", "northing"), crs = 26913)
+bb_st <- round(st_bbox(st))
+bb_st_ll <- round(st_bbox(st_transform(st, 4269)), 1)
+inside <- sum(lengths(st_intersects(st_transform(st, 4269), co)) > 0)
+
+# Maria's code
+maria_st <- st_as_sf(read.csv("data/9-1-stations.csv"), coords = c("northing", "easting"), crs = 4269)
+bb_maria <- round(st_bbox(maria_st))
+maria_area <- as.numeric(st_area(co_raw)) / 1e6
+maria_max <- format(signif(max(maria_area), 2), scientific = FALSE)
+
+# Round trip
+gpkg <- file.path(tempdir(), "co.gpkg")
+st_write(co, gpkg, delete_dsn = TRUE, quiet = TRUE)
+back <- st_read(gpkg, quiet = TRUE)
+```
+
+This is an in-class exercise. Before class, work through the lecture **09-1: Spatial Data and Vector Layers**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: finding out what the coordinates mean, asking for the right thing and the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-9-1.qmd](worksheets/ex-9-1.qmd), and the data files:
+   + [9-1-co-counties.shp](data/9-1-co-counties.shp), [9-1-co-counties.shx](data/9-1-co-counties.shx) and [9-1-co-counties.dbf](data/9-1-co-counties.dbf) (three files, one layer)
+   + [9-1-stations.csv](data/9-1-stations.csv)
+   + [9-1-README.txt](data/9-1-README.txt)
+2. Make an R Project folder called `ch9-practice`, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy the five data files into `ch9-practice/data`, and the worksheet into `ch9-practice/analysis`.
+4. Ask the AI to install the `sf` package if you have not already.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch9-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look and predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. The counties: longitude and latitude in NAD83, EPSG 4269. The stations: metres in NAD83 / UTM zone 13N, EPSG 26913.
+
+B. The `.prj` file is missing, and the README says so. That file holds the CRS, so the layer will be read with no CRS at all.
+
+C. `r n_st` stations. `easting` holds x and `northing` holds y. Values such as `r format(st_tab$easting[1], big.mark = ",")` and `r format(st_tab$northing[1], big.mark = ",")` are metres, not degrees, which agrees with the README.
+
+D. Colorado runs from about -109 to -102 longitude and 37 to 41 latitude, and its area is about 270,000 square kilometres (104,000 square miles). Any map site or encyclopedia gives these.
+:::
+
+## Task 2: Read the counties
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_co` features of type `MULTIPOLYGON`, and a bounding box from `r bb_raw["xmin"]` to `r bb_raw["xmax"]` in x and `r bb_raw["ymin"]` to `r bb_raw["ymax"]` in y, which is where Colorado is. The quick map looks like Colorado.
+
+The CRS check fails: expected EPSG 4269, got `NA` (no CRS). Everything else passes, which is the point: the layer looks right on a map and has the right numbers in it. Only the CRS check says that R does not know what those numbers mean.
+
+The blanks of the request, filled in:
+
+```text
+In my R project, data/9-1-co-counties.shp is a shapefile (.shp) file with one
+row per county. Its documentation says the CRS is NAD83, EPSG 4269.
+...
+the number of features (I expect 64), the geometry type (I expect
+MULTIPOLYGON), and the bounding box (I expect longitude between -109
+and -102 and latitude between 37 and 41).
+```
+:::
+
+## Task 3: Fix the CRS, then compute areas
+
+::: {.callout-note collapse="true" title="What you should find"}
+**Prediction without the fix.** With no CRS, `st_area()` treats the numbers as plain x and y and returns square degrees: the counties add up to `r sqdeg`, with no units and no warning.
+
+**After labelling the layer with EPSG 4269** (`st_set_crs()`, not `st_transform()`, because the numbers are already right and only the label is missing): the CRS check passes and the bounding box is unchanged.
+
+**Areas.** The counties add up to `r format(total_km2, big.mark = ",")` square kilometres, against about 270,000 from the encyclopedia: the check passes. The largest county is `r largest` (`r format(largest_km2, big.mark = ",")` km²) and the smallest is `r smallest` (`r format(smallest_km2, big.mark = ",")` km²).
+
+If the AI used `st_transform()` instead of `st_set_crs()`, it stops with an error, because a layer with no CRS cannot be transformed: there is nothing to transform from. That error is the good case.
+:::
+
+## Task 4: The stations
+
+::: {.callout-note collapse="true" title="What you should find"}
+`r n_st` features, CRS EPSG 26913. The bounding box in the layer's own CRS runs from `r format(bb_st["xmin"], big.mark = ",")` to `r format(bb_st["xmax"], big.mark = ",")` metres in x: you cannot compare that with a map. Transformed to EPSG 4269, it runs from `r bb_st_ll["xmin"]` to `r bb_st_ll["xmax"]` longitude and `r bb_st_ll["ymin"]` to `r bb_st_ll["ymax"]` latitude, inside Colorado.
+
+**The check from knowing the place:** `r inside` of `r n_st` stations fall inside a Colorado county. The counting needs both layers in one CRS: the AI should transform the stations to the counties' CRS (or the other way) first. If it does not, `sf` stops with the error `st_crs(x) == st_crs(y) is not TRUE`.
+
+On the map, every point should sit inside the state outline. If the points form a tiny cluster far from Colorado, or the map's axes run into the hundreds of thousands, one layer was given the wrong CRS.
+:::
+
+## Task 5: Maria's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Line 1 reads the county shapefile. Line 2 reads the stations csv and makes it a layer of points, with `northing` as x, `easting` as y, labelled as longitude and latitude in NAD83. Line 3 adds each county's area, divided by a million.
+
+B. The paths. `C:/Users/maria/Downloads` exists only on Maria's computer.
+
+C. Three problems, none of which gives an error:
+
+1. Line 2 swaps x and y.
+2. Line 2 labels metres as degrees (EPSG 4269 instead of 26913). The layer's bounding box runs from `r format(bb_maria["xmin"], big.mark = ",")` to `r format(bb_maria["xmax"], big.mark = ",")` in x, numbers no longitude can have.
+3. The counties have no CRS (no `.prj`), so line 3 computes square degrees and divides them by a million. The largest "area" is `r maria_max`.
+
+D. The bounding box catches problems 1 and 2. The CRS check catches the missing CRS behind problem 3, and the total area against Colorado's known area catches the result.
+
+E. The AI usually spots the paths and often the swapped coordinates, since `northing` as x is visible in the code. It cannot know that the counties file has no `.prj` or that the stations are in metres, because it has not seen the files. Compare its list with yours.
+:::
+
+## Task 6: Save and read back
+
+::: {.callout-note collapse="true" title="What you should find"}
+The GeoPackage comes back with EPSG `r st_crs(back)$epsg`, `r nrow(back)` features and the same columns: the check passes. A `.gpkg` is one file that keeps its CRS, so the problem you met in Task 2, a shapefile that lost its `.prj`, cannot happen to it.
+:::

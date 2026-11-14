@@ -1,0 +1,278 @@
+---
+title: "Ex-9-1 worksheet: Vector Layers and Their CRS"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch9-practice/analysis/ex-9-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-9-1. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from lecture 02-1, "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the files and their documentation before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match, and does every map look like the place?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+# Task 1: Look and predict, no AI
+
+Open `data/9-1-README.txt` and `data/9-1-stations.csv` in a plain text editor (not Excel), and look at the list of files in your `data` folder.
+
+**A. What CRS is each file in, according to the README? Give the EPSG codes.**
+
+Your answer:
+
+**B. A shapefile is normally four files. Which one is missing here, and what will that mean when R reads the layer?**
+
+Your answer:
+
+**C. How many stations are there? Which columns hold x and y? Do the numbers look like degrees or like metres?**
+
+Your answer:
+
+**D. Look up Colorado: roughly which longitudes and latitudes does it span, and what is its area in square kilometres?**
+
+Your answer:
+
+# Task 2: Read the counties
+
+**Prediction** (from Task 1): CRS, number of features, geometry type, bounding box.
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Task 1, then send it:
+
+```text
+In my R project, data/9-1-co-counties.shp is a <...> file with one row
+per <...>. Its documentation says the CRS is <...>. Read it into a layer
+called counties. Do not set or change the CRS in this step.
+
+Then check the CRS (I expect EPSG <...>), the number of features (I
+expect <...>), the geometry type (I expect <...>), and the bounding box
+(I expect longitude between <...> and <...> and latitude between <...>
+and <...>). Draw a quick map of the layer on its own.
+
+Put the code in my Quarto document analysis/ex-9-1.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: which checks passed, and which failed? Does the map look like Colorado?**
+
+Your answer:
+
+# Task 3: Fix the CRS, then compute areas
+
+**Prediction.** If you asked for the area of each county now, before fixing anything, what units would the answer be in, and roughly how large would the total be?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+The layer counties has no CRS. Its documentation says its coordinates
+are <...>. Label it with that CRS without changing any coordinate.
+
+Then check the CRS (I expect EPSG <...>) and the bounding box (I expect
+longitude between <...> and <...> and latitude between <...> and
+<...>).
+
+Put the code in my Quarto document analysis/ex-9-1.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**A check from knowing the place.** The counties of a state should add up to the state's area. Write the area you found in Task 1 into the blank:
+
+```text
+Using the layer counties, add a column area_km2 with the area of each
+county in square kilometres. Print the CRS of the layer and the units
+of the result.
+
+Check: the total of area_km2 against the area of Colorado, which is
+about <...> square kilometres. Also print the largest and the smallest
+county with their areas.
+
+Put the code in my Quarto document analysis/ex-9-1.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: does the total match Colorado's area? Did the AI use `st_set_crs()` or `st_transform()`, and does it matter here?**
+
+Your answer:
+
+# Task 4: The stations
+
+**Prediction:** number of features, CRS, and where the bounding box should be once it is in longitude and latitude.
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Task 1:
+
+```text
+In my R project, data/9-1-stations.csv has one row per <...> (<...>
+rows). The columns <...> and <...> hold <...> in <...>, according to
+data/9-1-README.txt. Make it a layer of points called stations, with
+<...> as x.
+
+Then check the CRS, the number of features, and the bounding box (I
+expect longitude between <...> and <...> and latitude between <...>
+and <...>; if the layer is not in degrees, transform a copy to EPSG
+4269 to print this). Draw a quick map of the points on top of the
+layer counties.
+
+Put the code in my Quarto document analysis/ex-9-1.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**A check from knowing the place.** Every station in a file of Colorado stations should fall inside a Colorado county. Ask for it:
+
+```text
+Count how many of the stations fall inside a county of the layer
+counties. I expect <...>. Say which CRS you used for the count.
+
+Put the code in my Quarto document analysis/ex-9-1.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: did every check match? Do all the points sit inside Colorado on the map?**
+
+Your answer:
+
+# Task 5: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Maria sent the AI "load the Colorado counties and stations and get county areas in square km", and kept this:
+
+```{r}
+#| label: task-5
+#| eval: false
+counties <- st_read("C:/Users/maria/Downloads/9-1-co-counties.shp")
+stations <- st_as_sf(read.csv("C:/Users/maria/Downloads/9-1-stations.csv"), coords = c("northing", "easting"), crs = 4269)
+counties$area_km2 <- as.numeric(st_area(counties)) / 1e6
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. Which problem stops this code from running on your computer?**
+
+Your answer:
+
+**C. Three problems give wrong results without an error. What are they?**
+
+Your answer:
+
+**D. For each problem, which check would have caught it?**
+
+Your answer:
+
+**E. Now send this request, and compare the AI's answer with yours. What did it find that you missed, or miss that you found?**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. for each layer, what CRS it ends up in, and whether that CRS is
+   known or guessed
+3. any line that could give a wrong result without an error, and which
+   check would reveal it
+
+counties <- st_read("C:/Users/maria/Downloads/9-1-co-counties.shp")
+stations <- st_as_sf(read.csv("C:/Users/maria/Downloads/9-1-stations.csv"), coords = c("northing", "easting"), crs = 4269)
+counties$area_km2 <- as.numeric(st_area(counties)) / 1e6
+```
+
+Your answer:
+
+# Task 6: Save and read back
+
+**Prediction.** You will save `counties` (with its CRS fixed) as a GeoPackage and read it back. Will the CRS survive? Why could the shapefile you started from lose it?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Save the layer counties as data/9-1-co-counties.gpkg. Then read the
+file back and check that the CRS, the number of features and the column
+names match the original.
+
+Put the code in my Quarto document analysis/ex-9-1.qmd, under the
+heading "Task 6", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-6
+```
+
+**Reading the HTML: was my prediction right?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which information did you need today that was not in any data file, only in the README?**
+
+Your answer:
+
+**B. The quick map in Task 2 looked right. Which check showed something was wrong, and what would have gone wrong later without it?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

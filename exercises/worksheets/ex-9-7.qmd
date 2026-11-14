@@ -1,0 +1,273 @@
+---
+title: "Ex-9-7 worksheet: Getting Spatial Data from Online Sources"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch9-practice/analysis/ex-9-7.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-9-7. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Decide** what you need before anyone writes code.
+2. **Predict** what should arrive, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with your own decisions. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match, and does every map show what you meant?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+E. Every download is saved under `data/raw/` and happens only if the file is not there yet, so rendering this file again does not download again.
+
+**The question for today:** how much rain fell in each Kansas county from 10 to 14 July 2023?
+
+# Task 1: The five decisions
+
+No AI for this task. Fill in the table for today's question.
+
+| Decision | Your answer |
+|---|---|
+| Dataset and variable | |
+| Area | |
+| Time | |
+| Spatial unit of the result | |
+| Units of the values | |
+
+**Which two datasets do you need, and which R package downloads each?**
+
+Your answer:
+
+**How many counties does Kansas have? (Look it up, for example on the Kansas page of an encyclopedia.)**
+
+Your answer:
+
+# Task 2: Kansas county boundaries
+
+**Prediction.** Number of features, CRS, and what the map should look like.
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Download the counties of <...> for the year 2022, generalised
+(cb = TRUE), with tigris. Save them to data/raw/ks_counties_2022.gpkg,
+and only download if that file does not exist. Then read them from the
+file.
+
+Then check: the number of features (I expect <...>), the CRS, which
+states are present (I expect only <...>), and draw a map.
+
+Put the code in my Quarto document analysis/ex-9-7.qmd, under the
+heading "Task 2: Kansas county boundaries", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: did every check match? Render the file a second time: did it download again?**
+
+Your answer:
+
+# Task 3 (if time allows): A map of the contiguous states
+
+For a map that puts Kansas in context, you want the outlines of the 48 contiguous states (the states other than Alaska and Hawaii).
+
+**Prediction.** How many features should `tigris::states()` return?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Download the US state boundaries for the year 2022, generalised
+(cb = TRUE), with tigris. Save them to data/raw/states_2022.gpkg, and
+only download if that file does not exist. Then read them from the file.
+
+Then check: the number of features (I expect <...>), and print the name
+of every feature. Draw a map.
+
+Put the code in my Quarto document analysis/ex-9-7.qmd, under the
+heading "Task 3 (if time allows): A map of the contiguous states", as R code chunks.
+Above each chunk, write one plain-English sentence saying what it does
+and why. Build every path with here::here(); no setwd(), no absolute
+paths. Print each check on its own line as "name of check: expected X,
+got Y". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: how many features arrived, and what are the extra ones? Write the request that keeps only what you need, and its check.**
+
+Your answer:
+
+```text
+
+```
+
+# Task 4: Daily rain from PRISM
+
+If PRISM refuses the download, use the fallback file from the Setup section of the exercise page, saved as `data/raw/9-7-ppt-kansas.tif`, and change the first sentence of the request to "Read data/raw/9-7-ppt-kansas.tif as one raster with one layer per day".
+
+**Prediction.** How many layers, which dates in their names, which CRS, about what cell size, and a believable range of daily rain in mm?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Download daily PRISM <...> from <...> to <...> into data/raw/prism_ppt,
+only if the files are not there yet. Read every .bil file (names ending
+in .bil) as one raster with one layer per day, then crop it to the
+Kansas counties from data/raw/ks_counties_2022.gpkg.
+
+Then check: the number of layers (I expect <...>), the dates in the
+layer names, the CRS, the cell size, and the range of values in mm (I
+expect <...> to <...>). Draw a map of each day with the county outlines
+on top.
+
+Put the code in my Quarto document analysis/ex-9-7.qmd, under the
+heading "Task 4: Daily rain from PRISM", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: did every check match? Where is the units information, given that the raster does not hold it?**
+
+Your answer:
+
+# Task 5: Rain in each county
+
+**Prediction.** How many rows? How many counties with no value? Does the cropped raster cover every county entirely?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Using the cropped PRISM raster from Task 4 (daily precipitation in mm,
+one layer per day) and the Kansas counties (ID column GEOID), both in
+EPSG <...>, I want one row per county with the mean over the county of
+the total precipitation of all <...> days, weighting each cell by the
+share of it inside the county, and ignoring missing cells, in a table
+with GEOID, NAME and ppt_mm. Match rows back by the ID column, not by
+position.
+
+Then check: the number of rows (I expect <...>), the number of counties
+with no value (I expect <...>), the number of counties not entirely
+inside the raster's rectangle (I expect <...>), and the range of ppt_mm.
+Draw a map of the counties filled by ppt_mm.
+
+Put the code in my Quarto document analysis/ex-9-7.qmd, under the
+heading "Task 5: Rain in each county", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML: which part of Kansas was wettest over the five days? Is the range believable?**
+
+Your answer:
+
+# Task 6 (if you have a NASS key): Statistics from USDA-NASS
+
+This task needs the USDA-NASS Quick Stats key you requested before class (Setup, step 1, on the exercise page), saved in `.Renviron` as `NASS_API_KEY`. Never put the key in this file. Without a key, skip to the Wrap-up.
+
+**First, find the variable name:**
+
+```text
+Using rnassqs, list the NASS data items (short_desc) for the commodity
+SOYBEANS that contain the words ACRES and HARVESTED. Read my key with
+Sys.getenv("NASS_API_KEY"); never write the key. Print the matches.
+
+Put the code in my Quarto document analysis/ex-9-7.qmd, under the
+heading "Task 6 (if you have a NASS key): Statistics from USDA-NASS", as
+R code chunks. Above each chunk, write one plain-English sentence saying
+what it does and why. Build every path with here::here(); no setwd(), no
+absolute paths. Print each check on its own line as "name of check:
+expected X, got Y". Render the document to HTML.
+```
+
+**Prediction.** You will download county soybean harvested acres in Kansas for 2020 to 2022. At most how many rows can arrive? Will every county appear every year?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Download from USDA-NASS Quick Stats the SURVEY data item "<...>" at
+COUNTY level for KANSAS, 2020 to 2022, using rnassqs. Read my key with
+Sys.getenv("NASS_API_KEY"); never write the key. Save the result to
+data/raw/ks_soy_acres.rds, and only download if that file does not
+exist. Then read it from the file, and make Value a number, printing how
+many values became missing.
+
+Then check: which states and years arrived (I expect all of them), the
+number of rows per year (at most <...>), the rows that are not a single
+county, the units, and the range of Value.
+
+Put the code in my Quarto document analysis/ex-9-7.qmd, under the
+heading "Task 6 (if you have a NASS key): Statistics from USDA-NASS", as
+R code chunks. Above each chunk, write one plain-English sentence saying
+what it does and why. Build every path with here::here(); no setwd(), no
+absolute paths. Print each check on its own line as "name of check:
+expected X, got Y". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-6
+```
+
+**Reading the HTML: how many counties are missing each year, and what rows are not counties?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which download today returned something different from what you expected, with no error?**
+
+Your answer:
+
+**B. Why does a download in a `.qmd` belong inside "only if the file does not exist"?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

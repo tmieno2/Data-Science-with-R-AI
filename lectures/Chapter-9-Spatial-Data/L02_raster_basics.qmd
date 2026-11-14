@@ -1,0 +1,760 @@
+---
+title: "09-2: Raster Data"
+abstract: "Chapter 9: Spatial Data"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(terra)
+library(tidyterra)
+library(sf)
+library(dplyr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+
+ppt_days <- rast("ne_ppt_2012aug.tif")
+raw <- rast("ne_ppt_raw.tif")
+counties <- st_read("ne_counties.gpkg", quiet = TRUE)
+
+n_cells <- ncell(ppt_days)
+n_na1 <- global(ppt_days[[1]], "isNA")[1, 1]
+mean_true <- round(global(ppt_days[[1]], "mean", na.rm = TRUE)[1, 1], 2)
+mean_raw <- round(global(raw, "mean")[1, 1])
+n_9999 <- sum(values(raw) == -9999)
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Weather, elevation, soil and satellite images come as **raster data**: a grid of cells, each with a value. An AI assistant can read any raster format and compute anything on it. What it cannot do is:
+
++ know what the numbers in the cells mean: their units, their scale, which value means "no data"
++ know where the grid should be
++ tell whether a value it computed is believable
+
+Those are your job. So today is about:
+
+1. **The concept**: what a raster is, and what has to be true before its values can be used
+2. **Reading code**: recognising what a line of raster code does
+3. **Asking AI**: what to put in your request
+4. **Checking**: what to print for every raster, and why
+
+### Directions
+
++ Ask your AI assistant to install the `terra` and `tidyterra` packages if you have not already. `terra` reads and computes on rasters; `tidyterra` lets `ggplot2` draw them.
++ The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## A raster is a grid of cells
+
+::: {.panel-tabset}
+
+### The idea
+
+A raster covers a rectangle with a grid of equal cells. Each cell holds one value. What describes the grid:
+
+| Term | What it is |
+|---|---|
+| **Extent** | The rectangle the grid covers: lowest and highest x, lowest and highest y |
+| **Resolution** | The width and height of one cell, in the units of the CRS |
+| **Rows and columns** | How many cells down and across |
+| **CRS** | What the x and y numbers mean, as in lecture 09-1 |
+| **Layers** | A raster can hold several grids on the same cells, for example one per day. Each layer has a name. |
+
+A cell with no value (outside the area measured, or a failed reading) holds `NA`, R's missing value, if the file says which value means "no data".
+
+### A whole raster
+
+Daily precipitation in millimetres on 1 August 2012, from PRISM (a US weather dataset), for the rectangle around Nebraska. Cells outside Nebraska hold no data.
+
+```{r}
+#| label: whole
+#| echo: false
+#| fig-height: 4
+ggplot() +
+  geom_spatraster(data = ppt_days[[1]]) +
+  scale_fill_viridis_c(name = "Precipitation\n(mm)", na.value = "transparent") +
+  theme_void()
+```
+
+### Close up
+
+The 8-by-8 block of cells in the north-west corner of the state, with the value of each cell written in it:
+
+```{r}
+#| label: close-up
+#| echo: false
+#| fig-height: 4.5
+block <- crop(ppt_days[[1]], ext(-104.06, -103.73, 42.68, 43.02))
+cells <- as.data.frame(block, xy = TRUE, na.rm = FALSE)
+names(cells)[3] <- "value"
+ggplot(cells, aes(x, y, fill = value)) +
+  geom_tile(colour = "white") +
+  geom_text(aes(label = ifelse(is.na(value), "NA", round(value, 1))), size = 4) +
+  scale_fill_viridis_c(name = "Precipitation\n(mm)", na.value = "grey85", begin = 0.4) +
+  coord_equal() +
+  theme_void()
+```
+
+Each square is one cell, about 4 km across, and the number in it is the whole of what the raster knows about that square.
+
+:::
+
+## What a raster file does and does not say
+
+::: {.panel-tabset}
+
+### Stored, and not always stored
+
+| Always in the file | Sometimes in the file, sometimes only in the documentation |
+|---|---|
+| The numbers in the cells | Which value means "no data" (often -9999) |
+| The extent, resolution, rows, columns | The **units** (millimetres or inches, degrees C or F) |
+| The number of layers | The **scale**: values stored as whole numbers, such as hundredths of a millimetre, to save space |
+| Usually the CRS | What each layer is (which date), beyond a name |
+
+Whatever is not in the file, only you can tell the AI, from the documentation of the data.
+
+### Vector or raster
+
+| | Vector (lecture 09-1) | Raster |
+|---|---|---|
+| Stores | separate features, each with a shape | one value per cell of a grid |
+| One row or cell is | a county, a well | a 4 km square |
+| Typical data | boundaries, locations, roads | weather, elevation, satellite images |
+| R package | `sf` | `terra` |
+
+Both need a CRS, and both must share a CRS with any layer they are combined with.
+
+:::
+
+# How raster code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Reading a raster
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+raster <- rast("path/to/file")
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `raster <-` | The name the raster will have inside R | Needed to keep the result |
+| `rast` | The reader from `terra`, for every raster format | Yes |
+| `"path/to/file"` | Where the file is. `c("file1", "file2")` reads several files as layers of one raster. | **Yes, the only required input** |
+
+A real line, and what R prints for it:
+
+```{r}
+#| label: read-ppt-days
+ppt_days <- rast("ne_ppt_2012aug.tif")
+ppt_days
+```
+
+### Reading the printout
+
+| Line | What it says here |
+|---|---|
+| `size` | `r nrow(ppt_days)` rows, `r ncol(ppt_days)` columns, `r nlyr(ppt_days)` layers |
+| `resolution` | one cell is `r round(res(ppt_days)[1], 4)` by `r round(res(ppt_days)[2], 4)`, in degrees because of the CRS |
+| `extent` | longitude `r round(xmin(ppt_days), 1)` to `r round(xmax(ppt_days), 1)`, latitude `r round(ymin(ppt_days), 1)` to `r round(ymax(ppt_days), 1)`: Nebraska |
+| `coord. ref.` | the CRS: longitude and latitude, NAD83 (EPSG 4269) |
+| `names` | one name per layer: here, the date |
+| `min values`, `max values` | the smallest and largest value in each layer, ignoring no-data cells |
+
+Most of the checks for a raster are on this printout.
+
+### Formats
+
+The same reader opens all of them:
+
+| Extension | Format | Where you meet it |
+|---|---|---|
+| `.tif` | GeoTIFF, the most common | satellite images, elevation, most downloads |
+| `.bil` (with `.hdr`) | Band interleaved by line | PRISM weather data |
+| `.nc` | netCDF, often many layers | climate data such as gridMET, often one layer per day |
+| `.asc` | ASCII grid, plain text | older data |
+
+### Writing
+
+```{r}
+#| eval: false
+writeRaster(raster, "path/to/file.tif")
+```
+
+The extension picks the format. `overwrite = TRUE` is needed to replace an existing file. A raster cannot go into a csv without losing the grid.
+
+:::
+
+## Doing things with a raster
+
+::: {.panel-tabset}
+
+### The pattern
+
+Most raster functions take the raster first and return a new raster:
+
+```{r}
+#| eval: false
+result <- raster_function(raster, other_inputs)
+```
+
+| Function | What it does | Default that matters |
+|---|---|---|
+| `raster1 + raster2`, `raster * 10`, `log(raster)` | Arithmetic, cell by cell. Rasters must share extent and resolution. | |
+| `raster[[2]]` or `raster[["name"]]` | One layer | |
+| `global(raster, "mean")` | One number per layer, over all cells | Without `na.rm = TRUE`, a single `NA` makes the result `NA` |
+| `classify(raster, cbind(-9999, NA))` | Replaces values, here -9999 by `NA` | |
+| `aggregate(raster, fact = 5)` | Coarser cells: each 5-by-5 block becomes one cell | Averages the block (`fun = "mean"`) |
+| `resample(raster, template)` | Moves values onto another grid | Interpolates between cells (`method = "bilinear"`) |
+| `project(raster, "EPSG:5070")` | Moves the raster into another CRS | Recomputes every cell value |
+| `crop()`, `mask()`, `extract()` | Combine a raster with vector data | Lecture 09-6 |
+
+### One real example
+
+The total over the five days, cell by cell, and its largest value:
+
+```{r}
+#| label: total
+ppt_total <- sum(ppt_days)
+global(ppt_total, "max", na.rm = TRUE)
+```
+
+`sum()` over the layers of one raster adds them cell by cell, giving a raster with one layer.
+
+### Variations you will see
+
++ `terra::rast(...)`: the package name in front
++ `rast(here::here("data", "ppt.tif"))`: the path built by another function
++ `ppt_days$ppt_2012_08_01`: one layer by name, like a column of a table
++ `ggplot() + geom_spatraster(data = raster)`: a map of a raster, from `tidyterra` (lecture 09-3)
+
+:::
+
+# What has to be true
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Conditions for raster values to be right
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **The no-data value is declared**, so cells without data are `NA`, not a number such as -9999.
+2. **The units and scale are known**, so a stored 7381 is read as 73.81 millimetres.
+3. **The grid is where the place is**: the CRS and extent are right.
+4. **Each layer is what you think**: the right date, the right variable.
+5. **Every operation's default fits the kind of value**: averaging works for amounts such as rainfall, not for codes such as 1 = corn, 2 = soybean.
+6. **A raster combined with vector data shares its CRS.** Transform the vector layer to the raster's CRS, not the other way: projecting a raster recomputes its values.
+
+### With and without an error
+
+Raster operations stop with an error when two rasters do not share extent and resolution, or a file does not exist. Conditions 1 to 5 failing gives numbers with **no error**: the silent failures on the next slide are three of them.
+
+:::
+
+## Silent failures: cell values misread
+
+::: {.panel-tabset}
+
+### An undeclared no-data value
+
+`ne_ppt_raw.tif` holds the same 1 August 2012 precipitation, stored the way some data providers store it: -9999 in the cells outside Nebraska, and no line in the file saying that -9999 means "no data".
+
+```{r}
+#| label: raw
+raw <- rast("ne_ppt_raw.tif")
+raw
+```
+
+The average over the cells:
+
+```{r}
+#| label: raw-mean
+global(raw, "mean")
+```
+
+An average daily precipitation of `r mean_raw` millimetres, impossible, and no error. `r format(n_9999, big.mark = ",")` cells hold -9999 and were averaged with the rest. The printout above shows it: `min value: -9999`.
+
+### Values in a scale
+
+The largest value in the same file is 7381. 7,381 millimetres in a day is impossible: the file stores **hundredths** of a millimetre as whole numbers. Only the documentation says so. Both fixes together, declare -9999 as no data, then divide by 100:
+
+```{r}
+#| label: raw-fixed
+fixed <- classify(raw, cbind(-9999, NA)) / 100
+global(fixed, c("min", "max", "mean"), na.rm = TRUE)
+```
+
+Now the values run from 0 to 73.8 millimetres, and the average is `r mean_true` millimetres, the same as the file that declares its no-data value and units.
+
+### Averaging codes
+
+A small land-cover raster where 1 means corn and 2 means soybean, made coarser by `aggregate()`, which averages by default:
+
+```{r}
+#| label: categories
+landcover <- rast(nrows = 4, ncols = 4, xmin = 0, xmax = 4, ymin = 0, ymax = 4,
+                  vals = c(1, 1, 2, 2, 1, 2, 2, 2, 1, 1, 1, 2, 2, 2, 1, 1))
+values(aggregate(landcover, fact = 2))
+```
+
+Values of 1.25 and 1.5 are neither corn nor soybean, and nothing warns you. For codes, the right rule is the most common value in each block, `fun = "modal"`:
+
+```{r}
+#| label: categories-modal
+values(aggregate(landcover, fact = 2, fun = "modal"))
+```
+
+`resample()` has the same problem when codes are stored as plain numbers: its default, `"bilinear"`, interpolates between neighbouring cells. Tell it `method = "near"`. (If the raster is declared categorical, `terra` uses `"near"` itself; `aggregate()` averages either way.) `project()`, which moves a raster to another CRS, has the same default and needs the same instruction.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The way of working from lecture 02-1, "Working with AI on your own research", applies unchanged:
+
+1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
+2. **The AI writes into a Quarto document** (`.qmd`). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.
+3. **You render** the `.qmd` to HTML.
+4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
+
+A raster's printout, its value ranges and a quick map are checks you judge by eye. In the HTML they sit next to the code that produced them, and the document records which no-data value and scale you told the AI to use, and why.
+
+:::{.callout-note}
+Every request that asks for code ends with the same few lines, the **closing instructions**; the full text is under **Recommended requests** near the end.
+:::
+
+## Look before you ask
+
+::: {.panel-tabset}
+
+### Read the documentation
+
+Raster data almost always comes with documentation: a README, a metadata page, a `.txt` or `.xml` file next to the data. Find in it:
+
+1. **The variable and its units**: precipitation in millimetres, temperature in degrees C
+2. **The scale**: are values stored as they are, or multiplied (by 10, 100, 10,000) to make whole numbers?
+3. **The no-data value**: often -9999, sometimes 0 or 255
+4. **The CRS**
+5. **What each layer is**: which date, which band of a satellite image
+
+### Print the raster before computing anything
+
+The printout of `rast()` reads only the file's description and, if the file stores them, its smallest and largest values, so it is quick even for a large file. If the printout has no `min value` line, ask for the range before anything else.
+
+```{r}
+#| label: look-raw
+rast("ne_ppt_raw.tif")
+```
+
+From this alone: one layer, longitude and latitude around Nebraska, values from -9999 to 7381. Compare that with the documentation **before** asking for any calculation.
+
+:::
+
+## What to put in your request
+
+The AI knows every `terra` function. Your request supplies what it cannot know:
+
+1. **The file**: name, format, where it is in your project
+2. **What the values mean**: the variable, its units, its scale
+3. **The no-data value**
+4. **The CRS**, and **what each layer is**
+5. **What you want back**: which layers, which units, which calculation, and for codes, that values must not be averaged
+6. **Ask for checks**: next section
+7. **The closing instructions**
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the raster and print it for itself. It still cannot know a scale or a no-data value that is only in the documentation. Write those down **before** it runs.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Load the precipitation raster and give me the average rainfall.
+```
+
+A typical reply:
+
+```{r}
+#| eval: false
+ppt <- rast("ppt.tif")
+global(ppt, "mean", na.rm = TRUE)
+```
+
+On a file like `ne_ppt_raw.tif` this prints `r mean_raw`, with no error: the -9999 cells and the hundredths are both taken at face value.
+
+### Strong
+
+An example for a precipitation file like the one on the "Silent failures" slide:
+
+```text
+In my R project, data/ppt_raw.tif is a GeoTIFF of daily precipitation
+on 1 August 2012 around Nebraska, one layer. Its documentation says:
+values are hundredths of a millimetre stored as whole numbers, -9999
+means no data, and the CRS is NAD83 longitude and latitude (EPSG 4269).
+
+Read it, mark -9999 as missing, and convert the values to millimetres,
+in a raster called ppt. Then print the average precipitation over the
+cells with data.
+
+Check: the CRS (I expect EPSG 4269), the extent (I expect longitude
+between -104 and -95 and latitude between 40 and 43), the smallest and
+largest value after conversion (I expect 0 and something below 150 mm),
+and the number of missing cells. Draw a quick map of the raster.
+
+Put the code in my Quarto document analysis/weather.qmd, under the
+heading "Read the precipitation", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+### What came back
+
+In the rendered HTML, a sentence, then the chunk it describes.
+
+Read the raster, mark -9999 as missing, and convert hundredths of a millimetre to millimetres.
+
+```{r}
+#| label: ai-read
+#| eval: false
+ppt <- rast(here::here("data", "ppt_raw.tif"))
+ppt <- classify(ppt, cbind(-9999, NA)) / 100
+```
+
+Print the checks against what was expected, then the average.
+
+```{r}
+#| label: ai-check
+#| eval: false
+rng <- global(ppt, c("min", "max"), na.rm = TRUE)
+cat("CRS: expected EPSG 4269, got EPSG", crs(ppt, describe = TRUE)$code, "\n")
+cat("longitude: expected -104 to -95, got", round(xmin(ppt), 1), "to", round(xmax(ppt), 1), "\n")
+cat("latitude: expected 40 to 43, got", round(ymin(ppt), 1), "to", round(ymax(ppt), 1), "\n")
+cat("smallest value: expected 0, got", rng$min, "\n")
+cat("largest value: expected below 150, got", rng$max, "\n")
+cat("missing cells: expected some (the rectangle reaches outside Nebraska), got", global(ppt, "isNA")[1, 1], "of", ncell(ppt), "\n")
+global(ppt, "mean", na.rm = TRUE)
+```
+
+`crs(ppt, describe = TRUE)$code` pulls the EPSG code out of the CRS description. The output is in the next section.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What to check for every raster
+
+::: {.panel-tabset}
+
+### What to ask for, and why
+
+The AI can write the checking code. It cannot know the right answers. Ask for these after reading a raster and after each step that changes its values:
+
+| | Ask the AI to print | Catches | What only you can supply |
+|---|---|---|---|
+| 1 | the CRS | a missing or wrong CRS | the CRS from the documentation |
+| 2 | rows, columns, resolution, number of layers | the wrong file, a layer missing | what the documentation says |
+| 3 | the extent | a grid in the wrong place, or in metres when you expected degrees | where the place is |
+| 4 | the name of each layer | layers in the wrong order, the wrong dates | which date or variable each layer is |
+| 5 | the smallest and largest value of each layer | an undeclared no-data value, a scale not applied, the wrong units | a believable range, in known units |
+| 6 | the number of missing (`NA`) cells | no-data cells counted as values (zero missing where some should be) | roughly how many cells lie outside the area |
+| 7 | a quick map of each layer | anything the numbers did not show | what the pattern should look like |
+
+### Asking for them
+
+One sentence at the end of your request:
+
+```text
+Print the CRS, the extent, the resolution, the name, smallest and
+largest value of each layer, and the number of missing cells, and draw
+a quick map of each layer.
+```
+
+Better, with what you expect:
+
+```text
+I expect EPSG <code>, longitude between <west> and <east> and latitude
+between <south> and <north>, layers named <names>, and values between
+<lowest> and <highest> <units>. Print each check on its own line as
+"name of check: expected X, got Y".
+```
+
+### Reading the HTML
+
+What the checking code on the previous slide printed, run on `ne_ppt_raw.tif`:
+
+```{r}
+#| label: chk-run
+#| echo: false
+ppt_chk <- classify(rast("ne_ppt_raw.tif"), cbind(-9999, NA)) / 100
+rng <- global(ppt_chk, c("min", "max"), na.rm = TRUE)
+cat("CRS: expected EPSG 4269, got EPSG", crs(ppt_chk, describe = TRUE)$code, "\n")
+cat("longitude: expected -104 to -95, got", round(xmin(ppt_chk), 1), "to", round(xmax(ppt_chk), 1), "\n")
+cat("latitude: expected 40 to 43, got", round(ymin(ppt_chk), 1), "to", round(ymax(ppt_chk), 1), "\n")
+cat("smallest value: expected 0, got", rng$min, "\n")
+cat("largest value: expected below 150, got", rng$max, "\n")
+cat("missing cells: expected some (the rectangle reaches outside Nebraska), got", global(ppt_chk, "isNA")[1, 1], "of", ncell(ppt_chk), "\n")
+global(ppt_chk, "mean", na.rm = TRUE)
+```
+
+Every check passes. `r format(n_na1, big.mark = ",")` of `r format(n_cells, big.mark = ",")` cells are missing, about `r round(100 * n_na1 / n_cells)`%: the rectangle around Nebraska includes parts of other states, and the cells there have no data. Had the -9999 not been declared, this line would say 0, and the smallest value -99.99.
+
+:::
+
+## Checks that come from knowing the data
+
+The checks above apply to any raster. Checks from what you know about **this** variable are stronger:
+
++ Precipitation is never negative, and a daily total above a few hundred millimetres would be a record.
++ Five different days should not have identical values. A file in which two layers are the same is a file with a mistake in it.
+
+```text
+Using the raster ppt_days with five daily layers, print the smallest value
+of each layer (I expect 0 or more), and for each pair of consecutive
+days, whether the two layers are identical (I expect not).
+
+Put the code in my Quarto document analysis/weather.qmd, under the
+heading "Check against the data", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+The AI's code, and what it printed:
+
+```{r}
+#| label: chk-data
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+mins <- global(ppt_days, "min", na.rm = TRUE)$min
+cat("smallest value per day: expected 0 or more, got", round(mins, 2), "\n")
+for (i in 1:(nlyr(ppt_days) - 1)) {
+  same <- all(values(ppt_days[[i]]) == values(ppt_days[[i + 1]]), na.rm = TRUE)
+  cat(names(ppt_days)[i], "and", names(ppt_days)[i + 1], "identical: expected FALSE, got", same, "\n")
+}
+```
+
+All pass. When a check like this fails, the code is usually not the problem: the file is. Stop, and ask whoever produced it.
+
+## Your turn: read the AI's code
+
+```{r}
+#| label: lc-resample
+#| include: false
+template <- rast(nrows = 3, ncols = 3, xmin = 0.3, xmax = 3.3, ymin = 0.3, ymax = 3.3)
+lc_moved <- values(resample(landcover, template))[, 1]
+lc_example <- sort(unique(round(lc_moved, 2)))
+lc_example <- lc_example[lc_example %% 1 != 0][1:3]
+```
+
+A student has a land-cover raster, where 1 means corn, 2 soybean and 3 pasture, stored as plain numbers, and a weather raster on a different grid. They asked an AI to "put the land cover on the weather grid", and got this:
+
+```{r}
+#| eval: false
+landcover <- rast(here::here("data", "landcover.tif"))
+weather <- rast(here::here("data", "weather.tif"))
+landcover_on_weather <- resample(landcover, weather)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each line do?
+
+B. Which line gives a wrong result **without** an error, and what will the result contain?
+
+C. Which check would catch it?
+
+D. What should the request have said?
+
+### Answers
+
+A. Reads the land-cover raster; reads the weather raster; moves the land-cover values onto the weather grid.
+
+B. Line 3. Without a `method`, `resample()` interpolates between neighbouring cells (`"bilinear"`). Codes are not amounts, so the result holds values between the codes. On the 4-by-4 land-cover raster from the "Silent failures" slide, moved to a shifted 3-by-3 grid, it gives values such as `r paste(lc_example, collapse = ", ")`: neither corn nor soybean.
+
+C. The list of distinct values before and after. Before: 1, 2 and 3. After: many values that are not whole numbers. The smallest and largest value would not catch it, because every interpolated value lies between them.
+
+D. That the values are codes that must not be averaged or interpolated, so that each new cell takes the value of the nearest old cell (`method = "near"`), and to print the distinct values before and after.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found in the data's documentation and printout. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at a raster
+
+```text
+Without changing any value, read <path to the file> and print what R
+reports about it: rows, columns, layers, resolution, extent, CRS, the
+name of each layer, and the smallest and largest value of each layer.
+Draw a quick map of the first layer.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Read a raster
+
+```text
+In my R project, <path to the file> is a <format> file of <variable>
+for <place and dates>, with <number> layers, one per <what each layer
+is>. Its documentation says: values are <units, and the scale if
+any>, <no-data value> means no data, and the CRS is <CRS name, EPSG
+code>.
+
+Read it into a raster called <raster name>, mark <no-data value> as
+missing, and convert the values to <units>. Name the layers <names>.
+
+Check: the CRS (I expect EPSG <code>), the extent (I expect <west> to
+<east> and <south> to <north>, in the units of the CRS), the name of
+each layer, the smallest and largest value of each layer (I expect
+<lowest> to <highest> <units>), and the number of missing cells. Draw
+a quick map of each layer.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Change the grid
+
+```text
+The raster <raster name> holds <variable>, which is <an amount that can
+be averaged, or a code that cannot, such as land cover>. Make it
+<coarser by a factor of <number>, or match the grid of <other raster>>.
+Use a rule suited to <amounts or codes>, and say which rule you used
+and why.
+
+Check: the resolution and extent before and after, and the smallest and
+largest value before and after (for codes, the list of distinct values
+before and after; I expect the same codes).
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Save and read back
+
+```text
+Save the raster <raster name> as <path for the new file, ending in
+.tif>. Then read the file back and check that the CRS, the extent, the
+layer names, the smallest and largest value of each layer and the
+number of missing cells all match the original.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. which value is treated as "no data", and in which units the values
+   end up
+3. any line that could give a wrong result without an error, and which
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| What a raster is: extent, resolution, CRS, layers | `rast()` and the reading of any format |
+| What the cell values mean: units, scale, no-data value, from the documentation | `classify()`, the conversion |
+| What each layer is | Naming and selecting layers |
+| Whether a value is an amount or a code, and so how it may be combined | `aggregate()`, `resample()` with the right rule |
+| What believable values are for your variable and place | The checking code |
+
+**Every raster:** read its documentation and write down units, scale, no-data value, CRS and a believable range. Print the raster before computing anything. Ask the AI to write the code and the checks into your `.qmd`. Render it, and judge the HTML against what you wrote down.

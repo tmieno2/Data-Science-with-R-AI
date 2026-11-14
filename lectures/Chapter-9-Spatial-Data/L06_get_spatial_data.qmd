@@ -1,0 +1,743 @@
+---
+title: "09-7: Getting Spatial Data from Online Sources"
+abstract: "Chapter 9: Spatial Data"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(sf)
+library(terra)
+library(tidyterra)
+library(dplyr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+theme_set(lecture_theme())
+
+# Every file read here was downloaded once by
+# exercises/data-prep/make-9-7-downloads.R (tigris, PRISM) or saved by the
+# old course (NASS). The download code on the slides is shown, not run.
+ne_tigris <- st_read("tigris_ne_counties.gpkg", quiet = TRUE)
+ct_2021 <- st_read("tigris_ct_counties_2021.gpkg", quiet = TRUE)
+ct_2022 <- st_read("tigris_ct_counties_2022.gpkg", quiet = TRUE)
+
+nass <- readRDS("il_ne_corn_yield.rds")
+nass_tbl <- st_drop_geometry(nass)
+nass_states <- sort(unique(nass_tbl$state_name))
+nass_years <- range(as.integer(nass_tbl$year))
+per_year <- count(nass_tbl, year)
+n_other <- sum(grepl("OTHER", nass_tbl$county_name))
+n_empty <- sum(st_is_empty(nass))
+n_real_counties <- n_distinct(nass_tbl$county_code[!grepl("OTHER", nass_tbl$county_name)])
+
+prism_files <- list.files("PRISM-ppt", pattern = "[.]bil$", recursive = TRUE, full.names = TRUE)
+prism <- rast(prism_files)
+prism_max <- round(max(global(prism, "max", na.rm = TRUE)[, 1]), 1)
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Much of the spatial data in agricultural and environmental research is public: county boundaries from the Census Bureau, crop statistics from USDA, daily weather from PRISM, crop maps from the Cropland Data Layer. R packages download each of them in one line, and an AI assistant can write that line. What it cannot do is:
+
++ know which dataset, which variable, which area and which years your research needs
++ know what the values are measured in
++ tell whether what arrived is what you asked for
+
+A download can succeed and still hold less than you asked for, or something other than you meant. So today is about:
+
+1. **The concept**: the five things to decide before any download, and why a download should happen once
+2. **Reading code**: the pattern every download function follows, for four common sources
+3. **Asking AI**: what to put in the request, and how to keep a password-like key out of your files
+4. **Checking**: comparing what arrived with what you asked for
+
+### Directions
+
++ Ask your AI assistant to install the `sf`, `terra`, `tidyterra`, `tigris`, `rnassqs`, `prism`, `tidyverse` and `here` packages if you have not already.
++ This lecture assumes lectures 09-1 (vector basics) and 09-2 (raster basics).
++ The files used on these slides were downloaded once and sit in the same folder as the slides, so a path here is just the file name. The download code is shown on each slide.
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Five things to decide before any download
+
+Every download function needs the same five decisions from you. None of them can come from the AI, because they come from your research question:
+
+| | Decide | Example | Why it matters |
+|---|---|---|---|
+| 1 | **What dataset and variable** | USDA-NASS survey, "corn, grain, irrigated, yield" | Similar-sounding variables differ (irrigated or not, planted or harvested acres) |
+| 2 | **What area** | Nebraska and Kansas | Too small misses data; too large can be huge |
+| 3 | **What time** | 2000 to 2005; 1 to 3 June 2023 | Each source covers different years; recent values may be revised later |
+| 4 | **What spatial unit** | counties; cells of about 4 km | Decides what one row (or one cell) is |
+| 5 | **What units** | bushels per acre; millimetres | Needed to read the values, and often not in the data itself |
+
+Write these five down before asking. They are also what you check the download against afterwards.
+
+## Download once, then read from disk
+
+::: {.panel-tabset}
+
+### Why
+
+In the way of working of this course, the AI writes code into a `.qmd` and you render it, which runs every chunk again. A chunk that downloads would download again at every render. That is slow, it puts load on a public server, and worse, the data can change between renders: sources revise recent values, and you would not know your numbers had moved.
+
+There is also a hard limit: PRISM refuses a file downloaded more than twice in a day, so a `.qmd` that downloads at every render stops working by its third render.
+
+So a download is split in two:
+
+1. **Download** to a file in your project (for example `data/raw/`), only if the file is not there yet, and record the date
+2. **Read** the saved file, every render
+
+### What that looks like
+
+```{r}
+#| eval: false
+path <- here::here("data", "raw", "ne_counties_2022.gpkg")
+if (!file.exists(path)) {
+  ne <- tigris::counties(state = "NE", cb = TRUE, year = 2022)
+  sf::st_write(ne, path)
+}
+ne <- sf::st_read(path)
+```
+
+`if (!file.exists(path))` means "only if the file does not exist yet". To download again on purpose, delete the file.
+
+### Keys
+
+Some sources (USDA-NASS among them) require an **API key**: a personal code, like a password, that identifies you to the server. A key written into a `.qmd` is in the rendered HTML, in your git history, and on any website you publish to.
+
+Keep it in a file R reads at startup, `.Renviron` in your home folder, as a line `NASS_API_KEY=your-key`, and in code read it with:
+
+```{r}
+#| eval: false
+key <- Sys.getenv("NASS_API_KEY")
+```
+
+Tell the AI this in the request: "read the key with `Sys.getenv("NASS_API_KEY")`; never write the key itself".
+
+:::
+
+# How the code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The pattern every download follows
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+result <- package::download_function(what, where, when, options)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `package::download_function` | The function that talks to one source | Yes |
+| `what` | The dataset or variable | Usually |
+| `where` | The area: states, counties, a bounding box, a layer | Usually |
+| `when` | Years or dates | Usually; **some functions pick a year for you if left out** |
+| `options` | Detail level, output format, a key | No |
+
+### Four sources in the pattern
+
+| Source | Function | What | Where | When | Returns |
+|---|---|---|---|---|---|
+| Census boundaries | `tigris::counties()` | (the function name) | `state =` | `year =` | vector layer |
+| USDA-NASS statistics | `rnassqs::nassqs()` | `short_desc =` | `state_alpha =`, `agg_level_desc =` | `year =`, or `year__GE =` and `year__LE =` for a range | table, no shapes |
+| PRISM weather | `prism::get_prism_dailys()` | `type =` ("ppt", "tmax", ...) | the whole US, always | `minDate =`, `maxDate =` | files on disk, one folder per day |
+| Cropland Data Layer | `CropScapeR::GetCDLData()` | (the function name) | `aoi =` with `type =` | `year =` | raster |
+
+The names differ; the three questions (what, where, when) do not.
+
+### Variations you will see
+
++ `tigris::states()`, `tigris::tracts()`, `tigris::roads()`: the same pattern for other boundaries
++ `cb = TRUE` in `tigris`: simplified boundaries, much smaller files, enough for maps and joins at county level
++ `prism::prism_set_dl_dir("folder")` before `get_prism_dailys()`: where PRISM files are saved, set once
++ `lapply(years, function(y) rnassqs::nassqs(..., year = y)) |> bind_rows()`: one download per year, stacked, for requests too large for one call (Quick Stats refuses more than 50,000 rows)
+
+:::
+
+## Boundaries: `tigris`
+
+::: {.panel-tabset}
+
+### The download
+
+The code that made `tigris_ne_counties.gpkg`:
+
+```{r}
+#| eval: false
+ne_tigris <- tigris::counties(state = "NE", cb = TRUE, year = 2022)
+```
+
+What arrived, checked against what was asked for:
+
+```{r}
+#| label: tigris-check
+cat(
+  paste("rows: expected 93 (Nebraska's counties), got", nrow(ne_tigris)),
+  paste("states: expected 31 (Nebraska's code), got", paste(unique(ne_tigris$STATEFP), collapse = ", ")),
+  paste("CRS: got", st_crs(ne_tigris)$Name),
+  sep = "\n"
+)
+```
+
+`ALAND` and `AWATER` are land and water area in **square metres**, a unit you only learn from the documentation.
+
+### Boundaries change by year
+
+Connecticut, 2021 and 2022, the same call with only `year` changed:
+
+```{r}
+#| label: ct-years
+sort(ct_2021$NAME)
+sort(ct_2022$NAME)
+```
+
+In 2022 the Census Bureau replaced Connecticut's `r nrow(ct_2021)` counties with `r nrow(ct_2022)` planning regions, with new codes. Data for 2020 joined to 2022 boundaries by county code matches nothing in Connecticut. Most states change less, but county lines and codes do change, so ask for the boundary year that matches your data's years.
+
+:::
+
+## Statistics: USDA-NASS Quick Stats
+
+::: {.panel-tabset}
+
+### The download
+
+NASS Quick Stats holds survey and census statistics for US agriculture by state and county. The `rnassqs` package downloads from it. A request for irrigated corn yield by county in **Illinois and Nebraska**, 2000 to 2005, is written like this (shown, not run: it needs a key):
+
+```{r}
+#| eval: false
+rnassqs::nassqs_auth(key = Sys.getenv("NASS_API_KEY"))
+nass <- rnassqs::nassqs(
+  source_desc = "SURVEY",
+  short_desc = "CORN, GRAIN, IRRIGATED - YIELD, MEASURED IN BU / ACRE",
+  agg_level_desc = "COUNTY",
+  state_alpha = c("IL", "NE"),
+  year__GE = 2000,
+  year__LE = 2005
+)
+```
+
+`nassqs_auth()` hands the key to the package for the session. `short_desc` is the name of the data item, and it must match NASS's own wording exactly: search for it on the Quick Stats website, or ask the AI to list the items that contain your words, and choose one yourself. Quick Stats returns no shapes; to map the result, merge it with county boundaries by state and county code (lecture 03-3).
+
+The slides read `il_ne_corn_yield.rds`, a download like this one, saved for an earlier version of the course with the `tidyUSDA` package (no longer on CRAN). It holds the same Quick Stats columns, plus county shapes that `tidyUSDA` attached.
+
+### What arrived
+
+```{r}
+#| label: nass-look
+nass_tbl |>
+  select(state_name, county_name, county_code, year, Value, unit_desc) |>
+  head(4)
+ncol(nass_tbl)
+```
+
+`r ncol(nass_tbl)` columns, of which a handful matter: where (`state_name`, `county_code`), when (`year`), the value (`Value`) and its units (`unit_desc`, here `r unique(nass_tbl$unit_desc)`).
+
+### Checked against the request
+
+```{r}
+#| label: nass-check
+cat(
+  paste("states: expected ILLINOIS, NEBRASKA, got", paste(sort(unique(nass_tbl$state_name)), collapse = ", ")),
+  paste("years: expected 2000 to 2005, got", paste(range(nass_tbl$year), collapse = " to ")),
+  paste("rows: expected at most", (102 + 93) * 6, "(counties times years), got", nrow(nass_tbl)),
+  sep = "\n"
+)
+```
+
+The first check fails: **Illinois is missing**, with no error and no warning. NASS publishes no irrigated corn yield by county for Illinois, where corn is mostly not irrigated, so the request returned what exists. Without the check, an analysis of "Illinois and Nebraska" would quietly be about Nebraska alone.
+
+### Rows that are not counties
+
+Rows per year, and some unusual rows:
+
+```{r}
+#| label: nass-rows
+count(nass_tbl, year)
+nass_tbl |> filter(county_code == "998") |> select(year, county_name, county_code, asd_desc, Value)
+```
+
++ Nebraska has 93 counties, but each year has fewer rows: NASS does not publish a county when too few farms report. `r n_real_counties` different counties appear at least once.
++ One row per year is `OTHER (COMBINED) COUNTIES`, code 998: the counties not published individually in one district, combined. It is not a county, matches no county boundary (`r n_empty` rows with an empty shape in this file), and should not be averaged with the counties.
++ Depending on the package, `Value` can arrive as text, with commas in large numbers and codes such as `(D)` where a value is withheld. Ask for its type to be printed, and for the conversion to a number to report how many values became missing.
+
+:::
+
+## Weather: PRISM
+
+::: {.panel-tabset}
+
+### The download
+
+PRISM provides daily precipitation and temperature for the contiguous US, in cells of about 4 km. The download that made the `PRISM-ppt` folder:
+
+```{r}
+#| eval: false
+prism::prism_set_dl_dir(here::here("data", "raw", "PRISM-ppt"))
+prism::get_prism_dailys(type = "ppt", minDate = "2023-06-01", maxDate = "2023-06-03", keepZip = FALSE)
+```
+
+It saves one folder per day, each holding several files with the same name and different extensions. The raster itself is the `.bil` file; the others describe it.
+
+### Reading the files
+
+```{r}
+#| label: prism-files
+prism_files <- list.files("PRISM-ppt", pattern = "[.]bil$", recursive = TRUE, full.names = TRUE)
+prism_files
+prism <- rast(prism_files)
+```
+
+`list.files(..., pattern = "[.]bil$")` finds every file ending in `.bil`; `rast()` reads them as one raster with one layer per day. The date is in each file's name, and the folder names follow PRISM's own naming, which changed in 2025: code written for older downloads, which looked for names such as `PRISM_ppt_stable_4kmD2_...`, finds nothing in a new download.
+
+### Checked against the request
+
+```{r}
+#| label: prism-check
+cat(
+  paste("layers: expected 3 (1 to 3 June 2023), got", nlyr(prism)),
+  paste("dates in names:", paste(sub(".*_(\\d{8})$", "\\1", names(prism)), collapse = ", ")),
+  paste("CRS: got", crs(prism, describe = TRUE)$name),
+  paste("cell size: expected about 4 km, got", round(res(prism)[1], 4), "degrees"),
+  paste("range: expected 0 to a few hundred mm, got", 0, "to", prism_max),
+  sep = "\n"
+)
+```
+
+The units, millimetres, are not in the raster. They are on PRISM's website and in the `.info.txt` file beside each `.bil`. A cell of 0.0417 degrees is about 4.6 km north to south and 3.5 km east to west in Nebraska.
+
+### A map
+
+```{r}
+#| label: prism-map
+#| echo: false
+#| fig-height: 4.2
+ggplot() +
+  geom_spatraster(data = prism[[1]]) +
+  scale_fill_viridis_c(name = "mm, 1 June 2023", na.value = "transparent", trans = "sqrt") +
+  theme_void()
+```
+
+The whole contiguous US, whatever area you need: PRISM has no "where" argument. Crop to your area after reading (lecture 09-6).
+
+:::
+
+## Crop maps: the Cropland Data Layer
+
+::: {.panel-tabset}
+
+### What it is
+
+The Cropland Data Layer (CDL), from USDA-NASS, is a raster of what was grown in each 30 m cell of the contiguous US, every year since 2008 (some states earlier). `CropScapeR::GetCDLData()` downloads it for an area:
+
+```{r}
+#| eval: false
+cdl <- CropScapeR::GetCDLData(aoi = 31109, year = 2022, type = "f")
+```
+
+(Shown, not run: the CropScape server timed out when these slides were made.)
+
+`aoi = 31109` with `type = "f"` asks for one county by its 5-digit code (31109 is Lancaster County, Nebraska). An `sf` layer with `type = "b"` asks for the rectangle around it.
+
+### What the values are
+
+A CDL cell holds a **code for a crop**, not a quantity: 1 is corn, 5 is soybeans, 24 is winter wheat, and so on, listed in the CDL documentation. Two consequences:
+
++ An average of codes means nothing. Corn (1) and soybeans (5) average to 3, which is the code for rice.
++ Making cells larger (`terra::aggregate()`) must take the most common code (`fun = "modal"`), not the default mean.
+
+At 30 m, a whole state is hundreds of millions of cells. Ask for the smallest area that answers your question.
+
+:::
+
+# What has to be true
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Conditions for a download to be right
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **You asked for the right variable**, in the source's exact wording.
+2. **Everything you asked for arrived**: every area, every year or day.
+3. **You know what one row or one cell is**, and the rows that are something else (combined counties, totals) are removed or handled.
+4. **You know the units**, from the documentation.
+5. **The boundaries' year matches the data's years** when they will be joined by code.
+6. **The download is saved and dated**, so every render reads the same data.
+
+### Failures with and without an error
+
++ A wrong item name, no internet, a bad key, or a request too large: the function stops with an error. Annoying, but you know.
++ Areas or years with no data, combined rows, changed codes, and unknown units: the download **succeeds**, and the data is not what you think. Illinois above is the example.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For a download, that adds one rule: the download runs once and is saved, and every render reads the saved file (previous section). Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+
+## What to put in your request
+
+The AI knows the packages. Your request supplies what it cannot know:
+
+1. **The five decisions**: dataset and variable, area, time, spatial unit, units
+2. **Where to save the download**, and that it should happen only if the file is not there
+3. **How to read a key**, if the source needs one: `Sys.getenv("...")`, never the key itself
+4. **What you expect to arrive**: how many areas, how many years or days, the range of values
+5. **Checks**: each requested area and year present, rows per year, rows that are not ordinary units, CRS, a map
+6. **The closing instructions**
+
+:::{.callout-tip title="Not sure of the exact variable name?"}
+Ask first, without downloading the data: "List the NASS data items for corn that contain the words YIELD and IRRIGATED." Then choose the item yourself and put it in the download request.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Download corn yield data for Illinois and Nebraska.
+```
+
+The AI has to guess which corn yield (irrigated or not, grain or silage), which years, at what level, and where the key is. It will often write the key into the code as a placeholder you then replace, and download at every render.
+
+### Strong
+
+```text
+In my R project, download from USDA-NASS Quick Stats the county-level
+survey data item "CORN, GRAIN, IRRIGATED - YIELD, MEASURED IN BU / ACRE"
+for Illinois and Nebraska, 2000 to 2005, using rnassqs. Read my key with
+Sys.getenv("NASS_API_KEY"); never write the key. Save the result to
+data/raw/corn_yield_nass.rds, and only download if that file does not
+exist. Then read it from the file, and make Value a number.
+
+Then check: which states arrived (I expect both), which years (I expect
+2000 to 2005), the number of rows per state and year (at most the number
+of counties), the rows whose county is not a real county, the units in
+unit_desc, and the range of Value. Draw a map of 2005 yields by county,
+merging with the county boundaries in data/raw/counties_2022.gpkg by
+state and county code.
+
+Put the code in my Quarto document analysis/download.qmd, under the
+heading "Corn yield from NASS", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+### What came back
+
+In the rendered HTML, a sentence, then the chunk it describes.
+
+Download the yields once, saving them to `data/raw`, and read the saved file.
+
+```{r}
+#| label: ai-download
+#| eval: false
+path <- here::here("data", "raw", "corn_yield_nass.rds")
+if (!file.exists(path)) {
+  rnassqs::nassqs_auth(key = Sys.getenv("NASS_API_KEY"))
+  nass <- rnassqs::nassqs(
+    source_desc = "SURVEY",
+    short_desc = "CORN, GRAIN, IRRIGATED - YIELD, MEASURED IN BU / ACRE",
+    agg_level_desc = "COUNTY", state_alpha = c("IL", "NE"),
+    year__GE = 2000, year__LE = 2005
+  )
+  saveRDS(nass, path)
+}
+nass <- readRDS(path)
+nass$Value <- as.numeric(gsub(",", "", nass$Value))
+```
+
+This chunk is shown, not run. The checks below run on the saved download described on the "Statistics" slide.
+
+Print the checks.
+
+```{r}
+#| label: ai-check
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+cat(
+  paste("states: expected ILLINOIS, NEBRASKA, got", paste(sort(unique(nass$state_name)), collapse = ", ")),
+  paste("years: expected 2000 to 2005, got", paste(range(nass$year), collapse = " to ")),
+  paste("rows that are not a county: expected 0, got", sum(grepl("OTHER", nass$county_name))),
+  paste("units: expected BU / ACRE, got", paste(unique(nass$unit_desc), collapse = ", ")),
+  paste("Value range: expected 100 to 250, got", min(nass$Value), "to", max(nass$Value)),
+  sep = "\n"
+)
+```
+
+Two checks fail, and both matter: Illinois is missing, and `r n_other` rows are combined counties. You would ask the AI to remove the combined rows, and rethink the study: Illinois has no data for this item.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checks: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The checks
+
+| | Ask the AI to print | Catches | What only you can supply |
+|---|---|---|---|
+| 1 | every requested area: present or not | areas with no data, silently left out | the list you asked for |
+| 2 | every requested year or day: present or not | years not yet published, a date range one day short | the list you asked for |
+| 3 | rows per area and year (or layers per day) | units not published, duplicated downloads | how many units each area has |
+| 4 | rows that are not ordinary units | combined counties, state totals, codes such as 998 | (look at the values of the ID column) |
+| 5 | units and the range of values | a different variable from the one you meant; missing-value codes | the units from the documentation, a believable range |
+| 6 | CRS and a map | wrong area, wrong boundaries | where the area is |
+
+### Reading the HTML
+
+The map from the strong request, 2005 yields with the combined-counties row removed:
+
+```{r}
+#| label: chk-map
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+#| fig-height: 4.2
+yield_2005 <- nass |>
+  sf::st_drop_geometry() |>
+  filter(year == 2005, county_code != "998") |>
+  select(state_fips_code, county_code, Value)
+ne_yield <- left_join(ne_tigris, yield_2005, by = c("STATEFP" = "state_fips_code", "COUNTYFP" = "county_code"))
+ggplot(ne_yield) +
+  geom_sf(aes(fill = Value), colour = "white", linewidth = 0.2) +
+  scale_fill_viridis_c(name = "bu/acre", na.value = "grey85") +
+  theme_void()
+```
+
+Grey counties are those with no published value for 2005: the merge by state and county code kept them, with a missing value. A map shows at once what a row count only implies: which counties are missing, and whether they cluster.
+
+:::
+
+## Checks that come from knowing the data
+
+The checks above apply to any download. What you know about the subject gives stronger ones.
+
++ **A number you know.** Nebraska's statewide irrigated corn yield in a recent year is published in NASS's news releases; county values should scatter around it.
++ **A known count.** Every state's number of counties is public: Nebraska 93, Kansas 105, Iowa 99. A boundary download with a different count is the wrong year, the wrong state, or the wrong function.
++ **A known pattern.** In PRISM, precipitation is higher in the eastern Great Plains than the western in most seasons; a map with the reverse pattern deserves a look.
+
+```text
+For the downloaded data, print the number of distinct counties per
+state, and compare it with the number of counties in each state
+according to <the boundary layer you downloaded>.
+
+Put the code in my Quarto document analysis/download.qmd, under the
+heading "Checks", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+## Your turn: read the AI's code
+
+A student asked an AI to "download daily max temperature for Kansas for July 2023 and get the average per county", and got this:
+
+```{r}
+#| eval: false
+prism::prism_set_dl_dir("C:/Users/kim/prism")
+prism::get_prism_dailys(type = "tmax", minDate = "2023-07-01", maxDate = "2023-07-30")
+tmax <- rast(list.files("C:/Users/kim/prism", pattern = "bil", recursive = TRUE, full.names = TRUE))
+ks <- tigris::counties(state = "KS")
+county_tmax <- terra::extract(mean(tmax), ks, fun = mean)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each line do?
+
+B. Which dates are missing from "July 2023"?
+
+C. What will `pattern = "bil"` pick up besides the `.bil` files?
+
+D. What happens at every render, and what should change?
+
+### Answers
+
+A. Sets the PRISM folder; downloads daily maximum temperature for 1 to 30 July; reads every file whose name contains "bil"; downloads Kansas counties; averages the days into one layer and extracts its mean per county.
+
+B. 31 July. The check "layers: expected 31" would have caught it.
+
+C. Every file whose name contains "bil" anywhere, including the `.bil.aux.xml` file that comes with each day's download. `rast()` stops with "cannot open this file as a SpatRaster", so this one fails with an error, which is the good case. `pattern = "[.]bil$"` matches only names ending in `.bil`.
+
+D. Both downloads run again, from a folder on one computer. Save to a project folder built with `here::here()`, download only if the files are not there, and give `tigris::counties()` a `year =` so the boundaries do not change when the package's default year does.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with your own decisions. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Find a variable name
+
+```text
+Using rnassqs, list the NASS data items (short_desc) for the commodity
+<commodity> that contain all of these words: <words>. Read my key with
+Sys.getenv("NASS_API_KEY"); never write the key. Print the matches.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Boundaries
+
+```text
+Download the <counties, states, or other boundaries> of <area> for the
+year <year>, generalised (cb = TRUE), with tigris. Save them to <path
+for the saved file, ending in .gpkg>, and only download if that file
+does not exist. Then read them from the file.
+
+Then check: the number of features (I expect <number>), the CRS, which
+<states or areas> are present, and draw a map.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Statistics from NASS
+
+```text
+Download from USDA-NASS Quick Stats the <SURVEY or CENSUS> data item
+"<exact data item>" at <COUNTY or STATE> level for <states>, <first
+year> to <last year>, using rnassqs. Read my key with
+Sys.getenv("NASS_API_KEY"); never write the key. Save the result to
+<path for the saved file>, and only download if that file does not
+exist. Then read it from the file, and make Value a number, printing
+how many values became missing.
+
+Then check: which states and years arrived (I expect all of them), the
+number of rows per state and year (at most <number of counties>), the
+rows that are not a single county, the units, and the range of Value
+(I expect <lowest> to <highest>).
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Daily weather from PRISM
+
+```text
+Download daily PRISM <ppt, tmax, tmin or tmean> from <first date> to
+<last date> into <folder for the downloads>, only if the files are not
+there yet. Read every .bil file (names ending in .bil) as one raster
+with one layer per day, then crop it to <the area, or the layer that
+defines it>.
+
+Then check: the number of layers (I expect <number of days>), the dates
+in the layer names, the CRS, the cell size, and the range of values in
+<units> (I expect <lowest> to <highest>). Draw a map of the first day.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. what each download asks for: which data, area, and years or dates
+2. what will happen each time the document is rendered
+3. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| The five decisions: dataset and variable, area, time, spatial unit, units | The call to `tigris`, `rnassqs`, `prism`, `CropScapeR` |
+| That a download succeeds even when part of what you asked for does not exist | The checks of what arrived |
+| Which rows are not ordinary units (combined counties, totals) | The filter that removes them |
+| That boundaries and codes change by year | `year =` |
+| Why a download happens once, and where the key lives | `file.exists()`, `Sys.getenv()` |
+| What the values mean, from the documentation | |
+
+**Every download:** write down the five decisions and what you expect to arrive. Ask for a saved, dated download, read from disk, and checks of every area and year requested, rows per unit, unusual rows, units, range and a map. Render, and judge the HTML against what you wrote down.

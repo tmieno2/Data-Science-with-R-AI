@@ -1,0 +1,424 @@
+---
+title: "02-3: Websites with Quarto"
+abstract: "Chapter 2: Quarto"
+engine: knitr
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+A single `.qmd` renders to one page. When a project has several documents (the data, several analyses, notes for your advisor), Quarto can render them all together into a **website**: a set of pages joined by a menu. The course website you are reading these slides on is one.
+
+An AI assistant can set up a website and write every configuration line. What it cannot do is:
+
++ know who will visit the site and what they come for
++ decide which pages exist, what is on each, and in what order they appear in the menu
++ know what must not be made public
+
+So today is about:
+
+1. **The concept**: what a website project is, what rendering it does, and what it is for in research
+2. **Reading code**: recognising the files that make up a website, and the one file that ties them together
+3. **Asking AI**: what to put in a request for a site
+4. **Checking**: how to judge a site the way a visitor will use it
+
+### Directions
+
++ Lecture 02-1 (Quarto documents and rendering) comes first; this lecture assumes it.
++ In RStudio, a new website starts from **File, New Project, New Directory, Quarto Website**. You will not need to remember that: the AI can create it, or tell you.
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What a website is for in research
+
+::: {.panel-tabset}
+
+### Uses
+
+| Use | Who visits | What they look for |
+|---|---|---|
+| A project site shared with an advisor or coauthors | People who know the project | The latest results, each with its code and checks, in one place |
+| A lab notebook | You, months later | What was done, when, and why |
+| A course or workshop site | Students | Material in a fixed order |
+| A personal site | Anyone | Who you are, your papers |
+
+The first two follow the way of working from lecture 02-1: every analysis is a `.qmd` that renders to a page with its sentences, code and checks. A website puts those pages under one menu, so a reader can find them without being sent a dozen HTML files.
+
+### Page or site?
+
+| | One `.qmd` (lecture 02-1) | A website |
+|---|---|---|
+| What you send | One HTML file (with `embed-resources: true`) | A folder of HTML files, or a web address once it is published |
+| How pages connect | They do not | A menu on every page |
+| Shared settings | Each file has its own header | One file sets the look and the menu for all pages |
+
+A website is a **folder**, not a file. That decides how it is shared (see "Checking the result").
+
+:::
+
+## What rendering a website does
+
+When you render the whole website (RStudio: **Build** tab, **Render Website**), Quarto:
+
+1. Renders **every** `.qmd` in the project folder, one by one. Each page is rendered in its own new R session, with its own folder as the working directory, exactly as in lecture 02-1.
+2. Adds the menu and the shared look to every page.
+3. Writes the pages into one output folder, `_site/` by default, and opens the home page.
+
+What follows from this:
+
++ **Pages do not share anything.** A table made on one page does not exist on another. A page that needs the data reads it itself. (Rendered on its own, a page that uses a table made only on another page stops with `object '...' not found`.)
++ **Every `.qmd` becomes a page**, whether or not the menu links to it. Files and folders whose names start with `_` are left out.
++ **One page that fails stops the render.** The error names the file and the chunk, as for a single document.
++ The `_site/` folder is output. Edit the `.qmd` files, never the HTML in `_site/`: the next render overwrites it.
+
+# How a website is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The pattern
+
+::: {.panel-tabset}
+
+### The files
+
+Every Quarto website has the same parts:
+
+```{verbatim}
+my-project/
+├── _quarto.yml        the settings for the whole site, and the menu
+├── index.qmd          the home page
+├── data.qmd           one .qmd per page
+├── analysis.qmd
+├── about.qmd
+├── data/              files the pages read
+└── _site/             the rendered website (output; never edit)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `_quarto.yml` | Makes the folder a website, and sets the menu and look for every page | **Yes** |
+| `index.qmd` | The home page; it becomes `index.html`, which a browser opens first | **Yes** |
+| Other `.qmd` files | One per page | No |
+| `_site/` | Written by rendering | Made for you |
+
+### `_quarto.yml`
+
+`_quarto.yml` is written in YAML, like a document's header (lecture 02-1), but on its own in a file:
+
+```{verbatim}
+project:
+  type: website
+
+website:
+  title: "Corn yield project"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: data.qmd
+        text: Data
+      - href: analysis.qmd
+        text: Analysis
+      - about.qmd
+
+format:
+  html:
+    toc: true
+```
+
+| Part | What it does |
+|---|---|
+| `project: type: website` | Makes the folder a website |
+| `website: title:` | The site name, at the left of the menu |
+| `navbar: left:` | The menu along the top, in this order. Each `- href:` is one entry: the file, and `text:` the word shown. A file alone (`- about.qmd`) shows the page's own title. |
+| `format: html:` | Settings that apply to every page, so pages do not repeat them in their own headers |
+
+### A page
+
+A page is an ordinary `.qmd`. Its header can be short, because the shared settings come from `_quarto.yml`:
+
+`````{verbatim}
+---
+title: "Analysis"
+---
+
+Read the county yield data.
+
+```{r}
+#| label: read-yields
+yields <- readr::read_csv(here::here("data", "yields.csv"))
+```
+`````
+
+`here::here()` works on every page, wherever its `.qmd` sits in the project, because it builds paths from the project folder (lecture 03-1).
+
+### Variations you will see
+
++ `output-dir: docs` under `project:`: write the site into `docs/` instead of `_site/`. Used when the site is published from GitHub.
++ `execute: freeze: auto`: rerun a page's code only when that page's `.qmd` has changed. With many slow pages, this saves time; the results of unchanged pages come from the last time they ran, kept in a `_freeze/` folder.
++ `sidebar:` instead of, or with, `navbar:`: a menu down the side.
++ A `listing:` in a page's header: the page lists other pages automatically, as the course's lecture index does.
++ `render:` under `project:`: a list saying which files to render, so others are left out.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The same way of working, for a website
+
+The way of working with AI from lecture 02-1 applies to every page: the AI writes into a `.qmd`, with one plain-English sentence above each chunk, and you render and judge the rendered pages, not the chat. Two things are added for a site:
+
++ **The structure is a decision, made before any code.** Which pages, what is on each, in what order in the menu. Write it down as a list, the **site map**, and give it to the AI.
++ **You judge the site by using it**: starting from the home page and clicking, as a visitor would.
+
+:::{.callout-note}
+Every request for code still ends with the **closing instructions**; the full text is under **Recommended requests** near the end. For a site, the `.qmd` they name is the page the code goes on.
+:::
+
+## What to put in your request
+
+1. **Who visits, and what for**: an advisor checking results, a coauthor, the public
+2. **The site map**: each page, its file name, what it shows, and the order in the menu
+3. **Where the data is**, and which pages read it
+4. **What must stay out**: data you may not share, passwords and keys, drafts
+5. **The checks**, on the page where the data is read
+6. **The closing instructions**
+
+:::{.callout-important title="Public means public"}
+A website that is published can be read by anyone, and so can any file inside the published folder. Data under a licence, personal information, and keys to online services (for example a key to a data service written in a chunk) must not be in it. The AI does not know what your data agreement allows; you must tell it.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Make a website for my project.
+```
+
+A typical result: the template's two pages, "Home" and "About", with placeholder text, and nothing from your project. Or, if the AI can see your files, one page for each `.qmd` it finds, in alphabetical order, including drafts and notes you never meant to show.
+
+### Strong
+
+An example for a project shared with an advisor:
+
+```text
+Turn my project folder into a Quarto website. The visitor is my
+advisor, who wants to see the latest results with their code and
+checks. Pages, in this order in the menu at the top:
+1. Home (index.qmd): two sentences on what the project is, and links
+   to the other pages
+2. Data (data.qmd): reads data/yields.csv and shows its checks
+3. Analysis (analysis.qmd): the analysis now in analysis/report.qmd
+Move the analysis out of analysis/report.qmd into analysis.qmd, and
+leave out the folders notes/ and analysis/. Every page reads the data it
+needs itself. On the Data page, check the number of rows (I expect 400).
+
+Put the code in my Quarto document data.qmd, under the heading "Read
+the data", as R code chunks. Above each chunk, write one plain-English
+sentence saying what it does and why. Build every path with
+here::here(); no setwd(), no absolute paths. Print each check on its
+own line as "name of check: expected X, got Y". Render the document to
+HTML.
+```
+
+### What came back
+
+The menu part of the `_quarto.yml` the AI wrote:
+
+```{verbatim}
+website:
+  title: "Corn yield project"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: data.qmd
+        text: Data
+      - href: analysis.qmd
+        text: Analysis
+```
+
+Check it against the site map: three entries, in the order asked. Then check what is **not** in the menu: if `notes/` or `analysis/` holds `.qmd` files, they are still rendered into pages unless they are excluded (for example with `render:` under `project:`, or by a folder name starting with `_`). Ask the AI which of the two it did, and look in `_site/` to confirm.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Judging a site as a visitor will use it
+
+::: {.panel-tabset}
+
+### The checks
+
+| | Check | How | Why |
+|---|---|---|---|
+| 1 | The whole site renders | **Render Website**, and read its message | Proves every page builds from its own `.qmd` |
+| 2 | Every page in the site map is in the menu, in order | Open the home page; read the menu | A page not in the menu exists, but no visitor will find it |
+| 3 | Every page can be reached by clicking, starting from the home page | Click through every menu entry and every link | Typing an address is not how visitors arrive |
+| 4 | Nothing is on the site that should not be | Look at every file in `_site/`, not only the pages in the menu | Every `.qmd` becomes a page, and published files can be read by anyone |
+| 5 | Each page passes the checks from lecture 02-1 | Sentences, checks printed as expected and got, no hidden steps | A page of a site is a document like any other |
+
+### Sharing a site
+
+A website is the whole output folder: pages link to each other and to the shared files in `site_libs/` inside it. So:
+
++ Sending one page's HTML file does not send the site: its menu points at pages the recipient does not have.
++ To share it before it is published, send the whole `_site/` folder, zipped. Opened from the folder, `index.html` works, and so do the links between pages.
++ To put it online, the folder is **published**, for example with GitHub Pages or Quarto Pub. Ask the AI for the steps when you need them, and decide first, with check 4, what may be public.
+
+:::
+
+## Your turn: read a `_quarto.yml`
+
+A student's project folder holds `index.qmd`, `cleaning.qmd`, `results.qmd`, `old-results.qmd` and `_quarto.yml`:
+
+```{verbatim}
+project:
+  type: website
+
+website:
+  title: "Thesis"
+  navbar:
+    left:
+      - href: index.qmd
+        text: Home
+      - href: results.qmd
+        text: Results
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. Which pages will be in `_site/` after rendering the website?
+
+B. Which can a visitor reach by clicking from the home page?
+
+C. The student's advisor asks how the data was cleaned. What is wrong, and what would you ask the AI to change?
+
+### Answers
+
+A. Four: `index.html`, `cleaning.html`, `results.html`, `old-results.html`. Every `.qmd` is rendered.
+
+B. Home and Results only (unless the text of a page links to the others).
+
+C. The cleaning page exists but is not in the menu, so the advisor cannot find it; and the old results are built and sit in the site, where they could be mistaken for current ones if anyone found them. Ask the AI to add the cleaning page to the menu before Results, and to leave `old-results.qmd` out of the render (or move it into a folder whose name starts with `_`). Then render and check `_site/` again.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what only **you** know: the visitors, the site map, and what must stay out. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Make a site
+
+```text
+Turn my project folder <path to the project folder> into a Quarto
+website. The visitor is <who, and what they come for>. Pages, in this
+order in the menu at the top:
+<numbered list: page name, file name, what it shows>
+Leave out <files or folders that must not become pages>. Every page
+reads the data it needs itself. On the page that reads the data, check
+<checks you know the answer to>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Add a page
+
+```text
+Add a page to my Quarto website: <file name>, titled "<title>", which
+shows <what it shows>. Put it in the menu after "<the menu entry it
+follows>". Do not change any other page.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain a site
+
+For a website project you did not set up:
+
+```text
+Explain this Quarto website project to me. List every file that will
+become a page, and say for each whether the menu links to it. Then list
+any file in the output folder that is not a page, and say where it
+comes from.
+
+<paste _quarto.yml and the list of files in the project folder here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must decide, and what the AI can write
+
+| You need to decide or understand | The AI can write |
+|---|---|
+| Who visits, and what they come for | |
+| The site map: which pages, what is on each, in what order | `_quarto.yml` and the menu |
+| That every `.qmd` becomes a page, each rendered in its own R session | `render:` lists, `freeze` |
+| What must not be public | |
+| That a site is a folder, and how it is shared | The steps to publish it |
+
+**Every site:** write the site map before asking. Render the whole site, start from the home page and click through everything, and look at every file in the output folder before anyone else does.

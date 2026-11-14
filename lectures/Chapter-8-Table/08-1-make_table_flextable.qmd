@@ -1,0 +1,878 @@
+---
+title: "08-1: Communicating with Tables"
+abstract: "Chapter 8: Make Tables"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(tidyr)
+library(flextable)
+library(gt)
+
+# Table text no smaller than the slide's body text
+set_flextable_defaults(font.size = 14)
+
+# Thirteen Pacific countries and the region each belongs to
+regions <- c(
+  AU = "Australasia", NZ = "Australasia",
+  FJ = "Melanesia", NC = "Melanesia", PG = "Melanesia", SB = "Melanesia", VU = "Melanesia",
+  KI = "Micronesia", FM = "Micronesia",
+  PF = "Polynesia", WS = "Polynesia", TO = "Polynesia", TV = "Polynesia"
+)
+
+# The data: one row per country and year
+pacific <- countrypops |>
+  filter(country_code_2 %in% names(regions), year %in% c(2000, 2020)) |>
+  mutate(
+    region = unname(regions[country_code_2]),
+    country_name = if_else(country_code_2 == "FM", "Federated States of Micronesia", country_name)
+  ) |>
+  select(country_name, region, year, population)
+
+# One row per country, years side by side, growth in percent
+pacific_wide <- pacific |>
+  pivot_wider(names_from = year, values_from = population, names_prefix = "pop_") |>
+  mutate(growth = 100 * (pop_2020 / pop_2000 - 1))
+
+# Region summaries, computed the two ways
+by_region <- pacific_wide |>
+  group_by(region) |>
+  summarise(
+    countries = n(),
+    mean_of_countries = mean(growth),
+    from_totals = 100 * (sum(pop_2020) / sum(pop_2000) - 1)
+  )
+mel <- filter(by_region, region == "Melanesia")
+mel_2000 <- sum(pacific_wide$pop_2000[pacific_wide$region == "Melanesia"])
+mel_2020 <- sum(pacific_wide$pop_2020[pacific_wide$region == "Melanesia"])
+
+other_regions <- filter(by_region, region != "Melanesia") |> arrange(desc(from_totals))
+g <- function(country) round(pacific_wide$growth[pacific_wide$country_name == country])
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+An AI assistant can turn any data into a table in seconds, and it knows every option of every table package. What it cannot do is:
+
++ know what the table is supposed to tell the reader
++ know who the reader is
++ decide which numbers the reader must compare
++ tell whether the numbers in the table are the ones you meant
+
+Those are your job. So today is about:
+
+1. **The concept**: what a table is for, and the design choices that decide whether it tells the reader anything
+2. **Reading code**: recognising what a line of table code does, without memorising it
+3. **Asking AI**: what to put in a table request, including a standard every finished table must meet
+4. **Checking**: how to tell that the numbers in the table are right
+
+This deck shows the code of the `flextable` package. Lecture 08-3 shows the same pattern in the `gt` package, and 08-2 covers regression tables.
+
+### Directions
+
++ Ask your AI assistant to install the `flextable` and `gt` packages if you have not already. Installing is a one-time step per computer.
++ The data on these slides is `countrypops`, which comes with the `gt` package, so there is no file to download.
+
+:::
+
+# Start from the message
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## A table or a figure?
+
+Both exist to tell a reader something. They are good at different things:
+
+| Choose | When the reader needs to | Example |
+|---|---|---|
+| A figure | see a pattern: a trend, a gap, a shape | yields rising over twenty years |
+| A table | read exact values, or look up the one row they care about | each county's yield, so a farmer can find their own |
+| A table | compare a few numbers that a figure would not make clearer | the average yield in three states |
+
+If the reader will only take away a pattern, a figure usually does it faster. If the reader will quote a number, or look one up, use a table.
+
+## One sentence and one reader
+
+::: {.panel-tabset}
+
+### What you need
+
+Before any table, write down two things:
+
+1. **The message**: the one sentence the reader should take away. For example: "From 2000 to 2020, Papua New Guinea, Vanuatu and the Solomon Islands, all in Melanesia, grew fastest, and Tonga and the Federated States of Micronesia barely grew."
+2. **The reader**: who will see the table and what they already know. For example: students in a development course who know the Pacific but have not seen these numbers.
+
+Every design decision on the following slides is judged against that sentence and that reader.
+
+### Why the AI cannot do this
+
+Ask an AI for "a table of this data" and it shows every column of the data, in the order they are stored, with every decimal. That is a table **of the data**, not of a message. Nothing in it tells the reader where to look.
+
+The AI can only design for a message if you give it one.
+
+:::
+
+# Designing the table
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The data on these slides
+
+`pacific` holds the population of `r n_distinct(pacific$country_name)` Pacific countries in 2000 and 2020. One row is one country in one year, so it has `r nrow(pacific)` rows:
+
+```{r}
+#| label: data-head
+head(pacific, 4)
+```
+
+Every table on the following slides is built from this data.
+
+:::{.callout-note title="Three names used in this deck"}
++ **Table**: data in R, as in every lecture of this course. `pacific` is a table.
++ **Finished table**: what the reader sees in your HTML or your paper.
++ **Display table**: the table in R that holds exactly the rows and columns of the finished table, in order, before any styling.
+:::
+
+## Rows, columns, and what the reader compares
+
+The numbers the reader must compare should sit **next to each other**, ideally in one column, where the eye runs straight down.
+
+::: {.panel-tabset}
+
+### One row per country and year
+
+The data as it is stored. To see how much Australia grew, the reader has to find two rows and subtract:
+
+```{r}
+#| label: layout-long
+#| echo: false
+pacific |>
+  arrange(country_name, year) |>
+  head(6) |>
+  flextable() |>
+  set_header_labels(country_name = "Country", region = "Region", year = "Year", population = "Population") |>
+  colformat_int(j = "year", big.mark = "") |>
+  autofit()
+```
+
+(The first 6 of `r nrow(pacific)` rows.)
+
+### One row per country
+
+The years side by side, and the comparison the message is about, the growth, computed and put in its own column. The reader runs down one column to compare countries:
+
+```{r}
+#| label: layout-wide
+#| echo: false
+pacific_wide |>
+  head(6) |>
+  mutate(across(c(pop_2000, pop_2020), \(x) x / 1000)) |>
+  flextable() |>
+  set_header_labels(
+    country_name = "Country", region = "Region",
+    pop_2000 = "2000", pop_2020 = "2020", growth = "Growth (%)"
+  ) |>
+  add_header_row(values = c("", "Population (thousands)", ""), colwidths = c(2, 2, 1)) |>
+  colformat_double(j = c("pop_2000", "pop_2020"), digits = 0) |>
+  colformat_double(j = "growth", digits = 0) |>
+  autofit()
+```
+
+### The rule
+
++ What the reader **compares** goes down a column.
++ What the reader **looks up** (the country, the state, the year) goes in the first column.
++ A number the reader would have to compute in their head (a difference, a growth rate, a share) goes in the table as its own column.
+
+Deciding this is deciding the **display table**. That happens before any styling (see "How table code is written").
+
+:::
+
+## Order the rows for the message
+
+::: {.panel-tabset}
+
+### Alphabetical
+
+```{r}
+#| label: order-alpha
+#| echo: false
+pacific_wide |>
+  arrange(country_name) |>
+  select(country_name, region, growth) |>
+  flextable() |>
+  set_header_labels(country_name = "Country", region = "Region", growth = "Growth, 2000 to 2020 (%)") |>
+  colformat_double(j = "growth", digits = 0) |>
+  autofit()
+```
+
+Which countries grew fastest? The reader has to read all `r nrow(pacific_wide)` numbers to find out.
+
+### By growth
+
+```{r}
+#| label: order-value
+#| echo: false
+pacific_wide |>
+  arrange(desc(growth)) |>
+  select(country_name, region, growth) |>
+  flextable() |>
+  set_header_labels(country_name = "Country", region = "Region", growth = "Growth, 2000 to 2020 (%)") |>
+  colformat_double(j = "growth", digits = 0) |>
+  autofit()
+```
+
+The message is in the first three and last two rows: three Melanesian countries at the top, Tonga and the Federated States of Micronesia at the bottom.
+
+Grouping is another order: rows under a heading per region, countries ordered by growth inside each. It serves a message about the regions.
+
+Alphabetical order serves a reader who will **look up** one row, in a long table: a county list that farmers search for their own county. For a message about which rows are largest or smallest, order by the value. For years, use time order.
+
+:::
+
+## Round to what the message needs, and align
+
+::: {.panel-tabset}
+
+### Too many digits
+
+The growth rates as R computes them, centred in their column:
+
+```{r}
+#| label: digits-bad
+#| echo: false
+pacific_wide |>
+  arrange(desc(growth)) |>
+  slice(c(1, 5, 13)) |>
+  select(country_name, growth) |>
+  flextable() |>
+  colformat_double(j = "growth", digits = 7) |>
+  align(align = "center", part = "all") |>
+  autofit()
+```
+
+Seven decimals claim a precision no population estimate has, and centring puts the digits in different places on each line.
+
+### Rounded and right-aligned
+
+```{r}
+#| label: digits-good
+#| echo: false
+pacific_wide |>
+  arrange(desc(growth)) |>
+  slice(c(1, 5, 13)) |>
+  select(country_name, growth) |>
+  flextable() |>
+  set_header_labels(country_name = "Country", growth = "Growth, 2000 to 2020 (%)") |>
+  colformat_double(j = "growth", digits = 0) |>
+  autofit()
+```
+
+Whole percentages are enough to say "fastest" and "barely". With the same number of decimals in every row and the numbers right-aligned, the ones digits line up, so the size of a number is visible at a glance.
+
+### The rule
+
++ Round to the digits the message needs. A difference the message talks about must still be visible after rounding.
++ The same number of decimals all the way down a column.
++ Numbers right-aligned, text left-aligned.
++ Big numbers in a unit the reader can read: "thousands" or "millions" in the header, or thousands separators (`19,028,802`).
+
+:::
+
+## Say what the numbers are
+
+A reader who sees a number must know what it is without reading your code.
+
++ **Headers in plain words, with units**: "Growth, 2000 to 2020 (%)", never `growth`; "Population (thousands)", never `pop_2020`.
++ **A title** that says what the table shows: which units (countries), which numbers, which years.
++ **Notes** under the table for what does not fit in a header: the source of the data, how a computed column was computed, and how many observations are behind each number when that varies.
+
+A header such as "Growth" can mean several things. The section "A table must be correct before it can communicate" shows two of them giving different numbers from the same data, and how a note prevents the confusion.
+
+# How table code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The pattern every table shares
+
+Table code always has two stages. First, ordinary data code builds the **display table**. Then a table function turns it into a finished table, and a chain of steps changes one part of it at a time.
+
+::: {.panel-tabset}
+
+### The pattern
+
+:::{.callout-important}
+The steps change how numbers are shown (rounding, units, percent signs); which rows appear, their order, and the values are decided in the display table. A formatting step can still show a value wrongly (lecture 08-3 shows one that multiplies by 100), so check one shown value against the data.
+:::
+
+```{r}
+#| eval: false
+display_table |>
+  table_function() |>
+  step_function(where, setting = value) |>
+  step_function(where, setting = value)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `display_table` | The rows and columns the reader will see, built with ordinary data code (`pivot_wider()`, `mutate()`, `arrange()`, `select()`) | **Yes** |
+| `table_function()` | Turns the display table into a finished table: `flextable()` or `gt()` | **Yes** |
+| `step_function(...)` | Changes one part: headers, number format, title, notes, alignment | No; each part has a default |
+| `where` | Which columns or rows the step applies to. Leave it out and the step applies everywhere | No |
+| `\|>` | Passes the result on to the next step | |
+
+### Common steps
+
+The same jobs, in the two packages you will see most:
+
+| Job | `flextable` | `gt` |
+|---|---|---|
+| Rename headers | `set_header_labels(growth = "Growth (%)")` | `cols_label(growth = "Growth (%)")` |
+| Round numbers | `colformat_double(j = "growth", digits = 0)` | `fmt_number(columns = growth, decimals = 0)` |
+| A header over several columns | `add_header_row(values = ..., colwidths = ...)` | `tab_spanner(label = ..., columns = ...)` |
+| Title | `set_caption("...")` | `tab_header(title = "...")` |
+| Notes under the table | `add_footer_lines("...")` | `tab_source_note("...")` |
+| Alignment | `align(j = ..., align = "right")` | `cols_align(align = "right", columns = ...)` |
+| Column widths | `autofit()` | `cols_width(...)` |
+| Fit the page width | `fit_to_width(max_width = 6)` (inches) | `cols_width(...)`, shorter headers |
+| Rows under group headings | `as_grouped_data()`, or `merge_v()` to merge repeated cells | `gt(groupname_col = "region")` |
+| A ready-made look | `theme_booktabs()` | `opt_stylize()` |
+
+Where a step applies is written `j =` (columns) and `i =` (rows) in `flextable`, and `columns =` and `rows =` in `gt`.
+
+### Variations you will see
+
++ `flextable::flextable(...)`: the package name, then `::`, then the function, without loading the whole package.
++ The display table built in the same chain, straight into the table function: `pacific |> pivot_wider(...) |> flextable()`.
++ The finished table stored under a name first (`pop_ft <- ...`) and printed on a later line.
++ `modelsummary(...)` for regression tables, which builds the display table for you (lecture 08-2).
+
+:::
+
+## One real example
+
+The finished table for the message on "One sentence and one reader". A sentence, then the chunk it describes, as you will see them in the HTML.
+
+::: {.panel-tabset}
+
+### The code
+
+Build the display table: one row per country, the 2020 population in thousands (kept so the reader sees each country's size), growth from 2000 to 2020 in percent, fastest growth first.
+
+```{r}
+#| label: example-display
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+pop_table <- pacific |>
+  pivot_wider(names_from = year, values_from = population, names_prefix = "pop_") |>
+  mutate(
+    growth = 100 * (pop_2020 / pop_2000 - 1),
+    pop_2020 = pop_2020 / 1000
+  ) |>
+  arrange(desc(growth)) |>
+  select(country_name, region, pop_2020, growth)
+```
+
+Turn it into a finished table: plain headers with units, whole numbers, a title, and notes on the source and on how growth was computed.
+
+```{r}
+#| label: example-finished
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+#| output: false
+pop_ft <- pop_table |>
+  flextable() |>
+  set_header_labels(
+    country_name = "Country",
+    region = "Region",
+    pop_2020 = "Population, 2020 (thousands)",
+    growth = "Growth, 2000 to 2020 (%)"
+  ) |>
+  colformat_double(j = c("pop_2020", "growth"), digits = 0) |>
+  set_caption("Population growth of 13 Pacific countries, 2000 to 2020, fastest first") |>
+  add_footer_lines(c(
+    "Growth: 2020 population divided by 2000 population, minus 1, in percent.",
+    "Source: countrypops data in the gt R package."
+  )) |>
+  theme_booktabs() |>
+  autofit()
+```
+
+You should be able to point at the line that sets each header, the line that rounds, and the line that adds each note. The order of the rows comes from `arrange()` in the first chunk, not from anything in the second.
+
+### The finished table
+
+```{r}
+#| label: example-show
+#| echo: false
+pop_ft
+```
+
+:::
+
+# What a finished table looks like
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The table standard
+
+Every table you hand in must meet this standard, whatever its message. Each item has a yes or no answer.
+
+| | Item |
+|---|---|
+| 1 | Headers and row labels in plain words with units: "Growth, 2000 to 2020 (%)", never `growth` |
+| 2 | Categories in words, never codes such as `1` |
+| 3 | Rounded to what the message needs, the same number of decimals down each column |
+| 4 | Thousands separators in large numbers, except in years |
+| 5 | Percentages shown as percentages |
+| 6 | Numbers right-aligned, text left-aligned |
+| 7 | Text no smaller than the document's body text |
+| 8 | Fits the page width where it will appear, without scrolling |
+| 9 | Rows in an order that serves the message; alphabetical only for a long table the reader searches |
+| 10 to 13 | A title saying what the numbers are; notes on the source, on how any computed column was computed, and on the number of observations behind each value when it varies |
+| 14 | Nothing the message does not need: no extra columns, row numbers, heavy borders, or colours that only decorate |
+| 15 to 18 | For regression tables (lecture 08-2): one column per model; standard errors and their kind; stars left out or defined; observations for every model |
+
+The copyable version, to add to every table request, is in **Recommended requests** at the end of this deck.
+
+## Before and after
+
+Message: "From 2000 to 2020, Papua New Guinea, Vanuatu and the Solomon Islands, all in Melanesia, grew fastest, and Tonga and the Federated States of Micronesia barely grew."
+
+::: {.panel-tabset}
+
+### Before
+
+What comes back from `flextable(pacific_wide)`, a request that said nothing about the message or how the table should look:
+
+```{r}
+#| label: before
+#| echo: false
+flextable(pacific_wide)
+```
+
+### After
+
+```{r}
+#| label: after
+#| echo: false
+pop_ft
+```
+
+### What changed
+
+| | Standard item | Before | After |
+|---|---|---|---|
+| 1 | Plain-word headers | `pop_2000`, `growth` | "Population, 2020 (thousands)", "Growth, 2000 to 2020 (%)" |
+| 3 | Rounded | growth with 7 decimals, such as `r format(round(pacific_wide$growth[1], 7), nsmall = 7)` | whole percentages; population in thousands |
+| 9 | Order | the order the data happened to be in | fastest growth first |
+| 10 to 12 | Title and notes | none | a title, how growth was computed, the source |
+| 14 | Nothing unneeded | the 2000 population, which the message does not use | removed; growth already carries the comparison |
+
+Items 4 and 6 needed no change: `flextable` adds thousands separators and right-aligns numbers already. The default did not round, though: every number that is not whole came out with seven decimals.
+
+:::
+
+# A table must be correct before it can communicate
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The numbers must be the ones you meant
+
+::: {.panel-tabset}
+
+### Two meanings of "growth"
+
+Ask an AI for "population growth by region" and either of these can come back. Both run without an error:
+
+```{r}
+#| label: two-growths
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+pacific_wide |>
+  group_by(region) |>
+  summarise(
+    countries = n(),
+    mean_of_countries = mean(growth),
+    from_totals = 100 * (sum(pop_2020) / sum(pop_2000) - 1)
+  )
+```
+
++ `mean_of_countries`: the average of the countries' growth rates. Vanuatu, which had `r format(round(pacific_wide$pop_2000[pacific_wide$country_name == "Vanuatu"] / 1000), big.mark = ",")` thousand people in 2000, counts as much as Papua New Guinea, which had `r format(round(pacific_wide$pop_2000[pacific_wide$country_name == "Papua New Guinea"] / 1000), big.mark = ",")` thousand.
++ `from_totals`: the growth of the region's total population.
+
+For Melanesia, `r round(mel$mean_of_countries)`% against `r round(mel$from_totals)`%. Neither is wrong; they answer different questions. A table headed "Growth (%)" does not say which one the reader is looking at.
+
+### The check
+
+Decide which one the message needs **before** you ask, and compute one value yourself from numbers you can see. Melanesia's total population was `r format(mel_2000, big.mark = ",")` in 2000 and `r format(mel_2020, big.mark = ",")` in 2020, so the growth of the total is `r round(mel$from_totals, 1)`%. Then ask the AI to print the check:
+
+```{r}
+#| label: growth-check
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+growth_table <- pacific_wide |>
+  group_by(region) |>
+  summarise(growth = mean(growth))
+
+cat("Melanesia growth: expected 66.5, got",
+    round(growth_table$growth[growth_table$region == "Melanesia"], 1), "\n")
+```
+
+The check **fails**: this code computed the average of the countries. Ask the AI to compute growth from the regional totals, and write in a note which one the table shows.
+
+### Checks for any table
+
+1. **Rows**: the number of rows is the number of things the reader should see (here, `r nrow(pacific_wide)` countries or `r nrow(by_region)` regions).
+2. **One value, computed by hand**: pick one cell and compute it yourself from the data.
+3. **Counts behind each value**: when a cell is an average, print how many observations it averages. A region with `r min(by_region$countries)` countries and one with `r max(by_region$countries)` look the same in a table of averages.
+4. **Totals**: if the counts should add up to the number of rows in the data, check that they do.
+
+:::
+
+# Judging a table
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The checklist
+
+Apply it to any table, yours or the AI's, by looking at it **in the rendered HTML**. Each question has a yes or no answer.
+
+1. Can someone who has not seen the data state the message within a few seconds?
+2. Are the numbers the reader must compare next to each other, ideally down one column?
+3. Is every number one the message needs?
+4. Does every header say what its numbers are, with units?
+5. Does it meet every item of the table standard?
+6. Did one value, computed by hand, match?
+
+A "no" to any question is something to fix.
+
+## Your turn: judge a table
+
+The message is meant to be: "From 2000 to 2020, Melanesia's total population grew fastest of the four regions."
+
+```{r}
+#| label: your-turn
+#| echo: false
+by_region |>
+  select(region, countries, mean_of_countries) |>
+  mutate(pop_total_2020 = tapply(pacific_wide$pop_2020, pacific_wide$region, sum)[region]) |>
+  flextable() |>
+  colformat_double(j = "mean_of_countries", digits = 4) |>
+  autofit()
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. Apply questions 1 to 5 of the checklist. Which answers are "no"?
+
+B. Does the table show the number the message is about?
+
+C. List the changes you would ask for, most important first.
+
+### Answers
+
+A. Question 1 is close to "yes" only because the table is small: Melanesia has the largest number, but the reader must first work out which column to read. Question 3 is "no": `pop_total_2020` is not needed for the message. Question 4 is "no": raw column names, and nothing says which kind of growth `mean_of_countries` is. Question 5 is "no": four decimals, no title, no notes. Question 6 fails: Melanesia's total population grew by `r round(mel$from_totals, 1)`%, and the table says `r round(mel$mean_of_countries, 1)`.
+
+B. No. It shows the average of the countries' growth rates, not the growth of each region's total population. Melanesia comes first either way (`r round(mel$from_totals)`% for its total, against `r paste0(round(other_regions$from_totals), "%", collapse = ", ")` for `r paste(other_regions$region, collapse = ", ")`), but a reader who quotes "`r round(mel$mean_of_countries)`%" for Melanesia's population growth would be wrong.
+
+C. Compute growth from each region's total population; order the regions by it; plain-word headers with units; whole percentages; drop `pop_total_2020`; a title; a note saying how growth was computed, how many countries each region has, and where the data comes from.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+Tables follow the same way of working as everything else (lecture 02-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document (`.qmd`) with one plain-English sentence above each chunk, you render it to HTML, and you judge the HTML.
+
+For tables, judging the HTML matters even more:
+
++ The reader sees the finished table, not the data behind it. The HTML shows exactly what they will see.
++ The table sits next to the sentence that says what it shows, so you can check that the two agree.
++ The checks (rows, one value computed by hand) print right under the table.
+
+Every table request ends with the **table standard** and then the **closing instructions**. Both are under **Recommended requests**.
+
+## What to put in a table request
+
+The AI already knows every table package. Your request supplies what it cannot know:
+
+1. **The data**: which table or file, what one row is, and which columns the table uses, with their units
+2. **The message**: the one sentence the reader should take away
+3. **The reader**: who will see it, and what they already know
+4. **The layout**: what one row of the table is, which columns, and the order of the rows
+5. **What each computed number means**: "growth of the regional total", not just "growth"
+6. **The checks**: the number of rows, and one value you computed yourself
+7. **The table standard**, then the **closing instructions**
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the data and look for itself. It still cannot know your message, your reader, or which meaning of a number you intend. Write those down **before** it runs.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Make a table of the Pacific population data.
+```
+
+The AI has to guess which columns, which rows, which order and which message. What comes back is the "Before" table on "Before and after": every column, raw names, seven decimals.
+
+### Strong
+
+```text
+In my R project, the table pacific has one row per country and year
+(2000 and 2020), with the columns country_name, region, year and
+population (number of people).
+
+The message: from 2000 to 2020, Papua New Guinea, Vanuatu and the
+Solomon Islands, all in Melanesia, grew fastest, and Tonga and the
+Federated States of Micronesia barely grew. The reader: students in a development course who know the Pacific but have
+not seen these numbers.
+
+Make a finished table with one row per country, fastest growth first,
+with the columns: country, region, population in 2020 in thousands, and growth
+from 2000 to 2020 in percent (2020 population divided by 2000
+population, minus 1). Use flextable. Check that the table has 13 rows,
+and that Papua New Guinea's growth is 77%, which I computed myself.
+
+<the table standard>
+
+Put the code in my Quarto document analysis/tables.qmd, under the
+heading "Population table", as R code chunks. Above each chunk, write
+one plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+Replace `<the table standard>` with the block from **Recommended requests**.
+
+### What came back
+
+The two chunks on "One real example", each with its sentence, followed by the checks:
+
+```{r}
+#| label: strong-checks
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+cat("rows: expected 13, got", nrow(pop_table), "\n")
+cat("growth of Papua New Guinea: expected 77, got",
+    round(pop_table$growth[pop_table$country_name == "Papua New Guinea"]), "\n")
+```
+
+Both match. Then you read the table itself against the checklist.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** know: the message, the reader, the layout, what you found in the data. Every table request ends with the table standard and then the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### The table standard
+
+Paste this into every table request, just before the closing instructions:
+
+```text
+Every table must meet this standard:
+1. Column headers and row labels in plain words with units, such as
+   "Corn yield (bushels per acre)", never a column name such as
+   corn_yield.
+2. Categories in words, such as "Irrigated", never a code such as 1.
+3. Numbers rounded to what the message needs, with the same number of
+   decimals down each column.
+4. Thousands separators in large numbers, except in years.
+5. Percentages shown as percentages.
+6. Numbers right-aligned so that the digits line up; text left-aligned.
+7. Text no smaller than the document's body text.
+8. Fits the page width where it will appear, without scrolling.
+9. Rows in an order that serves the message (by value, or in time
+   order), not alphabetical unless the reader will search a long table.
+10. A title that says what the numbers are.
+11. A note giving the source of the data.
+12. A note saying how any computed column was computed.
+13. The number of observations behind each value, when it varies.
+14. Nothing the message does not need: no extra columns, no row
+    numbers, no heavy borders, no colours that only decorate.
+For regression tables, also:
+15. One column per model, with headers or a title saying what each
+    model explains.
+16. Standard errors in parentheses below each estimate, with their kind
+    stated in a note.
+17. Significance stars left out, or defined in a note and used the same
+    way in every table.
+18. The number of observations for every model.
+```
+
+Keep your own copy of this block, and add to it each time you find something the AI keeps getting wrong.
+
+### Make a table for a message
+
+```text
+In my R project, <the table or file> has one row per <what one row is>.
+The table uses the columns <columns>, which mean <what they mean> and
+are measured in <units>.
+
+The message: <the one sentence the reader should take away>.
+The reader: <who will see it, and what they already know>.
+
+Make a finished table with one row per <what one row of the table is>, ordered
+by <the order>, with the columns <the columns, in order, with how any
+computed column is computed>. Use <flextable or gt>. Check that the
+table has <number> rows, and that <one value> is <the value you
+computed yourself>.
+
+<the table standard>
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Ask for layouts
+
+When you are not sure which layout serves the message:
+
+```text
+In my R project, <the table or file> has one row per <what one row
+is>. The message: <the one sentence>. The reader: <who will see it>.
+
+Make two different layouts of a finished table for this message, one under the
+other: <first layout, such as one row per state> and <second layout,
+such as one row per year>. Under each, write one sentence saying which
+comparison it makes easy for the reader. Do not choose for me.
+
+<the table standard>
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+Then choose one, and write down why, in your `.qmd`.
+
+### Improve a table
+
+```text
+Here is the code for a table. The message it should convey: <the one
+sentence>. The reader: <who will see it>.
+
+Change it so the message is clear and the table meets the standard
+below. Before the new table, list each change you made in one line.
+
+<paste the code here>
+
+<the table standard>
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Check a table against the data
+
+```text
+For the table made under the heading "<heading>" from <the table or
+file>, check: the number of rows (I expect <number>); <one value>
+(I computed <the value> myself); and the number of observations behind
+each value in <column>. Print the observation counts as a column of the
+table if they vary.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+For code you did not write, or code you are not sure about:
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. which lines decide which rows and numbers the table shows, and which
+   lines only change how it looks
+2. any line that could show a number different from what its header
+   says, and what check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| The message, and who reads it | |
+| Whether a table or a figure serves the message | |
+| What one row of the table is, which columns, which order | The data code that builds the display table |
+| What each computed number means (which "growth") | The calculation |
+| What the table standard requires | `set_header_labels()`, `colformat_double()`, titles and notes |
+| What a correct value is, computed by hand | The checking code |
+
+**Every table:** write the message and the reader first, and decide the layout. Ask the AI for the table with the table standard and the checks, written into your `.qmd`. Render it, and judge the table in the HTML with the checklist.

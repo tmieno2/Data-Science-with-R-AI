@@ -1,0 +1,798 @@
+---
+title: "09-6: Vector Meets Raster: Cropping, Masking and Extracting Values"
+abstract: "Chapter 9: Spatial Data"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(sf)
+library(terra)
+library(tidyterra)
+library(dplyr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+theme_set(lecture_theme())
+
+oi_blue <- "#0072B2"; oi_orange <- "#E69F00"; oi_red <- "#D55E00"; oi_green <- "#009E73"
+
+counties <- st_read("ne_counties.gpkg", quiet = TRUE)
+wells    <- st_read("wells_ne.gpkg", quiet = TRUE)
+ppt      <- rast("ne_ppt_2012aug.tif")
+ppt_total <- sum(ppt)
+names(ppt_total) <- "ppt_total"
+
+n_counties <- nrow(counties)
+n_wells    <- nrow(wells)
+n_layers   <- nlyr(ppt)
+cell_km    <- round(res(ppt)[1] * 111.32 * cos(41.5 * pi / 180), 1)
+
+# Extract to polygons, default rule, and per-county cell counts
+ex_cells <- terra::extract(ppt_total, vect(counties))
+cells_per_county <- count(ex_cells, ID)
+min_cells <- min(cells_per_county$n)
+max_cells <- max(cells_per_county$n)
+
+# Coarse version: 5 by 5 cells merged into one
+coarse <- aggregate(ppt_total, fact = 5, fun = "mean", na.rm = TRUE)
+coarse_km <- round(cell_km * 5)
+m_default <- terra::extract(coarse, vect(counties), fun = mean, na.rm = TRUE)[[2]]
+ex_exact  <- terra::extract(coarse, vect(counties), exact = TRUE)
+m_exact <- ex_exact |>
+  group_by(ID) |>
+  summarise(v = sum(ppt_total * fraction, na.rm = TRUE) / sum(fraction[!is.na(ppt_total)]))
+diff_coarse <- abs(m_default - m_exact$v)
+max_diff_coarse <- round(max(diff_coarse, na.rm = TRUE), 1)
+n_diff_big <- sum(diff_coarse > 1, na.rm = TRUE)
+coarse_cells <- count(terra::extract(coarse, vect(counties)), ID)
+n_coarse_le2 <- sum(coarse_cells$n <= 2)
+
+# A raster that stops at 100 degrees west
+ppt_east <- crop(ppt_total, ext(-100, xmax(ppt_total), ymin(ppt_total), ymax(ppt_total)))
+m_east <- terra::extract(ppt_east, vect(counties), fun = mean, na.rm = TRUE)[[2]]
+n_na_east <- sum(is.na(m_east))
+inside_box <- function(r) relate(vect(counties), vect(ext(r), crs = crs(r)), "within")[, 1]
+n_inside_east <- sum(inside_box(ppt_east))
+
+# The full raster stops just short of Nebraska's eastern edge
+out_full <- counties$name[!inside_box(ppt_total)]
+n_s2_wrong <- sum(lengths(st_within(counties, st_as_sfc(st_bbox(ppt_total)))) == 0)
+over_m <- round((st_bbox(counties)["xmax"] - xmax(ppt_total)) * 111320 * cos(41 * pi / 180))
+n_partial_east <- n_counties - n_inside_east - n_na_east
+
+# A small grid to show which cells count
+set.seed(7)
+grid <- st_make_grid(st_polygon(list(rbind(c(0, 0), c(6, 0), c(6, 6), c(0, 6), c(0, 0)))), n = c(6, 6)) |>
+  st_as_sf() |>
+  mutate(value = sample(1:36))
+blob <- st_polygon(list(rbind(c(1.3, 1.2), c(4.6, 0.8), c(5.2, 3.6), c(3.1, 5.1), c(0.8, 3.9), c(1.3, 1.2))))
+blob_sf <- st_sf(geometry = st_sfc(blob))
+grid <- grid |>
+  mutate(
+    centre_inside = lengths(st_within(st_centroid(st_geometry(grid)), blob_sf)) > 0,
+    touched = lengths(st_intersects(grid, blob_sf)) > 0,
+    # share of each cell (area 1) inside the polygon
+    fraction = sapply(seq_len(nrow(grid)), function(i) {
+      x <- st_intersection(st_geometry(grid)[i], st_geometry(blob_sf))
+      if (length(x) == 0) 0 else as.numeric(sum(st_area(x)))
+    })
+  )
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Weather, soil, satellite images and elevation come as **rasters** (grids of cells, lecture 09-2). Your units of analysis, such as fields, counties and farms, are usually **vector** features (lecture 09-1). Most research that uses both needs one step: putting the raster's values onto the vector features. An AI assistant can write that step in one line. What it cannot do is:
+
++ know whether the raster covers all of your features
++ decide which cells count as "in" a polygon when a cell is only partly inside
++ know what the raster's values mean: their units, and which day each layer is
++ tell whether the numbers it returns are right
+
+So today is about:
+
+1. **The concept**: cropping, masking and extracting values, and which cells count for a polygon
+2. **Reading code**: the patterns these lines follow
+3. **Asking AI**: what to say about the raster and the features
+4. **Checking**: rows returned, cells per feature, features with no value, and maps
+
+### Directions
+
++ Ask your AI assistant to install the `sf`, `terra`, `tidyterra`, `tidyverse` and `here` packages if you have not already. `terra` is the package for rasters; `tidyterra` lets ggplot draw them.
++ This lecture assumes lecture 09-1 (vector basics) and lecture 09-2 (raster basics): what a cell, a layer and a CRS (coordinate reference system) are.
++ The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
+
+:::
+
+## The data on these slides
+
+::: {.panel-tabset}
+
+### Two layers
+
++ `ne_ppt_2012aug.tif`: daily precipitation from PRISM (a US weather dataset), in **millimetres**, one layer per day from 1 to 5 August 2012, cells about `r cell_km` km wide, NAD83 longitude and latitude
++ `ne_counties.gpkg`: the `r n_counties` counties of Nebraska, in the same CRS
+
+The slides mostly use the total over the five days, one layer made by adding the five (`sum(ppt)`).
+
+### A map
+
+```{r}
+#| label: data-map
+#| echo: false
+#| fig-height: 4.5
+ggplot() +
+  geom_spatraster(data = ppt_total) +
+  geom_sf(data = counties, fill = NA, colour = "white", linewidth = 0.3) +
+  scale_fill_viridis_c(name = "mm, 1-5 Aug 2012", na.value = "transparent") +
+  theme_void()
+```
+
+The question the slides answer: **how much rain fell in each county over those five days?**
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Three operations
+
+| Operation | What it does | Shape of the result | Typical reason |
+|---|---|---|---|
+| **Crop** | Cuts the raster to the **rectangle** around the vector features | a smaller raster | a smaller file, a map of just your area |
+| **Mask** | Sets every cell **outside** the polygons to missing (NA) | a raster of the same size | a map that shows only your area; leaving outside cells out of a calculation |
+| **Extract** | Reads the raster's values at the vector features | a **table**, one row per feature or per cell | putting weather, soil or crop data onto your fields or counties |
+
+Extracting is the one your analysis depends on. Cropping and masking are usually steps before it, or for maps.
+
+:::{.callout-note}
+Cropping a raster is like `st_crop()` for vector layers in lecture 09-4: it cuts to a rectangle, not to the outline. Masking is what cuts to the outline.
+:::
+
+## Extracting: points get one cell, polygons get many
+
+::: {.panel-tabset}
+
+### Points
+
+Each point lies in exactly one cell, so it gets that cell's value: one value per point and layer. Five layers give five values per point.
+
+### Polygons: which cells count
+
+A polygon covers many cells, some only partly. There are three rules for which cells count, and they give different answers:
+
+```{r}
+#| label: rule-figure
+#| echo: false
+#| fig-height: 3.5
+grid_long <- bind_rows(
+  mutate(grid, rule = "1. centre inside (default)", used = centre_inside, w = as.numeric(centre_inside)),
+  mutate(grid, rule = "2. any part touched", used = touched, w = as.numeric(touched)),
+  mutate(grid, rule = "3. weighted by share covered", used = touched, w = fraction)
+)
+ggplot(grid_long) +
+  geom_sf(aes(fill = used, alpha = pmax(w, 0.15)), colour = "grey60") +
+  scale_alpha_identity() +
+  geom_sf(data = blob_sf, fill = NA, colour = oi_red, linewidth = 1) +
+  geom_sf(data = st_centroid(st_geometry(grid)), size = 0.6) +
+  facet_wrap(~rule) +
+  scale_fill_manual(values = c(`FALSE` = "white", `TRUE` = "#56B4E9"), guide = "none") +
+  theme_void()
+```
+
+### Cells used by each rule
+
+| Rule | Cells used | `terra::extract()` option |
+|---|---|---|
+| 1. The cell's **centre** (black dot) is inside | `r sum(grid$centre_inside)` | the default |
+| 2. **Any part** of the cell is inside | `r sum(grid$touched)` | `touches = TRUE` |
+| 3. Every touched cell, **weighted** by the share of it inside (shown by how dark the cell is) | `r sum(grid$touched)`, with weights | `exact = TRUE` (returns a `fraction` column) |
+
+### Why it matters
+
+The rule decides the answer when the cells near the edge differ from those in the middle and when the polygon covers few cells. With `r cell_km` km cells, a Nebraska county covers between `r min_cells` and `r max_cells` cell centres, and the rule changes county averages very little. With cells five times wider (about `r coarse_km` km), `r n_coarse_le2` counties cover only 1 or 2 cell centres, and the default and weighted averages differ by up to `r max_diff_coarse` mm for the same county (silent failures, later).
+
+The weighted rule is the most accurate; the default is the fastest. What matters is that you choose, knowing the cell size relative to your polygons.
+
+:::
+
+# How the code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Cropping and masking
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+new_raster <- raster_function(raster, vector_layer)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `raster_function` | `crop` or `mask`, from `terra` | Yes |
+| `raster` | The raster to cut, always **first** | Yes |
+| `vector_layer` | The features that decide which cells stay; an `sf` layer works, or a `terra` vector made with `vect()` | Yes |
+
+The two are usually chained, crop first to make the raster small, then mask: `mask(crop(ppt, counties), counties)`.
+
+### A real example
+
+```{r}
+#| label: crop-mask
+ppt_ne <- mask(crop(ppt_total, vect(counties)), vect(counties))
+```
+
+```{r}
+#| label: crop-mask-map
+#| echo: false
+#| fig-height: 4.2
+ggplot() +
+  geom_spatraster(data = ppt_ne) +
+  geom_sf(data = counties, fill = NA, colour = "white", linewidth = 0.3) +
+  scale_fill_viridis_c(name = "mm", na.value = "transparent") +
+  theme_void()
+```
+
+The cells outside Nebraska are now missing (NA), drawn transparent. `vect()` turns the `sf` layer into a `terra` vector, which some `terra` functions require.
+
+:::
+
+## Extracting values
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+values_table <- terra::extract(raster, vector_layer, fun = summary, exact = TRUE_or_FALSE)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `values_table <-` | A **table** (not a layer): column `ID`, then one column per raster layer | Needed to keep the result |
+| `raster` | The raster to read, always **first** | Yes |
+| `vector_layer` | Points or polygons, always **second** | Yes |
+| `fun =` | For polygons: summarise each polygon's cells (`mean`, `sum`, ...) into one row per polygon | No; without it, one row **per cell** |
+| `exact = TRUE` | For polygons: add the share of each cell inside (rule 3) | No; default is rule 1 |
+| `na.rm = TRUE` | Ignore missing cells when summarising | No |
+
+`ID` is the **row number** of the feature in the vector layer: `ID == 3` is the third county. It is not the county's own ID.
+
+### Variations you will see
+
++ `terra::extract(ppt, counties, fun = mean, na.rm = TRUE, ID = FALSE)`: no `ID` column; the rows are in the vector layer's order
++ `terra::extract(ppt, counties, bind = TRUE)`: the values added to the vector layer directly, as a `terra` vector
++ `exactextractr::exact_extract(ppt, counties, "mean")`: another package, often written by AI; it always uses rule 3 (weighted by share), and returns a plain table in the layer's order
++ `terra::zonal(ppt, vect(counties), fun = "mean")`: a summary per polygon; the same as `extract()` with `fun`
+
+### A real example: points
+
+Precipitation at each well, all five days:
+
+```{r}
+#| label: extract-points
+ppt_wells <- terra::extract(ppt, vect(wells))
+head(ppt_wells, 3)
+```
+
+One row per well (`r nrow(ppt_wells)` rows for `r n_wells` wells), one column per day. Putting it back on the wells is a column bind, since the rows are in the same order: `bind_cols(wells, select(ppt_wells, -ID))`.
+
+### A real example: polygons
+
+Average five-day total in each county, rule 3:
+
+```{r}
+#| label: extract-polygons
+ex <- terra::extract(ppt_total, vect(counties), exact = TRUE)
+head(ex, 3)
+```
+
+One row per cell per county, with `fraction` the share of the cell inside the county. Summarised to one row per county, weighting by `fraction`:
+
+```{r}
+#| label: extract-summarise
+county_ppt <- ex |>
+  group_by(ID) |>
+  summarise(ppt_mm = sum(ppt_total * fraction) / sum(fraction)) |>
+  mutate(countyfp = counties$countyfp[ID])
+nrow(county_ppt)
+```
+
+`counties$countyfp[ID]` turns each row number back into the county's own ID, so the table can be merged onto the counties by key column (Chapter 3).
+
+:::
+
+# What has to be true
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Conditions for extracting values
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **The raster and the vector are in the same CRS.** A mismatch does not give a clear error: `crop()` reports a different problem, and `extract()` transforms with a warning.
+2. **The raster covers every feature, fully.** A feature outside the raster gets no value; one partly outside gets a value from the part that is covered.
+3. **The cell-counting rule suits the cell size.** When cells are large relative to your polygons, the rule changes the answer.
+4. **Missing cells are handled on purpose.** A mean over cells that include NA is NA unless told to ignore them.
+5. **You know what the values are**: their units, and which layer is which day (lecture 09-2).
+6. **Rows are matched back by position.** `ID` is a row number, so the vector layer must not be re-sorted between extracting and merging back.
+
+### CRS: two functions, two behaviours
+
+The counties transformed to UTM zone 14N (metres), the raster left in longitude and latitude:
+
+```{r}
+#| label: crs-crop
+#| error: true
+counties_utm <- st_transform(counties, 26914)
+crop(ppt_total, vect(counties_utm))
+```
+
+`crop()` stops, but its message says the extents do not overlap, not that the CRSs differ: the numbers in metres and the numbers in degrees describe different places. `extract()` behaves differently:
+
+```{r}
+#| label: crs-extract
+#| warning: true
+x <- terra::extract(ppt_total, vect(counties_utm), fun = mean)
+```
+
+It transforms the counties for you and warns, and the result is correct. Do not depend on either behaviour: transform the vector to the raster's CRS yourself (rasters lose detail when transformed, vectors do not), and ask for the CRS check.
+
+:::
+
+## Silent failures
+
+::: {.panel-tabset}
+
+### Edge cells on a coarse raster
+
+The same county averages from the coarse raster (cells about `r coarse_km` km), by the default rule and by the weighted rule:
+
+```{r}
+#| label: coarse-compare
+#| echo: false
+#| fig-height: 4.2
+ggplot(tibble(default = m_default, weighted = m_exact$v), aes(weighted, default)) +
+  geom_abline(colour = "grey60") +
+  geom_point(colour = oi_blue, size = 2) +
+  labs(x = "weighted by share of each cell (mm)", y = "cell centre inside (mm)")
+```
+
+Each dot is a county; on the grey line, the two rules agree. `r n_diff_big` counties differ by more than 1 mm, up to `r max_diff_coarse` mm. No error either way. With the `r cell_km` km cells of the original raster, the two rules give nearly the same numbers; with large cells, they do not.
+
+### A raster that does not cover the area
+
+Suppose the raster you were given stopped at 100 degrees west, the eastern part of Nebraska only:
+
+```{r}
+#| label: east-map
+#| echo: false
+#| fig-height: 3.8
+ggplot() +
+  geom_spatraster(data = ppt_east) +
+  geom_sf(data = counties, fill = NA, colour = "grey40", linewidth = 0.3) +
+  scale_fill_viridis_c(name = "mm", na.value = "transparent") +
+  theme_void()
+```
+
+Extracting county averages gives a value for every county that touches the raster:
+
++ `r n_na_east` counties entirely west of it get NA, which a count of missing values finds
++ `r n_partial_east` counties straddling the edge get an average of their **eastern part only**, with no NA and no warning
+
+The second group is the silent one. The check is whether each county lies entirely inside the raster's rectangle: here `r n_inside_east` of `r n_counties` do.
+
+### Missing cells
+
+A mean over cells that include NA is NA:
+
+```{r}
+#| label: na-mean
+mean(c(10, 12, NA))
+mean(c(10, 12, NA), na.rm = TRUE)
+```
+
+So a county with one missing cell gets NA from `fun = mean`, and with `na.rm = TRUE` it gets the mean of its other cells. The second is usually what you want, but then a county **entirely** of missing cells gets `NaN` (not a number), and one mostly of missing cells gets a mean of a few cells. Ask for the number of non-missing cells per feature.
+
+### Rows matched back by position
+
+`extract()` returns rows in the order of the vector layer at the moment it ran. If the layer is sorted, filtered or joined before the values are bound back by position, each value lands on the wrong feature, with no error. The fix is the one in the polygon example: turn `ID` into the feature's own ID column straight away, and merge by that column.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. For an extraction, judging the HTML means putting the map of the results next to the map of the raster: the same pattern should appear in both. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+
+## Look at both before you ask
+
+::: {.panel-tabset}
+
+### What to find out
+
+From the raster (lecture 09-2): its CRS, cell size, extent (the rectangle it covers), number of layers and what each one is, the units of its values, and how it marks missing cells. From the vector layer (lecture 09-1): its CRS, number of features, and ID column. Then one map of the two together.
+
+### What to write down
+
+From those, before any extraction:
+
++ Does the raster's rectangle contain every feature? If not, which features are partly or wholly outside?
++ How many cells does the smallest polygon cover? If only a few, the cell-counting rule matters: ask for the weighted rule.
++ What should the result look like: one row per feature, one column per layer, values within the raster's own range (a county average cannot be above the raster's largest cell).
+
+For the precipitation and counties: the raster's rectangle covers Nebraska, apart from at most a few hundred metres at the eastern edge (the raster stops at `r round(xmax(ppt_total), 3)` degrees, the counties at `r round(st_bbox(counties)["xmax"], 3)`); the smallest county covers `r min_cells` cell centres, so the rule matters little; the result should have `r n_counties` rows, and values between 0 and the raster's largest five-day total, `r round(global(ppt_total, "max", na.rm = TRUE)[1, 1], 1)` mm.
+
+:::
+
+## What to put in your request
+
+The AI knows `terra::extract()`. Your request supplies what it cannot know:
+
+1. **The files**: the raster and the vector layer, where they are, and their CRSs
+2. **What the raster holds**: units, what each layer is (which day, which variable), how missing cells are marked
+3. **What one row of the result is**, and the ID column of the features
+4. **How to summarise each polygon's cells**: mean, sum, maximum, and the cell-counting rule (weighted by share, unless you have a reason)
+5. **What to do with missing cells**
+6. **Checks**: rows, cells per feature, features with no value, whether each feature lies inside the raster, the range of results, a map
+7. **The closing instructions**
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Get the average precipitation for each county from the PRISM file.
+```
+
+The AI has to guess the files, which layer, how to treat edge cells and missing cells, and how to put the numbers back on the counties. It will usually write `terra::extract(..., fun = mean)` and bind the result by position.
+
+### Strong
+
+```text
+In my R project, data/ppt.tif is a raster of daily precipitation in mm,
+one layer per day (5 layers), NAD83 longitude and latitude, with cells
+about 3.5 km wide. data/counties.gpkg has 93 counties, ID column
+countyfp, in the same CRS. I want one row per county with the average
+over the county of the total precipitation of the 5 days, weighting each
+cell by the share of it inside the county, in a table called county_ppt
+with countyfp and ppt_mm. Ignore missing cells.
+
+Then check: the CRS of both, the number of rows (I expect 93), the
+number of counties with no value (I expect 0), the number of counties not
+entirely inside the raster's rectangle (I expect 1, Richardson, whose
+eastern tip passes the raster's edge by a few hundred metres), the
+smallest number of cells touched by a county (I expect more than 40),
+and the range of ppt_mm (between 0 and the raster's largest 5-day
+total). Draw a map of the counties filled by ppt_mm.
+
+Put the code in my Quarto document analysis/weather.qmd, under the
+heading "County precipitation", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+### What came back
+
+In the rendered HTML, a sentence, then the chunk it describes.
+
+Read the raster and the counties, and add the five days into one layer of totals.
+
+```{r}
+#| label: ai-read
+#| eval: false
+ppt <- rast(here::here("data", "ppt.tif"))
+counties <- st_read(here::here("data", "counties.gpkg"), quiet = TRUE)
+ppt_total <- sum(ppt)
+names(ppt_total) <- "ppt_total"
+```
+
+For each county, read every cell it touches with the share of the cell inside, and average weighting by that share.
+
+```{r}
+#| label: ai-extract
+county_ppt <- terra::extract(ppt_total, vect(counties), exact = TRUE) |>
+  filter(!is.na(ppt_total)) |>
+  group_by(ID) |>
+  summarise(ppt_mm = sum(ppt_total * fraction) / sum(fraction), n_cells = n()) |>
+  mutate(countyfp = counties$countyfp[ID])
+```
+
+### The checks it printed
+
+Print the checks.
+
+```{r}
+#| label: ai-checks
+inside <- relate(vect(counties), vect(ext(ppt_total), crs = crs(ppt_total)), "within")[, 1]
+cat(
+  paste("CRS match: expected TRUE, got", st_crs(counties) == st_crs(crs(ppt_total))),
+  paste("rows: expected 93, got", nrow(county_ppt)),
+  paste("counties with no value: expected 0, got", n_counties - nrow(county_ppt)),
+  paste("counties not inside the raster: expected 1 (Richardson), got", sum(!inside),
+        paste0("(", paste(counties$name[!inside], collapse = ", "), ")")),
+  paste("fewest cells touched by a county: expected more than 40, got", min(county_ppt$n_cells)),
+  paste("ppt_mm range: expected 0 to", round(global(ppt_total, "max", na.rm = TRUE)[1, 1], 1),
+        "got", round(min(county_ppt$ppt_mm), 1), "to", round(max(county_ppt$ppt_mm), 1)),
+  sep = "\n"
+)
+```
+
+Every line matches, including the one you expected to show a county outside the raster: Richardson's eastern edge, on the Missouri River, reaches about `r over_m` m past the raster's last column. You knew that from looking at the extent before asking, and a sliver that small cannot move a county average. On another raster, the same check is the one that catches a county left half covered.
+
+The fewest-cells line counts every cell the county touches (`r min(county_ppt$n_cells)`); the 40 on the "Look at both before you ask" slide counted only the cells whose centre is inside.
+
+The AI tested "inside the rectangle" with `terra::relate()`. The `sf` version, `st_within(counties, st_as_sfc(st_bbox(ppt_total)))`, reports `r n_s2_wrong` counties outside instead, because in longitude and latitude `sf` draws the rectangle's edges as the shortest paths over the globe, which curve away from the lines of latitude. If a check gives a surprising count, ask the AI why before acting on it.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checks: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The checks
+
+| | Ask the AI to print | Catches | What only you can supply |
+|---|---|---|---|
+| 1 | the CRS of both | a mismatch that `crop()` reports with a confusing message and `extract()` repairs with a warning | the CRS from the documentation |
+| 2 | rows of the result | one row per cell when you wanted one per feature; features dropped | what one row should be |
+| 3 | features with no value (NA or NaN) | features outside the raster, or over missing cells | how many should have none |
+| 4 | features not entirely inside the raster's rectangle | features with a value from only part of their area | (usually 0) |
+| 5 | cells per feature, smallest | polygons covered by so few cells that the rule matters | how big your polygons are |
+| 6 | the range of the results | wrong units, wrong layer, missing-cell codes read as values | the raster's own range |
+| 7 | a map of the results next to a map of the raster | anything the numbers did not show | what the pattern should look like |
+
+### Reading the HTML
+
+The map from the strong request, next to the raster it came from:
+
+```{r}
+#| label: chk-maps
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+#| fig-height: 4.2
+counties_ppt <- left_join(counties, select(county_ppt, countyfp, ppt_mm), by = "countyfp")
+ggplot(counties_ppt) +
+  geom_sf(aes(fill = ppt_mm), colour = "white", linewidth = 0.2) +
+  scale_fill_viridis_c(name = "mm") +
+  theme_void()
+```
+
+The wetter counties sit where the raster map on "The data on these slides" shows heavier rain, and the scale runs over the same values. A result whose pattern does not match the raster's is the sign of values bound back to the wrong features.
+
+:::
+
+## Checks that come from knowing the data
+
+The checks above apply to any extraction. What you know about the data gives stronger ones.
+
++ **A value you can look up.** A weather station's own record for one county and one day should be close to the county's value for that day.
++ **A believable range.** A county average of five days of summer rain in Nebraska above about 100 mm would be extraordinary. A result of 500 mm points to the wrong units (some files store tenths of a millimetre) or a missing-value code such as -9999 read as a value (lecture 09-2).
++ **Totals that must agree.** For a raster of counts or amounts (people, tonnes) rather than rates, the sum over all features should equal the raster's sum over the same area.
+
+```text
+For three counties of my choice, <county names>, print the number of
+cells used, their smallest and largest value, and the county's result,
+so I can check the result lies between them.
+
+Put the code in my Quarto document analysis/analysis.qmd, under the
+heading "Checks", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+## Your turn: read the AI's code
+
+A student asked an AI to "add mean precipitation to my county table", and got this:
+
+```{r}
+#| eval: false
+ppt <- rast("ppt.tif")
+counties <- st_read("counties.gpkg") |> arrange(name)
+vals <- terra::extract(ppt, st_transform(counties, 32614), fun = mean)
+counties_ppt <- bind_cols(st_read("counties.gpkg"), vals)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each line do?
+
+B. Which line puts values on the wrong counties, and why is there no error?
+
+C. What does line 3 do with the CRS, and what would `crop()` have done in its place?
+
+D. What happens to a county with one missing cell?
+
+### Answers
+
+A. Reads the raster; reads the counties and sorts them by name; extracts the mean of each layer for each county, after transforming the counties to UTM zone 14N; binds the values onto a fresh copy of the counties, which is in the file's order.
+
+B. Line 4. The values are in alphabetical order (line 2 sorted the counties) but are bound to the counties in the file's order. Both have the same number of rows, so `bind_cols()` has nothing to complain about.
+
+C. It transforms the counties away from the raster's CRS; `extract()` transforms them back with a warning, so the values are right. `crop()` would stop with "extents do not overlap".
+
+D. Without `na.rm = TRUE`, its mean is NA.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at the files. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at a raster and a layer
+
+```text
+In my R project, <path to the raster> is a raster and <path to the
+vector layer> is a vector layer. For the raster, print its CRS, cell
+size, extent, number of layers, layer names, and smallest and largest
+value. For the layer, print its CRS, number of features and bounding
+box. Then print whether every feature lies entirely inside the raster's
+rectangle, and draw one map with the raster and the features' outlines
+on top.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Values at points
+
+```text
+In my R project, <path to the raster> holds <what the values are, with
+units>, one layer per <what each layer is>, in EPSG <code>. <path to the
+point layer> has <number> points, ID column <the column that identifies
+each point>. Add the raster's value at each point, one column per layer,
+to the point layer, in a layer called <name>. Transform the points to
+the raster's CRS first.
+
+Then check: the number of rows before and after (I expect them equal),
+the number of points with a missing value (I expect <number>), the range
+of each new column, and draw a map of the points coloured by <layer>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Summaries over polygons
+
+```text
+In my R project, <path to the raster> holds <what the values are, with
+units>, in EPSG <code>. <path to the polygon layer> has <number>
+polygons, ID column <the column that identifies each polygon>. I want one
+row per polygon with the <mean, sum, or other summary> of <which
+layers>, weighting each cell by the share of it inside the polygon, and
+<ignoring or keeping> missing cells, in a table with the polygon's ID
+column. Match rows back by the ID column, not by position.
+
+Then check: the number of rows (I expect <number>), the number of
+polygons with no value, the number not entirely inside the raster's
+rectangle, the smallest number of cells in a polygon, and the range of
+the results. Draw a map of the polygons filled by the result next to a
+map of the raster.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Crop and mask for a map
+
+```text
+Crop <path to the raster> to the area of <path to the polygon layer>,
+then set every cell outside the polygons to missing, and draw a map of
+the result with the polygons' outlines on top, missing cells
+transparent, and a legend titled "<title with units>".
+
+Then check: the CRS of both, and the number of cells with a value before
+and after.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. what one row of each result is, and how the values are matched back
+   to the features
+2. which cells count for each polygon, and what happens to missing cells
+3. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| Crop cuts to a rectangle, mask to the outline, extract reads values | `crop()`, `mask()`, `extract()` |
+| A point gets one cell; a polygon gets many, by a rule you choose | `exact = TRUE`, `touches = TRUE` |
+| Whether the raster covers every feature, fully | The coverage check |
+| What the values are: units, which layer is which day, how missing cells are marked | `sum()`, `na.rm =` |
+| That `ID` is a row number, and the result must be matched back by an ID column | `counties$countyfp[ID]`, the merge |
+| What a correct result looks like: rows, range, a pattern on the map | The checking code and the maps |
+
+**Every extraction:** look at the raster and the features together, and write down whether the raster covers every feature, how many cells the smallest polygon covers, and the range the results must fall in. Ask for rows, features with no value, coverage, cells per feature, the range and a map. Render, and judge the HTML against what you wrote down.

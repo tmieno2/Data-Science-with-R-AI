@@ -729,19 +729,13 @@
 </section>
 <section id="working-with-ai-on-your-own-research" class="slide level2 scrollable">
 <h2>Working with AI on your own research</h2>
-<p>This is the way of working with AI that you should take into your own research. Every exercise in this course uses it, so that it is a habit by the time your thesis needs it.</p>
+<p>Importing follows the way of working with AI from lecture 02-1 (“Working with AI on your own research”), which is also how to work on your own research:</p>
 <ol type="1">
 <li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
-<li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
+<li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>), with one plain-English sentence above each chunk saying what it does and why.</li>
 <li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
 <li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
 </ol>
-<p>Why this matters for research, and why you judge the HTML rather than the chat window:</p>
-<ul>
-<li>Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on something typed into the Console and forgotten.</li>
-<li>The HTML is a record of what was done to the data and why, with each explanation next to its code and its result. You can reread it months later, and your advisor or a coauthor can review your analysis by reading it, without running anything.</li>
-<li>The chat disappears; the <code>.qmd</code> and its HTML stay with your project.</li>
-</ul>
 <div class="callout callout-note no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
@@ -990,7 +984,14 @@ first row: 2008, 31, 31019, BUFFALO, NEBRASKA, CORN, CORN, GRAIN - YIELD, MEASUR
 <p>In <code>corn_yields.csv</code>, most counties have two rows: one for irrigated corn and one for non-irrigated corn. Irrigated corn gets water that rain-fed corn does not, so in each county the irrigated yield should be the higher one. So ask:</p>
 <div class="sourceCode" id="cb26"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb26-1"><a></a>Using the table corn, for each county with one irrigated and one</span>
 <span id="cb26-2"><a></a>non-irrigated row, check whether the irrigated yield is higher. Print</span>
-<span id="cb26-3"><a></a>how many counties pass and how many fail.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb26-3"><a></a>how many counties pass and how many fail.</span>
+<span id="cb26-4"><a></a></span>
+<span id="cb26-5"><a></a>Put the code in my Quarto document analysis/import.qmd, under the</span>
+<span id="cb26-6"><a></a>heading "Read the corn data", as R code chunks. Above each chunk, write</span>
+<span id="cb26-7"><a></a>one plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb26-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb26-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb26-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The AI’s code, and what it printed:</p>
 <div class="cell">
 <details class="code-fold">

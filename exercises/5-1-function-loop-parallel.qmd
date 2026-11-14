@@ -1,0 +1,158 @@
+---
+title: "Ex-5-1: Functions, Loops and Parallel Processing, with an AI Assistant"
+abstract: "Function and Loop"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/5-1-nitrogen-trials.zip
+  - worksheets/ex-5-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+
+unzip_dir <- file.path(tempdir(), "ex-5-1")
+unlink(unzip_dir, recursive = TRUE)
+unzip("data/5-1-nitrogen-trials.zip", exdir = unzip_dir)
+files <- list.files(file.path(unzip_dir, "nitrogen-trials"), full.names = TRUE)
+
+corn_price <- 4
+n_price <- 0.6
+
+optimal_n <- function(table, corn_price, n_price) {
+  b <- coef(lm(yield ~ n_rate + I(n_rate^2), data = table))
+  unname((n_price / corn_price - b[2]) / (2 * b[3]))
+}
+
+test_table <- tibble(n_rate = seq(0, 250, by = 50)) |>
+  mutate(yield = 120 + 1.2 * n_rate - 0.003 * n_rate^2)
+test_answer <- optimal_n(test_table, corn_price, n_price)
+
+trials <- bind_rows(lapply(files, \(f) {
+  read_csv(f, show_col_types = FALSE) |>
+    mutate(field = sub("\\.csv$", "", basename(f)))
+}))
+rows_per_file <- count(trials, field)
+
+per_field <- trials |>
+  group_by(field) |>
+  summarise(
+    plots = n(),
+    lowest = min(yield),
+    highest = max(yield),
+    opt_n = optimal_n(pick(everything()), corn_price, n_price)
+  )
+
+odd <- per_field |> filter(highest > 1000)
+others <- per_field |> filter(highest <= 1000)
+odd_fixed <- trials |>
+  filter(field == odd$field) |>
+  mutate(yield = yield / 62.77) |>
+  optimal_n(corn_price, n_price)
+
+field_01 <- per_field |> filter(field == "field_01")
+last_field <- per_field |> slice_tail(n = 1)
+```
+
+This is an in-class exercise. Before class, work through the lecture **05-1: Functions, Loops and Parallel Processing**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what the inputs contain, working out a known answer to test against, asking for the right checks, and judging whether the result is right.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-5-1.qmd](worksheets/ex-5-1.qmd), and the data, [5-1-nitrogen-trials.zip](data/5-1-nitrogen-trials.zip).
+2. Make an R Project folder called `ch5-practice`, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Unzip the data into `ch5-practice/data`, so that the files sit in `ch5-practice/data/nitrogen-trials/`. Put the worksheet in `ch5-practice/analysis`.
+4. Ask your AI assistant to install the `tidyverse`, `future.apply` and `here` packages if you have not already.
+5. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch5-practice` and nothing longer, and `ch5-practice/data/nitrogen-trials/` holds csv files whose names start with `field_`.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look and predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r length(files)` files, `field_01.csv` to `field_`r sprintf("%02d", length(files))`.csv`.
+
+B. Three columns: `plot`, `n_rate` and `yield`. One row is one plot of the field: the nitrogen rate it received (lb/acre) and the yield it gave (bu/acre).
+
+C. No. Nothing inside a file says which field it is; only the file name does. So the request in Task 3 must ask for a column taken from the file name, or the combined table cannot tell the fields apart.
+
+D. The files differ in length: `r paste(sort(unique(rows_per_file$n)), collapse = ", ")` plots. `r nrow(trials)` plots in all, so a correct combined table has `r nrow(trials)` rows.
+:::
+
+## Task 2: Write and test the function
+
+::: {.callout-note collapse="true" title="What you should find"}
+**The prediction.** The test table follows `yield = 120 + 1.2 n - 0.003 n²` exactly, so b = 1.2 and c = -0.003. With a corn price of `r corn_price` and a nitrogen price of `r n_price`, the price ratio is `r n_price / corn_price`, and the rate is (`r n_price / corn_price` - 1.2) / (2 × -0.003) = `r round(test_answer, 1)` lb/acre.
+
+In the HTML: "test: expected 175, got 175" (perhaps with a tiny difference in the last decimal places, from rounding inside the regression).
+
+**Why this test.** The fitted curve passes exactly through a table built from a known curve, so the function's only job is the formula. If it gives anything else, the formula or the order of the inputs is wrong. A common slip is the order of the prices: the function called with the two prices swapped still runs, and returns a different number.
+
+On `field_01` the function gives about `r round(field_01$opt_n)` lb/acre: inside the tested range of 0 to 250, so believable. There is no known answer for a real field; that is why the test on the made-up table comes first.
+:::
+
+## Task 3: Loop over every field
+
+::: {.callout-note collapse="true" title="What you should find"}
+**The combined table.** `r nrow(trials)` rows and 4 columns (`plot`, `n_rate`, `yield`, and the field column you asked for), with `r n_distinct(trials$field)` distinct fields.
+
+**The result per field.** `r nrow(per_field)` rows, one per field. For `r nrow(others)` fields, yields run between about `r round(min(others$lowest))` and `r round(max(others$highest))` bu/acre and the optimal rate between `r round(min(others$opt_n))` and `r round(max(others$opt_n))` lb/acre.
+
+**The check that fails.** In `r odd$field`, yields run from `r format(round(odd$lowest), big.mark = ",")` to `r format(round(odd$highest), big.mark = ",")`. No corn field yields that many bushels per acre. These numbers are about 62.77 times a normal corn yield, which is the conversion from bushels per acre to kilograms per hectare: this file was almost certainly recorded in kg/ha.
+
+Notice what did **not** catch it. The loop ran, the row count and column count passed, and the optimal rate for `r odd$field`, `r round(odd$opt_n)` lb/acre, looks perfectly believable. Only the per-field yield range showed the problem. If the yields are converted to bu/acre, the optimal rate becomes `r round(odd_fixed)` lb/acre, so the unconverted answer was off by `r round(odd$opt_n - odd_fixed)` lb/acre with no warning.
+
+**What to do.** Do not convert it on a guess. Ask whoever produced the file which unit it is in, and leave the field out of any result until you know. A loop assumes every input is the same kind of thing as the one you tested; this check is how you find out whether that is true.
+:::
+
+## Task 4: Parallel processing
+
+::: {.callout-note collapse="true" title="What you should find"}
+**4a.** Each repetition (one regression on a few dozen rows) takes a fraction of a millisecond, so the whole loop takes far less than a second. In parallel it is **slower**, because starting the workers and sending them the data costs more than the work itself. The results are identical either way. The right answer to "should this loop be run in parallel?" is no.
+
+**4b.** The loop covers the `r nrow(others)` fields that passed Task 3; `r odd$field` stays out until its unit is confirmed. Each repetition now refits the curve 1,000 times, so the sequential loop takes several seconds and the parallel one noticeably less: on a laptop with 4 workers, roughly half to a third of the time. Your numbers depend on your computer.
+
+**The comparison.** The small case run under `plan(sequential)` and in parallel must give identical results ("expected TRUE, got TRUE"). That needs `future.seed = TRUE`, because resampling uses random numbers, and the same `set.seed()` before each of the two runs: with a different seed, or none, the two runs draw different numbers and the check fails although both are correct. Without `future.seed = TRUE`, the parallel run warns `UNRELIABLE VALUE`, and the two runs do not match.
+
+If the AI compared `future_lapply()` with plain `lapply()`, the check fails even when both are correct: the two draw their random numbers differently. Compare `future_lapply()` under `plan(sequential)` with `future_lapply()` under `plan(multisession)`.
+
+**Why the repetitions are independent.** Each field's resampling uses only that field's plots, and no field's result is used by another.
+:::
+
+## Task 5: Read someone else's AI code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Line 1 lists the files in a folder on Maria's computer. Line 2 makes an empty result. The loop reads each file in turn, computes its optimal rate and stores it in `results`. The last line shows `results`.
+
+B. Line 1, the absolute path: the folder exists only on Maria's computer. And even on Maria's computer, `list.files()` without `full.names = TRUE` returns bare file names, so `read.csv()` cannot find them unless R happens to be in that folder.
+
+C. Three silent problems:
+
+1. `results <- optimal_n(...)` replaces the result every time round, so only the last field's rate is left: about `r round(last_field$opt_n)` lb/acre for `r last_field$field`, a single number that looks fine.
+2. Even with `results[i] <-`, nothing records which field each number belongs to.
+3. `r odd$field` is in kg/ha, and nothing in the loop would notice.
+
+D. "Number of results: expected `r length(files)`" catches 1. "Values of the field column" catches 2. "Smallest and largest yield per field" catches 3.
+
+E. Most AI assistants spot the path and the overwriting. Whether they mention the missing labels varies. A chat assistant cannot spot the kg/ha file, because it sees the code and not the data. An agent that can open the files might, but only if asked to look at the yields. That one is yours to catch.
+:::
+
+## Task 6: Does it run anywhere? (if time allows)
+
+::: {.callout-note collapse="true" title="What you should find"}
+If it fails after a restart, some chunk depended on something you ran by hand in the Console and the AI never wrote down: a loaded package, an object, or a `plan()`. The error names the missing thing; ask the AI to add it to the worksheet. If it fails on your neighbour's computer, look first at paths, and then at the number of workers: a fixed `workers = 8` on a laptop with fewer cores than that makes R warn that the computer is overloaded. `workers = parallel::detectCores() - 1` adapts to whichever computer runs it.
+:::

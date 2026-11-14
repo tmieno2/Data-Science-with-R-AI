@@ -1,0 +1,255 @@
+---
+title: "Ex-9-6 worksheet: Vector Meets Raster"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch9-practice/analysis/ex-9-6.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-9-6. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the raster and the layers before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match, and does every map show what you meant?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+# Task 1: Look at the drone image and the field
+
+Read `data/9-6-README.txt` first. Then send this request:
+
+```text
+In my R project, data/9-6-ndre.tif is a raster and
+data/9-6-treatment-blocks.gpkg and data/9-6-corn-yield-points.gpkg are
+vector layers. For the raster, print its CRS, cell size, extent, number
+of layers, layer names, and smallest and largest value. For each layer,
+print its CRS, number of features and bounding box. Then print whether
+every feature of each layer lies entirely inside the raster's rectangle,
+and draw one map with the raster, the plots' outlines and the yield
+points on top.
+
+Put the code in my Quarto document analysis/ex-9-6.qmd, under the
+heading "Task 1: Look at the drone image and the field", as R code
+chunks. Above each chunk, write one plain-English sentence saying what
+it does and why. Build every path with here::here(); no setwd(), no
+absolute paths. Print each check on its own line as "name of check:
+expected X, got Y". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-1
+```
+
+**A. Are the raster and the two layers in the same CRS? If not, which should be transformed, and why?**
+
+Your answer:
+
+**B. How wide is one cell, in metres, roughly? How wide is one plot? So, roughly how many cells does a plot cover?**
+
+Your answer:
+
+**C. Does the raster cover every plot and every yield point?**
+
+Your answer:
+
+# Task 2: NDRE at each yield point
+
+**Prediction.** How many rows should the result have? How many points with no value? Within what range must the values lie?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+In my R project, data/9-6-ndre.tif holds NDRE, a measure of how green
+the crop is, one layer, in EPSG <...>. data/9-6-corn-yield-points.gpkg
+has <...> points, ID column point_id. Add the raster's value at each
+point to the point layer, in a layer called yield_ndre. Transform the
+points to the raster's CRS first.
+
+Then check: the number of rows before and after (I expect them equal),
+the number of points with a missing value (I expect <...>), the range of
+the new column (between <...> and <...>), and draw a map of the points
+coloured by NDRE.
+
+Put the code in my Quarto document analysis/ex-9-6.qmd, under the
+heading "Task 2: NDRE at each yield point", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: did every check match? Does the map of points look like the raster under them?**
+
+Your answer:
+
+# Task 3: Average NDRE in each plot
+
+**Prediction.** How many rows? From Task 1B, will the cell-counting rule (centre inside, or weighted by share) change the plot averages much?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+In my R project, data/9-6-ndre.tif holds NDRE in EPSG <...>.
+data/9-6-treatment-blocks.gpkg has <...> polygons, ID column block_id.
+I want one row per plot with the mean NDRE, weighting each cell by the
+share of it inside the plot, and ignoring missing cells, in a table with
+block_id and target_rate. Match rows back by the ID column, not by
+position. Then compute the mean of the plot averages for each
+target_rate.
+
+Then check: the number of rows (I expect <...>), the number of plots
+with no value, the number not entirely inside the raster's rectangle,
+the smallest number of cells in a plot, and the range of the results.
+Draw a map of the plots filled by mean NDRE next to a map of the raster.
+
+Put the code in my Quarto document analysis/ex-9-6.qmd, under the
+heading "Task 3: Average NDRE in each plot", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: does NDRE rise with the nitrogen rate? By how much, compared with the spread of NDRE across the field?**
+
+Your answer:
+
+# Task 4: Rain in Colorado's counties
+
+A colleague sent you `9-6-ppt-2012aug.tif`, the PRISM rainfall file from their project, and you want the total rainfall of 1 to 5 August 2012 in each Colorado county.
+
+**Prediction.** How many rows should the table have? How many counties with no value?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+In my R project, data/9-6-ppt-2012aug.tif holds daily precipitation in
+mm, one layer per day, in EPSG <...>. data/9-6-co-counties.gpkg has <...>
+polygons, ID column countyfp. I want one row per county with the mean
+over the county of the total precipitation of all days, weighting each
+cell by the share of it inside the county, and ignoring missing cells,
+in a table with countyfp, name and ppt_mm. Match rows back by the ID
+column, not by position.
+
+Then check: the number of rows (I expect <...>), the number of counties
+with no value (I expect <...>), the number of counties not entirely
+inside the raster's rectangle (I expect <...>), and the range of ppt_mm.
+Draw a map of the counties filled by ppt_mm, with counties that have no
+value in grey, and the raster's rectangle outlined on top.
+
+Put the code in my Quarto document analysis/ex-9-6.qmd, under the
+heading "Task 4: Rain in Colorado's counties", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: which checks failed? Which counties have a value you can use, which have none, and which have a value you should not use? Why?**
+
+Your answer:
+
+**What would you do next?**
+
+Your answer:
+
+# Task 5: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Maria wanted the mean NDRE of the five plots of replication 1 only, added to her plots table, with the other plots left empty. She asked an AI and kept this:
+
+```{r}
+#| label: task-5
+#| eval: false
+ndre <- rast("9-6-ndre.tif")
+blocks <- st_read("9-6-treatment-blocks.gpkg")
+rep1 <- filter(blocks, replication == 1)
+vals <- terra::extract(ndre, st_transform(rep1, crs(ndre)), fun = mean)
+blocks_ndre <- left_join(blocks, rename(vals, block_id = ID), by = "block_id")
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. What does the `ID` column of `vals` hold? Which plots of `blocks_ndre` get a value?**
+
+Your answer:
+
+**C. Maria checks "plots with a value: expected 5" and "plots with no value: expected 20". Do these checks pass? Why are they not enough?**
+
+Your answer:
+
+**D. Which check would catch the problem, and how should line 5 match rows instead?**
+
+Your answer:
+
+**E. Now send this request, and compare the AI's answer with yours.**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. what one row of each result is, and how the values are matched back
+   to the features
+2. which cells count for each polygon, and what happens to missing cells
+3. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+ndre <- rast("9-6-ndre.tif")
+blocks <- st_read("9-6-treatment-blocks.gpkg")
+rep1 <- filter(blocks, replication == 1)
+vals <- terra::extract(ndre, st_transform(rep1, crs(ndre)), fun = mean)
+blocks_ndre <- left_join(blocks, rename(vals, block_id = ID), by = "block_id")
+```
+
+Your answer:
+
+# Wrap-up
+
+**A. Which check today found a problem that gave no error?**
+
+Your answer:
+
+**B. Before you use someone else's raster, what do you check first?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

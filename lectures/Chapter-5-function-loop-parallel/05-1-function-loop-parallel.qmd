@@ -1,0 +1,1065 @@
+---
+title: "05-1: Functions, Loops and Parallel Processing"
+abstract: "Chapter 5: Function and Loop"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+library(purrr)
+library(future.apply)
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Research is full of repetition: the same steps for every county, every year, every field, every file, every simulated dataset. An AI assistant can write the code that repeats them. What it cannot do is:
+
++ know which steps you want repeated, and over which inputs
++ know what the correct result for one input looks like
++ notice that one of your inputs is not like the others
++ tell whether the repeated result is right
+
+Those are your job. So today is about:
+
+1. **The concept**: what a function, a loop and parallel processing are, and what has to be true for each to give the right answer
+2. **Reading code**: recognising a function definition, a loop and a parallel loop when the AI writes one, without memorising them
+3. **Asking AI**: what to put in your request
+4. **Checking**: how to tell whether the repeated work was done right
+
+### Directions
+
++ Ask your AI assistant to install the `tidyverse`, `future.apply` and `here` packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).
++ The three small data files used on these slides, `yields_2016.csv`, `yields_2017.csv` and `yields_2018.csv`, sit in the same folder as the slides, so paths on the slides are bare file names. In your own project, paths are built with `here::here()` (lecture 03-1).
+
+:::
+
+# Functions
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What a function is
+
+::: {.panel-tabset}
+
+### Inputs, steps, output
+
+A **function** is a named set of steps. You give it **inputs**, it runs the steps on them, and it gives back one **output**. You have used many already: `mean()` takes a column of numbers (the input), adds them and divides by how many there are (the steps), and gives back the average (the output).
+
+You can also define your own. A function written for your project has the same three parts:
+
+| Part | Example: convert Fahrenheit to Celsius |
+|---|---|
+| Inputs | a temperature in Fahrenheit |
+| Steps | subtract 32, multiply by 5, divide by 9 |
+| Output | the temperature in Celsius |
+
+Once it is defined, you use it by its name, the same way you use `mean()`.
+
+### When one is worth writing
+
+Write a function when **the same steps are repeated with different inputs**. The sign is code you have copied and pasted with one value changed each time:
+
+```{r}
+#| eval: false
+yield_2016 <- mean(read_csv("yields_2016.csv")$corn_yield)
+yield_2017 <- mean(read_csv("yields_2017.csv")$corn_yield)
+yield_2018 <- mean(read_csv("yields_2018.csv")$corn_yield)
+```
+
+Three copies of the same steps, with only the file name changing. Copies like these go wrong in a way R does not report: you fix a mistake in one copy and forget another, or change the file name in one copy but not the variable name. With a function, the steps are written once, and fixing them once fixes every use.
+
+A function is not worth it for steps you run once. The payoff grows with the number of inputs and the number of steps.
+
+:::
+
+## How a function definition is written
+
+Whatever the function does, its definition follows the same pattern. Recognise the pattern and you can read any function the AI writes.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+function_name <- function(input_1, input_2 = default) {
+  step
+  step
+  output
+}
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `function_name <-` | The name you will call it by. `<-` stores the function under that name. | Yes |
+| `function(...)` | The word `function`, then the names of the inputs, separated by commas | Yes; there can be zero inputs, but the brackets stay |
+| `input_2 = default` | An input with a **default** (a value used when you leave that input out) | No |
+| `{ ... }` | The steps, between curly brackets | Yes |
+| last line | The output. Whatever the last line produces is given back. `return(output)` says the same thing explicitly. | Yes |
+
+### A real example
+
+A real function that follows the pattern:
+
+```{r}
+#| label: f-to-c
+fahrenheit_to_celsius <- function(fahrenheit) {
+  (fahrenheit - 32) * 5 / 9
+}
+
+fahrenheit_to_celsius(212)
+```
+
+Running the definition only stores the steps. Nothing is calculated until the function is **called** (used), as in the last line.
+
+### Calling a function
+
+A call is the function name followed by the inputs in brackets. Inputs can be given in two ways:
+
+| Call | How R matches the inputs |
+|---|---|
+| `revenue(200, 4)` | By position: first value to the first input, second to the second |
+| `revenue(yield = 200, price = 4)` | By name: order does not matter |
+
+Names are safer once there are two or more inputs. A call by position with the values in the wrong order still runs and gives a wrong number, with no error.
+
+Objects created inside a function exist only while it runs; only the output comes back. A function that needs to keep something must return it.
+
+### Variations you will see
+
+AI-written functions often look different from the pattern while following it:
+
++ `\(x) x^2`: a short way to write `function(x) x^2`, common for one-line functions used once, inside a loop
++ `return(result)` as the last line: the same as writing `result` alone
++ A function defined inside another one's brackets, with no name: it is used once, on the spot
++ `stopifnot(is.numeric(fahrenheit))` as the first step: the function stops with an error when given an input of the wrong kind, instead of returning nonsense
+
+:::
+
+## What has to be true for a function to be right
+
+::: {.panel-tabset}
+
+### The three conditions
+
+1. **It gives the right answer on an input whose answer you already know.** Water boils at 212 degrees Fahrenheit and 100 Celsius, and freezes at 32 and 0. A Fahrenheit-to-Celsius function that does not give those two is wrong, whatever else it does.
+2. **Everything it uses comes in as an input.** A function that uses a value from outside its inputs gives different answers at different times, with no error.
+3. **It handles every kind of input it will be given**, including missing values and inputs you did not test it on.
+
+### Test on a known answer
+
+The AI writes the test; you supply the answers, because you know them before running anything:
+
+```{r}
+#| label: test-known
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+cat(
+  paste("212 F in Celsius: expected 100, got", fahrenheit_to_celsius(212)),
+  paste("32 F in Celsius: expected 0, got", fahrenheit_to_celsius(32)),
+  sep = "\n"
+)
+```
+
+Both pass. A test you cannot predict the answer to is not a test: the AI would be checking its own code against its own code.
+
+### A value from outside
+
+This function uses `price`, which is not one of its inputs:
+
+```{r}
+#| label: outside-value
+price <- 4
+revenue <- function(yield) {
+  yield * price
+}
+revenue(200)
+```
+
+It runs, and `r revenue(200)` is right while `price` is 4. Now some later code, written for something else, changes `price`:
+
+```{r}
+#| label: outside-value-2
+price <- 5.5
+revenue(200)
+```
+
+The same call now gives `r revenue(200)`, with no error. The function quietly took whatever `price` happened to be. On someone else's computer, where nothing called `price` exists, it stops with an error instead. The fix is to make `price` an input: `revenue <- function(yield, price)`.
+
+```{r}
+#| label: outside-value-reset
+#| include: false
+rm(price, revenue)
+```
+
+### Inputs you did not test
+
+A function to average yields, tested on a column with no gaps:
+
+```{r}
+#| label: na-input
+average_yield <- function(yields) {
+  mean(yields)
+}
+average_yield(c(150, 180, 210))
+average_yield(c(150, NA, 210))
+```
+
+The first call gives 180, the known answer. The second gives `NA` (R's mark for a missing value): one missing value made the whole answer missing. Whether that is right depends on the research question, and the AI cannot know. Tell it what should happen: skip missing values (`mean(yields, na.rm = TRUE)`), or stop with an error.
+
+:::
+
+# Loops
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What a loop is
+
+::: {.panel-tabset}
+
+### One result per input
+
+A **loop** runs the same steps once for each of several inputs. One run of the steps for one input is a **repetition**. Most loops in research have this layout:
+
+| Inputs | One repetition | Results | Combined |
+|---|---|---|---|
+| 3 files | read the file, average the yields | 3 averages | one table, 3 rows |
+| 12 fields | fit a yield curve to the field's plots | 12 fitted curves | one table, 12 rows |
+| 1,000 simulated datasets | estimate a regression | 1,000 estimates | one column, 1,000 values |
+
+So before any code, you can say what the result of a correct loop looks like: **one result per input, then combined**. If there are 3 inputs and the combined table has 2 rows or 4, something went wrong.
+
+The steps of one repetition are usually written as a function, and the loop calls that function once per input. That is why functions came first.
+
+### Do you need a loop?
+
+Many R functions already work on a whole column at once. Arithmetic does, so `fahrenheit_to_celsius()` does:
+
+```{r}
+#| label: vectorised
+fahrenheit_to_celsius(c(32, 50, 212))
+```
+
+Three inputs, three outputs, no loop. A column of numbers given to a function as one input is called a **vector** (a sequence of values of one type). When each repetition is a calculation on one value, ask whether a loop is needed at all; the whole-column version is shorter and much faster:
+
+```{r}
+#| label: vector-vs-loop
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+temps <- runif(1000000, 0, 100)
+
+time_loop <- system.time(by_loop <- unlist(lapply(temps, fahrenheit_to_celsius)))["elapsed"]
+time_once <- system.time(at_once <- fahrenheit_to_celsius(temps))["elapsed"]
+
+cat(
+  paste("same results: expected TRUE, got", all.equal(by_loop, at_once)),
+  paste("seconds, one value at a time:", round(time_loop, 3)),
+  paste("seconds, whole column at once:", round(time_once, 3)),
+  sep = "\n"
+)
+```
+
+Loops are for repetitions that take a whole table or file each: reading files, fitting a model per group, running a simulation.
+
+The whole-column version holds every value in memory at once. When the table of every combination is too large for your computer's memory, a loop over chunks is the way out.
+
+:::
+
+## How looping code is written
+
+R has several ways to write a loop. They differ in name and package, not in pattern.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+results  <- lapply(inputs, function_name)
+combined <- bind_rows(results)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `inputs` | The things to loop over: file names, numbers, table names. Always the **first** input. | Yes |
+| `function_name` | The steps for **one** input. Always the **second** input. | Yes |
+| `results <-` | Stores the results, one per input, as a **list** (an R object that holds several results of any kind, in order) | Needed to keep them |
+| `bind_rows(results)` | Combines the results into one table, one on top of the other | When each result is a table |
+
+### A real example
+
+A real example: three files in, three averages out, one table at the end.
+
+```{r}
+#| label: first-loop
+files <- c("yields_2016.csv", "yields_2017.csv", "yields_2018.csv")
+
+summarise_year <- function(file) {
+  table <- read_csv(file, show_col_types = FALSE)
+  tibble(file = file, counties = nrow(table), mean_yield = mean(table$corn_yield))
+}
+
+results <- lapply(files, summarise_year)
+bind_rows(results)
+```
+
+`tibble()` builds a small table from named columns.
+
+### Every loop follows the pattern
+
+| Shape of the call | Package | What comes back |
+|---|---|---|
+| `lapply(inputs, f)` | built into R | a list |
+| `sapply(inputs, f)` | built into R | a vector when every result is one value |
+| `map(inputs, f)` | purrr (tidyverse) | a list |
+| `map_dbl(inputs, f)` | purrr | a vector of numbers |
+| `list_rbind(map(inputs, f))` | purrr | one table |
+| `future_lapply(inputs, f)` | future.apply | a list, computed in parallel (later in this deck) |
+| `future_map(inputs, f)` | furrr | a list, computed in parallel |
+
+`f` stands for the function with the steps. Whatever the name, the inputs come first and the steps second.
+
+### The `for` loop
+
+The oldest form writes the repetition out in the open:
+
+```{r}
+#| eval: false
+results <- vector("list", length(inputs))
+for (i in seq_along(inputs)) {
+  results[[i]] <- function_name(inputs[[i]])
+}
+```
+
+| Part | What it is |
+|---|---|
+| `vector("list", length(inputs))` | An empty list with one slot per input, made **before** the loop |
+| `for (i in seq_along(inputs))` | `i` takes the values 1, 2, 3, ... up to the number of inputs |
+| `results[[i]] <-` | Stores this repetition's result in slot `i` |
+
+It does the same job as `lapply()`. The extra parts are also extra places for a mistake: forget `[[i]]` and every repetition overwrites the last (see the next slide).
+
+### Variations you will see
+
++ `lapply(files, \(f) read_csv(f))`: the steps written on the spot, as a function with no name
++ `map(files, ~ read_csv(.x))`: purrr's older short form; `.x` is the current input
++ `lapply(seq_len(nrow(table)), f)`: looping over row numbers, so each repetition uses one row of a table
++ `expand.grid(price = c(3, 4, 5), rate = c(100, 200))` or `tidyr::expand_grid(...)`: a table of every combination of two lists (here 6 rows), made so that a loop can go over its rows. This is how a loop covers several inputs at once.
++ `bind_rows(results, .id = "name")` or `list_rbind(names_to = "name")`: combine, and add a column saying which input each row came from
+
+:::
+
+## What has to be true for a loop to be right
+
+::: {.panel-tabset}
+
+### The four conditions
+
+1. **The steps are right for one input.** Test the function on one input, against an answer you know, before looping. A loop repeats a mistake as faithfully as it repeats correct steps, and one wrong result is easier to find than many.
+2. **Every input is the same kind of thing as the one you tested.** Same columns, same names, same units. The loop assumes it; nothing checks it.
+3. **Each result records which input it came from.** Once results are combined, a row that does not say where it came from cannot be traced back.
+4. **The results fit together.** One result per input, with the same columns, so that combining them gives one row per input (or the sum of the rows of every part).
+
+Conditions 2 to 4 fail **without an error**. The next tabs show each.
+
+### Which year?
+
+The yearly files have no year column; the year is only in the file name. A loop that drops the file name:
+
+```{r}
+#| label: no-label
+summarise_table <- function(file) {
+  table <- read_csv(file, show_col_types = FALSE)
+  tibble(counties = nrow(table), mean_yield = mean(table$corn_yield))
+}
+bind_rows(lapply(files, summarise_table))
+```
+
+Three rows, right numbers, and no way to tell which is 2016. If the files had been listed in a different order, the rows would be in a different order, and nothing would show it. The first version of this loop, on the pattern tab, kept `file` in each result; that one line is condition 3.
+
+### A column with a different name
+
+Suppose one year's file calls the yield column `Corn_yield` instead of `corn_yield`. Combining the tables:
+
+```{r}
+#| label: name-mismatch
+part_1 <- tibble(county_name = c("Adams", "Buffalo"), corn_yield = c(195, 210))
+part_2 <- tibble(county_name = c("Clay", "Dawson"), Corn_yield = c(188, 201))
+combined <- bind_rows(part_1, part_2)
+combined
+```
+
+No error. `bind_rows()` matches columns by name, so the table now has two yield columns, each half missing. An average of `corn_yield` would quietly use half the data. Checks that catch it: the number of columns (expected 2, got `r ncol(combined)`), and missing values per column (expected 0, got `r sum(is.na(combined$corn_yield))` in `corn_yield`).
+
+### Only the last result kept
+
+A `for` loop where the result is stored without `[[i]]`:
+
+```{r}
+#| label: overwrite
+results <- vector("list", length(files))
+for (i in seq_along(files)) {
+  results <- summarise_year(files[[i]])
+}
+results
+```
+
+Each repetition replaced the one before, so only 2018 is left. It runs, and the one row it gives is correct, which is what makes it easy to miss. The check that catches it: the rows of the combined table, expected 3, got `r nrow(results)`. Counting with `length()` would not catch it here: a one-row table with three columns has length 3.
+
+:::
+
+# Parallel processing
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What parallel processing is
+
+::: {.panel-tabset}
+
+### Several repetitions at once
+
+A normal loop runs one repetition, then the next: **sequentially**. Your computer has several **cores** (processing units, each able to run one calculation at a time), and a sequential loop uses one of them.
+
+**Parallel processing** starts several extra R sessions, called **workers**, each on its own core. The inputs are shared out among the workers, each worker runs its repetitions, and the results are collected back into one list, in the same order as the inputs. The computer that built these slides has `r parallel::detectCores()` cores.
+
+With 4 workers, 100 repetitions can at best take a quarter of the time. In practice it is less than that, for the reason on the next tab.
+
+### Why some jobs speed up and others do not
+
+Parallel processing has a cost the sequential loop does not: starting the workers, sending each one the inputs and the function, and collecting the results. That cost is roughly fixed. So:
+
++ When each repetition is **fast**, that cost is larger than the time saved, and the parallel loop is **slower**.
++ When each repetition is **slow** (seconds, not microseconds), that cost is small next to the time saved.
+
+Measured when these slides were built, with 4 workers:
+
+```{r}
+#| label: timing
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+plan(multisession, workers = 4)
+
+# fast: square a number, 1,000 times
+fast_seq <- system.time(lapply(1:1000, \(x) x^2))["elapsed"]
+fast_par <- system.time(future_lapply(1:1000, \(x) x^2))["elapsed"]
+
+# slow: simulate 500,000 observations and fit a regression, 40 times
+one_simulation <- function(i) {
+  x <- rnorm(500000)
+  y <- 1 + x + rnorm(500000)
+  coef(lm(y ~ x))[["x"]]
+}
+slow_seq <- system.time(lapply(1:40, one_simulation))["elapsed"]
+slow_par <- system.time(future_lapply(1:40, one_simulation, future.seed = TRUE))["elapsed"]
+
+timings <- tibble(
+  job = c("fast", "fast", "slow", "slow"),
+  how = c("sequential", "parallel", "sequential", "parallel"),
+  seconds = signif(c(fast_seq, fast_par, slow_seq, slow_par), 3)
+)
+timings
+```
+
+The fast job took `r signif(timings$seconds[2], 3)` seconds in parallel against `r signif(timings$seconds[1], 3)` sequentially: slower. The slow job took `r signif(timings$seconds[4], 3)` seconds in parallel against `r signif(timings$seconds[3], 3)` sequentially. Numbers differ by computer; the direction does not.
+
+### Before reaching for it
+
++ If each repetition is a calculation on single values, a whole-column version (the "Do you need a loop?" tab under Loops) is usually a bigger gain than parallel processing, and has no setup cost.
++ If the whole loop takes a few seconds, parallel processing is not worth the extra things to check.
++ If it takes minutes or hours and the repetitions are independent (two slides on), it is.
+
+:::
+
+## How parallel code is written
+
+::: {.panel-tabset}
+
+### The pattern
+
+A parallel loop is the sequential pattern with two changes: one line that starts the workers, and a parallel version of the looping function.
+
+```{r}
+#| eval: false
+plan(multisession, workers = 4)
+results <- future_lapply(inputs, function_name, future.seed = TRUE)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `plan(multisession, workers = 4)` | Starts 4 workers. Every parallel loop after it uses them. | Yes, before the loop |
+| `future_lapply(inputs, function_name)` | `lapply()` with the repetitions shared among the workers. Inputs first, steps second, as before. | Yes |
+| `future.seed = TRUE` | Gives each repetition its own reproducible random numbers | Yes, if the steps use random numbers |
+| `plan(sequential)` | Goes back to one repetition at a time and closes the workers | At the end, to free memory |
+
+### Every parallel loop follows the pattern
+
+| Sequential | Parallel | Package |
+|---|---|---|
+| `lapply(inputs, f)` | `future_lapply(inputs, f, future.seed = TRUE)` | future.apply |
+| `map(inputs, f)` | `future_map(inputs, f, .options = furrr_options(seed = TRUE))` | furrr |
+| `lapply(inputs, f)` | `mclapply(inputs, f, mc.cores = 4)` | parallel (built into R); Mac and Linux only |
+
+### Options for `plan()`
+
+| Option | What it does |
+|---|---|
+| `sequential` | No workers: one repetition at a time, exactly like `lapply()` |
+| `multisession` | Separate R sessions as workers. Works on every computer. |
+| `multicore` | Faster to start, but only on Mac and Linux, and not in the RStudio Console. Elsewhere it runs one repetition at a time: correct, no faster, with only a one-time warning. `future::nbrOfWorkers()` printing 1 shows it. |
+
+`parallel::detectCores()` prints the number of cores. Leave one or two for the rest of the computer: `workers = parallel::detectCores() - 1`.
+
+```{r}
+#| label: plan-reset
+#| include: false
+plan(sequential)
+```
+
+:::
+
+## What has to be true for parallel processing to be safe
+
+A parallel loop gives the same results as the sequential one only if **each repetition is independent of the others**. Three conditions follow from that.
+
+::: {.panel-tabset}
+
+### No repetition uses another's result
+
+Workers run at the same time, so a repetition cannot wait for another one's result. This loop carries soil nitrogen from one year to the next:
+
+```{r}
+#| label: dependent
+applied <- c(150, 150, 0, 150)
+soil_n <- numeric(4)
+soil_n[1] <- 40
+for (year in 2:4) {
+  soil_n[year] <- 0.5 * soil_n[year - 1] + 0.2 * applied[year]
+}
+soil_n
+```
+
+Year 3 needs year 2's answer, which needs year 1's. It cannot be run in parallel. The sign to look for in code: the steps use `[i - 1]`, or a result from an earlier repetition.
+
+### Each repetition returns its result
+
+A repetition must hand its result back, not write it into something outside itself. Here each repetition adds to a running total with `<<-` (assign to a name outside the function):
+
+```{r}
+#| label: write-outside
+plan(multisession, workers = 4)
+
+total <- 0
+invisible(lapply(1:10, \(i) total <<- total + i))
+cat("sequential total: expected 55, got", total, "\n")
+
+total <- 0
+invisible(future_lapply(1:10, \(i) total <<- total + i))
+cat("parallel total: expected 55, got", total, "\n")
+
+plan(sequential)
+```
+
+The parallel loop gives 0, with no error: each worker changed its own copy of `total`, and the copies were thrown away. The safe form returns each result and combines them afterwards: `sum(unlist(future_lapply(1:10, \(i) i)))`.
+
+The same loop under `plan(sequential)` also gives 0, so comparing the two ways would not show the problem; counting the results would.
+
+### Random numbers
+
+Simulations and resampling draw random numbers. Without `future.seed = TRUE`, `future_lapply()` warns `UNRELIABLE VALUE` (the workers' random numbers may not be independent). With it, and with the same `set.seed()` before each run, the results are the same whatever the number of workers, which is what makes the next check possible:
+
+```{r}
+#| label: seed-compare
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+plan(sequential)
+set.seed(1)
+one_at_a_time <- future_lapply(1:5, one_simulation, future.seed = TRUE)
+
+plan(multisession, workers = 4)
+set.seed(1)
+in_parallel <- future_lapply(1:5, one_simulation, future.seed = TRUE)
+plan(sequential)
+
+cat("parallel same as sequential: expected TRUE, got", identical(one_at_a_time, in_parallel), "\n")
+```
+
+`lapply()` with `set.seed(1)` draws different numbers from `future_lapply()`, so compare `future_lapply()` with itself under `plan(sequential)`, not with `lapply()`.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+Functions and loops follow the way of working with AI from lecture 02-1 ("Working with AI on your own research"), which is also how to work on your own research:
+
+1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
+2. **The AI writes into a Quarto document** (`.qmd`), with one plain-English sentence above each chunk saying what it does and why.
+3. **You render** the `.qmd` to HTML.
+4. **You read the HTML** and decide whether the work is right: the sentences, the code, and the check results side by side.
+
+:::{.callout-note}
+Every request that asks for code ends with the same few lines telling the AI to work this way. This deck calls them the **closing instructions**; the full text is under **Recommended requests** near the end.
+:::
+
+## Look at the inputs before you ask
+
+::: {.panel-tabset}
+
+### Why
+
+A loop assumes every input is like the first. Before asking for one, find out:
+
++ how many inputs there are (so you know how many results to expect)
++ what one input looks like: its columns, their names, what one row is
++ whether the inputs say which one they are, or only their file names do
++ how many rows each has (so you know how many rows the combined table should have)
+
+### Listing and counting
+
+The AI can write this; you read the answers before asking for any loop:
+
+```{r}
+#| label: look-files
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+files <- list.files(".", pattern = "^yields_.*\\.csv$")
+rows_per_file <- sapply(files, \(f) length(readLines(f)) - 1)
+rows_per_file
+names(read_csv(files[1], show_col_types = FALSE))
+```
+
+From this you learn: `r length(files)` files, `r sum(rows_per_file)` data rows in all, two columns, and no year column. A correct combined table has `r sum(rows_per_file)` rows and needs a year column taken from the file names. Write those down **before** you ask.
+
+:::
+
+## What to put in your request
+
+The AI already knows the functions. Your request supplies what it cannot know:
+
+1. **The inputs**: what they are, where they are, how many, and how each one says which it is (a column, or only the file name)
+2. **The steps for one input**, in words, and what one result should look like (one number, one row with named columns)
+3. **A known answer**: an input whose result you can work out by hand, to test the function on before looping
+4. **How to combine**, and what the combined result should look like: how many rows, which column says where each row came from
+5. **Whether to run in parallel**, and only if the loop is slow and the repetitions are independent
+6. **Ask for checks**: the test on the known answer, the number of results, the rows of the combined table (next section)
+7. **The closing instructions**: which `.qmd` and heading the code goes under, a sentence above each chunk, paths built with `here::here()`, checks printed as expected and got, and render to HTML
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the files and count rows itself. Still write down what you expect (number of inputs, rows in the combined table, the answer for your known input) **before** it runs, so you have something to compare against.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Get the average corn yield for each year from my files.
+```
+
+The AI has to guess which files, where they are, what is in them, and what to return. A typical reply:
+
+```{r}
+#| eval: false
+setwd("C:/Users/yourname/Documents/data")
+results <- c()
+for (f in list.files()) {
+  d <- read.csv(f)
+  results <- c(results, mean(d$corn_yield))
+}
+results
+```
+
+It runs on nobody's computer as written. Fix the path, and it reads **every** file in the folder, yearly or not, and returns numbers with no year attached.
+
+### Strong
+
+An example for the three yearly files:
+
+```text
+In my R project, data/ holds three csv files, yields_2016.csv,
+yields_2017.csv and yields_2018.csv: Nebraska corn yields by county,
+one row per county, columns county_name and corn_yield (bu/acre). The
+files have no year column; the year is only in the file name. They have
+50, 47 and 29 rows.
+
+Write a function that takes one file's path and returns a one-row table:
+the year (from the file name), the number of counties and the mean
+yield. Test it on a three-row table with yields 150, 180 and 210, whose
+mean is 180. Then loop it over the three files with lapply() and combine
+the results into one table called yearly.
+
+Check: the test (expected 180), the number of results (expected 3), the
+rows of yearly (expected 3), and the years in yearly (expected 2016,
+2017, 2018).
+
+Put the code in my Quarto document analysis/yearly.qmd, under the
+heading "Average yield by year", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build
+every path with here::here(); no setwd(), no absolute paths. Print each
+check on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+### What came back
+
+What the AI's answer looks like in the rendered HTML. Read each sentence and check that the code under it does what the sentence says. (On these slides, the files sit beside the deck, so the paths are bare file names instead of `here::here("data", ...)`.)
+
+The function takes one file's path, reads it, and returns one row with the year taken from the file name.
+
+```{r}
+#| label: ai-answer-function
+summarise_file <- function(path) {
+  table <- read_csv(path, show_col_types = FALSE)
+  tibble(
+    year = as.integer(gsub("\\D", "", basename(path))),
+    counties = nrow(table),
+    mean_yield = mean(table$corn_yield)
+  )
+}
+```
+
+Test the function on a small table whose mean is known to be 180, written to a temporary file.
+
+```{r}
+#| label: ai-answer-test
+test_path <- file.path(tempdir(), "yields_1999.csv")
+write_csv(tibble(county_name = c("A", "B", "C"), corn_yield = c(150, 180, 210)), test_path)
+test <- summarise_file(test_path)
+cat("test mean: expected 180, got", test$mean_yield, "\n")
+```
+
+### The loop and its checks
+
+Loop the function over the three files and combine the results into one table.
+
+```{r}
+#| label: ai-answer-loop
+paths <- c("yields_2016.csv", "yields_2017.csv", "yields_2018.csv")
+results <- lapply(paths, summarise_file)
+yearly <- bind_rows(results)
+```
+
+Print the checks on the number of results, the rows, and the years.
+
+```{r}
+#| label: ai-answer-check
+cat(
+  paste("number of results: expected 3, got", length(results)),
+  paste("rows in yearly: expected 3, got", nrow(yearly)),
+  paste("years: expected 2016 2017 2018, got", paste(yearly$year, collapse = " ")),
+  sep = "\n"
+)
+yearly
+```
+
+Every check passes. One thing to notice: `gsub("\\D", "", ...)` removes every character that is not a digit, so it works because the only digits in these file names are the year. A file called `yields_2016_v2.csv` would give the year 20162. Asking the AI "what would this line do with a file name that has other digits in it?" is how you find limits like that.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checking: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The checks
+
+The AI can write the checking code. It cannot decide which checks your loop needs, and it cannot know the right answers.
+
+| | Ask the AI to print | Why | What only you can supply |
+|---|---|---|---|
+| 1 | the function's result on an input with a known answer | A wrong step gives a wrong number every time, with no error | the input and its answer, worked out by hand |
+| 2 | the number of results | One per input; fewer means some were lost or overwritten | the number of inputs |
+| 3 | the rows and columns of the combined table | An extra column or missing rows means the inputs did not match | the expected rows (from counting each input) and columns |
+| 4 | the values of the column saying where each row came from | Results that cannot be traced back to an input are no use | the list of inputs |
+| 5 | the smallest and largest value **per input** | An input unlike the others shows up as one result out of line with the rest | what range is believable |
+| 6 | for a parallel loop, the result of a small case run sequentially and in parallel, compared | Random numbers handled wrongly give different results. It does not catch a repetition that writes outside itself: under `plan(sequential)`, `future_lapply()` loses those writes too. Checks 2 and 3 catch that one. | nothing; this one is always expected to be identical |
+
+### Asking for them
+
+One paragraph at the end of your request does it:
+
+```text
+Test the function on <the known input>, whose answer is <the answer>.
+After the loop, check the number of results (expected <number>), the
+rows and columns of the combined table (expected <number> and <number>),
+the values of <the column saying where each row came from>, and the
+smallest and largest <column> for each input (believable: <lowest> to
+<highest>).
+```
+
+Every number in it comes from looking at the inputs and working out the known answer **before** the AI writes anything. That part only you can do.
+
+### Reading the HTML
+
+For the yearly files, the student expected 3 results, `r sum(rows_per_file)` rows when the three files are stacked into one table with a year column, and yields between 100 and 300 bushels per acre in every year. The AI's check code, and what it printed:
+
+```{r}
+#| label: chk-all
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+stacked <- bind_rows(lapply(paths, \(p) {
+  read_csv(p, show_col_types = FALSE) |>
+    mutate(year = as.integer(gsub("\\D", "", basename(p))))
+}))
+
+ranges <- stacked |>
+  group_by(year) |>
+  summarise(lowest = min(corn_yield), highest = max(corn_yield))
+
+cat(
+  paste0("rows in stacked: expected ", sum(rows_per_file), ", got ", nrow(stacked)),
+  paste("columns in stacked: expected 3, got", ncol(stacked)),
+  paste("years: expected 2016 2017 2018, got", paste(unique(stacked$year), collapse = " ")),
+  sep = "\n"
+)
+ranges
+```
+
++ Rows, columns and years match.
++ Every year's yields lie between 100 and 300, and the three ranges are close to each other, as they should be for one state in three neighbouring years.
+
+:::
+
+## Checks that come from knowing the data
+
+The checks above apply to any loop. The most useful ones come from what you know about **these** inputs, and no AI will think of them for you.
+
+Nebraska has 93 counties, and each county appears at most once a year in a file of county yields. So in the stacked table:
+
+```text
+Using the table stacked, check that no year has more than 93 rows and
+that no county appears twice in the same year.
+
+Put the code in my Quarto document analysis/yearly.qmd, under the
+heading "Checks on the stacked table", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+The AI's code, and what it printed:
+
+```{r}
+#| label: chk-knowledge
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+most_rows <- max(count(stacked, year)$n)
+repeats <- stacked |> count(year, county_name) |> filter(n > 1) |> nrow()
+cat(
+  paste("most counties in one year: expected at most 93, got", most_rows),
+  paste("counties listed twice in a year: expected 0, got", repeats),
+  sep = "\n"
+)
+```
+
+Both pass. A file read twice by mistake, or two files for the same year, would fail the second check, and a row count alone would not tell you which.
+
+## Your turn: read the AI's code
+
+A student asked an AI to "run my simulation 1,000 times in parallel and keep the estimates", and got this:
+
+```{r}
+#| eval: false
+library(future.apply)
+plan(multisession, workers = 8)
+estimates <- c()
+future_lapply(1:1000, function(i) {
+  x <- rnorm(500)
+  y <- 2 + 0.5 * x + rnorm(500)
+  estimates <<- c(estimates, coef(lm(y ~ x))[2])
+})
+mean(estimates)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each part do: line 2, line 3, the steps inside `function(i)`, and the last line?
+
+B. Is each repetition independent of the others? Which line breaks the rule that each repetition returns its result?
+
+C. What will `mean(estimates)` give, and will R report an error?
+
+D. What else is missing for a loop that uses random numbers?
+
+E. Rewrite the request so the AI could not make these mistakes.
+
+### Answers
+
+A. Line 2 starts 8 workers. Line 3 makes an empty vector. Each repetition simulates 500 observations with a true slope of 0.5, fits a regression and adds the estimated slope to `estimates`. The last line averages the estimates. The `future_lapply()` result itself is not stored, so it is printed and then lost.
+
+B. The steps are independent: no repetition uses another's result. But `estimates <<- ...` writes into a vector outside the function instead of returning the estimate.
+
+C. Each worker changes its own copy of `estimates`, and the copies are thrown away, so `estimates` is still empty and `mean(estimates)` gives `NA` with a warning, not an error. Run sequentially with `lapply()`, the same code would have worked, which is why it looks right.
+
+D. `future.seed = TRUE`, so that each repetition gets its own reproducible random numbers. Without it, `future_lapply()` warns `UNRELIABLE VALUE`.
+
+E. Ask for a function that returns one estimate, looped with `future_lapply(..., future.seed = TRUE)`, the estimates combined afterwards with `unlist()`, and checks: the number of estimates (expected 1,000), their average (expected close to the true slope, 0.5), and a run of 10 repetitions sequentially and in parallel, compared (expected identical).
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at your inputs. The blanks are the part the AI cannot fill in for you. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at the inputs
+
+```text
+Without changing anything, list the files in <path to the folder> whose
+names match <the pattern in the file names>. For each file, print its
+number of data rows and its column names.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Write and test a function
+
+```text
+Write a function called <function name> that takes <the inputs, and
+what each one is> and returns <what one result is: one number, or one
+row with the columns ...>. The steps are: <the steps in words>.
+
+Test it on <an input whose answer you know>, for which the answer is
+<the answer you worked out by hand>.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Loop and combine
+
+```text
+Run the function <function name> once for each of <the inputs: which
+files, groups or values, and how many>. Each input is identified by
+<a column, or only its file name>; add a column <column name> to each
+result saying which input it came from. Combine the results into one
+table called <table name>.
+
+Check the number of results (expected <number>), the rows and columns
+of <table name> (expected <number> and <number>), the values of
+<column name>, and the smallest and largest <column> for each input
+(believable: <lowest> to <highest>).
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Run in parallel
+
+```text
+The loop over <the inputs> is slow: about <how long> in total. Each
+repetition <does or does not> use random numbers and does not use any
+other repetition's result. Run it in parallel with future_lapply() and
+<number> workers, with each repetition returning its result.
+
+First run a small case, <number> inputs, under plan(sequential) and
+then in parallel, and check that the results are identical (expected
+TRUE) (if the repetitions use random numbers, use future.seed = TRUE and
+call set.seed() with the same number before each run). Also check the
+number of results (expected <number>). Then time the full loop both
+ways and print both times.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+For code you did not write, or code you are not sure about:
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. what the inputs, the steps for one input, and the combined result are
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+3. whether the repetitions are independent, so that it could be run in
+   parallel
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| Which steps repeat, and with which inputs | The function definition |
+| What the correct result is for one input you can work out by hand | The test that compares against it |
+| What every input looks like, and how each one says which it is | The code that reads them and adds that label |
+| What one result per input, combined, should look like: rows, columns, labels | The loop and the combining step |
+| Whether the repetitions are independent, and whether the loop is slow enough to be worth it | The parallel version, the count of its results, and the comparison with the sequential one |
+
+**Every loop:** look at the inputs and write down how many results and rows you expect. Test the function on an input whose answer you know. Ask the AI to write the loop and the checks into your `.qmd`, render it, and judge the HTML against what you wrote down. Run in parallel only a slow loop of independent repetitions, and only after a small case gives the same results both ways and the right number of results.

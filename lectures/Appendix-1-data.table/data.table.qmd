@@ -1,0 +1,535 @@
+---
+title: "A-1: Reading and Checking data.table Code"
+abstract: "Appendix 1: The data.table package"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(dplyr)
+library(data.table)
+flights <- nycflights13::flights
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+The 03-2 lecture did data wrangling with dplyr: keep some rows, keep some columns, add a column, summarise by group. **data.table** is another R package that does the same jobs, written differently and much faster on large tables. When your data is large, you may ask an AI to use it, or the AI may choose it without being asked.
+
+You will not learn to write data.table code. You will learn:
+
+1. **The concept**: what data.table is, and when it is worth asking for
+2. **Reading code**: the one pattern every line of data.table code follows, and which dplyr step each line matches
+3. **The surprise**: data.table can change a table in place, so a table you thought was a separate copy changes too
+4. **Asking AI and checking**: what to put in your request, and how to confirm the data.table result by comparing it with a dplyr result on the same data
+
+### Directions
+
++ Ask your AI assistant to install the `data.table`, `dplyr` and `nycflights13` packages if you have not already.
++ The examples use the table `flights` from the nycflights13 package: one row per flight that left a New York City airport in 2013, `r format(nrow(flights), big.mark = ",")` rows. It comes with the package, so this deck reads no data files.
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What data.table is, and when to ask for it
+
+::: {.panel-tabset}
+
+### What it is
+
+data.table is a package with its own kind of table, also called a **data.table**. A data.table is still a table in the sense of 03-1 and 03-2: rows, named columns, one type per column. Functions that work on any table, such as `nrow()` or `ggplot()`, work on it too.
+
+What differs is how you ask for an operation. dplyr uses one function per step (`filter()`, `mutate()`, `summarise()`) joined with `|>`. data.table puts the steps inside square brackets after the table's name: `flights_dt[month == 1, .N, by = carrier]`. The next slide shows how to read that.
+
+A table becomes a data.table in one of three ways you will see in AI-written code:
+
++ `fread("file.csv")`: data.table's own csv reader returns one
++ `as.data.table(table)`: makes a data.table **copy** of an existing table
++ `setDT(table)`: turns the existing table itself into a data.table, without a copy
+
+### When it is worth it
+
+Speed. Here are the same 10 million rows (each row has a group number from 1 to 100,000 and a random value), averaged by group with each package:
+
+```{r}
+#| label: speed
+#| cache: true
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+set.seed(1)
+big <- data.table(group = sample(1e5, 1e7, replace = TRUE), value = runif(1e7))
+big_tibble <- as_tibble(big)
+
+time_dt <- system.time(big[, .(mean_value = mean(value)), by = group])["elapsed"]
+time_dplyr <- system.time(
+  big_tibble |> group_by(group) |> summarise(mean_value = mean(value))
+)["elapsed"]
+
+cat("data.table:", time_dt, "seconds\ndplyr:", time_dplyr, "seconds\n")
+```
+
+On the computer that built these slides, data.table was about `r round(time_dplyr / time_dt)` times faster. The exact ratio changes from computer to computer and run to run; the direction does not. Part of the gain comes from data.table splitting the work across several **processor threads** (parts of the computer's processor that can each work on a share of the job at the same time; this computer gave it `r getDTthreads()`), so the gap is smaller on a computer with fewer. `fread()` is often several times faster than `read_csv()` on a large csv.
+
+Notice that dplyr also finished 10 million rows in under a second. Row count alone is not the reason; time is. Ask for data.table when:
+
++ a step you run often takes many seconds or minutes with dplyr
++ a csv file is so large that reading it is slow
++ matching each row to the nearest earlier date in another table (a rolling join)
+
+### When it is not
+
+For the tables in this course and in most thesis projects (thousands to a few hundred thousand rows), dplyr finishes in well under a second. The speed gain is then invisible, and the cost is real: two styles in one project make the code harder for you, your advisor and coauthors to read.
+
+If the data is large but you want to keep reading dplyr code, the **dtplyr** package lets the AI write dplyr steps that data.table carries out. Ask the AI which fits your case.
+
+:::
+
+## How data.table code is written
+
+Whatever the operation, data.table code follows one pattern.
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+table_name[rows, columns or computation, by = groups]
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `table_name` | The data.table to work on | Yes |
+| `rows` | Which rows to use: a condition such as `month == 1`, or `order(...)` to sort | No; left empty, all rows |
+| `columns or computation` | What to return or do: pick columns, compute a summary, or add a column with `:=` | No; left empty, all columns |
+| `by = groups` | Do the computation separately for each group defined by these columns | No; left out, the whole table is one group |
+
+Read it left to right as a sentence: **from this table, take these rows, do this, separately for each of these groups.** An empty part is still marked by its comma: `table_name[, mean(x)]` uses all rows.
+
+The help pages call the three parts `i`, `j` and `by`, so AI explanations often say "in `i`" or "in `j`".
+
+### Every dplyr step fits the pattern
+
+Each step from 03-2 is one bracket. (`flights_dt` is the flights table made into a data.table.)
+
+| What you want | dplyr (03-2) | data.table |
+|---|---|---|
+| keep some rows | `filter(flights, month == 1)` | `flights_dt[month == 1]` |
+| keep some columns | `select(flights, carrier, month)` | `flights_dt[, .(carrier, month)]` |
+| add a column | `mutate(flights, speed = distance / air_time)` | `flights_dt[, speed := distance / air_time]` |
+| one summary | `summarise(flights, m = mean(dep_delay, na.rm = TRUE))` | `flights_dt[, .(m = mean(dep_delay, na.rm = TRUE))]` |
+| summary per group | `group_by(carrier)`, then `summarise(m = ...)` | `flights_dt[, .(m = ...), by = carrier]` |
+| group value on every row | `group_by(carrier)`, then `mutate(m = ...)` | `flights_dt[, m := ..., by = carrier]` |
+| count rows per group | `count(flights, carrier)` | `flights_dt[, .N, by = carrier]` |
+| sort | `arrange(flights, carrier, desc(dep_delay))` | `flights_dt[order(carrier, -dep_delay)]` |
+
+The two `:=` rows are not exact matches: `mutate()` returns a new table, while `:=` changes `flights_dt` itself (see "The behaviour that surprises").
+
+### Steps outside the bracket
+
+Steps outside the bracket, as functions:
+
+| What you want | dplyr or tidyverse | data.table |
+|---|---|---|
+| read or write a csv (03-1) | `read_csv()`, `write_csv()` | `fread()`, `fwrite()` |
+| rename a column | `rename(table, new = old)` | `setnames(table, "old", "new")` |
+| join two tables (03-3) | `left_join(x, y, by = "id")` | `merge(x, y, by = "id", all.x = TRUE)`, or `y[x, on = "id"]` |
+| reshape (03-3) | `pivot_wider()`, `pivot_longer()` | `dcast()`, `melt()` |
+
+`y[x, on = "id"]` reads as "for every row of `x`, find the matching row of `y`": all rows of `x` are kept, as in `left_join(x, y)`, but the columns come out in a different order. If both tables have a column with the same name, say `value`, then `value` holds `y`'s values and `x`'s become `i.value`. `merge()` sorts the rows by the join column, so its row order can differ from `x`'s.
+
+### One example, part by part
+
+Count American Airlines (`AA`) flights from each airport in each month:
+
+```{r}
+#| label: example-dt
+flights_dt <- as.data.table(flights)
+aa_dt <- flights_dt[carrier == "AA", .N, by = .(origin, month)]
+head(aa_dt, 4)
+```
+
+| Part | Here | dplyr step it matches |
+|---|---|---|
+| rows | `carrier == "AA"` | `filter(carrier == "AA")` |
+| computation | `.N`, the number of rows (in each group) | `summarise(N = n())` |
+| `by =` | `.(origin, month)`: one group per airport and month | `group_by(origin, month)` |
+
+### The same in dplyr
+
+The same in dplyr, for comparison:
+
+```{r}
+#| label: example-dplyr
+aa_dplyr <- flights |>
+  filter(carrier == "AA") |>
+  group_by(origin, month) |>
+  summarise(N = n(), .groups = "drop")
+head(aa_dplyr, 4)
+```
+
+The counts agree, but the rows come out in a different order: dplyr sorts by the groups, data.table keeps the groups in the order they first appear in the table. That matters when you compare the two (see "Checking the result").
+
+### Variations you will see
+
++ `.()` is short for `list()`. `flights_dt[, .(m = mean(arr_delay, na.rm = TRUE))]` returns a table; without `.()`, `flights_dt[, mean(arr_delay, na.rm = TRUE)]` returns a single number.
++ `.N` is the number of rows, counted per group when there is a `by =`.
++ `.SD` (subset of data) is "all columns of the current group". `flights_dt[, lapply(.SD, mean, na.rm = TRUE), by = carrier, .SDcols = c("dep_delay", "arr_delay")]` averages several columns at once, like `summarise(across(...))` in dplyr.
++ Brackets one after another, `flights_dt[...][...]`, do one step and then the next, like `|>`.
++ `keyby =` instead of `by =` does the same and sorts the result by the groups.
++ Inside the brackets, a bare name such as `month` means the column `month`, as inside dplyr functions.
+
+:::
+
+## The behaviour that surprises: changing a table in place
+
+::: {.panel-tabset}
+
+### What happens
+
+`:=` (the data.table way to add or change a column) does not make a new table. It changes the table it is applied to, **in place**. Here a student keeps a second name for a small table, intending it as a backup, and then adds a column:
+
+```{r}
+#| label: in-place
+small <- flights_dt[1:3, .(carrier, distance, air_time)]
+backup <- small
+small[, speed := distance / air_time]
+names(backup)
+```
+
+`backup` has the new column `speed` too, although no line touched `backup`. The same steps in dplyr leave the backup as it was:
+
+```{r}
+#| label: dplyr-copy
+small_tb <- select(flights[1:3, ], carrier, distance, air_time)
+backup_tb <- small_tb
+small_tb <- mutate(small_tb, speed = distance / air_time)
+names(backup_tb)
+```
+
+### Why the "copy" changed
+
+`backup <- small` does not copy the table. It gives the same table a second name. In dplyr this never shows, because no dplyr function changes a table; `mutate()` builds a new table, and `<-` stores it under the name. With `:=` there is only one table, it is changed, and both names show the change.
+
+The same happens in three other places you will see in AI-written code:
+
++ A function that uses `:=` on a table it was given changes the caller's table, not a copy.
++ Functions whose names start with `set` (`setDT()`, `setnames()`, `setorder()`, `setkey()`) change the table itself and are written without `<-` in front.
++ `flights_dt[month == 1, dep_delay := 0]` changes `dep_delay` in the January rows of `flights_dt` itself. It does not return a smaller table.
+
+No error and no warning in any of these. The next step that uses the "original" table quietly uses the changed one.
+
+### How to keep the original
+
+`copy()` makes a real, separate copy:
+
+```{r}
+#| label: copy
+small <- flights_dt[1:3, .(carrier, distance, air_time)]
+backup <- copy(small)
+small[, speed := distance / air_time]
+names(backup)
+```
+
+`as.data.table()` also makes a copy, which is why `flights` itself was not changed by anything on these slides. `setDT()` does not.
+
+So when you ask the AI for data.table code, say which tables must stay unchanged, and ask it to check that they did (see "Checking the result").
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The same way of working as in every other lecture (lecture 02-1, "Working with AI on your own research", explains why it matters for research):
+
+1. **You ask.** Your request says what you want, what you know about the data, and which checks to print.
+2. **The AI writes into a Quarto document** (`.qmd`), with one plain-English sentence above each code chunk.
+3. **You render** the `.qmd` to HTML.
+4. **You read the HTML** and decide whether the work is right.
+
+For data.table code, the sentence above each chunk matters more than usual: it is your translation of a dense bracket into words. Check that the bracket does what the sentence says, using the pattern from "How data.table code is written".
+
+## What to put in your request
+
+The AI knows data.table. What it cannot know:
+
+1. **Why you want data.table**: how many rows, which step is slow, or that you have none of these problems and want dplyr
+2. **What the result is**: what one row of the result should be, for example one carrier in one month
+3. **Which tables must not change**: otherwise `:=` may change a table you use later
+4. **A way to confirm the result**: ask for the same result with dplyr, on the full data or a sample of it, and a comparison
+5. **The closing instructions**, as in every request for code (full text under **Recommended requests**)
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Use data.table to get average delays by airline and month.
+```
+
+The AI does not know which table, which delay, whether the original table may change, or how you will know the result is right. It will write something that runs, and you will have nothing to compare it with.
+
+### Strong
+
+An example for a large flights table, tested first on one year of it:
+
+```text
+My data.table flights_dt has one row per flight. The full data has tens
+of millions of rows, so I want data.table for speed. I am testing on
+2013 only, which has 336,776 rows.
+
+For each carrier and month, compute the average arrival delay
+(arr_delay) and the number of flights, leaving out flights with no
+arrival delay recorded. One row of the result is one carrier in one
+month. Do not change flights_dt; I use it later.
+
+To confirm the result, compute the same with dplyr and compare the two
+after sorting both by carrier and month. Also check that the flight
+counts add up to the number of flights with an arrival delay, and that
+flights_dt is identical to a copy saved before your code runs.
+
+Put the code in my Quarto document analysis/delays.qmd, under the
+heading "Average delays", as R code chunks. Above each chunk, write
+one plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### What came back
+
+What the AI's answer looks like in the rendered HTML.
+
+Save a separate copy of `flights_dt`, so we can check at the end that nothing changed it.
+
+```{r}
+#| label: ai-copy
+flights_dt_before <- copy(flights_dt)
+```
+
+Average arrival delay and number of flights for each carrier and month, using only flights with an arrival delay recorded.
+
+```{r}
+#| label: ai-dt
+delays_dt <- flights_dt[!is.na(arr_delay),
+                        .(mean_delay = mean(arr_delay), n_flights = .N),
+                        by = .(carrier, month)]
+```
+
+The same result with dplyr, to compare against.
+
+```{r}
+#| label: ai-dplyr
+delays_dplyr <- flights_dt |>
+  filter(!is.na(arr_delay)) |>
+  group_by(carrier, month) |>
+  summarise(mean_delay = mean(arr_delay), n_flights = n(), .groups = "drop")
+```
+
+Compare the two after sorting both by carrier and month, check the counts, and check that `flights_dt` is unchanged.
+
+```{r}
+#| label: ai-check
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+same <- all.equal(
+  as.data.frame(delays_dt[order(carrier, month)]),
+  as.data.frame(delays_dplyr)
+)
+cat(
+  paste("data.table and dplyr agree: expected TRUE, got", isTRUE(same)),
+  paste0("flights counted: expected 327346, got ", sum(delays_dt$n_flights)),
+  paste("flights_dt unchanged: expected TRUE, got", identical(flights_dt, flights_dt_before)),
+  sep = "\n"
+)
+```
+
+All three checks pass. Map each bracket onto the request: rows `!is.na(arr_delay)` is "leaving out flights with no arrival delay", the computation is the two columns asked for, and `by = .(carrier, month)` makes one row per carrier and month.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checking: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The checks
+
+The AI can write the checking code. It cannot know which tables you need unchanged or what the right answer is. Ask for these whenever the AI writes data.table code:
+
+| | Ask the AI to print | Why | What only you can supply |
+|---|---|---|---|
+| 1 | whether the data.table result equals a dplyr result on the same data, after sorting both the same way | Two different ways of computing the same thing rarely make the same mistake | which columns identify one row of the result |
+| 2 | whether the counts add up to the rows that should be included | A wrong condition in the rows part drops or keeps rows with no error | which rows should be included |
+| 3 | whether each input table is identical to a copy saved (with `copy()`) before the data.table code runs | `:=` changes a table in place, with no error, and may change values without changing the columns | which tables must stay unchanged |
+
+### Why sort before comparing
+
+Compare the data.table and dplyr results from "What came back" without sorting:
+
+```{r}
+#| label: unsorted
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+unsorted <- all.equal(as.data.frame(delays_dt), as.data.frame(delays_dplyr))
+cat("agree without sorting: expected TRUE, got", isTRUE(unsorted), "\n")
+```
+
+The check fails although both are right: dplyr sorts the groups, data.table keeps them in the order they first appear. Same rows, different order. That is why the request says "after sorting both by carrier and month".
+
+A failed comparison therefore has two possible causes: the order differs, or the numbers differ. Ask the AI which one, and if it is the numbers, ask it to show the groups that differ.
+
+### When the comparison is too slow
+
+The dplyr version may be too slow on the full data, which is the reason you wanted data.table. Then run both on a sample, compare there, and run only the data.table version on the full data. The data.table code is the same on the sample and the full data, so agreement on the sample tells you the translation is right.
+
+:::
+
+## Your turn: read the AI's code
+
+A student asked an AI for "the average corn yield in tonnes per hectare, by state, from 2010 on, with data.table", and got this. In the file, `yield` is recorded in bushels per acre.
+
+```{r}
+#| eval: false
+yields <- fread(here::here("data", "county_yields.csv"))
+yields_metric <- yields
+yields_metric[, yield_t := yield * 0.0628]
+yields_metric[year >= 2010, .(avg_yield = mean(yield_t)), by = state]
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. Say what each of the four lines does, using the dplyr step it matches where there is one.
+
+B. After these lines run, which columns does `yields` have?
+
+C. Which rows of the data go into the averages?
+
+D. Name two checks to ask for, and what you would expect each to print.
+
+### Answers
+
+A. Reads the csv into a data.table (like `read_csv()`); gives the same table a second name; adds a column of yields in tonnes per hectare (like `mutate()`); keeps rows from 2010 on (`filter()`), then averages per state (`group_by()` and `summarise()`).
+
+B. Its original columns **and** `yield_t`. Line 2 made a second name, not a copy, so line 3 changed `yields` too. If `yields` must stay as read, line 2 needs `copy(yields)`.
+
+C. Rows with `year` 2010 or later. Missing yields are not dropped, so a state with a missing value gets `NA` as its average.
+
+D. For example: the same averages computed with dplyr and compared after sorting by state (expected: they agree); whether `yields` is identical to a copy saved right after reading (expected: TRUE; here it would print FALSE). The number of rows in the result should equal the number of states with data from 2010 on.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** know about your data. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Do it with data.table
+
+```text
+My table <table name> has one row per <what one row is> and about
+<number> rows, so I want data.table for speed. I want <what to compute>.
+One row of the result is <what one row of the result is>. Do not change
+<tables that must stay unchanged>.
+
+To confirm the result, compute the same with dplyr on <the full data, or
+which sample> and compare the two after sorting both by <the columns that
+identify a row of the result>. Also check that <a count you know>, and
+that <tables that must stay unchanged> are identical to copies saved
+before your code runs.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain data.table code
+
+For data.table code you were given, or that the AI wrote without being asked:
+
+```text
+Explain this data.table code to me. For each line, write one
+plain-English sentence, and name the dplyr step it matches, if any.
+Then list every line that changes a table in place (:=, or a function
+whose name starts with set), and which table it changes.
+
+<paste the code here>
+```
+
+### Should I use data.table?
+
+```text
+My table <table name> has about <number> rows and <number> columns.
+The step <the step that is slow> takes about <how long>. Would
+data.table, dtplyr or something else make it faster, by roughly how
+much, and what would I give up? Do not write code yet.
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| When data.table is worth it: steps that take many seconds or minutes, large csv files, rolling joins | The data.table code |
+| The pattern `table[rows, columns or computation, by = groups]`, and which dplyr step each part matches | Any particular bracket, `.N`, `.SD` and the rest |
+| That `:=` and `set` functions change a table in place, so a second name is not a copy | `copy()` where it is needed, once you say which tables must not change |
+| That two correct results can differ in row order | The comparison with dplyr, sorted |
+
+**Every time the AI writes data.table code:** say which tables must stay unchanged, and ask for the same result with dplyr and a comparison. Render, and judge the HTML: the comparison, the counts, and whether the tables you wanted kept are identical to the copies saved before the code ran.

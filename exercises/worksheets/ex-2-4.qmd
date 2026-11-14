@@ -1,0 +1,158 @@
+---
+title: "Ex-2-4 worksheet: Articles with Quarto"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch2-practice/analysis/ex-2-4.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-2-4. Try each task before you look.
+
+Today you start a short research note on the Nebraska yield data, in a new file, `analysis/note.qmd`, written by the AI from your decisions. This worksheet holds your decisions, your requests and your checks; the note itself is a separate file.
+
+The note goes to a journal that asks for a Word file. A coauthor has sent you a reference file, `2-4-references.bib`, saying: "These are the three papers to cite. My AI assistant made the file for me."
+
+**Rules:**
+
+A. Decide the claims and what supports each **before** you ask the AI.
+
+B. Keep the requests you actually sent in this file, with the blanks filled in.
+
+C. The AI never writes a reference. It may only cite keys that are already in the `.bib` file.
+
+D. You judge the note by reading the rendered output, in HTML and in Word.
+
+# Task 1: Claims and evidence, no AI
+
+From what you know of the data (Ex-2-1 and Ex-2-2), the note will make two claims about Nebraska county corn yields from 2014 to 2018.
+
+**A. Write the two claims as sentences.**
+
+1.
+2.
+
+**B. For each, what figure or table supports it? Give each a label (`fig-...` or `tbl-...`) and a caption.**
+
+1.
+2.
+
+**C. Open `2-4-references.bib` in a text editor. For each entry, write its key, its authors and its year. Which sentence of a note on yields could each support?**
+
+Your answer:
+
+# Task 2: Set up the note
+
+**My request to the AI.** Fill in every `<...>`, then send it:
+
+```text
+Create a Quarto article at analysis/note.qmd for a journal that asks
+for a Word file. Title "<title>"; author <your name and affiliation>;
+an abstract I will write. Outputs: docx and html. References from
+analysis/2-4-references.bib. No code in the docx output; code shown in
+the html output. Headings, empty for now: Introduction, Data, Results.
+Write the sentence for each chunk as a comment on the chunk's first
+line, starting with #, so it shows with the code in the HTML version
+and stays out of the Word version.
+
+Put the code in my Quarto document analysis/note.qmd, under the
+heading "Data", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**Did it render? Does the HTML show the title, your name and the three headings?**
+
+Your answer:
+
+# Task 3: A numbered figure and table
+
+**My request to the AI.** Fill in every `<...>` from Task 1, then send it. Send it twice, once for each claim, or put both in one request.
+
+```text
+In analysis/note.qmd, add a <figure or table> of <what it shows>,
+labelled <fig- or tbl- label>, with the caption "<caption>". It
+supports the sentence "<the claim>", which you add right after it,
+referring to it with @<label>. The data is data/2-1-nebraska-yield.csv.
+Check the number of rows read (I expect <number>). Write the sentence
+for each chunk as a comment on the chunk's first line, starting with #,
+so it shows with the code in the HTML version and stays out of the Word
+version.
+
+Put the code in my Quarto document analysis/note.qmd, under the
+heading "Results", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**In the HTML: does each sentence say "Figure 1" or "Table 1", not `?@`? Does each figure or table show what its sentence claims?**
+
+Your answer:
+
+**Now break one on purpose: in `note.qmd`, change the figure's label (for example `fig-` to `plot-`) without changing the sentence. Render. What does the sentence show? Did the render stop? Then change it back.**
+
+Your answer:
+
+# Task 4: Citations
+
+Your coauthor wants these three sentences in the Introduction:
+
+1. "Corn yields fall sharply on days hotter than about 29 degrees Celsius."
+2. "As yields in the U.S. Midwest have risen, they have also become more sensitive to drought."
+3. "Irrigation narrows the gap between yields in wet and dry years in Nebraska."
+
+**My request to the AI:**
+
+```text
+In analysis/note.qmd, under the heading "Introduction", add these three
+sentences, each with a citation: sentence 1 cites <key>, sentence 2
+cites <key>, sentence 3 cites <key>.
+<paste the three sentences>
+Cite only keys already in analysis/2-4-references.bib; add no entries
+to it, and change none. Then render the document to HTML.
+```
+
+**Does the HTML show three citations and a reference list with three entries? Any `?)`?**
+
+Your answer:
+
+# Task 5: Does every reference exist?
+
+**Prediction: will all three references pass the check from the lecture?**
+
+Your answer:
+
+For **each** entry in the reference list: open `https://doi.org/` followed by its DOI in a web browser. Compare the title, the authors and the year on the page that opens with the entry.
+
+| Key | Does the DOI open? | Same title? | Same authors? | Same year? |
+|---|---|---|---|---|
+|  |  |  |  |  |
+|  |  |  |  |  |
+|  |  |  |  |  |
+
+**What did you find? What do you do about it, in the `.bib` file, in the note, and with your coauthor?**
+
+Your answer:
+
+**Optional: ask the AI whether the entries are real, without telling it what you found. Compare its answer with yours.**
+
+Your answer:
+
+# Task 6: The Word version
+
+Render `note.qmd` to Word (the menu next to the Render button, or ask the AI). Open the `.docx`.
+
+**Are the figure and table numbered, with captions? Do the sentences say "Figure 1" and "Table 1"? Is there any code? Is the reference list there?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which of today's problems would a render error have told you about? Which only reading the output could find?**
+
+Your answer:
+
+**B. Your coauthor's AI wrote the `.bib` file. What would you ask them to do differently next time?**
+
+Your answer:

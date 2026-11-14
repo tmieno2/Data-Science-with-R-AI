@@ -1,0 +1,819 @@
+---
+title: "09-4: Two Vector Layers: Relations, Subsetting, Buffers and Clipping"
+abstract: "Chapter 9: Spatial Data"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(sf)
+library(dplyr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+theme_set(lecture_theme())
+
+# Okabe-Ito colours, readable by colour-blind readers
+oi_blue <- "#0072B2"; oi_orange <- "#E69F00"; oi_green <- "#009E73"; oi_red <- "#D55E00"
+
+counties  <- st_read("ne_counties.gpkg", quiet = TRUE)
+aquifer   <- st_read("hp_boundary.gpkg", quiet = TRUE)
+railroads <- st_read("railroads_ne.gpkg", quiet = TRUE)
+lancaster <- filter(counties, name == "Lancaster")
+watersheds  <- st_read("huc_ia.gpkg", quiet = TRUE)
+ia_counties <- st_read("ia_nitrogen.gpkg", quiet = TRUE)
+ws_u <- st_transform(filter(watersheds, HUC_CODE == "07060004"), 26915)
+ia_u <- st_filter(st_transform(ia_counties, 26915), ws_u)
+ws_in <- suppressWarnings(st_intersection(ia_u, st_geometry(ws_u)))
+ws_share <- as.numeric(st_area(ws_in)) / as.numeric(st_area(ia_u[match(ws_in$countyfp, ia_u$countyfp), ]))
+n_ws_cty <- nrow(ia_u)
+n_ws_small <- sum(ws_share < 0.05)
+
+n_counties <- nrow(counties)
+n_int  <- nrow(counties[aquifer, ])
+n_with <- nrow(counties[aquifer, , op = st_within])
+
+n_lan_int   <- nrow(counties[lancaster, ])
+n_lan_touch <- nrow(counties[lancaster, , op = st_touches])
+
+rail_lan     <- railroads[lancaster, ]
+rail_kept_km <- round(sum(as.numeric(st_length(rail_lan))) / 1000, 1)
+rail_cut     <- st_intersection(rail_lan, st_geometry(lancaster))
+rail_cut_km  <- round(sum(as.numeric(st_length(rail_cut))) / 1000, 1)
+
+lan_km2 <- round(as.numeric(st_area(lancaster)) / 1e6)
+
+# A small made-up example: one square and five shapes around it
+sq <- st_polygon(list(rbind(c(0, 0), c(4, 0), c(4, 4), c(0, 4), c(0, 0))))
+mk <- function(x0, y0, x1, y1) st_polygon(list(rbind(c(x0, y0), c(x1, y0), c(x1, y1), c(x0, y1), c(x0, y0))))
+square <- st_sf(name = "square", geometry = st_sfc(sq))
+shapes <- st_sf(
+  id = factor(1:5),
+  geometry = st_sfc(
+    mk(1, 1, 2, 2),       # 1 inside
+    mk(3, 2.5, 5, 3.5),   # 2 crosses the edge
+    mk(4, 0.5, 5, 1.5),   # 3 shares part of the edge, from outside
+    mk(4.6, 3.6, 5.4, 4.4), # 4 outside, close
+    mk(6.5, 0, 7.5, 1)    # 5 far away
+  )
+)
+rel <- tibble(
+  shape = 1:5,
+  intersects = lengths(st_intersects(shapes, square)) > 0,
+  within = lengths(st_within(shapes, square)) > 0,
+  touches = lengths(st_touches(shapes, square)) > 0,
+  `within 1 unit` = lengths(st_is_within_distance(shapes, square, dist = 1)) > 0
+)
+yn <- function(x) ifelse(x, "yes", "no")
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+Lecture 09-1 (vector basics) handled one layer at a time. Research questions usually involve two: which counties lie over an aquifer, which wells are within 2 km of a river, how much of a railroad runs through a county. An AI assistant can write the code for each of these in one line. What it cannot do is:
+
++ know which spatial relation your question means: "over the aquifer" can mean "any part over it" or "entirely over it"
++ know what distance in what units you mean
++ see whether the result is the set of places you had in mind
+
+Those are your job. So today is about:
+
+1. **The concept**: what a spatial relation is, and the three things you can do with one (test, keep, cut), plus buffers
+2. **Reading code**: the patterns these lines follow
+3. **Asking AI**: how to say which relation and which distance you mean
+4. **Checking**: counts and maps whose right answer you know before the code runs
+
+### Directions
+
++ Ask your AI assistant to install the `sf`, `tidyverse` and `here` packages if you have not already.
++ This lecture assumes lecture 09-1 (vector basics): what a layer, a feature and a CRS (coordinate reference system) are, and the four checks for a single layer.
++ The data files used on these slides sit in the same folder as the slides, so a path here is just the file name. In your own project, paths are built with `here::here()` (lecture 03-1).
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## A spatial relation is a yes-or-no test between two features
+
+::: {.panel-tabset}
+
+### The idea
+
+A **spatial relation** (also called a topological relation) is a question about where two features sit relative to each other, with a yes or no answer: do they share any point? Is one entirely inside the other? Are they within 1 km of each other?
+
+The same pair of shapes can pass one test and fail another. That is the whole difficulty: an everyday phrase such as "the counties over the aquifer" does not say which test it means.
+
+### Five shapes and a square
+
+```{r}
+#| label: rel-figure
+#| echo: false
+#| fig-height: 4.5
+ggplot() +
+  geom_sf(data = square, fill = "grey90", colour = "grey30") +
+  geom_sf(data = shapes, fill = oi_blue, alpha = 0.5, colour = oi_blue) +
+  geom_sf_text(data = shapes, aes(label = id), size = 6) +
+  theme_void()
+```
+
+Shape 1 is inside the square, 2 crosses its edge, 3 shares part of its edge from outside, 4 is outside but close, 5 is far away.
+
+### Which tests each shape passes
+
+```{r}
+#| label: rel-table
+#| echo: false
+knitr::kable(mutate(rel, across(-shape, yn)))
+```
+
+| Test | Means | sf function |
+|---|---|---|
+| intersects | the two share **at least one point**, including a shared edge | `st_intersects()` |
+| within | the first is **entirely inside** the second | `st_within()` |
+| touches | they share edge points but **no area** | `st_touches()` |
+| within a distance | some part of one is no farther than the distance from the other | `st_is_within_distance()` |
+
+Notice shape 3: it passes "intersects" without overlapping the square at all, because sharing an edge counts as sharing a point.
+
+:::
+
+## Three things you do with a relation, and one new shape
+
+Every operation in this lecture uses a relation in one of three ways, or makes a buffer first:
+
+| Operation | What you get | Shapes changed? | Example question |
+|---|---|---|---|
+| **Test** | for each feature of A, which features of B pass | no | how many railroads cross each county? |
+| **Keep** (spatial subsetting) | the features of A that pass, **whole** | no | which counties lie over the aquifer? |
+| **Cut** (clipping) | only the **parts** of A's shapes that lie inside B | yes | how many km of railroad lie inside the county? |
+| **Buffer** | a new polygon covering everything within a distance of a feature | new shape | which wells are within 2 km of the river? |
+
+:::{.callout-note}
+Keeping and cutting are easy to confuse. Keeping a railroad that crosses a county keeps the whole railroad, including the part outside. Only cutting gives you the part inside.
+:::
+
+The next lecture, 09-5, uses relations to **join** two layers: bring B's columns onto A's rows. This lecture covers everything that comes before that.
+
+# How the code is written
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Testing a relation
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+result <- st_relation(layer_a, layer_b, options)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `st_relation` | The test: `st_intersects`, `st_within`, ... | Yes |
+| `layer_a` | The layer you ask **about**: one answer per feature of A | Yes |
+| `layer_b` | The layer you test against | Yes |
+| `options` | `dist =` for distance tests; `sparse = FALSE` for a table of TRUE and FALSE | Only `dist` for distance tests |
+
+The order matters. `st_within(a, b)` asks "is each A inside a B?"; `st_within(b, a)` asks the opposite question.
+
+### Every relation follows the pattern
+
+| Function | Passes when | Extra input |
+|---|---|---|
+| `st_intersects(a, b)` | any shared point | |
+| `st_within(a, b)` | a entirely inside b | |
+| `st_contains(a, b)` | b entirely inside a (the reverse of within) | |
+| `st_touches(a, b)` | shared edge, no shared area | |
+| `st_is_within_distance(a, b, dist)` | no farther apart than `dist` | `dist`, required |
+| `st_nearest_feature(a, b)` | for each a, the single closest b | |
+
+`st_nearest_feature()` is different from the others: it always returns exactly one feature of B for each feature of A, however far away that feature is.
+
+### Reading the result
+
+The result has one entry per feature of A, listing which features of B passed, by row number:
+
+```{r}
+#| label: rel-result
+st_intersects(shapes, square)
+```
+
+Shapes 1 to 3 pass (row 1 of `square`); 4 and 5 list nothing, shown as `(empty)`. AI-written code usually turns this into a count per feature with `lengths()`:
+
+```{r}
+#| label: rel-lengths
+lengths(st_intersects(shapes, square))
+```
+
+A count of 0 means "no match" and a count above 1 means "several matches". Those two numbers are the start of most checks in this lecture.
+
+:::
+
+## Keeping the features that pass
+
+::: {.panel-tabset}
+
+### The pattern
+
+```{r}
+#| eval: false
+kept <- st_filter(layer_a, layer_b, .predicate = st_relation)
+```
+
+| Part | What it is | Required? |
+|---|---|---|
+| `kept <-` | The new layer: the features of A that passed, each **whole** | Needed to keep the result |
+| `layer_a` | The layer you keep features **from** | Yes |
+| `layer_b` | The layer you test against | Yes |
+| `.predicate =` | The relation | No; **the default is intersects** |
+
+Nothing about `layer_b` is added to the result. Only which rows of A survive changes.
+
+### Variations you will see
+
+The same operation, written three ways:
+
++ `st_filter(counties, aquifer, .predicate = st_within)`
++ `counties[aquifer, , op = st_within]`: square brackets, as when choosing rows by number, with a layer in place of the numbers
++ `filter(counties, lengths(st_within(counties, aquifer)) > 0)`: test, count, keep counts above zero
+
+A fourth keeps every row and adds a column saying whether it passed (a **flag**):
+
+```{r}
+#| eval: false
+counties <- mutate(counties, over_aquifer = lengths(st_intersects(counties, aquifer)) > 0)
+```
+
+### A real example
+
+The High Plains aquifer (an underground water reservoir) lies under most of Nebraska. Keep the counties that lie over it:
+
+```{r}
+#| label: keep-example
+over <- st_filter(counties, aquifer)
+nrow(over)
+```
+
+```{r}
+#| label: keep-map
+#| echo: false
+#| fig-height: 4.5
+ggplot() +
+  geom_sf(data = counties, fill = NA, colour = "grey70") +
+  geom_sf(data = over, fill = oi_orange, alpha = 0.6, colour = "grey40") +
+  geom_sf(data = aquifer, fill = NA, colour = oi_blue, linewidth = 0.8) +
+  coord_sf(xlim = st_bbox(counties)[c(1, 3)], ylim = st_bbox(counties)[c(2, 4)]) +
+  theme_void()
+```
+
+`r n_int` of the `r n_counties` counties, in orange; the aquifer's outline in blue. No `.predicate` was given, so this is "intersects": any part of the county over the aquifer.
+
+:::
+
+## Cutting shapes, and making buffers
+
+::: {.panel-tabset}
+
+### The pattern
+
+These functions return new shapes, not a selection of old ones:
+
+```{r}
+#| eval: false
+new_layer <- st_cutting_function(layer_a, layer_b_or_distance)
+```
+
+| Function | Returns | Second input |
+|---|---|---|
+| `st_intersection(a, b)` | the parts of A inside B, **with B's columns attached** | a layer |
+| `st_difference(a, b)` | the parts of A outside B | a layer |
+| `st_crop(a, b)` | the parts of A inside the **rectangle** around B (its bounding box) | a layer or a box |
+| `st_buffer(a, dist)` | a polygon around each feature of A, `dist` wide | a distance, in the units of the CRS |
+| `st_union(a)` | all of A's shapes merged into one | none |
+
+### `st_crop()` cuts to a rectangle
+
+`st_crop()` is fast, which is why AI code uses it, but it cuts to the bounding box (the smallest rectangle around B), not to B's outline:
+
+```{r}
+#| label: crop-map
+#| echo: false
+#| fig-height: 4.2
+cropped <- suppressWarnings(st_crop(counties, aquifer))
+ggplot() +
+  geom_sf(data = counties, fill = NA, colour = "grey75") +
+  geom_sf(data = cropped, fill = oi_orange, alpha = 0.5, colour = "grey40") +
+  geom_sf(data = aquifer, fill = NA, colour = oi_blue, linewidth = 0.8) +
+  coord_sf(xlim = st_bbox(counties)[c(1, 3)], ylim = st_bbox(counties)[c(2, 4)]) +
+  theme_void()
+```
+
+The aquifer's rectangle covers almost all of Nebraska, so cropping kept `r nrow(cropped)` of the `r n_counties` counties, most of them unchanged. For the parts inside the aquifer itself, the function is `st_intersection()`.
+
+### A real example: railroads in Lancaster County
+
+```{r}
+#| label: cut-example
+rail_lan <- st_filter(railroads, lancaster)                       # keep: whole segments
+rail_cut <- st_intersection(rail_lan, st_geometry(lancaster))     # cut: parts inside
+units::set_units(c(kept = sum(st_length(rail_lan)), cut = sum(st_length(rail_cut))), km)
+```
+
+Keeping gives `r rail_kept_km` km of railroad, because every segment that crosses the county line is kept whole. Cutting gives `r rail_cut_km` km, the length actually inside the county. `st_geometry(lancaster)` passes only the county's shape, so no county columns are attached.
+
+:::
+
+# What has to be true
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Conditions for combining two layers
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **Both layers have the right CRS, and the same one.** Lecture 09-1 covers this; it matters even more now, because every relation compares the coordinates of two layers.
+2. **The relation is the one your question means.** "Over", "in", "near" and "along" each need translating into a test.
+3. **Distances are in the units you meant.** A buffer or a distance test uses the units of the CRS.
+4. **The shapes are valid.** A polygon whose boundary crosses itself gives wrong answers.
+5. **You know whether you want whole features or parts.** Keeping and cutting give different lengths and areas.
+
+### With and without an error
+
++ If the two layers have **different** CRSs, `sf` stops with an error (lecture 09-1). Good: you know.
++ Everything else fails **silently**: you get a layer, a count or an area with no error, and it is wrong. The next slide shows each one.
+
+:::
+
+## Silent failures
+
+::: {.panel-tabset}
+
+### Neighbours "intersect"
+
+Which counties intersect Lancaster County?
+
+```{r}
+#| label: neighbours
+nrow(st_filter(counties, lancaster))
+nrow(st_filter(counties, lancaster, .predicate = st_touches))
+```
+
+`r n_lan_int` counties: Lancaster itself, and its `r n_lan_touch` neighbours, which share only a boundary line with it. Counties in a state share boundaries, so "intersects" between two layers of neighbouring polygons picks up every neighbour. If you meant "overlap by some area", that is not what you got, and nothing warns you.
+
+### Intersects is not within
+
+```{r}
+#| label: int-within
+nrow(st_filter(counties, aquifer))                          # any part over it
+nrow(st_filter(counties, aquifer, .predicate = st_within))  # entirely over it
+```
+
+`r n_int` against `r n_with`: `r n_int - n_with` counties differ between "over the aquifer" read one way and read the other. Neither number is wrong; one of them does not answer your question. The AI picks intersects unless told, because it is the default.
+
+### A distance in the wrong units
+
+A 10 km buffer around Lancaster County, written as `dist = 10000`, in three CRSs:
+
+```{r}
+#| label: buffer-units
+#| warning: false
+area_km2 <- function(x) round(as.numeric(units::set_units(st_area(x), km^2)))
+c(
+  longitude_latitude = area_km2(st_buffer(lancaster, 10000)),
+  utm_metres = area_km2(st_buffer(st_transform(lancaster, 26914), 10000)),
+  state_plane_feet = area_km2(st_buffer(st_transform(lancaster, 26852), 10000))
+)
+```
+
+The county alone is `r lan_km2` km². In longitude and latitude, `sf` reads the distance as metres. In UTM zone 14N (EPSG 26914), the units are metres too. In the Nebraska state plane CRS in US feet (EPSG 26852), 10,000 is 10,000 **feet**, about 3 km, so the buffer is much smaller. No error in any of the three.
+
+### An invalid shape
+
+A polygon whose boundary crosses itself (a "bow tie") is **invalid**. `sf` still computes with it:
+
+```{r}
+#| label: bowtie
+bowtie <- st_polygon(list(rbind(c(0, 0), c(2, 2), c(2, 0), c(0, 2), c(0, 0))))
+st_is_valid(bowtie)
+st_area(bowtie)
+```
+
+Two triangles of area 1 each, and an area of 0. Files drawn by hand or converted between formats sometimes contain such shapes. `st_is_valid()` finds them and `st_make_valid()` repairs most of them; the check is to count invalid shapes before combining layers.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+The same way of working as on the slide of this name in lecture 02-1: you ask, the AI writes into your `.qmd` with one plain-English sentence above each chunk, you render, and you judge the HTML. With spatial data the last step matters more than usual: a map in the HTML shows at a glance whether the features kept are the ones you meant, which no chat reply can. Every request for code ends with the **closing instructions** of lecture 03-1, under **Recommended requests**.
+
+## Look at both layers before you ask
+
+::: {.panel-tabset}
+
+### Why
+
+You cannot say which features you expect to keep without seeing where the two layers lie relative to each other. Ask for the four checks of lecture 09-1 on each layer, and one more thing: **a map of the two layers drawn together**.
+
+### What the map tells you
+
+```{r}
+#| label: look-map
+#| echo: false
+#| fig-height: 4.5
+ggplot() +
+  geom_sf(data = counties, fill = NA, colour = "grey60") +
+  geom_sf(data = aquifer, fill = oi_blue, alpha = 0.3, colour = oi_blue) +
+  coord_sf(xlim = st_bbox(counties)[c(1, 3)], ylim = st_bbox(counties)[c(2, 4)]) +
+  theme_void()
+```
+
+From this map, before any code: the aquifer covers most of the state but not the east, and its outline is not a rectangle, so cropping to it would not do.
+
+### Write the expectation down
+
+From the map, a student might write: "Roughly 80 to 90 counties have some part over the aquifer; roughly 50 to 60 are entirely over it; the counties in the far east have no part over it." Rough is fine. The point is to have something to compare against **before** the AI's number arrives.
+
+:::
+
+## What to put in your request
+
+The AI knows every function. Your request supplies what it cannot know:
+
+1. **The layers**: file names, where they are, and their CRSs (from looking)
+2. **Which layer you ask about** (A) and which you test against (B)
+3. **The relation in plain words**: "any part over", "entirely inside", "within 2 km of", "shares a boundary with"
+4. **Whole features or parts**: keep whole counties, or cut the railroads at the county line
+5. **Distances with units**, and that they must be computed in a CRS in metres
+6. **Checks**: counts you expect, features with no match, a map of the result over the other layer
+7. **The closing instructions**
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Find the counties over the aquifer.
+```
+
+The AI has to guess the files, their CRSs, and the meaning of "over". It will usually write `st_intersects()`, the default, which includes every county with a sliver over the aquifer, and print nothing that tells you so.
+
+### Strong
+
+```text
+In my R project, data/counties.gpkg (93 counties) and data/aquifer.gpkg
+(the aquifer outline) are both in EPSG 4269. I want the counties that lie
+ENTIRELY over the aquifer, kept whole, in a layer called counties_over.
+I expect between 50 and 60.
+
+Then check: the CRS of both layers, the number of counties kept, the
+number of invalid shapes in each layer (I expect 0), and draw a map of
+all counties with the kept ones filled and the aquifer outline on top.
+
+Put the code in my Quarto document analysis/aquifer.qmd, under the
+heading "Counties over the aquifer", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build every
+path with here::here(); no setwd(), no absolute paths. Print each check
+on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+### What came back
+
+In the rendered HTML, a sentence, then the chunk it describes.
+
+Read the two layers.
+
+```{r}
+#| label: ai-read
+#| eval: false
+counties <- st_read(here::here("data", "counties.gpkg"), quiet = TRUE)
+aquifer  <- st_read(here::here("data", "aquifer.gpkg"), quiet = TRUE)
+```
+
+Keep the counties that lie entirely inside the aquifer outline.
+
+```{r}
+#| label: ai-keep
+#| eval: false
+counties_over <- st_filter(counties, aquifer, .predicate = st_within)
+```
+
+Print the checks.
+
+```{r}
+#| label: ai-check
+#| echo: false
+counties_over <- st_filter(counties, aquifer, .predicate = st_within)
+cat(
+  paste("CRS of counties: expected EPSG 4269, got EPSG", st_crs(counties)$epsg),
+  paste("CRS of aquifer: expected EPSG 4269, got EPSG", st_crs(aquifer)$epsg),
+  paste("counties kept: expected 50 to 60, got", nrow(counties_over)),
+  paste("invalid shapes in counties: expected 0, got", sum(!st_is_valid(counties))),
+  paste("invalid shapes in aquifer: expected 0, got", sum(!st_is_valid(aquifer))),
+  sep = "\n"
+)
+```
+
+Every line matches. The map, which the HTML also shows, is the one on the "Keeping the features that pass" slide with fewer counties filled.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checks: what to ask for, and why
+
+::: {.panel-tabset}
+
+### The checks
+
+The four checks of lecture 09-1 (CRS, number of features, bounding box, a map) still apply to each layer. Combining two layers adds these:
+
+| | Ask the AI to print | Catches | What only you can supply |
+|---|---|---|---|
+| 1 | features before and after keeping | the wrong relation (too many or too few kept) | a rough count from the map |
+| 2 | features with **no** match, and with **more than one** | points or shapes in the wrong place, neighbours picked up by a shared edge | how many should match |
+| 3 | invalid shapes in each layer | wrong areas and failed tests from broken polygons | (0 is always right) |
+| 4 | a map of the result over the other layer | anything the counts did not show | what the place looks like |
+| 5 | a total that must be preserved | parts lost or counted twice when cutting | the total, from another source |
+
+### Totals that must be preserved
+
+Cutting is the step where length or area can quietly go missing or be counted twice. A total that should not change is the check:
+
++ Cut the aquifer at county lines: the pieces should add up to the area of the aquifer inside Nebraska
++ Cut railroads at county lines: the pieces should add up to the length of railroad in the state
++ Keep whole features: the kept total can be **larger** than the total inside the area, because whole features stick out
+
+### Reading the HTML
+
+The aquifer cut at county boundaries, with its total checked:
+
+```{r}
+#| label: chk-total
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+#| warning: false
+pieces <- st_intersection(counties, st_union(aquifer))
+in_state <- st_intersection(st_union(aquifer), st_union(counties))
+km2 <- function(x) round(sum(as.numeric(units::set_units(st_area(x), km^2))))
+cat(
+  paste("pieces: expected", nrow(st_filter(counties, aquifer)), "(one per county over the aquifer), got", nrow(pieces)),
+  paste("area of pieces: expected", km2(in_state), "km2, got", km2(pieces)),
+  paste("invalid pieces: expected 0, got", sum(!st_is_valid(pieces))),
+  sep = "\n"
+)
+```
+
+All three pass: one piece per county that intersects the aquifer, and the pieces add up to the aquifer's area inside the state. `st_union(aquifer)` merges the aquifer's two polygons first, so a county touching both polygons gives one piece, not two, and no area is cut twice.
+
+:::
+
+## Checks that come from knowing the place
+
+The checks above apply to any two layers. Checks from what you know about **this** place are stronger, and no AI will think of them.
+
+::: {.panel-tabset}
+
+### A feature you know
+
+You know Lancaster County (Lincoln) is not over the High Plains aquifer and Hall County (Grand Island) is. Ask for those two by name: if either comes out wrong, so does the rest.
+
+### A share that should be large
+
+A feature can pass "intersects" with a sliver. For a study, that sliver may not count. Example: the Iowa counties that intersect watershed 07060004 (a hydrologic unit, the area draining to one river), and the share of each county's area that lies inside the watershed:
+
+```text
+Using the layers ia_counties and watersheds, both in EPSG 4269, keep
+the counties that intersect watershed 07060004, and for each, compute
+the share of its area inside the watershed, in a CRS in metres. Print
+the shares, smallest first, with the county codes.
+
+Put the code in my Quarto document analysis/analysis.qmd, under the
+heading "Checks", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+The AI's code, and what it printed:
+
+```{r}
+#| label: chk-share
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+#| warning: false
+ws <- filter(watersheds, HUC_CODE == "07060004") |> st_transform(26915)
+ia_kept <- st_filter(st_transform(ia_counties, 26915), ws)
+inside <- st_intersection(ia_kept, st_geometry(ws))
+share <- tibble(
+  countyfp = inside$countyfp,
+  share = round(as.numeric(st_area(inside)) / as.numeric(st_area(ia_kept[match(inside$countyfp, ia_kept$countyfp), ])), 3)
+) |> arrange(share)
+share
+```
+
+`r n_ws_cty` counties intersect the watershed, but `r n_ws_small` of them have less than 5% of their area inside it. Whether those belong in a study of the watershed is a decision for you; the list is what lets you make it, and defend it.
+
+:::
+
+## Your turn: read the AI's code
+
+A student asked an AI to "find how many km of railroad run within 5 km of Lincoln", and got this:
+
+```{r}
+#| eval: false
+lincoln <- st_point(c(-96.70, 40.81)) |> st_sfc(crs = 4269)
+lincoln <- st_transform(lincoln, 26852)
+zone <- st_buffer(lincoln, 5000)
+rail <- st_filter(st_transform(railroads, 26852), zone)
+sum(st_length(rail))
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each line do?
+
+B. EPSG 26852 is NAD83 / Nebraska in US feet. How wide is the zone really?
+
+C. Which line keeps whole segments when the question asks for the length inside the zone?
+
+D. Rewrite the request so the AI could not make these mistakes.
+
+### Answers
+
+A. Makes a point for Lincoln in longitude and latitude; transforms it to the state plane CRS; draws a zone around it; keeps railroad segments that intersect the zone; adds up their lengths.
+
+B. 5,000 feet, about 1.5 km, not 5 km. No error, because 5,000 is a valid distance in feet.
+
+C. Line 4. `st_filter()` keeps every segment that touches the zone, whole. `st_intersection()` would cut them at the edge of the zone.
+
+D. Say "within 5 km", ask for the buffer to be made in a CRS in metres and for its radius to be printed in km, ask for the railroads to be cut at the zone's edge, and ask for a map of the zone with the cut railroads.
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** found by looking at the layers. Every request for code ends with the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request for code. Replace the two blanks; leave "expected X, got Y" as it is, because it tells the AI how to print each check:
+
+```text
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### Look at two layers
+
+```text
+In my R project, <path to the first layer> and <path to the second
+layer> are vector layers. Read both. For each, print the CRS, the number
+of features, the geometry type, the bounding box and the number of
+invalid shapes. Then draw one map with both layers together, the second
+layer's outline on top.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Keep features by a relation
+
+```text
+Using the layers <layer you keep features from> and <layer you test
+against>, both in EPSG <code>, keep the features of the first that
+<the relation in plain words: have any part inside / lie entirely inside
+/ share a boundary with> the second, whole, in a layer called <name>.
+I expect about <number> of <number> features to be kept.
+
+Then check: the number of features before and after, the number of
+invalid shapes in each layer, and draw a map of all features with the
+kept ones filled and the second layer's outline on top. Also print
+<a feature you know the answer for> and whether it was kept.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Features near something
+
+```text
+Using the layers <layer of features> and <layer of places>, find the
+features within <distance> <km or m> of any place. Do the distance work
+in a CRS in metres, <EPSG code, or "suggest one for my area">, and print
+the CRS and its units. Keep the features whole, in a layer called <name>.
+I expect about <number>.
+
+Then check: the number of features before and after, and draw a map of
+the zone around the places, the kept features, and the others in grey.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Cut and measure
+
+```text
+Cut <layer to cut> at the boundaries of <layer to cut by>, keeping the
+columns of both, in a layer called <name>. Then compute the <length in
+km or area in km2> of each piece, in a CRS in metres.
+
+Then check: the number of pieces, the number of invalid pieces, and
+that the pieces add up to <the total you expect, and where it comes
+from>. Draw a map of the pieces.
+
+Put the code in my Quarto document <path to your .qmd>, under the
+heading "<heading>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+### Explain code
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. which spatial relation each line uses, and whether it keeps whole
+   features or cuts them
+2. every distance, and the units it is in given the CRS at that line
+3. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you must understand, and what the AI can write
+
+| You need to understand | The AI can write |
+|---|---|
+| Which relation your question means: intersects, within, touches, within a distance | `st_intersects()`, `st_within()`, `st_filter(.predicate = )` |
+| That "intersects" includes features that only share a boundary | |
+| Whether you want whole features or the parts inside | `st_filter()` or `st_intersection()` |
+| What distance in what units, and which CRS gives metres | `st_transform()`, `st_buffer()` |
+| What a correct result looks like: rough counts, a known feature, a total | The checking code and the map |
+
+**Every time you combine two layers:** look at a map of both first, and write down which features you expect and roughly how many. Say the relation in plain words and the distance with units. Ask for counts before and after, features with no match, invalid shapes, a preserved total when cutting, and a map of the result. Render, and judge the HTML against what you wrote down.

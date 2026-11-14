@@ -1,0 +1,316 @@
+---
+title: "Ex-5-1 worksheet: Functions, Loops and Parallel Processing"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch5-practice/analysis/ex-5-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-5-1. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the inputs before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+**The data.** `data/nitrogen-trials/` holds one csv file per corn field. On each field, plots received different nitrogen rates, and the yield of each plot was measured. For every field, you will find the nitrogen rate that maximises profit, at a corn price of \$4 per bushel and a nitrogen price of \$0.60 per pound.
+
+# Task 1: Look and predict
+
+Open two of the files in a plain text editor, or send this request:
+
+```text
+Without changing anything, list the files in data/nitrogen-trials whose
+names start with "field_". For each file, print its number of data rows
+and its column names.
+
+Put the code in my Quarto document analysis/ex-5-1.qmd, under the
+heading "Task 1: Look and predict", as R code chunks. Above each chunk,
+write one plain-English sentence saying what it does and why. Build every
+path with here::here(); no setwd(), no absolute paths. Print each check
+on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-1
+```
+
+**A. How many files are there?**
+
+Your answer:
+
+**B. What are the columns, and what does one row represent?**
+
+Your answer:
+
+**C. Does anything inside a file say which field it is?**
+
+Your answer:
+
+**D. How many rows does each file have, and how many in all? So how many rows should a table of all the files combined have?**
+
+Your answer:
+
+# Task 2: Write and test the function
+
+If a field's yield follows the curve `yield = a + b × n + c × n²` (n is the nitrogen rate), the nitrogen rate that maximises profit is
+
+`(nitrogen price / corn price - b) / (2 × c)`
+
+The function you want fits that curve to one field's plots (a regression of yield on the nitrogen rate and its square) and applies this formula.
+
+**Prediction, by hand.** A made-up field follows `yield = 120 + 1.2 × n - 0.003 × n²` exactly. What rate maximises profit at a corn price of 4 and a nitrogen price of 0.6? Show your working.
+
+Your answer:
+
+**My request to the AI.** Fill in the blanks:
+
+```text
+Write a function called optimal_n that takes a table of one field's
+plots (columns n_rate and yield), a corn price and a nitrogen price, and
+returns one number: the profit-maximising nitrogen rate. The steps are:
+regress yield on n_rate and n_rate squared, take the coefficients b (on
+n_rate) and c (on n_rate squared), and return
+(nitrogen price / corn price - b) / (2 * c).
+
+Test it on a made-up table with n_rate = 0, 50, 100, 150, 200, 250 and
+yield = 120 + 1.2 * n_rate - 0.003 * n_rate^2 exactly, at a corn price
+of 4 and a nitrogen price of 0.6, for which the answer is <...>. Then
+run it on data/nitrogen-trials/field_01.csv and print the result.
+
+Put the code in my Quarto document analysis/ex-5-1.qmd, under the
+heading "Task 2: Write and test the function", as R code chunks. Above
+each chunk, write one plain-English sentence saying what it does and
+why. Build every path with here::here(); no setwd(), no absolute paths.
+Print each check on its own line as "name of check: expected X, got Y".
+Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: did the test pass? Is the result for `field_01` believable, and how do you judge that without a known answer?**
+
+Your answer:
+
+# Task 3: Loop over every field
+
+**Prediction** (from Task 1): the number of rows and columns of all the files combined, with a column saying which field each row came from; the number of rows in the result per field; a believable range for corn yield in bu/acre; a believable range for the optimal rate.
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+In my R project, data/nitrogen-trials holds <...> csv files, one per
+field, with columns plot, n_rate (lb/acre) and yield (bu/acre). The
+files have no field column; the field is <...>.
+
+Read every file, add a column field taken from <...>, and combine them
+into one table called trials. Then run optimal_n() once for each field,
+at a corn price of 4 and a nitrogen price of 0.6, and combine the
+results into a table called per_field with one row per field and the
+columns field, plots, lowest yield, highest yield and optimal rate.
+
+Check the rows and columns of trials (expected <...> and <...>), the
+number of distinct fields in trials (expected <...>), the rows of
+per_field (expected <...>), and the smallest and largest yield for each
+field (believable: <...> to <...> bu/acre).
+
+Put the code in my Quarto document analysis/ex-5-1.qmd, under the
+heading "Task 3: Loop over every field", as R code chunks. Above each
+chunk, write one plain-English sentence saying what it does and why.
+Build every path with here::here(); no setwd(), no absolute paths. Print
+each check on its own line as "name of check: expected X, got Y". Render
+the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: did every check match your prediction? If not, which check failed, and what does it tell you?**
+
+Your answer:
+
+**Which checks passed even though something was wrong? What would you do about it before reporting any optimal rate?**
+
+Your answer:
+
+# Task 4: Parallel processing
+
+## 4a. A fast loop
+
+**Prediction.** Each repetition of the Task 3 loop fits one regression to a few dozen rows. Will it be faster in parallel? Why or why not?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Time the loop over fields from Task 3 (optimal_n() for each field) two
+ways: sequentially with lapply(), and in parallel with future_lapply()
+and plan(multisession) with <...> workers. Print both times, and check
+that the two results are identical (expected TRUE).
+
+Put the code in my Quarto document analysis/ex-5-1.qmd, under the
+heading "4a. A fast loop", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4a
+```
+
+**Reading the HTML: was your prediction right?**
+
+Your answer:
+
+## 4b. A slow loop
+
+How sure is each field's optimal rate? One way to find out is to **resample**: draw the field's plots at random, with replacement, as many times as the field has plots, refit the curve, and record the optimal rate; repeat 1,000 times. The middle 90% of the 1,000 rates shows how much the answer could move. This is 1,000 regressions per field instead of one.
+
+**Prediction.** Will this loop be faster in parallel? Are the repetitions (one per field) independent of each other? Does each repetition use random numbers, and what does that mean for the parallel version?
+
+Your answer:
+
+**My request to the AI.** Fill in the blanks, using the "Run in parallel" request from the lecture:
+
+```text
+For each field in trials except <the field you set aside in Task 3>,
+resample its plots 1,000 times (draw as many
+plots as the field has, with replacement), run optimal_n() on each
+resample at a corn price of 4 and a nitrogen price of 0.6, and return
+one row: the field, and the 5th and 95th percentiles of the 1,000 rates.
+Combine the rows into a table called uncertainty.
+
+The loop over the fields is slow: about <...> in total. Each repetition
+<...> use random numbers and does not use any other repetition's
+result. Run it in parallel with future_lapply() and <...> workers, with
+each repetition returning its result.
+
+First run a small case, <...> fields with 50 resamples each, under
+plan(sequential) and then in parallel, and check that the results are
+identical (expected TRUE) (if the repetitions use random numbers, use
+future.seed = TRUE and call set.seed() with the same number before each
+run). Then time the full loop both ways and print both times.
+
+Put the code in my Quarto document analysis/ex-5-1.qmd, under the
+heading "4b. A slow loop", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4b
+```
+
+**Reading the HTML: was the small case identical both ways? How much faster was the parallel loop? Was your prediction right?**
+
+Your answer:
+
+# Task 5: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Maria asked an AI for "the optimal nitrogen rate for every field", and kept this:
+
+```{r}
+#| label: task-5
+#| eval: false
+files <- list.files("C:/Users/maria/Documents/nitrogen-trials")
+results <- c()
+for (i in 1:length(files)) {
+  d <- read.csv(files[i])
+  results <- optimal_n(d, 4, 0.6)
+}
+results
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. Which problem stops this code from running on your computer?**
+
+Your answer:
+
+**C. Suppose Maria fixes the paths. Which problems still give a wrong or useless result without an error?**
+
+Your answer:
+
+**D. For each problem, what check should Maria have asked for, and what would it have printed?**
+
+Your answer:
+
+**E. Now send this request, and compare the AI's answer with yours. What did it find that you missed, or miss that you found?**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. what the inputs, the steps for one input, and the combined result are
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+3. whether the repetitions are independent, so that it could be run in
+   parallel
+
+files <- list.files("C:/Users/maria/Documents/nitrogen-trials")
+results <- c()
+for (i in 1:length(files)) {
+  d <- read.csv(files[i])
+  results <- optimal_n(d, 4, 0.6)
+}
+results
+```
+
+Your answer:
+
+# Task 6: Does it run anywhere? (if time allows, otherwise after class)
+
+1. Restart R (Session, Restart R) and render this file.
+2. Zip your whole `ch5-practice` folder and give it to your neighbour. They open the project and render this file **without changing anything**.
+
+**Did it render on your computer? On your neighbour's? If not, what failed and why?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which number did you work out by hand before asking the AI, and what did it let you check that nothing else could?**
+
+Your answer:
+
+**B. Which check caught a real problem today? Would you have noticed the problem without it?**
+
+Your answer:
+
+**C. When would you run a loop in parallel in your own research, and what would you check first?**
+
+Your answer:

@@ -1,0 +1,174 @@
+---
+title: "Ex-8-2: Regression Tables, with an AI Assistant"
+abstract: "Make Tables"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/8-1-county-crops.csv
+  - worksheets/ex-8-2.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+knitr::opts_chunk$set(message = FALSE)
+library(readr)
+library(dplyr)
+library(modelsummary)
+
+crops <- read_csv("data/8-1-county-crops.csv", show_col_types = FALSE)
+soy_rows <- filter(crops, !is.na(soy_yield))
+
+m2 <- lm(corn_yield ~ weeks_severe + weeks_extreme, data = crops)
+m3 <- lm(soy_yield ~ weeks_severe + weeks_extreme, data = crops)
+m4 <- lm(corn_yield ~ weeks_severe + weeks_extreme, data = soy_rows)
+
+est <- function(m) format(round(coef(m)[["weeks_extreme"]], 2), nsmall = 2)
+se <- function(m) format(round(sqrt(diag(sandwich::vcovHC(m, type = "HC1")))[["weeks_extreme"]], 2), nsmall = 2)
+
+miss <- crops |>
+  group_by(state_name) |>
+  summarise(rows = n(), soy_missing = sum(is.na(soy_yield)))
+mv <- function(st, col) miss[[col]][miss$state_name == st]
+n_soy <- nrow(soy_rows)
+soy_states <- sort(unique(soy_rows$state_name))
+
+corn_mean <- round(mean(crops$corn_yield))
+soy_mean <- round(mean(crops$soy_yield, na.rm = TRUE))
+pct <- function(m, mean_y) round(100 * coef(m)[["weeks_extreme"]] / mean_y, 1)
+
+# Plain differences in average corn yield, with minus without extreme drought
+yield_gap <- function(d) {
+  dr <- d$weeks_extreme >= 1
+  mean(d$corn_yield[dr]) - mean(d$corn_yield[!dr])
+}
+gap_all <- yield_gap(crops)
+gap_soy <- yield_gap(soy_rows)
+ratio <- round(coef(m4)[["weeks_extreme"]] / coef(m2)[["weeks_extreme"]], 2)
+
+alex <- na.omit(crops)
+alex_corn <- lm(corn_yield ~ weeks_severe + weeks_extreme, data = alex)
+```
+
+This is an in-class exercise. Before class, work through the lecture **08-2: Regression Tables** (and 08-1 for the table standard). In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing which models you meant, how many observations each should use, and judging whether the table shows them.
+
+# Setup {#sec-setup}
+
+1. Use the `ch8-practice` project from Ex-8-1. If you do not have it, follow the setup of [Ex-8-1](8-1-make-table.qmd).
+2. Download the worksheet, [ex-8-2.qmd](worksheets/ex-8-2.qmd), into `ch8-practice/analysis`, and make sure [8-1-county-crops.csv](data/8-1-county-crops.csv) is in `ch8-practice/data`.
+3. Ask your AI assistant to install `modelsummary` if you have not already.
+4. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch8-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task.
+
+## Task 1: Look
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r nrow(crops)` data rows.
+
+B. Only `soy_yield`, written as `NA`. Every Colorado row has `NA` there: the data has no soybean yields for Colorado at all. Kansas and Nebraska rows have them in some county-years and not in others.
+:::
+
+## Task 2: Count before you predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+`soy_yield` is missing on `r sum(is.na(crops$soy_yield))` of the `r nrow(crops)` rows: all `r mv("Colorado", "rows")` Colorado rows, `r mv("Kansas", "soy_missing")` of `r mv("Kansas", "rows")` in Kansas and `r mv("Nebraska", "soy_missing")` of `r mv("Nebraska", "rows")` in Nebraska. No other column has missing values.
+
+**Prediction.** `lm()` leaves out every row with a missing value in a variable the model uses:
+
+1. Corn: `r nrow(crops)`, every row, since none of its variables has missing values.
+2. Soybeans: `r n_soy`, the rows with a soybean yield.
+:::
+
+## Task 3: The regression table
+
+::: {.callout-note collapse="true" title="What you should find"}
+The table should look like this (robust standard errors in parentheses):
+
+```{r}
+#| label: task-3-table
+#| echo: false
+modelsummary(
+  list("(1) Corn" = m2, "(2) Soybeans" = m3),
+  vcov = "HC1",
+  coef_map = c(
+    "weeks_extreme" = "Weeks of extreme drought",
+    "weeks_severe" = "Weeks of severe drought",
+    "(Intercept)" = "Constant"
+  ),
+  gof_map = list(list(raw = "nobs", clean = "Observations (county-years)",
+                  fmt = \(x) format(x, big.mark = ","))),
+  fmt = 2,
+  align = "lrr",
+  title = "Corn and soybean yields (bushels per acre) and weeks of drought, May to September",
+  notes = c(
+    "Linear regressions, one per column. Robust standard errors (HC1) in parentheses.",
+    "Extreme drought: US Drought Monitor categories D3 and D4. Severe drought: category D2.",
+    "County-years without a soybean yield (all of Colorado) are left out of column (2)."
+  )
+)
+```
+
+Observation checks: `r format(nobs(m2), big.mark = ",")` and `r format(nobs(m3), big.mark = ",")`, matching the prediction from Task 2.
+
+Checklist answers that are often "no" in the AI's first table: no note saying which standard errors; headers `(1)` and `(2)` that do not say which crop each model explains; raw names such as `weeks_extreme`; no note that column (2) has fewer observations, and why.
+
+**A message from this table:** "Each additional week of extreme drought goes with corn yields `r abs(round(coef(m2)[["weeks_extreme"]], 1))` bushels per acre lower, and soybean yields `r abs(round(coef(m3)[["weeks_extreme"]], 2))` bushels per acre lower." Corn yields are larger to begin with (on average `r corn_mean` against `r soy_mean`), so you might also compare in percent of the average: `r pct(m2, corn_mean)`% against `r pct(m3, soy_mean)`%. Hold on to this message until Task 4.
+:::
+
+## Task 4: The same counties?
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. Column (1) has every county-year; column (2) only those with a soybean yield. So column (1) also includes all of Colorado, and `r mv("Kansas", "soy_missing")` Kansas and `r mv("Nebraska", "soy_missing")` Nebraska county-years that column (2) does not. Colorado is missing from column (2) entirely.
+
+B. **Without regression.** Average corn yield in county-years with extreme drought, minus the average in county-years without:
+
+| Rows used | Difference (bushels per acre) | Rows |
+|---|---|---|
+| All rows | `r round(gap_all, 1)` | `r format(nrow(crops), big.mark = ",")` |
+| Only rows with a soybean yield | `r round(gap_soy, 1)` | `r format(n_soy, big.mark = ",")` |
+
+On the rows the soybean model uses, corn yields fall by about a third as much in drought. So a corn column on all rows and a soybean column on fewer rows are not comparing like with like.
+
+C. **The regression confirms it.** The third column, corn on only the `r n_soy` rows with a soybean yield (`r paste(soy_states, collapse = " and ")` only):
+
+| | Weeks of extreme drought | Robust standard error | Observations |
+|---|---|---|---|
+| (1) Corn, all rows | `r est(m2)` | (`r se(m2)`) | `r format(nobs(m2), big.mark = ",")` |
+| (2) Soybeans | `r est(m3)` | (`r se(m3)`) | `r format(nobs(m3), big.mark = ",")` |
+| (3) Corn, rows with a soybean yield | `r est(m4)` | (`r se(m4)`) | `r format(nobs(m4), big.mark = ",")` |
+
+So the message from Task 3 does not hold as written: comparing column (1) with column (2) compares different counties as much as different crops. On the same county-years, the corn estimate is about `r ratio` times its size in column (1), roughly a tenth. The data cannot tell us which crop is hurt more.
+
+A side note on the standard errors, if you have met them in a statistics course: on the same county-years, neither estimate is as large as twice its standard error, so neither is clearly different from zero.
+
+This table cannot say **why** the corn result depends so much on which rows are used; that would be a question for further work, not something to guess.
+
+D. Show the table with column (3), or with columns (2) and (3) only if the comparison of the crops is the message. The notes say: which standard errors; what the drought categories are; and that column (3) uses only county-years with a soybean yield, with the number of observations shown for every column.
+:::
+
+## Task 5: Alex's code
+
+::: {.callout-note collapse="true" title="Answers"}
+A. Read the data and remove every row with a missing value in any column; estimate corn yield on the two drought columns; estimate soybean yield on the same; put both in a table with robust standard errors, showing only the weeks of extreme drought row, labelled.
+
+B. `r nobs(alex_corn)`. `na.omit()` removed every row without a soybean yield, so the corn model lost all of Colorado and many Kansas and Nebraska years, although none of its own variables has a missing value. Alex would expect `r nrow(crops)`. The corn estimate is `r est(alex_corn)`, the same as column (3) in Task 4, not `r est(m2)`.
+
+C. `coef_map` lists only `weeks_extreme`, so the severe drought rows and the constants are dropped, with nothing saying so. Against the table standard: the bottom rows keep AIC, BIC and other statistics the message does not need, the label has no units, and there is no title and no note saying which standard errors are shown.
+
+D. Using only the rows with both yields is the right choice when the message is a comparison of the two crops on the same county-years, as in Task 4. What was wrong is that nobody decided it: it happened as a side effect of a cleaning step, and the table does not say so. If it is the choice, the note must say "Both models use only the `r nrow(alex)` county-years with a soybean yield (Kansas and Nebraska)."
+
+E. The number of observations of each model against the number expected (catches `na.omit()`), and every coefficient of each model against the rows of the table (catches `coef_map`).
+:::

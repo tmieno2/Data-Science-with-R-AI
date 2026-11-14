@@ -1,0 +1,2350 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <title>Data Science with R (AECN 896-05) – 08-2: Regression Tables</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <!--
+    Support for collapsible "Transcript" panels in revealjs decks.
+
+    Include it from a deck's YAML header, with the path relative to the qmd:
+
+        format:
+          revealjs:
+            include-in-header: ../transcript-support.html
+
+    Then add a transcript anywhere inside a slide (or inside a single tab of a
+    tabset, which is the usual case):
+
+        <details class="transcript">
+        <summary>Transcript</summary>
+
+        What the lecturer says about this tab.
+
+        </details>
+
+    On a tab whose figure fills the whole slide there is no free rectangle to
+    overlay, so add "inline" and the panel joins the flow when opened, pushing the
+    figure down instead of covering it:
+
+        <details class="transcript inline">
+
+    Use it only where it is needed. Measure rather than guess: an open panel must
+    not overlap a ".cell-output-display". The collapsed pill still costs 0px in
+    both variants, which is the property the whole design exists to preserve.
+
+    It must live in the header rather than the body of a qmd: raw HTML placed
+    above the first "##" heading becomes its own untitled slide.
+
+    <details> is a native HTML element, so the collapse/expand works with no
+    JavaScript at all, including in a self-contained (embed-resources) file. The
+    script at the bottom adds one behaviour on top: collapsing an open panel when
+    the reader moves on. Without it everything still works, panels just keep their
+    open state.
+
+    Audience: students reviewing after class. These are not presenter notes -
+    reveal's own ".notes" blocks are the presenter-only mechanism.
+  -->
+  <style>
+  /* The panel is positioned against the slide rather than sitting in its normal
+     flow. That is the whole point: collapsed it costs the slide no vertical
+     space, and opened it overlays the content instead of pushing it off the
+     bottom edge. Each panel lives inside its own tab, and hidden tabs do not
+     render, so only the visible tab's transcript is ever shown. */
+  .reveal details.transcript {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    width: auto;
+    font-size: 0.55em;
+    line-height: 1.45;
+    text-align: left;
+    border-radius: 6px;
+    /* custom.scss styles every bare <details> as an "answer box" (grey border
+       plus padding) for Quarto's folded-code blocks. Opt out of both here so the
+       collapsed pill is not sitting inside a grey rectangle. */
+    border: none;
+    padding: 0;
+  }
+
+  /* Collapsed: a small pill that hugs the top-right corner. */
+  .reveal details.transcript > summary {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+    outline: none;
+    /* custom.scss pulls every bare <summary> with a negative margin; undo it. */
+    margin: 0;
+    padding: 0.15em 0.7em;
+    border: 1px solid #06a666;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #06a666;
+    font-weight: 600;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .reveal details.transcript > summary::-webkit-details-marker { display: none; }
+  .reveal details.transcript > summary::before { content: "\25B8\00A0"; }
+  .reveal details.transcript[open] > summary::before { content: "\25BE\00A0"; }
+
+  /* Opened: a tall, narrow panel down the right-hand side, where slide content
+     rarely reaches. It starts below the tab bar so tab names stay clickable
+     while a transcript is open, and runs down to just above the footer.
+
+     Measured as a share of the 700px logical slide. A top-level tab bar ends at
+     12.4-13%, so 21% clears it everywhere.
+
+     A tab bar that sits lower on the slide is cleared HORIZONTALLY instead: the
+     panel occupies x 62-100%, and no tab row measured so far reaches past x 66%.
+     Cases seen, all fine:
+       00-1  nested tabset          18.9%, names reach x 15%
+       00-1  tabset below prose     40.8%, names reach x 59%
+       01-2  nested tabset          29.6%, names reach x 46%
+     So the rule to preserve is not "top clears every tab bar" but "no tab NAME
+     overlaps the panel's rectangle". Re-check that if a deck grows a long tab row
+     sitting low on the slide. */
+  .reveal details.transcript[open] {
+    top: 21%;
+    width: 36%;
+    max-height: 75%;
+    overflow-y: auto;
+    padding: 0.55em 0.85em 0.7em;
+    background: #f4fbf8;
+    border: 1px solid #06a666;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+  }
+  .reveal details.transcript[open] > summary {
+    display: block;
+    padding: 0 0 0.4em 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .reveal details.transcript p { margin: 0.35em 0; }
+
+  /* Opt-out, applied per tab as class="transcript inline".
+     Some figures are rendered at out-width 80% and span x 1.4-98.6% of the slide,
+     running from just under the tab bar down to y ~95%. There is no rectangle
+     left to overlay, so on those tabs the panel joins the normal flow when opened
+     and pushes the figure down; the slide is "scrollable: true", so the figure
+     stays reachable. Note this rule only touches [open]: collapsed, the pill is
+     still absolutely positioned at the top-right corner and still costs 0px. */
+  .reveal details.transcript.inline[open] {
+    position: static;
+    width: auto;
+    max-height: none;
+    overflow-y: visible;
+    margin: 0 0 0.9em 0;
+  }
+
+  /* No .slide-logo rule here: no deck in this course sets a "logo:" in its YAML,
+     so the bottom-right corner the panel would collide with is already free. If
+     a logo is ever added, move it out of the way with
+     .reveal .slide-logo { right: auto !important; left: 56px !important; }
+     where 56px clears reveal's menu button at x 8-43px. */
+  </style>
+
+  <script>
+  // Collapse any open transcript when the reader moves to another slide or
+  // another tab, so a panel left open never reappears over unrelated content.
+  (function () {
+    function closeAll() {
+      document.querySelectorAll("details.transcript[open]")
+        .forEach(function (d) { d.open = false; });
+    }
+
+    // Slide changes come from reveal, which is not ready when this runs.
+    function hookReveal() {
+      if (window.Reveal && typeof Reveal.on === "function") {
+        Reveal.on("slidechanged", closeAll);
+        Reveal.on("overviewshown", closeAll);
+        return true;
+      }
+      return false;
+    }
+    if (!hookReveal()) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (hookReveal() || ++tries > 100) clearInterval(timer);
+      }, 100);
+    }
+
+    // Tab changes are plain clicks; capture so this runs before the tab switches.
+    document.addEventListener("click", function (e) {
+      var el = e.target;
+      if (el && el.closest && el.closest('.panel-tabset [role="tab"]')) closeAll();
+    }, true);
+  })();
+  </script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">08-2: Regression Tables</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="how-this-lecture-works" class="title-slide slide level1 center">
+<h1>How this lecture works</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-will-and-will-not-learn-today" class="slide level2 scrollable">
+<h2>What you will and will not learn today</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">The plan</a></li><li><a href="#tabset-1-2">Directions</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<p>An AI assistant can estimate regressions and put them in a table in seconds. What it cannot do is:</p>
+<ul>
+<li>know which models you meant to compare, and why</li>
+<li>know which estimate your message is about</li>
+<li>know how many observations each model should have</li>
+<li>tell whether the table shows the models you meant</li>
+</ul>
+<p>Those are your job. So today is about:</p>
+<ol type="1">
+<li><strong>The concept</strong>: what a reader needs from a regression table</li>
+<li><strong>Reading code</strong>: recognising what a line of regression-table code does</li>
+<li><strong>Asking AI</strong>: what to put in the request</li>
+<li><strong>Checking</strong>: that the table shows the models you meant, with the observations you expected</li>
+</ol>
+<p>This deck assumes lecture 08-1 (the message, the display table, the table standard). It does not teach regression itself: what an estimate or a standard error means is the subject of your econometrics course.</p>
+</div>
+<div id="tabset-1-2">
+<ul>
+<li>Ask your AI assistant to install the <code>modelsummary</code> package if you have not already.</li>
+<li>The data on these slides is <code>airquality</code>, which comes with R, so there is no file to download.</li>
+</ul>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="what-a-regression-table-is-for" class="title-slide slide level1 center">
+<h1>What a regression table is for</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="the-data-and-the-models-on-these-slides" class="slide level2">
+<h2>The data and the models on these slides</h2>
+<p><code>airquality</code> has one row per day in New York, May to September 1973: 153 rows. The columns used here:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Column</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>Ozone</code></td>
+<td>Ozone concentration (parts per billion)</td>
+</tr>
+<tr class="even">
+<td><code>Temp</code></td>
+<td>Maximum temperature (degrees Fahrenheit)</td>
+</tr>
+<tr class="odd">
+<td><code>Wind</code></td>
+<td>Average wind speed (miles per hour)</td>
+</tr>
+<tr class="even">
+<td><code>Solar.R</code></td>
+<td>Solar radiation (langleys, a unit of sunlight energy per area)</td>
+</tr>
+</tbody>
+</table>
+<p>The message: “Hotter days have more ozone, and the relationship holds after accounting for wind and sunlight.” So three models (regressions), each adding a variable:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a></a>m1 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Ozone <span class="sc">~</span> Temp, <span class="at">data =</span> air)</span>
+<span id="cb1-2"><a></a>m2 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Ozone <span class="sc">~</span> Temp <span class="sc">+</span> Wind, <span class="at">data =</span> air)</span>
+<span id="cb1-3"><a></a>m3 <span class="ot">&lt;-</span> <span class="fu">lm</span>(Ozone <span class="sc">~</span> Temp <span class="sc">+</span> Wind <span class="sc">+</span> Solar.R, <span class="at">data =</span> air)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><code>lm()</code> estimates a linear regression. To the left of <code>~</code> is the outcome (what the model explains); to the right, the variables that explain it.</p>
+</section>
+<section id="what-the-reader-needs-from-a-regression-table" class="slide level2">
+<h2>What the reader needs from a regression table</h2>
+<p>A reader of a regression table is asking four questions. Each part of the table answers one:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>The reader asks</th>
+<th>The part of the table that answers</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Which models are these? What does each explain, with which variables?</td>
+<td>The column headers and title; which coefficient rows are filled in for each column</td>
+</tr>
+<tr class="even">
+<td>How large is the estimate the message is about?</td>
+<td>The coefficient rows (one per variable), in plain words with units</td>
+</tr>
+<tr class="odd">
+<td>How precise is it?</td>
+<td>The standard error in parentheses below each estimate, and a note saying which kind of standard error</td>
+</tr>
+<tr class="even">
+<td>What data is behind each model?</td>
+<td>The number of observations at the bottom of each column, and notes on the sample</td>
+</tr>
+</tbody>
+</table>
+<p>Anything that does not answer one of these questions is clutter for this reader. The comparison the message is about runs <strong>across</strong> the columns: here, how the temperature estimate changes as wind and sunlight are added.</p>
+</section>
+<section id="what-the-default-gives" class="slide level2">
+<h2>What the default gives</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">Before</a></li><li><a href="#tabset-2-2">After</a></li><li><a href="#tabset-2-3">What changed</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<p>What comes back from <code>modelsummary(list(m1, m2, m3))</code>, with no instructions:</p>
+<div class="cell">
+<div class="cell-output-display">
+<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_f4ivhbions5tyuk91nbj = TinyTable.createTableFunctions("tinytable_f4ivhbions5tyuk91nbj");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '16', j: 2 }, { i: '16', j: 3 }, { i: '16', j: 4 } ], css_id: 'tinytable_css_pmdwh9bt3ilg229piecw',}, 
+          { positions: [ { i: '8', j: 2 }, { i: '8', j: 3 }, { i: '8', j: 4 } ], css_id: 'tinytable_css_puvf8pl5auzcnn4t86d3',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '9', j: 2 }, { i: '10', j: 2 }, { i: '11', j: 2 }, { i: '12', j: 2 }, { i: '13', j: 2 }, { i: '14', j: 2 }, { i: '15', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '9', j: 3 }, { i: '10', j: 3 }, { i: '11', j: 3 }, { i: '12', j: 3 }, { i: '13', j: 3 }, { i: '14', j: 3 }, { i: '15', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '9', j: 4 }, { i: '10', j: 4 }, { i: '11', j: 4 }, { i: '12', j: 4 }, { i: '13', j: 4 }, { i: '14', j: 4 }, { i: '15', j: 4 } ], css_id: 'tinytable_css_qj8adqt9n86n7mensa7v',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 } ], css_id: 'tinytable_css_s9jfbbtvoc3buy5sapxm',}, 
+          { positions: [ { i: '16', j: 1 } ], css_id: 'tinytable_css_h4mnv1g8yvifknkz4eoz',}, 
+          { positions: [ { i: '8', j: 1 } ], css_id: 'tinytable_css_r62aryvjkvp7mhlt1mrf',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '9', j: 1 }, { i: '10', j: 1 }, { i: '11', j: 1 }, { i: '12', j: 1 }, { i: '13', j: 1 }, { i: '14', j: 1 }, { i: '15', j: 1 } ], css_id: 'tinytable_css_7x8fnd757tfrgtzgp6wr',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_m4rl5gyu6ba2campb3w2',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_f4ivhbions5tyuk91nbj.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_pmdwh9bt3ilg229piecw, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_pmdwh9bt3ilg229piecw {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_puvf8pl5auzcnn4t86d3, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_puvf8pl5auzcnn4t86d3 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_qj8adqt9n86n7mensa7v, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_qj8adqt9n86n7mensa7v { text-align: center }
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_s9jfbbtvoc3buy5sapxm, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_s9jfbbtvoc3buy5sapxm {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_h4mnv1g8yvifknkz4eoz, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_h4mnv1g8yvifknkz4eoz {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_r62aryvjkvp7mhlt1mrf, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_r62aryvjkvp7mhlt1mrf {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_7x8fnd757tfrgtzgp6wr, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_7x8fnd757tfrgtzgp6wr { text-align: left }
+    #tinytable_f4ivhbions5tyuk91nbj td.tinytable_css_m4rl5gyu6ba2campb3w2, #tinytable_f4ivhbions5tyuk91nbj th.tinytable_css_m4rl5gyu6ba2campb3w2 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_f4ivhbions5tyuk91nbj" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">(1)</th>
+                <th scope="col" data-row="0" data-col="3">(2)</th>
+                <th scope="col" data-row="0" data-col="4">(3)</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">(Intercept)</td>
+                  <td data-row="1" data-col="2">-146.995</td>
+                  <td data-row="1" data-col="3">-71.033</td>
+                  <td data-row="1" data-col="4">-64.342</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(18.287)</td>
+                  <td data-row="2" data-col="3">(23.578)</td>
+                  <td data-row="2" data-col="4">(23.055)</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Temp</td>
+                  <td data-row="3" data-col="2">2.429</td>
+                  <td data-row="3" data-col="3">1.840</td>
+                  <td data-row="3" data-col="4">1.652</td>
+                </tr>
+                <tr>
+                  <td data-row="4" data-col="1"></td>
+                  <td data-row="4" data-col="2">(0.233)</td>
+                  <td data-row="4" data-col="3">(0.250)</td>
+                  <td data-row="4" data-col="4">(0.254)</td>
+                </tr>
+                <tr>
+                  <td data-row="5" data-col="1">Wind</td>
+                  <td data-row="5" data-col="2"></td>
+                  <td data-row="5" data-col="3">-3.055</td>
+                  <td data-row="5" data-col="4">-3.334</td>
+                </tr>
+                <tr>
+                  <td data-row="6" data-col="1"></td>
+                  <td data-row="6" data-col="2"></td>
+                  <td data-row="6" data-col="3">(0.663)</td>
+                  <td data-row="6" data-col="4">(0.654)</td>
+                </tr>
+                <tr>
+                  <td data-row="7" data-col="1">Solar.R</td>
+                  <td data-row="7" data-col="2"></td>
+                  <td data-row="7" data-col="3"></td>
+                  <td data-row="7" data-col="4">0.060</td>
+                </tr>
+                <tr>
+                  <td data-row="8" data-col="1"></td>
+                  <td data-row="8" data-col="2"></td>
+                  <td data-row="8" data-col="3"></td>
+                  <td data-row="8" data-col="4">(0.023)</td>
+                </tr>
+                <tr>
+                  <td data-row="9" data-col="1">Num.Obs.</td>
+                  <td data-row="9" data-col="2">116</td>
+                  <td data-row="9" data-col="3">116</td>
+                  <td data-row="9" data-col="4">111</td>
+                </tr>
+                <tr>
+                  <td data-row="10" data-col="1">R2</td>
+                  <td data-row="10" data-col="2">0.488</td>
+                  <td data-row="10" data-col="3">0.569</td>
+                  <td data-row="10" data-col="4">0.606</td>
+                </tr>
+                <tr>
+                  <td data-row="11" data-col="1">R2 Adj.</td>
+                  <td data-row="11" data-col="2">0.483</td>
+                  <td data-row="11" data-col="3">0.561</td>
+                  <td data-row="11" data-col="4">0.595</td>
+                </tr>
+                <tr>
+                  <td data-row="12" data-col="1">AIC</td>
+                  <td data-row="12" data-col="2">1067.7</td>
+                  <td data-row="12" data-col="3">1049.7</td>
+                  <td data-row="12" data-col="4">998.7</td>
+                </tr>
+                <tr>
+                  <td data-row="13" data-col="1">BIC</td>
+                  <td data-row="13" data-col="2">1076.0</td>
+                  <td data-row="13" data-col="3">1060.8</td>
+                  <td data-row="13" data-col="4">1012.3</td>
+                </tr>
+                <tr>
+                  <td data-row="14" data-col="1">Log.Lik.</td>
+                  <td data-row="14" data-col="2">-530.853</td>
+                  <td data-row="14" data-col="3">-520.871</td>
+                  <td data-row="14" data-col="4">-494.359</td>
+                </tr>
+                <tr>
+                  <td data-row="15" data-col="1">F</td>
+                  <td data-row="15" data-col="2">108.529</td>
+                  <td data-row="15" data-col="3">74.502</td>
+                  <td data-row="15" data-col="4">54.834</td>
+                </tr>
+                <tr>
+                  <td data-row="16" data-col="1">RMSE</td>
+                  <td data-row="16" data-col="2">23.51</td>
+                  <td data-row="16" data-col="3">21.57</td>
+                  <td data-row="16" data-col="4">20.80</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+</div>
+<div id="tabset-2-2">
+<div class="cell">
+<div class="cell-output-display">
+<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_xswqb4z6sszmsr4j0ob5 = TinyTable.createTableFunctions("tinytable_xswqb4z6sszmsr4j0ob5");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '10', j: 2 }, { i: '10', j: 3 }, { i: '10', j: 4 } ], css_id: 'tinytable_css_8v1owb3nq9vziy4oquml',}, 
+          { positions: [ { i: '8', j: 2 }, { i: '8', j: 3 }, { i: '8', j: 4 } ], css_id: 'tinytable_css_hgoe7ji94xchrdm592uy',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '4', j: 2 }, { i: '5', j: 2 }, { i: '6', j: 2 }, { i: '7', j: 2 }, { i: '9', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '4', j: 3 }, { i: '5', j: 3 }, { i: '6', j: 3 }, { i: '7', j: 3 }, { i: '9', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '4', j: 4 }, { i: '5', j: 4 }, { i: '6', j: 4 }, { i: '7', j: 4 }, { i: '9', j: 4 } ], css_id: 'tinytable_css_6u88958wlpy0wpatolef',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 } ], css_id: 'tinytable_css_pd934m3i163jf0d476m4',}, 
+          { positions: [ { i: '10', j: 1 } ], css_id: 'tinytable_css_yig5v1zm4lpybo0oyqk7',}, 
+          { positions: [ { i: '8', j: 1 } ], css_id: 'tinytable_css_qn6txfuwxr8r6xyttlhz',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 }, { i: '4', j: 1 }, { i: '5', j: 1 }, { i: '6', j: 1 }, { i: '7', j: 1 }, { i: '9', j: 1 } ], css_id: 'tinytable_css_yuits262h7am5oijivwf',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_tij55yohq0nzh2t8g5gv',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_xswqb4z6sszmsr4j0ob5.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_8v1owb3nq9vziy4oquml, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_8v1owb3nq9vziy4oquml {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: right }
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_hgoe7ji94xchrdm592uy, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_hgoe7ji94xchrdm592uy {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: right }
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_6u88958wlpy0wpatolef, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_6u88958wlpy0wpatolef { text-align: right }
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_pd934m3i163jf0d476m4, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_pd934m3i163jf0d476m4 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: right }
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_yig5v1zm4lpybo0oyqk7, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_yig5v1zm4lpybo0oyqk7 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_qn6txfuwxr8r6xyttlhz, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_qn6txfuwxr8r6xyttlhz {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_yuits262h7am5oijivwf, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_yuits262h7am5oijivwf { text-align: left }
+    #tinytable_xswqb4z6sszmsr4j0ob5 td.tinytable_css_tij55yohq0nzh2t8g5gv, #tinytable_xswqb4z6sszmsr4j0ob5 th.tinytable_css_tij55yohq0nzh2t8g5gv {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_xswqb4z6sszmsr4j0ob5" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <caption>Ozone (parts per billion) and the weather, New York, May to September 1973</caption>
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">(1)</th>
+                <th scope="col" data-row="0" data-col="3">(2)</th>
+                <th scope="col" data-row="0" data-col="4">(3)</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="4">Each column is a linear regression of ozone on the variables listed. Robust standard errors (HC1) in parentheses.</td></tr>
+<tr><td colspan="4">Days with a missing value in any variable a model uses are left out of that model.</td></tr>
+<tr><td colspan="4">Data: airquality, which comes with R.</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">Temperature (°F)</td>
+                  <td data-row="1" data-col="2">2.43</td>
+                  <td data-row="1" data-col="3">1.84</td>
+                  <td data-row="1" data-col="4">1.65</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(0.18)</td>
+                  <td data-row="2" data-col="3">(0.20)</td>
+                  <td data-row="2" data-col="4">(0.20)</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Wind speed (miles per hour)</td>
+                  <td data-row="3" data-col="2"></td>
+                  <td data-row="3" data-col="3">-3.06</td>
+                  <td data-row="3" data-col="4">-3.33</td>
+                </tr>
+                <tr>
+                  <td data-row="4" data-col="1"></td>
+                  <td data-row="4" data-col="2"></td>
+                  <td data-row="4" data-col="3">(0.87)</td>
+                  <td data-row="4" data-col="4">(0.87)</td>
+                </tr>
+                <tr>
+                  <td data-row="5" data-col="1">Solar radiation (langleys)</td>
+                  <td data-row="5" data-col="2"></td>
+                  <td data-row="5" data-col="3"></td>
+                  <td data-row="5" data-col="4">0.06</td>
+                </tr>
+                <tr>
+                  <td data-row="6" data-col="1"></td>
+                  <td data-row="6" data-col="2"></td>
+                  <td data-row="6" data-col="3"></td>
+                  <td data-row="6" data-col="4">(0.02)</td>
+                </tr>
+                <tr>
+                  <td data-row="7" data-col="1">Constant</td>
+                  <td data-row="7" data-col="2">-147.00</td>
+                  <td data-row="7" data-col="3">-71.03</td>
+                  <td data-row="7" data-col="4">-64.34</td>
+                </tr>
+                <tr>
+                  <td data-row="8" data-col="1"></td>
+                  <td data-row="8" data-col="2">(13.51)</td>
+                  <td data-row="8" data-col="3">(21.80)</td>
+                  <td data-row="8" data-col="4">(21.23)</td>
+                </tr>
+                <tr>
+                  <td data-row="9" data-col="1">Observations (days)</td>
+                  <td data-row="9" data-col="2">116</td>
+                  <td data-row="9" data-col="3">116</td>
+                  <td data-row="9" data-col="4">111</td>
+                </tr>
+                <tr>
+                  <td data-row="10" data-col="1">R squared</td>
+                  <td data-row="10" data-col="2">0.49</td>
+                  <td data-row="10" data-col="3">0.57</td>
+                  <td data-row="10" data-col="4">0.61</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+</div>
+<div id="tabset-2-3">
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Table standard item</th>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Plain-word labels</td>
+<td><code>Temp</code>, <code>Solar.R</code>, <code>(Intercept)</code></td>
+<td>“Temperature (°F)”, “Solar radiation (langleys)”, “Constant”, the variable of the message first</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>Rounded</td>
+<td>3 decimals everywhere</td>
+<td>2 decimals</td>
+</tr>
+<tr class="odd">
+<td>6</td>
+<td>Aligned</td>
+<td>numbers centred</td>
+<td>numbers right-aligned (<code>align = "lrrr"</code>: left for the labels, right for the three model columns)</td>
+</tr>
+<tr class="even">
+<td>10 to 12</td>
+<td>Title and notes</td>
+<td>none</td>
+<td>a title naming the outcome, units and data; notes on the method, the standard errors and the missing days</td>
+</tr>
+<tr class="odd">
+<td>14</td>
+<td>Nothing unneeded</td>
+<td>AIC, BIC, Log.Lik., F, RMSE, adjusted R2</td>
+<td>observations and R squared only</td>
+</tr>
+<tr class="even">
+<td>15 to 18</td>
+<td>Regression items</td>
+<td>which standard errors? not said</td>
+<td>robust standard errors, said in a note; observations for every model</td>
+</tr>
+</tbody>
+</table>
+<p>The default has no significance stars, which meets item 17 as it is. If you want stars, ask for them and for a note defining them.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="how-regression-table-code-is-written" class="title-slide slide level1 center">
+<h1>How regression-table code is written</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="the-pattern" class="slide level2">
+<h2>The pattern</h2>
+<p>A regression table function does the work of the display table (lecture 08-1) for you: it takes the estimated models and lays out one column per model. Every call follows the same pattern.</p>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The pattern</a></li><li><a href="#tabset-3-2">Common options</a></li><li><a href="#tabset-3-3">Variations you will see</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a></a><span class="fu">modelsummary</span>(</span>
+<span id="cb2-2"><a></a>  <span class="fu">list</span>(<span class="st">"header 1"</span> <span class="ot">=</span> model_1, <span class="st">"header 2"</span> <span class="ot">=</span> model_2, ...),</span>
+<span id="cb2-3"><a></a>  <span class="at">option =</span> value, ...</span>
+<span id="cb2-4"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>list(...)</code></td>
+<td>The models, one per column, <strong>in the order of the columns</strong></td>
+<td><strong>Yes, the only required input</strong></td>
+</tr>
+<tr class="even">
+<td><code>"header 1" =</code></td>
+<td>The header of that column. Leave it out and the header is <code>(1)</code>, <code>(2)</code>, …</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td><code>option = value</code></td>
+<td>What to show and how: labels, which rows, standard errors, title, notes</td>
+<td>No; each has a default</td>
+</tr>
+</tbody>
+</table>
+<p>The header is attached to the model by the <code>=</code> inside <code>list()</code>. Nothing checks that the header describes the model: <code>list("Soybeans" = corn_model)</code> gives a column called “Soybeans” with the corn results in it.</p>
+</div>
+<div id="tabset-3-2">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>What it does</th>
+<th>Default if left out</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>coef_map = c("raw" = "Label")</code></td>
+<td>Renames coefficient rows, sets their order, and <strong>drops every coefficient not listed</strong></td>
+<td>raw names, in the order the models have them</td>
+</tr>
+<tr class="even">
+<td><code>coef_rename = c("raw" = "Label")</code></td>
+<td>Renames only; keeps every coefficient</td>
+<td>raw names</td>
+</tr>
+<tr class="odd">
+<td><code>gof_map = ...</code></td>
+<td>Which rows go at the bottom (observations, R squared)</td>
+<td>about eight rows</td>
+</tr>
+<tr class="even">
+<td><code>vcov = "HC1"</code></td>
+<td>Which standard errors</td>
+<td>the classical ones from <code>lm()</code></td>
+</tr>
+<tr class="odd">
+<td><code>fmt = 2</code></td>
+<td>Number of decimals</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td><code>align = "lrrr"</code></td>
+<td>Alignment, one letter per column: <code>l</code> left, <code>r</code> right</td>
+<td>centred numbers</td>
+</tr>
+<tr class="odd">
+<td><code>stars = TRUE</code></td>
+<td>Adds significance stars and a note defining them</td>
+<td>no stars</td>
+</tr>
+<tr class="even">
+<td><code>title = "..."</code>, <code>notes = "..."</code></td>
+<td>Title and notes</td>
+<td>none</td>
+</tr>
+<tr class="odd">
+<td><code>output = "flextable"</code> or <code>"gt"</code></td>
+<td>Hands back a <code>flextable</code> or <code>gt</code> table, to change further with the steps from 08-1</td>
+<td>a table for the document being rendered</td>
+</tr>
+</tbody>
+</table>
+<p><code>msummary()</code> is a shorter name for the same function.</p>
+</div>
+<div id="tabset-3-3">
+<ul>
+<li><code>modelsummary::modelsummary(...)</code>: the package name, then <code>::</code>, then the function.</li>
+<li>The list of models stored first under a name, <code>models &lt;- list(...)</code>, then <code>modelsummary(models, ...)</code>.</li>
+<li>Models from other functions in the same list, such as <code>fixest::feols()</code> for models with fixed effects (one constant per group, such as per county). The table code is the same.</li>
+<li><code>modelsummary(...) |&gt; some_step()</code>: the table passed on to a styling step from 08-1, after <code>output = "flextable"</code> or <code>"gt"</code>.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="one-real-example" class="slide level2">
+<h2>One real example</h2>
+<p>The “After” table, as you would see it in the HTML: a sentence, then the chunk.</p>
+<p>Put the three ozone models side by side, with plain labels and the temperature row first, only observations and R squared at the bottom, robust standard errors, two decimals, a title and notes.</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a>coef_labels <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb3-2"><a></a>  <span class="st">"Temp"</span> <span class="ot">=</span> <span class="st">"Temperature (°F)"</span>,</span>
+<span id="cb3-3"><a></a>  <span class="st">"Wind"</span> <span class="ot">=</span> <span class="st">"Wind speed (miles per hour)"</span>,</span>
+<span id="cb3-4"><a></a>  <span class="st">"Solar.R"</span> <span class="ot">=</span> <span class="st">"Solar radiation (langleys)"</span>,</span>
+<span id="cb3-5"><a></a>  <span class="st">"(Intercept)"</span> <span class="ot">=</span> <span class="st">"Constant"</span></span>
+<span id="cb3-6"><a></a>)</span>
+<span id="cb3-7"><a></a><span class="fu">modelsummary</span>(</span>
+<span id="cb3-8"><a></a>  <span class="fu">list</span>(<span class="st">"(1)"</span> <span class="ot">=</span> m1, <span class="st">"(2)"</span> <span class="ot">=</span> m2, <span class="st">"(3)"</span> <span class="ot">=</span> m3),</span>
+<span id="cb3-9"><a></a>  <span class="at">coef_map =</span> coef_labels,</span>
+<span id="cb3-10"><a></a>  <span class="at">gof_map =</span> <span class="fu">list</span>(</span>
+<span id="cb3-11"><a></a>    <span class="fu">list</span>(<span class="at">raw =</span> <span class="st">"nobs"</span>, <span class="at">clean =</span> <span class="st">"Observations (days)"</span>, <span class="at">fmt =</span> <span class="dv">0</span>),</span>
+<span id="cb3-12"><a></a>    <span class="fu">list</span>(<span class="at">raw =</span> <span class="st">"r.squared"</span>, <span class="at">clean =</span> <span class="st">"R squared"</span>, <span class="at">fmt =</span> <span class="dv">2</span>)</span>
+<span id="cb3-13"><a></a>  ),</span>
+<span id="cb3-14"><a></a>  <span class="at">vcov =</span> <span class="st">"HC1"</span>,</span>
+<span id="cb3-15"><a></a>  <span class="at">fmt =</span> <span class="dv">2</span>,</span>
+<span id="cb3-16"><a></a>  <span class="at">align =</span> <span class="st">"lrrr"</span>,</span>
+<span id="cb3-17"><a></a>  <span class="at">title =</span> <span class="st">"Ozone (parts per billion) and the weather, New York, May to September 1973"</span>,</span>
+<span id="cb3-18"><a></a>  <span class="at">notes =</span> <span class="fu">c</span>(</span>
+<span id="cb3-19"><a></a>    <span class="st">"Each column is a linear regression of ozone on the variables listed. Robust standard errors (HC1) in parentheses."</span>,</span>
+<span id="cb3-20"><a></a>    <span class="st">"Days with a missing value in any variable a model uses are left out of that model."</span>,</span>
+<span id="cb3-21"><a></a>    <span class="st">"Data: airquality, which comes with R."</span></span>
+<span id="cb3-22"><a></a>  )</span>
+<span id="cb3-23"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>You should be able to point at the part that sets each label, the part that decides which rows appear at the bottom, and the part that chooses the standard errors. The column order comes from the order inside <code>list()</code>.</p>
+</section></section>
+<section>
+<section id="standard-errors" class="title-slide slide level1 center">
+<h1>Standard errors</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="which-standard-errors-and-saying-so" class="slide level2">
+<h2>Which standard errors, and saying so</h2>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">Same estimates, different standard errors</a></li><li><a href="#tabset-4-2">An option that does nothing</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<p>There are several ways to compute standard errors, and your econometrics course says which one a model needs. In the table, <code>vcov =</code> chooses. It changes the standard errors only, never the estimates:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a></a><span class="fu">modelsummary</span>(</span>
+<span id="cb4-2"><a></a>  <span class="fu">list</span>(<span class="st">"Classical"</span> <span class="ot">=</span> m2, <span class="st">"Robust (HC1)"</span> <span class="ot">=</span> m2),</span>
+<span id="cb4-3"><a></a>  <span class="at">vcov =</span> <span class="fu">list</span>(<span class="st">"classical"</span>, <span class="st">"HC1"</span>),</span>
+<span id="cb4-4"><a></a>  <span class="at">coef_map =</span> <span class="fu">c</span>(<span class="st">"Temp"</span> <span class="ot">=</span> <span class="st">"Temperature (°F)"</span>, <span class="st">"Wind"</span> <span class="ot">=</span> <span class="st">"Wind speed (miles per hour)"</span>),</span>
+<span id="cb4-5"><a></a>  <span class="at">gof_map =</span> <span class="fu">list</span>(<span class="fu">list</span>(<span class="at">raw =</span> <span class="st">"nobs"</span>, <span class="at">clean =</span> <span class="st">"Observations (days)"</span>, <span class="at">fmt =</span> <span class="dv">0</span>)),</span>
+<span id="cb4-6"><a></a>  <span class="at">fmt =</span> <span class="dv">2</span></span>
+<span id="cb4-7"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_w59vdff3lx2kvxbprll1 = TinyTable.createTableFunctions("tinytable_w59vdff3lx2kvxbprll1");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '5', j: 2 }, { i: '5', j: 3 } ], css_id: 'tinytable_css_h0qdv9mah3adjx4ccux7',}, 
+          { positions: [ { i: '4', j: 2 }, { i: '4', j: 3 } ], css_id: 'tinytable_css_su28wvz4i9kr5xa4dhky',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 } ], css_id: 'tinytable_css_9i1z4pza4zcp0ylid0ag',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_xqwubqzh8zrdxdz021qf',}, 
+          { positions: [ { i: '5', j: 1 } ], css_id: 'tinytable_css_qjjucexfedmjprbqb3ba',}, 
+          { positions: [ { i: '4', j: 1 } ], css_id: 'tinytable_css_nmftc21rk9ybs5giidb2',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 } ], css_id: 'tinytable_css_66e70jvue890n8s5rgpb',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_mgm5g61lh0o9nnlvamv5',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_w59vdff3lx2kvxbprll1.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_h0qdv9mah3adjx4ccux7, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_h0qdv9mah3adjx4ccux7 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_su28wvz4i9kr5xa4dhky, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_su28wvz4i9kr5xa4dhky {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_9i1z4pza4zcp0ylid0ag, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_9i1z4pza4zcp0ylid0ag { text-align: center }
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_xqwubqzh8zrdxdz021qf, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_xqwubqzh8zrdxdz021qf {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_qjjucexfedmjprbqb3ba, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_qjjucexfedmjprbqb3ba {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_nmftc21rk9ybs5giidb2, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_nmftc21rk9ybs5giidb2 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_66e70jvue890n8s5rgpb, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_66e70jvue890n8s5rgpb { text-align: left }
+    #tinytable_w59vdff3lx2kvxbprll1 td.tinytable_css_mgm5g61lh0o9nnlvamv5, #tinytable_w59vdff3lx2kvxbprll1 th.tinytable_css_mgm5g61lh0o9nnlvamv5 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_w59vdff3lx2kvxbprll1" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">Classical</th>
+                <th scope="col" data-row="0" data-col="3">Robust (HC1)</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">Temperature (°F)</td>
+                  <td data-row="1" data-col="2">1.84</td>
+                  <td data-row="1" data-col="3">1.84</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(0.25)</td>
+                  <td data-row="2" data-col="3">(0.20)</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Wind speed (miles per hour)</td>
+                  <td data-row="3" data-col="2">-3.06</td>
+                  <td data-row="3" data-col="3">-3.06</td>
+                </tr>
+                <tr>
+                  <td data-row="4" data-col="1"></td>
+                  <td data-row="4" data-col="2">(0.66)</td>
+                  <td data-row="4" data-col="3">(0.87)</td>
+                </tr>
+                <tr>
+                  <td data-row="5" data-col="1">Observations (days)</td>
+                  <td data-row="5" data-col="2">116</td>
+                  <td data-row="5" data-col="3">116</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+<p>The estimates are identical; the standard errors in parentheses are not. A reader cannot tell which kind they are looking at unless a note says so.</p>
+</div>
+<div id="tabset-4-2">
+<p>Older code and older tutorials write <code>statistic_override =</code> instead of <code>vcov =</code>. That name no longer exists, and <code>modelsummary()</code> accepts it <strong>without an error or a warning</strong>, and ignores it:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a></a><span class="fu">modelsummary</span>(</span>
+<span id="cb5-2"><a></a>  <span class="fu">list</span>(<span class="st">"Asked for robust"</span> <span class="ot">=</span> m2),</span>
+<span id="cb5-3"><a></a>  <span class="at">statistic_override =</span> <span class="fu">list</span>(sandwich<span class="sc">::</span><span class="fu">vcovHC</span>(m2, <span class="at">type =</span> <span class="st">"HC1"</span>)),</span>
+<span id="cb5-4"><a></a>  <span class="at">coef_map =</span> <span class="fu">c</span>(<span class="st">"Temp"</span> <span class="ot">=</span> <span class="st">"Temperature (°F)"</span>, <span class="st">"Wind"</span> <span class="ot">=</span> <span class="st">"Wind speed (miles per hour)"</span>),</span>
+<span id="cb5-5"><a></a>  <span class="at">gof_map =</span> <span class="fu">list</span>(<span class="fu">list</span>(<span class="at">raw =</span> <span class="st">"nobs"</span>, <span class="at">clean =</span> <span class="st">"Observations (days)"</span>, <span class="at">fmt =</span> <span class="dv">0</span>)),</span>
+<span id="cb5-6"><a></a>  <span class="at">fmt =</span> <span class="dv">2</span></span>
+<span id="cb5-7"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_tekbw07kxtgnomfack7t = TinyTable.createTableFunctions("tinytable_tekbw07kxtgnomfack7t");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '5', j: 2 } ], css_id: 'tinytable_css_he1fuo4uuyftwfde0i9t',}, 
+          { positions: [ { i: '4', j: 2 } ], css_id: 'tinytable_css_euei3oczngfbrl8uilsa',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 } ], css_id: 'tinytable_css_jufvjjlwh48u6vfaljxj',}, 
+          { positions: [ { i: '0', j: 2 } ], css_id: 'tinytable_css_cxcp2543slwwfq8gutqx',}, 
+          { positions: [ { i: '5', j: 1 } ], css_id: 'tinytable_css_isgbnactppo301tyk91k',}, 
+          { positions: [ { i: '4', j: 1 } ], css_id: 'tinytable_css_d1etteba2064pubxe7z7',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 } ], css_id: 'tinytable_css_d60uilmimv4jiig6qm80',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_ioco0wwxxuivheay7ofn',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_tekbw07kxtgnomfack7t.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_he1fuo4uuyftwfde0i9t, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_he1fuo4uuyftwfde0i9t {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_euei3oczngfbrl8uilsa, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_euei3oczngfbrl8uilsa {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_jufvjjlwh48u6vfaljxj, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_jufvjjlwh48u6vfaljxj { text-align: center }
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_cxcp2543slwwfq8gutqx, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_cxcp2543slwwfq8gutqx {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_isgbnactppo301tyk91k, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_isgbnactppo301tyk91k {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_d1etteba2064pubxe7z7, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_d1etteba2064pubxe7z7 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_d60uilmimv4jiig6qm80, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_d60uilmimv4jiig6qm80 { text-align: left }
+    #tinytable_tekbw07kxtgnomfack7t td.tinytable_css_ioco0wwxxuivheay7ofn, #tinytable_tekbw07kxtgnomfack7t th.tinytable_css_ioco0wwxxuivheay7ofn {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_tekbw07kxtgnomfack7t" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">Asked for robust</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">Temperature (°F)</td>
+                  <td data-row="1" data-col="2">1.84</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(0.25)</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Wind speed (miles per hour)</td>
+                  <td data-row="3" data-col="2">-3.06</td>
+                </tr>
+                <tr>
+                  <td data-row="4" data-col="1"></td>
+                  <td data-row="4" data-col="2">(0.66)</td>
+                </tr>
+                <tr>
+                  <td data-row="5" data-col="1">Observations (days)</td>
+                  <td data-row="5" data-col="2">116</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+<p>The standard errors are the classical ones from the previous tab, not the robust ones that were asked for. AI assistants learned from older code too, so they sometimes write this. The same happens with any option name <code>modelsummary()</code> does not know, such as a misspelling (<code>vcovv =</code>).</p>
+<p><strong>The check:</strong> for one model, print the table with and without the change of standard errors. If nothing moves, the change was not applied.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="checking-the-table" class="title-slide slide level1 center">
+<h1>Checking the table</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="does-the-table-show-the-models-you-meant" class="slide level2">
+<h2>Does the table show the models you meant?</h2>
+<p>The AI can write the checking code. It cannot know which models you meant or how many observations each should have. Ask for these after every regression table:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Ask the AI to print</th>
+<th>Why</th>
+<th>What only you can supply</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>each column’s header next to its model’s formula</td>
+<td>A header is attached by position in <code>list()</code>, and nothing checks it describes the model</td>
+<td>which model goes in which column</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>the number of observations of each model</td>
+<td>Rows with a missing value are dropped without a word (next slide)</td>
+<td>the count you expect, from looking at the data</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>one estimate, straight from the model</td>
+<td>Confirms the table shows that model’s numbers</td>
+<td>which estimate the message is about</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>every coefficient each model has, against the rows in the table</td>
+<td><code>coef_map</code> drops any coefficient it does not list</td>
+<td>which variables each model should have</td>
+</tr>
+</tbody>
+</table>
+<p>Checks 2 and 4 catch failures that give no error at all. The next two slides show them.</p>
+</section>
+<section id="observations-what-lm-drops-without-saying" class="slide level2">
+<h2>Observations: what <code>lm()</code> drops without saying</h2>
+<div class="panel-tabset">
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The check</a></li><li><a href="#tabset-5-2">Why</a></li><li><a href="#tabset-5-3">What it means for the table</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1">
+<p><code>air</code> has 153 rows. A student expects each model to use all of them, and asks the AI to print the check:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a></a>models <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"(1)"</span> <span class="ot">=</span> m1, <span class="st">"(2)"</span> <span class="ot">=</span> m2, <span class="st">"(3)"</span> <span class="ot">=</span> m3)</span>
+<span id="cb6-2"><a></a><span class="cf">for</span> (name <span class="cf">in</span> <span class="fu">names</span>(models)) {</span>
+<span id="cb6-3"><a></a>  <span class="fu">cat</span>(<span class="fu">paste0</span>(<span class="st">"observations in model "</span>, name, <span class="st">": expected "</span>, <span class="fu">nrow</span>(air),</span>
+<span id="cb6-4"><a></a>             <span class="st">", got "</span>, <span class="fu">nobs</span>(models[[name]])), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span>
+<span id="cb6-5"><a></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>observations in model (1): expected 153, got 116 
+observations in model (2): expected 153, got 116 
+observations in model (3): expected 153, got 111 </code></pre>
+</div>
+</div>
+<p>All three checks <strong>fail</strong>.</p>
+</div>
+<div id="tabset-5-2">
+<p><code>lm()</code> leaves out every row with a missing value in any variable the model uses, and says nothing. <code>Ozone</code> is missing on 37 days and <code>Solar.R</code> on 7, some of them the same days:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a></a><span class="fu">cat</span>(</span>
+<span id="cb8-2"><a></a>  <span class="fu">paste</span>(<span class="st">"days with Ozone and Temp:"</span>, <span class="fu">sum</span>(<span class="fu">complete.cases</span>(air[, <span class="fu">c</span>(<span class="st">"Ozone"</span>, <span class="st">"Temp"</span>)]))),</span>
+<span id="cb8-3"><a></a>  <span class="fu">paste</span>(<span class="st">"days with Ozone, Temp, Wind and Solar.R:"</span>,</span>
+<span id="cb8-4"><a></a>        <span class="fu">sum</span>(<span class="fu">complete.cases</span>(air[, <span class="fu">c</span>(<span class="st">"Ozone"</span>, <span class="st">"Temp"</span>, <span class="st">"Wind"</span>, <span class="st">"Solar.R"</span>)]))),</span>
+<span id="cb8-5"><a></a>  <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span></span>
+<span id="cb8-6"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>days with Ozone and Temp: 116
+days with Ozone, Temp, Wind and Solar.R: 111</code></pre>
+</div>
+</div>
+<p>So the expected count is the number of rows with <strong>no missing value in any variable the model uses</strong>: 116, 116 and 111. Model (3) uses 5 fewer days than model (2).</p>
+</div>
+<div id="tabset-5-3">
+<p>When the columns use different rows, a change across the columns has two possible causes: the added variable, or the different days. Here the difference is small; in other data it can be large.</p>
+<p>What to do, and to decide <strong>before</strong> you look at the estimates:</p>
+<ul>
+<li>Say it in a note: “Days with a missing value in any variable a model uses are left out of that model”, with the number of observations shown for every column.</li>
+<li>If the comparison across columns is the message, estimate every model on the same rows, those with no missing value in any variable of the largest model, and say so in a note.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="coefficients-that-disappear" class="slide level2">
+<h2>Coefficients that disappear</h2>
+<p><code>coef_map</code> renames coefficient rows and sets their order, and drops every coefficient it does not list. Here the AI was asked to label temperature and forgot wind:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a></a><span class="fu">modelsummary</span>(</span>
+<span id="cb10-2"><a></a>  <span class="fu">list</span>(<span class="st">"(1)"</span> <span class="ot">=</span> m1, <span class="st">"(2)"</span> <span class="ot">=</span> m2),</span>
+<span id="cb10-3"><a></a>  <span class="at">coef_map =</span> <span class="fu">c</span>(<span class="st">"Temp"</span> <span class="ot">=</span> <span class="st">"Temperature (°F)"</span>),</span>
+<span id="cb10-4"><a></a>  <span class="at">gof_map =</span> <span class="fu">list</span>(<span class="fu">list</span>(<span class="at">raw =</span> <span class="st">"nobs"</span>, <span class="at">clean =</span> <span class="st">"Observations (days)"</span>, <span class="at">fmt =</span> <span class="dv">0</span>)),</span>
+<span id="cb10-5"><a></a>  <span class="at">fmt =</span> <span class="dv">2</span></span>
+<span id="cb10-6"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_hgjlc820bo6irit92hup = TinyTable.createTableFunctions("tinytable_hgjlc820bo6irit92hup");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '3', j: 2 }, { i: '3', j: 3 } ], css_id: 'tinytable_css_ld880lya1vc0jmnddwr7',}, 
+          { positions: [ { i: '2', j: 2 }, { i: '2', j: 3 } ], css_id: 'tinytable_css_dsjzuyo0e5eu49e3gqoa',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '1', j: 3 } ], css_id: 'tinytable_css_ede339vu4usow7qo6byp',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 } ], css_id: 'tinytable_css_szeg96e45i5jrim2n3n5',}, 
+          { positions: [ { i: '3', j: 1 } ], css_id: 'tinytable_css_oapjqqgmrz2hh1w0nr4l',}, 
+          { positions: [ { i: '2', j: 1 } ], css_id: 'tinytable_css_fm5ylixdslmf0ixxrrmw',}, 
+          { positions: [ { i: '1', j: 1 } ], css_id: 'tinytable_css_sf71f3oq661f3nrng2m1',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_kgwgz21u2qbximhmt61c',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_hgjlc820bo6irit92hup.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_ld880lya1vc0jmnddwr7, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_ld880lya1vc0jmnddwr7 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_dsjzuyo0e5eu49e3gqoa, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_dsjzuyo0e5eu49e3gqoa {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_ede339vu4usow7qo6byp, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_ede339vu4usow7qo6byp { text-align: center }
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_szeg96e45i5jrim2n3n5, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_szeg96e45i5jrim2n3n5 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: center }
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_oapjqqgmrz2hh1w0nr4l, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_oapjqqgmrz2hh1w0nr4l {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_fm5ylixdslmf0ixxrrmw, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_fm5ylixdslmf0ixxrrmw {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_sf71f3oq661f3nrng2m1, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_sf71f3oq661f3nrng2m1 { text-align: left }
+    #tinytable_hgjlc820bo6irit92hup td.tinytable_css_kgwgz21u2qbximhmt61c, #tinytable_hgjlc820bo6irit92hup th.tinytable_css_kgwgz21u2qbximhmt61c {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_hgjlc820bo6irit92hup" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">(1)</th>
+                <th scope="col" data-row="0" data-col="3">(2)</th>
+              </tr>
+        </thead>
+        
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">Temperature (°F)</td>
+                  <td data-row="1" data-col="2">2.43</td>
+                  <td data-row="1" data-col="3">1.84</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1"></td>
+                  <td data-row="2" data-col="2">(0.23)</td>
+                  <td data-row="2" data-col="3">(0.25)</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Observations (days)</td>
+                  <td data-row="3" data-col="2">116</td>
+                  <td data-row="3" data-col="3">116</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+<p>Column (2) is a model with wind in it, but the table shows no wind row and no constant, and nothing says they are missing. Sometimes leaving rows out is what you want (a note then says “also includes …”); it should never happen by accident.</p>
+<p><strong>The check:</strong> ask the AI to list each model’s coefficients next to the rows of the table, and to say which ones are not shown.</p>
+</section></section>
+<section>
+<section id="summary-statistics-tables" class="title-slide slide level1 center">
+<h1>Summary statistics tables</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="the-table-that-comes-before-the-regressions" class="slide level2">
+<h2>The table that comes before the regressions</h2>
+<p>Papers usually show a table of the variables before the regressions: how many observations, the average, the spread, the range. The same package makes it, with a pattern of its own.</p>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">The pattern</a></li><li><a href="#tabset-6-2">One real example</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a><span class="fu">datasummary</span>(rows <span class="sc">~</span> columns, <span class="at">data =</span> table)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>rows</code></td>
+<td>The variables, joined with <code>+</code>, one row each</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr class="even">
+<td><code>columns</code></td>
+<td>The statistics, joined with <code>+</code>: <code>N</code>, <code>Mean</code>, <code>SD</code>, <code>Min</code>, <code>Max</code>, <code>Median</code></td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr class="odd">
+<td><code>data = table</code></td>
+<td>The data</td>
+<td><strong>Yes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Swap the two sides of <code>~</code> and the variables become columns. <code>datasummary_skim(table)</code> is a shortcut that summarises every column with its own choice of statistics.</p>
+</div>
+<div id="tabset-6-2">
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a></a><span class="fu">datasummary</span>(</span>
+<span id="cb12-2"><a></a>  <span class="fu">Heading</span>(<span class="st">"Ozone (parts per billion)"</span>) <span class="sc">*</span> Ozone <span class="sc">+</span></span>
+<span id="cb12-3"><a></a>    <span class="fu">Heading</span>(<span class="st">"Maximum temperature (°F)"</span>) <span class="sc">*</span> Temp <span class="sc">+</span></span>
+<span id="cb12-4"><a></a>    <span class="fu">Heading</span>(<span class="st">"Wind speed (miles per hour)"</span>) <span class="sc">*</span> Wind <span class="sc">+</span></span>
+<span id="cb12-5"><a></a>    <span class="fu">Heading</span>(<span class="st">"Solar radiation (langleys)"</span>) <span class="sc">*</span> Solar.R <span class="sc">~</span></span>
+<span id="cb12-6"><a></a>    <span class="fu">Heading</span>(<span class="st">"Days"</span>) <span class="sc">*</span> N <span class="sc">+</span> Mean <span class="sc">+</span> <span class="fu">Heading</span>(<span class="st">"Std. dev."</span>) <span class="sc">*</span> SD <span class="sc">+</span> Min <span class="sc">+</span> Max,</span>
+<span id="cb12-7"><a></a>  <span class="at">data =</span> air,</span>
+<span id="cb12-8"><a></a>  <span class="at">fmt =</span> <span class="dv">1</span>,</span>
+<span id="cb12-9"><a></a>  <span class="at">title =</span> <span class="st">"Daily weather and ozone, New York, May to September 1973"</span>,</span>
+<span id="cb12-10"><a></a>  <span class="at">notes =</span> <span class="st">"Data: airquality, which comes with R."</span></span>
+<span id="cb12-11"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<script src="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.js"></script>
+
+    <script>
+      // Create table-specific functions using external factory
+      const tableFns_au9xfbo9eydfjef3qf4z = TinyTable.createTableFunctions("tinytable_au9xfbo9eydfjef3qf4z");
+      // tinytable span after
+      window.addEventListener('load', function () {
+          var cellsToStyle = [
+            // tinytable style arrays after
+          { positions: [ { i: '4', j: 2 }, { i: '4', j: 3 }, { i: '4', j: 4 }, { i: '4', j: 5 }, { i: '4', j: 6 } ], css_id: 'tinytable_css_63ukqct3s1ag6e0hlkk6',}, 
+          { positions: [ { i: '1', j: 2 }, { i: '2', j: 2 }, { i: '3', j: 2 }, { i: '1', j: 3 }, { i: '2', j: 3 }, { i: '3', j: 3 }, { i: '1', j: 4 }, { i: '2', j: 4 }, { i: '3', j: 4 }, { i: '1', j: 5 }, { i: '2', j: 5 }, { i: '3', j: 5 }, { i: '1', j: 6 }, { i: '2', j: 6 }, { i: '3', j: 6 } ], css_id: 'tinytable_css_90cxn03fojepk1tojuzk',}, 
+          { positions: [ { i: '0', j: 2 }, { i: '0', j: 3 }, { i: '0', j: 4 }, { i: '0', j: 5 }, { i: '0', j: 6 } ], css_id: 'tinytable_css_g6ozuurzfyajqt3q27oj',}, 
+          { positions: [ { i: '4', j: 1 } ], css_id: 'tinytable_css_wiy22pq56rh056zg5i9s',}, 
+          { positions: [ { i: '1', j: 1 }, { i: '2', j: 1 }, { i: '3', j: 1 } ], css_id: 'tinytable_css_gkpf4zcqsgnm4kyz0ej5',}, 
+          { positions: [ { i: '0', j: 1 } ], css_id: 'tinytable_css_5uxu075t2dm136sjwuxj',}, 
+          ];
+
+          // Loop over the arrays to style the cells
+          cellsToStyle.forEach(function (group) {
+              group.positions.forEach(function (cell) {
+                  tableFns_au9xfbo9eydfjef3qf4z.styleCell(cell.i, cell.j, group.css_id);
+              });
+          });
+      });
+    </script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/vincentarelbundock/tinytable@main/inst/tinytable.css">
+    <style>
+    /* tinytable css entries after */
+    #tinytable_au9xfbo9eydfjef3qf4z td.tinytable_css_63ukqct3s1ag6e0hlkk6, #tinytable_au9xfbo9eydfjef3qf4z th.tinytable_css_63ukqct3s1ag6e0hlkk6 {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: right }
+    #tinytable_au9xfbo9eydfjef3qf4z td.tinytable_css_90cxn03fojepk1tojuzk, #tinytable_au9xfbo9eydfjef3qf4z th.tinytable_css_90cxn03fojepk1tojuzk { text-align: right }
+    #tinytable_au9xfbo9eydfjef3qf4z td.tinytable_css_g6ozuurzfyajqt3q27oj, #tinytable_au9xfbo9eydfjef3qf4z th.tinytable_css_g6ozuurzfyajqt3q27oj {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: right }
+    #tinytable_au9xfbo9eydfjef3qf4z td.tinytable_css_wiy22pq56rh056zg5i9s, #tinytable_au9xfbo9eydfjef3qf4z th.tinytable_css_wiy22pq56rh056zg5i9s {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 0; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.08em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.1em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    #tinytable_au9xfbo9eydfjef3qf4z td.tinytable_css_gkpf4zcqsgnm4kyz0ej5, #tinytable_au9xfbo9eydfjef3qf4z th.tinytable_css_gkpf4zcqsgnm4kyz0ej5 { text-align: left }
+    #tinytable_au9xfbo9eydfjef3qf4z td.tinytable_css_5uxu075t2dm136sjwuxj, #tinytable_au9xfbo9eydfjef3qf4z th.tinytable_css_5uxu075t2dm136sjwuxj {  position: relative; --border-bottom: 1; --border-left: 0; --border-right: 0; --border-top: 1; --line-color-bottom: var(--tt-line-color); --line-color-left: var(--tt-line-color); --line-color-right: var(--tt-line-color); --line-color-top: var(--tt-line-color); --line-width-bottom: 0.05em; --line-width-left: 0.1em; --line-width-right: 0.1em; --line-width-top: 0.08em; --line-type-bottom: solid; --line-type-left: solid; --line-type-right: solid; --line-type-top: solid; --trim-bottom-left: 0%; --trim-bottom-right: 0%; --trim-left-bottom: 0%; --trim-left-top: 0%; --trim-right-bottom: 0%; --trim-right-top: 0%; --trim-top-left: 0%; --trim-top-right: 0%; ; text-align: left }
+    </style>
+    <div class="container">
+      <table class="tinytable" id="tinytable_au9xfbo9eydfjef3qf4z" style="width: auto; margin-left: auto; margin-right: auto;" data-quarto-disable-processing="true">
+        <caption>Daily weather and ozone, New York, May to September 1973</caption>
+        <thead>
+              <tr>
+                <th scope="col" data-row="0" data-col="1"> </th>
+                <th scope="col" data-row="0" data-col="2">Days</th>
+                <th scope="col" data-row="0" data-col="3">Mean</th>
+                <th scope="col" data-row="0" data-col="4">Std. dev.</th>
+                <th scope="col" data-row="0" data-col="5">Min</th>
+                <th scope="col" data-row="0" data-col="6">Max</th>
+              </tr>
+        </thead>
+        <tfoot><tr><td colspan="6">Data: airquality, which comes with R.</td></tr></tfoot>
+        <tbody>
+                <tr>
+                  <td data-row="1" data-col="1">Ozone (parts per billion)</td>
+                  <td data-row="1" data-col="2">116</td>
+                  <td data-row="1" data-col="3">42.1</td>
+                  <td data-row="1" data-col="4">33.0</td>
+                  <td data-row="1" data-col="5">1.0</td>
+                  <td data-row="1" data-col="6">168.0</td>
+                </tr>
+                <tr>
+                  <td data-row="2" data-col="1">Maximum temperature (°F)</td>
+                  <td data-row="2" data-col="2">153</td>
+                  <td data-row="2" data-col="3">77.9</td>
+                  <td data-row="2" data-col="4">9.5</td>
+                  <td data-row="2" data-col="5">56.0</td>
+                  <td data-row="2" data-col="6">97.0</td>
+                </tr>
+                <tr>
+                  <td data-row="3" data-col="1">Wind speed (miles per hour)</td>
+                  <td data-row="3" data-col="2">153</td>
+                  <td data-row="3" data-col="3">10.0</td>
+                  <td data-row="3" data-col="4">3.5</td>
+                  <td data-row="3" data-col="5">1.7</td>
+                  <td data-row="3" data-col="6">20.7</td>
+                </tr>
+                <tr>
+                  <td data-row="4" data-col="1">Solar radiation (langleys)</td>
+                  <td data-row="4" data-col="2">146</td>
+                  <td data-row="4" data-col="3">185.9</td>
+                  <td data-row="4" data-col="4">90.1</td>
+                  <td data-row="4" data-col="5">7.0</td>
+                  <td data-row="4" data-col="6">334.0</td>
+                </tr>
+        </tbody>
+      </table>
+    </div>
+<!-- hack to avoid NA insertion in last line -->
+</div>
+</div>
+<p><code>Heading("...") *</code> gives a row or column its label. The <code>Days</code> column is the check: it counts the days with a value, so it shows at once which variables have missing values, and it should match what you counted in the data.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="judging-a-regression-table" class="title-slide slide level1 center">
+<h1>Judging a regression table</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="the-checklist" class="slide level2 scrollable">
+<h2>The checklist</h2>
+<p>Apply it to any regression table, yours or the AI’s, in the rendered HTML. Each question has a yes or no answer.</p>
+<ol type="1">
+<li>Can a reader tell, from the headers and title alone, what each model explains and how the models differ?</li>
+<li>Is the estimate the message is about easy to find (first row, plain label with units)?</li>
+<li>Does a note say which standard errors are shown, and define any stars?</li>
+<li>Is the number of observations shown for every model, and does it match what you expected?</li>
+<li>Did the printed formulas match the column headers?</li>
+<li>Is every coefficient each model has either shown, or mentioned in a note?</li>
+<li>Does it meet every item of the table standard?</li>
+</ol>
+</section>
+<section id="your-turn-read-the-ais-code" class="slide level2">
+<h2>Your turn: read the AI’s code</h2>
+<p>A student asked an AI to “make a regression table of my ozone models with robust standard errors” and kept this:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a></a><span class="fu">modelsummary</span>(</span>
+<span id="cb13-2"><a></a>  <span class="fu">list</span>(<span class="st">"Temperature only"</span> <span class="ot">=</span> m1, <span class="st">"Plus sunlight"</span> <span class="ot">=</span> m2, <span class="st">"Plus wind"</span> <span class="ot">=</span> m3),</span>
+<span id="cb13-3"><a></a>  <span class="at">statistic_override =</span> <span class="fu">list</span>(sandwich<span class="sc">::</span><span class="fu">vcovHC</span>(m1), sandwich<span class="sc">::</span><span class="fu">vcovHC</span>(m2), sandwich<span class="sc">::</span><span class="fu">vcovHC</span>(m3)),</span>
+<span id="cb13-4"><a></a>  <span class="at">coef_map =</span> <span class="fu">c</span>(<span class="st">"Temp"</span> <span class="ot">=</span> <span class="st">"Temperature"</span>, <span class="st">"Solar.R"</span> <span class="ot">=</span> <span class="st">"Sunlight"</span>)</span>
+<span id="cb13-5"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">Questions</a></li><li><a href="#tabset-7-2">Answers</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
+<p>A. What does each part of the call do?</p>
+<p>B. Which header is wrong? (Look at how <code>m2</code> and <code>m3</code> were defined on “The data and the models on these slides”.)</p>
+<p>C. Besides the headers, which two problems give a wrong table without any error?</p>
+<p>D. Which checks from “Does the table show the models you meant?” would catch each problem?</p>
+</div>
+<div id="tabset-7-2">
+<p>A. <code>list(...)</code>: the three models, one column each, with their headers. <code>statistic_override =</code>: meant to use robust standard errors. <code>coef_map =</code>: label the temperature and sunlight rows, and show only those.</p>
+<p>B. <code>m2</code> is temperature plus <strong>wind</strong>, and <code>m3</code> adds sunlight to that. The headers “Plus sunlight” and “Plus wind” are on the wrong columns.</p>
+<p>C. <code>statistic_override</code> is ignored, so the standard errors are the classical ones, not the robust ones asked for. And <code>coef_map</code> drops wind and the constant, so the reader sees a model labelled “Plus wind” with no wind row. (Also missing: units in the labels, a title, a note on the standard errors.)</p>
+<p>D. Check 1 (headers against formulas) catches the swapped headers. Check 4 (every coefficient against the table’s rows) catches the missing wind row. Printing the table with and without the change of standard errors catches the ignored <code>statistic_override</code>.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="asking-ai" class="title-slide slide level1 center">
+<h1>Asking AI</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="working-with-ai-on-your-own-research" class="slide level2">
+<h2>Working with AI on your own research</h2>
+<p>Regression tables follow the same way of working as everything else (lecture 02-1, “Working with AI on your own research”): you ask, the AI writes into a Quarto document (<code>.qmd</code>) with one plain-English sentence above each chunk, you render it to HTML, and you judge the HTML.</p>
+<p>For regression tables this matters because:</p>
+<ul>
+<li>The models, the table and the checks sit in one document, so a header can be read next to the formula it describes.</li>
+<li>When the data changes, rendering again re-estimates every model and rebuilds the table. No number is ever copied by hand.</li>
+<li>Your advisor reviews the models by reading the HTML: what was estimated, on which rows, with which standard errors.</li>
+</ul>
+</section>
+<section id="what-to-put-in-a-regression-table-request" class="slide level2 scrollable">
+<h2>What to put in a regression table request</h2>
+<p>The AI already knows <code>modelsummary</code>. Your request supplies what it cannot know:</p>
+<ol type="1">
+<li><strong>The data</strong>: what one row is, the columns used, their units, and which have missing values</li>
+<li><strong>The models</strong>: for each column, the outcome and the variables, in the order the columns should appear</li>
+<li><strong>The message</strong>: which estimate the reader should look at, and the comparison across columns</li>
+<li><strong>The standard errors</strong>: which kind, from your econometrics course or your advisor</li>
+<li><strong>What to show</strong>: which coefficient rows, in which order and with which labels; which rows at the bottom</li>
+<li><strong>The checks</strong>: the number of observations you expect for each model, headers against formulas, every coefficient accounted for</li>
+<li><strong>The table standard</strong>, then the <strong>closing instructions</strong></li>
+</ol>
+</section>
+<section id="a-weak-request-and-a-strong-one" class="slide level2">
+<h2>A weak request and a strong one</h2>
+<div class="panel-tabset">
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Weak</a></li><li><a href="#tabset-8-2">Strong</a></li><li><a href="#tabset-8-3">What came back</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1">
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb14-1"><a></a>Run regressions of ozone on the weather and make a nice table.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The AI chooses the models, their order, the standard errors and what to show. Whatever comes back, you have nothing to check it against.</p>
+</div>
+<div id="tabset-8-2">
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb15-1"><a></a>In my R project, the table air has one row per day: Ozone (parts per</span>
+<span id="cb15-2"><a></a>billion, missing on some days), Temp (degrees Fahrenheit), Wind (miles</span>
+<span id="cb15-3"><a></a>per hour) and Solar.R (langleys, missing on some days).</span>
+<span id="cb15-4"><a></a></span>
+<span id="cb15-5"><a></a>Estimate three linear regressions of Ozone, one per column, in this</span>
+<span id="cb15-6"><a></a>order: (1) on Temp; (2) on Temp and Wind; (3) on Temp, Wind and</span>
+<span id="cb15-7"><a></a>Solar.R. The message is about the Temp estimate and how it changes</span>
+<span id="cb15-8"><a></a>across the columns. Use robust standard errors (HC1). Show the rows</span>
+<span id="cb15-9"><a></a>Temp, Wind, Solar.R and the constant, in that order, and at the bottom</span>
+<span id="cb15-10"><a></a>only the number of observations and R squared. Use modelsummary.</span>
+<span id="cb15-11"><a></a></span>
+<span id="cb15-12"><a></a>Check: each column's header next to its model's formula; the number of</span>
+<span id="cb15-13"><a></a>observations of each model (I expect 116, 116 and 111, the days with no</span>
+<span id="cb15-14"><a></a>missing value in the model's variables); and every coefficient of each</span>
+<span id="cb15-15"><a></a>model against the rows of the table.</span>
+<span id="cb15-16"><a></a></span>
+<span id="cb15-17"><a></a>&lt;the table standard&gt;</span>
+<span id="cb15-18"><a></a></span>
+<span id="cb15-19"><a></a>Put the code in my Quarto document analysis/regressions.qmd, under the</span>
+<span id="cb15-20"><a></a>heading "Ozone and the weather", as R code chunks. Above each chunk,</span>
+<span id="cb15-21"><a></a>write one plain-English sentence saying what it does and why. Build</span>
+<span id="cb15-22"><a></a>every path with here::here(); no setwd(), no absolute paths. Print each</span>
+<span id="cb15-23"><a></a>check on its own line as "name of check: expected X, got Y". Render the</span>
+<span id="cb15-24"><a></a>document to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Replace <code>&lt;the table standard&gt;</code> with the block from <strong>Recommended requests</strong>.</p>
+</div>
+<div id="tabset-8-3">
+<p>The table on “One real example”, followed by the checks:</p>
+<div class="cell">
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a>models <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="st">"(1)"</span> <span class="ot">=</span> m1, <span class="st">"(2)"</span> <span class="ot">=</span> m2, <span class="st">"(3)"</span> <span class="ot">=</span> m3)</span>
+<span id="cb16-2"><a></a>expected_n <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">116</span>, <span class="dv">116</span>, <span class="dv">111</span>)</span>
+<span id="cb16-3"><a></a>shown <span class="ot">&lt;-</span> <span class="fu">names</span>(coef_labels)</span>
+<span id="cb16-4"><a></a>not_shown <span class="ot">&lt;-</span> <span class="fu">setdiff</span>(<span class="fu">unlist</span>(<span class="fu">lapply</span>(models, \(m) <span class="fu">names</span>(<span class="fu">coef</span>(m)))), shown)</span>
+<span id="cb16-5"><a></a>lines <span class="ot">&lt;-</span> <span class="fu">c</span>()</span>
+<span id="cb16-6"><a></a><span class="cf">for</span> (i <span class="cf">in</span> <span class="fu">seq_along</span>(models)) {</span>
+<span id="cb16-7"><a></a>  col <span class="ot">&lt;-</span> <span class="fu">names</span>(models)[i]</span>
+<span id="cb16-8"><a></a>  lines <span class="ot">&lt;-</span> <span class="fu">c</span>(lines,</span>
+<span id="cb16-9"><a></a>    <span class="fu">paste0</span>(<span class="st">"formula of column "</span>, col, <span class="st">": "</span>, <span class="fu">deparse</span>(<span class="fu">formula</span>(models[[i]]))),</span>
+<span id="cb16-10"><a></a>    <span class="fu">paste0</span>(<span class="st">"observations in column "</span>, col, <span class="st">": expected "</span>, expected_n[i],</span>
+<span id="cb16-11"><a></a>           <span class="st">", got "</span>, <span class="fu">nobs</span>(models[[i]])))</span>
+<span id="cb16-12"><a></a>}</span>
+<span id="cb16-13"><a></a>lines <span class="ot">&lt;-</span> <span class="fu">c</span>(lines, <span class="fu">paste</span>(<span class="st">"coefficients not shown in the table: expected 0, got"</span>,</span>
+<span id="cb16-14"><a></a>                        <span class="fu">length</span>(not_shown)))</span>
+<span id="cb16-15"><a></a><span class="fu">cat</span>(lines, <span class="at">sep =</span> <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>formula of column (1): Ozone ~ Temp
+observations in column (1): expected 116, got 116
+formula of column (2): Ozone ~ Temp + Wind
+observations in column (2): expected 116, got 116
+formula of column (3): Ozone ~ Temp + Wind + Solar.R
+observations in column (3): expected 111, got 111
+coefficients not shown in the table: expected 0, got 0</code></pre>
+</div>
+</div>
+<p>Every line matches. The last check compares each model’s own list of coefficients with the labels the table uses (<code>coef_labels</code>, from the table’s code), so neither list is typed twice. The student could only write “116, 116 and 111” by counting the complete days first, as on “Observations: what <code>lm()</code> drops without saying”.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="recommended-requests" class="title-slide slide level1 center">
+<h1>Recommended requests</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="requests-you-can-copy" class="slide level2">
+<h2>Requests you can copy</h2>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what <strong>you</strong> know: the models, the message, the observations you expect. Every table request ends with the table standard and then the closing instructions.</p>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Closing instructions</a></li><li><a href="#tabset-9-2">The table standard</a></li><li><a href="#tabset-9-3">Regression table</a></li><li><a href="#tabset-9-4">Same rows for every model</a></li><li><a href="#tabset-9-5">Summary statistics table</a></li><li><a href="#tabset-9-6">Explain code</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb18-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb18-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb18-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb18-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb18-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb18-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
+</div>
+<div id="tabset-9-2">
+<p>The same block as in lecture 08-1. Paste it into every table request, just before the closing instructions:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb19-1"><a></a>Every table must meet this standard:</span>
+<span id="cb19-2"><a></a>1. Column headers and row labels in plain words with units, such as</span>
+<span id="cb19-3"><a></a>   "Corn yield (bushels per acre)", never a column name such as</span>
+<span id="cb19-4"><a></a>   corn_yield.</span>
+<span id="cb19-5"><a></a>2. Categories in words, such as "Irrigated", never a code such as 1.</span>
+<span id="cb19-6"><a></a>3. Numbers rounded to what the message needs, with the same number of</span>
+<span id="cb19-7"><a></a>   decimals down each column.</span>
+<span id="cb19-8"><a></a>4. Thousands separators in large numbers, except in years.</span>
+<span id="cb19-9"><a></a>5. Percentages shown as percentages.</span>
+<span id="cb19-10"><a></a>6. Numbers right-aligned so that the digits line up; text left-aligned.</span>
+<span id="cb19-11"><a></a>7. Text no smaller than the document's body text.</span>
+<span id="cb19-12"><a></a>8. Fits the page width where it will appear, without scrolling.</span>
+<span id="cb19-13"><a></a>9. Rows in an order that serves the message (by value, or in time</span>
+<span id="cb19-14"><a></a>   order), not alphabetical unless the reader will search a long table.</span>
+<span id="cb19-15"><a></a>10. A title that says what the numbers are.</span>
+<span id="cb19-16"><a></a>11. A note giving the source of the data.</span>
+<span id="cb19-17"><a></a>12. A note saying how any computed column was computed.</span>
+<span id="cb19-18"><a></a>13. The number of observations behind each value, when it varies.</span>
+<span id="cb19-19"><a></a>14. Nothing the message does not need: no extra columns, no row</span>
+<span id="cb19-20"><a></a>    numbers, no heavy borders, no colours that only decorate.</span>
+<span id="cb19-21"><a></a>For regression tables, also:</span>
+<span id="cb19-22"><a></a>15. One column per model, with headers or a title saying what each</span>
+<span id="cb19-23"><a></a>    model explains.</span>
+<span id="cb19-24"><a></a>16. Standard errors in parentheses below each estimate, with their kind</span>
+<span id="cb19-25"><a></a>    stated in a note.</span>
+<span id="cb19-26"><a></a>17. Significance stars left out, or defined in a note and used the same</span>
+<span id="cb19-27"><a></a>    way in every table.</span>
+<span id="cb19-28"><a></a>18. The number of observations for every model.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-3">
+<div class="sourceCode" id="cb20"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb20-1"><a></a>In my R project, &lt;the table or file&gt; has one row per &lt;what one row</span>
+<span id="cb20-2"><a></a>is&gt;. The columns used: &lt;each column, what it means, its units, and</span>
+<span id="cb20-3"><a></a>whether it has missing values&gt;.</span>
+<span id="cb20-4"><a></a></span>
+<span id="cb20-5"><a></a>Estimate &lt;the kind of model, such as linear regressions&gt;, one per</span>
+<span id="cb20-6"><a></a>column, in this order: &lt;for each column, the outcome and the</span>
+<span id="cb20-7"><a></a>variables&gt;. The message is about &lt;the estimate the reader should look</span>
+<span id="cb20-8"><a></a>at, and the comparison across columns&gt;. Use &lt;the kind of standard</span>
+<span id="cb20-9"><a></a>errors&gt;. Show the rows &lt;the coefficients, in order&gt;, and at the bottom</span>
+<span id="cb20-10"><a></a>only &lt;the rows you want, such as the number of observations&gt;. Use</span>
+<span id="cb20-11"><a></a>modelsummary.</span>
+<span id="cb20-12"><a></a></span>
+<span id="cb20-13"><a></a>Check: each column's header next to its model's formula; the number of</span>
+<span id="cb20-14"><a></a>observations of each model (I expect &lt;the number for each model&gt;); and</span>
+<span id="cb20-15"><a></a>every coefficient of each model against the rows of the table.</span>
+<span id="cb20-16"><a></a></span>
+<span id="cb20-17"><a></a>&lt;the table standard&gt;</span>
+<span id="cb20-18"><a></a></span>
+<span id="cb20-19"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb20-20"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb20-21"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb20-22"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb20-23"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb20-24"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-4">
+<p>When the comparison across columns is the message and the models would otherwise use different rows:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb21-1"><a></a>Estimate every model in the table on the same rows: those with no</span>
+<span id="cb21-2"><a></a>missing value in any of &lt;the variables of the largest model&gt;. I expect</span>
+<span id="cb21-3"><a></a>&lt;number&gt; rows. Add a note to the table saying so, and print the number</span>
+<span id="cb21-4"><a></a>of observations of each model as a check.</span>
+<span id="cb21-5"><a></a></span>
+<span id="cb21-6"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb21-7"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb21-8"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb21-9"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb21-10"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb21-11"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-5">
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb22-1"><a></a>In my R project, &lt;the table or file&gt; has one row per &lt;what one row</span>
+<span id="cb22-2"><a></a>is&gt;. Make a table of summary statistics with one row per variable for</span>
+<span id="cb22-3"><a></a>&lt;the variables, each with its plain-word label and units&gt;, and the</span>
+<span id="cb22-4"><a></a>columns: number of observations, mean, standard deviation, minimum and</span>
+<span id="cb22-5"><a></a>maximum. Use modelsummary's datasummary(). Check the number of</span>
+<span id="cb22-6"><a></a>observations of each variable against &lt;the counts you expect&gt;.</span>
+<span id="cb22-7"><a></a></span>
+<span id="cb22-8"><a></a>&lt;the table standard&gt;</span>
+<span id="cb22-9"><a></a></span>
+<span id="cb22-10"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb22-11"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb22-12"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb22-13"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb22-14"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb22-15"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-6">
+<p>For code you did not write, or code you are not sure about:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a></a>Explain this R code to me. For each line, write one plain-English</span>
+<span id="cb23-2"><a></a>sentence. Then list:</span>
+<span id="cb23-3"><a></a>1. which model ends up in which column, with its formula</span>
+<span id="cb23-4"><a></a>2. any option that is ignored, misspelled, or drops rows or</span>
+<span id="cb23-5"><a></a>   coefficients without saying so</span>
+<span id="cb23-6"><a></a></span>
+<span id="cb23-7"><a></a>&lt;paste the code here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="summary" class="title-slide slide level1 center">
+<h1>Summary</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-must-understand-and-what-the-ai-can-write" class="slide level2">
+<h2>What you must understand, and what the AI can write</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You need to understand</th>
+<th>The AI can write</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Which models answer your question, and in which order to show them</td>
+<td><code>lm()</code> and the <code>list()</code> of models</td>
+</tr>
+<tr class="even">
+<td>Which estimate the message is about</td>
+<td><code>coef_map</code>, labels and order</td>
+</tr>
+<tr class="odd">
+<td>Which standard errors the models need</td>
+<td><code>vcov =</code></td>
+</tr>
+<tr class="even">
+<td>How many observations each model should have, from the missing values in the data</td>
+<td>The check that prints them</td>
+</tr>
+<tr class="odd">
+<td>What the reader needs: labels with units, observations, notes</td>
+<td><code>gof_map</code>, <code>title</code>, <code>notes</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every regression table:</strong> write down the models and the number of observations you expect, then ask for the table with the table standard and the checks, written into your <code>.qmd</code>. Render it, and check that every header matches its formula, every count matches, and every coefficient is accounted for.</p>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="../index.html">back to the lecture slides</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>

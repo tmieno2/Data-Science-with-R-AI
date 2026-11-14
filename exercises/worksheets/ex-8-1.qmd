@@ -1,0 +1,331 @@
+---
+title: "Ex-8-1 worksheet: Communicating with Tables"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch8-practice/analysis/ex-8-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-8-1. Try each task before you look.
+
+**Every task follows the way of working with AI from the lectures:**
+
+1. **Look** at the data before anyone writes code.
+2. **Predict** what a correct table looks like, and write it down here.
+3. **Ask.** Start from the recommended request in the task. Replace every `<...>` with what you decided. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the table there.
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+**The table standard.** Every table request in this worksheet ends with this block, just before the closing instructions. It is the block from the lecture's Recommended requests:
+
+```text
+Every table must meet this standard:
+1. Column headers and row labels in plain words with units, such as
+   "Corn yield (bushels per acre)", never a column name such as
+   corn_yield.
+2. Categories in words, such as "Irrigated", never a code such as 1.
+3. Numbers rounded to what the message needs, with the same number of
+   decimals down each column.
+4. Thousands separators in large numbers, except in years.
+5. Percentages shown as percentages.
+6. Numbers right-aligned so that the digits line up; text left-aligned.
+7. Text no smaller than the document's body text.
+8. Fits the page width where it will appear, without scrolling.
+9. Rows in an order that serves the message (by value, or in time
+   order), not alphabetical unless the reader will search a long table.
+10. A title that says what the numbers are.
+11. A note giving the source of the data.
+12. A note saying how any computed column was computed.
+13. The number of observations behind each value, when it varies.
+14. Nothing the message does not need: no extra columns, no row
+    numbers, no heavy borders, no colours that only decorate.
+For regression tables, also:
+15. One column per model, with headers or a title saying what each
+    model explains.
+16. Standard errors in parentheses below each estimate, with their kind
+    stated in a note.
+17. Significance stars left out, or defined in a note and used the same
+    way in every table.
+18. The number of observations for every model.
+```
+
+# The data
+
+`data/8-1-county-crops.csv` has one row per county and year, for counties in Colorado, Kansas and Nebraska, 2000 to 2018. Source: USDA NASS county yields and the US Drought Monitor.
+
+| Column | What it is |
+|---|---|
+| `state_name`, `county_code`, `county_name` | The county |
+| `year` | The year |
+| `corn_yield` | Corn yield (bushels per acre) |
+| `soy_yield` | Soybean yield (bushels per acre) |
+| `weeks_severe` | Weeks from May to September in severe drought (US Drought Monitor category D2) |
+| `weeks_extreme` | Weeks from May to September in extreme or exceptional drought (categories D3 and D4) |
+
+In this worksheet, a county-year **with extreme drought** is one with `weeks_extreme` of 1 or more.
+
+# Task 1: Look and predict, no AI
+
+Open `data/8-1-county-crops.csv` in a plain text editor or a spreadsheet program.
+
+**A. How many data rows does the file have?**
+
+Your answer:
+
+**B. What does one row represent?**
+
+Your answer:
+
+**C. The question this worksheet answers: were corn yields lower in county-years with extreme drought, and by how much, in each state? Who might read the answer, and what do they already know?**
+
+Your answer:
+
+# Task 2: The message and the layout, no AI
+
+**A. Write the message you expect the table to support, as one sentence.** You do not know the numbers yet; leave a blank for them, for example "Corn yields were about ___ bushels per acre lower ...".
+
+Your answer:
+
+**B. Decide the display table.** What is one row of the table? Which columns, in which order? Which column holds the comparison the message is about? In which order should the rows go?
+
+Your answer:
+
+**C. What should the observation counts in your table add up to?**
+
+Your answer:
+
+# Task 3: Ask badly, on purpose
+
+In a chat window, send the AI only: `Make a table of corn yield by state and drought from 8-1-county-crops.csv.`
+
+**Code it gave me** (this chunk does not run, so a broken answer does not stop the file from rendering):
+
+```{r}
+#| label: task-3
+#| eval: false
+```
+
+Run that code in the Console, with the path changed if needed, and look at the table.
+
+**Which items of the table standard does it fail? Which of your decisions from Task 2 did the AI have to guess?**
+
+Your answer:
+
+# Task 4: Ask properly
+
+**My request to the AI.** Fill in every `<...>` from Tasks 1 and 2, then send it:
+
+```text
+In my R project, data/8-1-county-crops.csv has one row per <...>.
+The table uses the columns <...>, which mean <...> and are measured in
+<...>.
+
+The message: <...>.
+The reader: <...>.
+
+Make a finished table with one row per <...>, ordered by <...>, with the
+columns <...>. A county-year with extreme drought is one with
+weeks_extreme of 1 or more. Use flextable. Check that the table has
+<...> rows, and that the observation counts add up to <...>.
+
+Every table must meet this standard:
+1. Column headers and row labels in plain words with units, such as
+   "Corn yield (bushels per acre)", never a column name such as
+   corn_yield.
+2. Categories in words, such as "Irrigated", never a code such as 1.
+3. Numbers rounded to what the message needs, with the same number of
+   decimals down each column.
+4. Thousands separators in large numbers, except in years.
+5. Percentages shown as percentages.
+6. Numbers right-aligned so that the digits line up; text left-aligned.
+7. Text no smaller than the document's body text.
+8. Fits the page width where it will appear, without scrolling.
+9. Rows in an order that serves the message (by value, or in time
+   order), not alphabetical unless the reader will search a long table.
+10. A title that says what the numbers are.
+11. A note giving the source of the data.
+12. A note saying how any computed column was computed.
+13. The number of observations behind each value, when it varies.
+14. Nothing the message does not need: no extra columns, no row
+    numbers, no heavy borders, no colours that only decorate.
+For regression tables, also:
+15. One column per model, with headers or a title saying what each
+    model explains.
+16. Standard errors in parentheses below each estimate, with their kind
+    stated in a note.
+17. Significance stars left out, or defined in a note and used the same
+    way in every table.
+18. The number of observations for every model.
+
+Put the code in my Quarto document analysis/ex-8-1.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML.** Did both checks pass? Go through the table standard item by item: which items does the table still fail? Ask the AI to fix them, and write what you asked here.
+
+Your answer:
+
+**Now fill in the blanks of your message from Task 2A with the numbers in the table.**
+
+Your answer:
+
+# Task 5: Two layouts
+
+**Prediction.** Which layout will make your message easier to read: one row per state, or one row per drought status (with and without extreme drought) and one column per state? Why?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+In my R project, data/8-1-county-crops.csv has one row per county and
+year. The message: <...>. The reader: <...>.
+
+Make two different layouts of a finished table for this message, one under the
+other: one row per state, and one row per drought status (with and
+without extreme drought) with one column per state. A county-year with
+extreme drought is one with weeks_extreme of 1 or more. Under each,
+write one sentence saying which comparison it makes easy for the
+reader. Do not choose for me.
+
+Every table must meet this standard:
+1. Column headers and row labels in plain words with units, such as
+   "Corn yield (bushels per acre)", never a column name such as
+   corn_yield.
+2. Categories in words, such as "Irrigated", never a code such as 1.
+3. Numbers rounded to what the message needs, with the same number of
+   decimals down each column.
+4. Thousands separators in large numbers, except in years.
+5. Percentages shown as percentages.
+6. Numbers right-aligned so that the digits line up; text left-aligned.
+7. Text no smaller than the document's body text.
+8. Fits the page width where it will appear, without scrolling.
+9. Rows in an order that serves the message (by value, or in time
+   order), not alphabetical unless the reader will search a long table.
+10. A title that says what the numbers are.
+11. A note giving the source of the data.
+12. A note saying how any computed column was computed.
+13. The number of observations behind each value, when it varies.
+14. Nothing the message does not need: no extra columns, no row
+    numbers, no heavy borders, no colours that only decorate.
+For regression tables, also:
+15. One column per model, with headers or a title saying what each
+    model explains.
+16. Standard errors in parentheses below each estimate, with their kind
+    stated in a note.
+17. Significance stars left out, or defined in a note and used the same
+    way in every table.
+18. The number of observations for every model.
+
+Put the code in my Quarto document analysis/ex-8-1.qmd, under the
+heading "Task 5", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Which layout do you choose, and why? Was your prediction right?**
+
+Your answer:
+
+# Task 6: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Sam asked an AI for "a table of corn yield with and without extreme drought, by state" and kept this:
+
+```{r}
+#| label: task-6
+#| eval: false
+crops |>
+  mutate(drought = weeks_extreme >= 1) |>
+  group_by(state_name, drought) |>
+  summarise(yield = mean(corn_yield), .groups = "drop") |>
+  pivot_wider(names_from = drought, values_from = yield) |>
+  flextable() |>
+  set_header_labels(
+    state_name = "State",
+    `FALSE` = "Extreme drought",
+    `TRUE` = "No extreme drought"
+  ) |>
+  colformat_double(digits = 0)
+```
+
+**A. In plain words, what does each step do? Which steps decide the numbers, and which only change how the table looks?**
+
+Your answer:
+
+**B. `pivot_wider()` makes one column for each value of `drought`, named `FALSE` and `TRUE`. Which of those columns holds the county-years with extreme drought?**
+
+Your answer:
+
+**C. Is each header right? If not, what would a reader conclude from Sam's table?**
+
+Your answer:
+
+**D. Name two checks that would have caught the problem, and why each would.**
+
+Your answer:
+
+**E. Now run Sam's code below (it reads the data first), render, and look at the table. Does it show what you expected?**
+
+```{r}
+#| label: task-6-run
+#| message: false
+library(dplyr)
+library(tidyr)
+library(flextable)
+crops <- readr::read_csv(here::here("data", "8-1-county-crops.csv"), show_col_types = FALSE)
+crops |>
+  mutate(drought = weeks_extreme >= 1) |>
+  group_by(state_name, drought) |>
+  summarise(yield = mean(corn_yield), .groups = "drop") |>
+  pivot_wider(names_from = drought, values_from = yield) |>
+  flextable() |>
+  set_header_labels(
+    state_name = "State",
+    `FALSE` = "Extreme drought",
+    `TRUE` = "No extreme drought"
+  ) |>
+  colformat_double(digits = 0)
+```
+
+Your answer:
+
+# Wrap-up
+
+**A. Which decision in Task 2 changed the table the most, compared with what came back in Task 3?**
+
+Your answer:
+
+**B. Which check would you now ask for in every table request, and why?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

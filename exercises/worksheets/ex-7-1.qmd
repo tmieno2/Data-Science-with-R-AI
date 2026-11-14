@@ -1,0 +1,354 @@
+---
+title: "Ex-7-1 worksheet: Dates and Text"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch7-practice/analysis/ex-7-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-7-1. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from the lecture slide "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the data before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+# The data
+
+`data/7-1-grain-deliveries.csv` is the harvest log of a grain elevator (a business that buys grain from farms and stores it). Every truck that delivers grain is weighed at one of two sites, North or South, and gets one row. The elevator's manager told you:
+
++ The log covers the 2025 harvest, from 1 September to 30 November 2025.
++ The elevator takes three crops: corn, soybeans and popcorn.
++ It has 8 member farms: Miller Farms, Schmidt Bros., Hansen Family Farm, Ortiz Ag, Prairie View LLC, Kowalski Grain, Two Rivers Farm and Lindgren Acres.
+
+These three facts are what you check the results against.
+
+# Task 1: Look and predict, no AI
+
+Open `data/7-1-grain-deliveries.csv` in a plain text editor (not Excel; Excel converts dates as it opens the file, so you would not see how they are written).
+
+**A. How many lines does the file have? How many of them are data rows?**
+
+Your answer:
+
+**B. How are the dates written? Which number comes first: the year, the month or the day? Look at the first lines, and at some lines further down.**
+
+Your answer:
+
+**C. Write down the different spellings you can see of the crops, and of the farm names.**
+
+Your answer:
+
+# Task 2: Dates as text
+
+Before anyone converts the dates, see what happens when they are used as they are.
+
+**Prediction.** If the `date` column is left as text, what will be the smallest and the largest value? Will they be 1 September and 30 November?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+In my R project, data/7-1-grain-deliveries.csv is a csv file with one
+row per truckload. Read it into a table called deliveries using the
+tidyverse, leaving the column date as text. Then print the smallest and
+largest value of date as it is, and the first 5 rows after sorting the
+table by date.
+
+Put the code in my Quarto document analysis/ex-7-1.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: what are the smallest and largest values, and why are they not the first and last day of the harvest?**
+
+Your answer:
+
+# Task 3: Convert the dates
+
+## 3a. Convert
+
+**Prediction** (from Task 1 and the manager): how many dates should fail to parse, what should the first and last date be, and which months should have rows?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Task 1:
+
+```text
+The table deliveries has a text column date, written <the order of
+year, month and day>, for example <one value from the column>. The
+data should cover <first date> to <last date>. Convert it into a date
+column using the tidyverse, keeping the original text in a column
+date_text.
+
+Check: the number of dates that failed to parse (I expect <number>),
+the first and last date, the number of rows in each month, and 5 rows
+showing the text beside the parsed date.
+
+Put the code in my Quarto document analysis/ex-7-1.qmd, under the
+heading "3a. Convert", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**Why each check.** One line per check: what could go wrong that this check would reveal?
+
+1.
+2.
+3.
+4.
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3a
+```
+
+**Reading the HTML: did every check match my prediction? Which did not?**
+
+Your answer:
+
+## 3b. Find out why
+
+If any check failed, do not change the code yet. Find out which rows are affected. Think about what in the file could explain it: which column might tell you where a row came from?
+
+**My request to the AI:**
+
+```text
+Using the table deliveries, count the dates that failed to parse, and
+the dates outside <first date> to <last date>, separately for each
+value of <column that might explain it>. Then show 5 of the affected
+rows with date_text beside the parsed date.
+
+Put the code in my Quarto document analysis/ex-7-1.qmd, under the
+heading "3b. Find out why", as R code chunks. Above each chunk, write
+one plain-English sentence saying what it does and why. Build every
+path with here::here(); no setwd(), no absolute paths. Print each check
+on its own line as "name of check: expected X, got Y". Render the
+document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3b
+```
+
+**What explains the failures? Look at the affected rows' `date_text` and say how those dates are written.**
+
+Your answer:
+
+## 3c. Convert correctly
+
+**Write your own request** this time. Say how the dates are written for each group of rows, and ask for the same four checks as in 3a, with what you expect. End it with the closing instructions (heading "3c. Convert correctly").
+
+My request:
+
+```text
+
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3c
+```
+
+**Reading the HTML: does every check now match?**
+
+Your answer:
+
+# Task 4: Bushels per month
+
+**Prediction.** Which months should appear, and what must the monthly totals add up to?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Using the table deliveries with the dates from 3c, add up bushels in
+each month, with the months in calendar order and written as words.
+
+Check: the months that appear (I expect <months>), and the sum of the
+monthly totals against the total of the bushels column (I expect them
+to be equal).
+
+Put the code in my Quarto document analysis/ex-7-1.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: did both checks pass?**
+
+Your answer:
+
+# Task 5: Crop names
+
+## 5a. Clean
+
+**Prediction.** How many distinct values should there be after cleaning? (The manager told you.)
+
+Your answer:
+
+**My request to the AI.** Fill in the blanks from the spellings you saw in Task 1. The request prints every spelling first, so the HTML shows any you missed:
+
+```text
+In the table deliveries, the column crop holds the crop of each
+truckload. First print every distinct value of crop with the number of
+rows that have it, most common first.
+
+I looked at its distinct values and found these differences in
+spelling: <what differs>. Make a new column crop_clean in which each
+crop is written one way, <the way you want>. Keep the original column.
+
+Check: the distinct values with their counts before and after (I
+expect <number> after), the number of rows before and after, and every
+original spelling next to what it became.
+
+Put the code in my Quarto document analysis/ex-7-1.qmd, under the
+heading "5a. Clean", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5a
+```
+
+**How many spellings were there before? How many distinct values after cleaning? If not what you expected, which spelling was left, and what would you ask the AI to change?**
+
+Your answer:
+
+## 5b. Total corn
+
+**Prediction.** Which values of `crop_clean` should count as corn?
+
+Your answer:
+
+First send this short request, as many people would:
+
+```text
+Using the table deliveries, add up bushels for the rows where crop_clean
+contains "corn". Also print every distinct value of crop_clean that
+matched.
+
+Put the code in my Quarto document analysis/ex-7-1.qmd, under the
+heading "5b. Total corn", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5b
+```
+
+**Reading the HTML: which values matched? Is the total right? If not, write the request that would have been right, and its result.**
+
+Your answer:
+
+# Task 6: Farm names (if you have time)
+
+**Prediction.** How many distinct farm names should there be after cleaning?
+
+Your answer:
+
+**My request to the AI.** Write it yourself, starting from the request in 5a. Ask for the distinct values before and after, with what you expect, and end with the closing instructions (heading "Task 6").
+
+```text
+
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-6
+```
+
+**Reading the HTML: did you get the number you expected? If not, which names are still apart, and why did the cleaning not merge them?**
+
+Your answer:
+
+# Task 7: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Sam asked an AI for "the corn delivered in each month" and kept this:
+
+```{r}
+#| label: task-7
+#| eval: false
+d <- read.csv("data/7-1-grain-deliveries.csv")
+d$date <- as.Date(d$date, format = "%m/%d/%Y")
+corn <- d[grepl("corn", tolower(d$crop)), ]
+tapply(corn$bushels, months(corn$date), sum)
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. Line 1 works when Sam runs it at the Console, but fails when this worksheet is rendered. Why?**
+
+Your answer:
+
+**C. Which problems give wrong results without an error? (There are at least three.)**
+
+Your answer:
+
+**D. For each problem, what check would have caught it, and what would it have printed?**
+
+Your answer:
+
+# Wrap-up
+
+**A. What did you see in Task 1 that told you how the South site writes dates? Did you see it before Task 3 told you something was wrong?**
+
+Your answer:
+
+**B. Which check caught a real problem today? Would you have noticed the problem without it?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

@@ -1,0 +1,188 @@
+---
+title: "Ex-9-3: Communicating with Maps, with an AI Assistant"
+abstract: "Spatial Data"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/9-3-ne-counties.gpkg
+  - data/9-3-ne-corn-yield.csv
+  - worksheets/ex-9-3.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+suppressMessages({
+  library(sf)
+  library(dplyr)
+  library(readr)
+  library(ggplot2)
+})
+counties <- st_read("data/9-3-ne-counties.gpkg", quiet = TRUE)
+yield <- read_csv("data/9-3-ne-corn-yield.csv", show_col_types = FALSE)
+n_rows <- nrow(yield)
+yrs <- range(yield$year)
+n_codes <- n_distinct(yield$county_code)
+code_type <- class(yield$county_code)
+
+# Each county's 2002 yield against its average over the other years
+dev <- yield |>
+  group_by(county_code) |>
+  mutate(avg = mean(corn_yield[year != 2002]), n_years = n()) |>
+  ungroup() |>
+  filter(year == 2002) |>
+  mutate(pct = 100 * (corn_yield - avg) / avg)
+
+change_labels <- c("Fell more than 15%", "Fell 10 to 15%", "Fell 5 to 10%", "Fell 1 to 5%",
+                   "Within 1%", "Rose more than 1%")
+brbg <- scales::brewer_pal(palette = "BrBG")(9)
+change_colours <- c(setNames(brbg[c(1:5, 7)], change_labels), "No data" = "grey55")
+
+map_table <- counties |>
+  left_join(dev, by = c("countyfp" = "county_code"))
+n_drawn <- nrow(map_table)
+n_dup <- sum(duplicated(map_table$countyfp))
+n_value <- sum(!is.na(map_table$pct))
+n_nodata <- sum(is.na(map_table$pct))
+missing_names <- sort(map_table$name[is.na(map_table$pct)])
+pct_rng <- round(range(dev$pct), 1)
+n_below <- sum(dev$pct < 0)
+lowest <- dev |> arrange(pct) |> slice(1:5)
+highest <- dev |> arrange(desc(pct)) |> slice(1:5)
+
+centroid_lon <- st_coordinates(st_centroid(st_geometry(counties)))[, 1]
+lon_tab <- tibble(countyfp = counties$countyfp, lon = centroid_lon)
+west_east <- dev |>
+  left_join(lon_tab, by = c("county_code" = "countyfp")) |>
+  mutate(part = ifelse(lon < -100, "west", "east")) |>
+  group_by(part) |>
+  summarise(pct = round(mean(pct), 1), n = n())
+w <- west_east$pct[west_east$part == "west"]
+e <- west_east$pct[west_east$part == "east"]
+
+raw_rng <- range(dev$corn_yield)
+```
+
+This is an in-class exercise. Before class, work through the lecture **09-3: Communicating with Maps** (and lecture 04-1 on figures, whose figure standard you will need). In class, you work through the worksheet with an AI assistant drawing the maps. Your job is everything the AI cannot do: deciding the message and the reader, choosing among designs, and checking that the map shows every place it should.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-9-3.qmd](worksheets/ex-9-3.qmd), and the data files [9-3-ne-counties.gpkg](data/9-3-ne-counties.gpkg) and [9-3-ne-corn-yield.csv](data/9-3-ne-corn-yield.csv).
+2. Use the `ch9-practice` R Project from exercise 9-1, or make one: a folder with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy the two data files into `ch9-practice/data`, and the worksheet into `ch9-practice/analysis`.
+4. Have your copy of the **figure standard** (lecture 04-1) and the **map standard** (lecture 09-3) open; you will paste both into requests.
+5. Ask the AI to install the `sf` and `tidyverse` packages if you have not already.
+6. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch9-practice` and nothing longer.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task. For the design questions there is rarely one right answer; the answers explain which choices serve the message and why.
+
+## Task 1: Look and predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. One county in one year: county code, county name, year, corn yield in bushels per acre. `r n_rows` rows, years `r yrs[1]` to `r yrs[2]`.
+
+B. The county codes have leading zeros (`001`), so they must stay text to match `countyfp` in the county layer. (Here `read_csv()` keeps them as text, type `r code_type`; `read.csv()` would not.)
+
+C. Nebraska has 93 counties, so 7 years of every county would be 651 rows. There are `r n_rows`, so some counties or years are missing. Only `r n_codes` different county codes appear at all.
+
+D. A drought year should show yields below each county's usual level. A raw 2002 yield cannot show that on its own: irrigated eastern and central counties have higher yields every year.
+:::
+
+## Task 2: Build the table the map is drawn from
+
+::: {.callout-note collapse="true" title="What you should find"}
+| Check | Expected | Got |
+|---|---|---|
+| places drawn | 93 | `r n_drawn` |
+| places drawn more than once | 0 | `r n_dup` |
+| places with a value | your prediction | `r n_value` |
+| places without one (No data) | your prediction | `r n_nodata` |
+
+**The discovery.** `r n_nodata` counties have no 2002 yield: `r paste(missing_names, collapse = ", ")`. Most of them sit together in the south-east corner of the state, around Lincoln and Omaha. A map drawn from the yield table alone would show a state with its south-east corner cut off, and a reader could take that for something about the drought.
+
+Of the `r n_value` counties with a value, `r n_below` were below their own average over the other years, 2000, 2001 and 2003 to 2006. The differences run from `r pct_rng[1]`% to `r pct_rng[2]`%.
+
+**Which side of the join comes first matters.** Starting from the county layer, `left_join(counties, yield_2002)`, keeps all 93 counties and gives the `r n_nodata` without a value `NA`. Starting from the yield table, `left_join(yield_2002, counties)`, keeps only the `r n_value` counties in the table, and the result is an ordinary table rather than a layer: `geom_sf()` then stops with "`stat_sf()` requires the following missing aesthetics: geometry".
+:::
+
+## Task 3: Message, designs, choice
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+**A message the data supports:** "In 2002, corn yields fell below normal in almost every county, and furthest in the west." Counties whose centre lies west of 100°W averaged `r w`% against `r e`% in the east. Your sentence may differ; it must be something the table supports and be about where.
+
+**The designs, and what each makes easy to see:**
+
+1. **Raw 2002 yield, one hue light to dark.** Shows where yields are high (`r raw_rng[1]` to `r raw_rng[2]` bushels per acre), which mostly reflects irrigation and soil, not the drought. It does not serve this message.
+2. **Percent difference from normal, one hue light to dark.** Shows where yields fell most. Good for "furthest in the west", but a reader cannot tell which counties were above normal.
+3. **Percent difference from normal, two hues diverging from 0.** Shows above and below normal, with white at no change. Almost every county is on the "below" side, which is itself the first half of the message. Usually the best fit.
+
+A choice of 2 or 3, justified in terms of the message, is a good answer. A choice of 1 needs a different message.
+
+Design 3, with the counties without data named, looks like this:
+
+```{r}
+#| label: ref-map-93
+#| echo: false
+#| fig-width: 9
+#| fig-height: 5
+map_table |>
+  mutate(
+    cls = as.character(cut(pct, c(-Inf, -15, -10, -5, -1, 1, Inf), labels = change_labels)),
+    cls = factor(ifelse(is.na(pct), "No data", cls), levels = c(change_labels, "No data"))
+  ) |>
+  ggplot() +
+  geom_sf(aes(fill = cls), colour = "white", linewidth = 0.2) +
+  scale_fill_manual(
+    values = change_colours,
+    name = "2002 corn yield against the county's other years", drop = FALSE
+  ) +
+  labs(title = "In 2002, corn yields fell below normal almost everywhere,\nand furthest in the west") +
+  guides(fill = guide_legend(nrow = 2, title.position = "top")) +
+  theme_void(base_size = 13) +
+  theme(legend.position = "bottom")
+```
+
+The classes are not symmetric around zero, because almost every county fell and none rose by more than 3%: symmetric classes would leave the "rose" colours almost unused and squeeze every fall into two shades. The middle is still "Within 1%", in white, the browns and the blue-green come from the two ends of one diverging palette, and the no-data counties are a darker grey so they cannot be read as "no change".
+
+Whatever the design, every county without data should be in a grey the scale does not use (a darker grey on a diverging scale) and labelled "No data". If the AI left them out, the map standard was not followed.
+:::
+
+## Task 4: Critique and improve a map
+
+::: {.callout-note collapse="true" title="What you should find"}
+**What is wrong, by the checklist and the standards:**
+
+1. It maps the raw yield, which does not show the drought (the message).
+2. `inner_join()` keeps only counties with a 2002 yield, so `r n_nodata` counties are missing and the south-east corner is cut off (map standard item 4).
+3. A rainbow scale for an amount: no order a reader can see, and hard for colour-blind readers (map standard item 3).
+4. Longitude and latitude axes and a grey background (map standard item 5).
+5. The legend is titled `corn_yield`, a column name (figure standard item 1).
+6. Dark default borders compete with the fill (map standard item 6).
+7. No title stating the finding.
+
+The improved map should start from all 93 counties with `left_join()` (or a join from the county layer), show the percent difference with a diverging scale centred at 0, name the "No data" counties, and have no axes. A version with all of these, side by side with the original, is what the request asks for.
+:::
+
+## Task 5: Check the map against its data
+
+::: {.callout-note collapse="true" title="What you should find"}
+The counts are those of Task 2: `r n_drawn` drawn, `r n_dup` drawn more than once, `r n_value` with a value, `r n_nodata` without.
+
+Lowest five (furthest below normal): `r paste0(lowest$county_name, " (", round(lowest$pct, 1), "%)", collapse = ", ")`. On the map they should be the darkest "below normal" colour; three of them are in the west.
+
+Highest five: `r paste0(highest$county_name, " (", round(highest$pct, 1), "%)", collapse = ", ")`. `r n_value - n_below` counties are above 0. On a diverging map none of them should be brown: the ones above 1% are on the "rose" side, the rest in the white middle.
+
+If a county named here has a colour that does not match its value, the join went wrong: check that `countyfp` and `county_code` are both text with their leading zeros.
+:::

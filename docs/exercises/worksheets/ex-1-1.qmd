@@ -1,0 +1,244 @@
+---
+title: "Ex-1-1 worksheet: Reading R Code"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch1-practice/analysis/ex-1-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-1-1. Try each task before you look.
+
+This file is a **Quarto document**: text, with R code in grey boxes called **code chunks**. Clicking **Render** at the top of the editor runs every chunk from the top, in a fresh R session, and makes an HTML page showing the text, the code and its results. Chapter 2 explains Quarto properly; today you only need the Render button.
+
+If Render stops and no page opens, the error message is in RStudio's **Background Jobs** tab, next to the Console. Copy it, with the chunk it names, into the "Explain an error" request.
+
+**Today's work is reading code, not writing it.** For most tasks you predict first, then run, then compare. When you ask the AI for code (Task 6), the way of working is:
+
+1. **Predict** what a correct result looks like, and write it down here.
+2. **Ask.** Start from the request in the task. Replace every `<...>` with what you know. Send it to your AI assistant.
+3. **Render and read.** The AI's code goes into this file under the task's heading. Render this file, open the HTML, and judge the result there: does every "expected, got" line match?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you run anything or ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+# Task 1: Predict, then run, no AI
+
+For each line below, write what you think R will print, **before** running anything. Then copy the lines one at a time into the Console, run them, and mark each prediction right or wrong.
+
+```{r}
+#| label: task-1
+#| eval: false
+x <- 5
+x <- x + 2
+x                                  # A
+v <- c(10, 20, 30)
+v * 2                              # B
+w <- c(3, "4", 5)
+w                                  # C
+mean(c(2, NA, 4))                  # D
+mean(c(2, NA, 4), na.rm = TRUE)    # E
+round(10 / 3, digits = 1)          # F
+seq(2, 10, by = 4)                 # G
+v[2]                               # H
+```
+
+| Line | My prediction | What R printed | Right? |
+|---|---|---|---|
+| A | | | |
+| B | | | |
+| C | | | |
+| D | | | |
+| E | | | |
+| F | | | |
+| G | | | |
+| H | | | |
+
+**For any prediction that was wrong: what did you assume that R does differently?**
+
+Your answer:
+
+# Task 2: Read a help page
+
+R comes with a table called `airquality`. Run `?airquality` in the Console and answer from the help page alone.
+
+**A. What does one row hold?**
+
+Your answer:
+
+**B. How many rows and columns does the table have?**
+
+Your answer:
+
+**C. Which months does it cover, and in which year?**
+
+Your answer:
+
+**D. What does the `Ozone` column measure, and in what unit?**
+
+Your answer:
+
+Now run `?rep` and read **Usage** and **Arguments**.
+
+**E. What does the `times` input do? What does `each` do? Predict what these two lines print, then run them to check.**
+
+```{r}
+#| label: task-2
+#| eval: false
+rep(c(1, 2), times = 3)
+rep(c(1, 2), each = 3)
+```
+
+Your answer:
+
+# Task 3: Read the errors
+
+Each line in the chunk below fails. Render this file, find the chunk's output in the HTML, and read the errors there.
+
+```{r}
+#| label: task-3
+#| error: true
+mean(Airquality$Ozone)
+n_rows <- nrows(airquality)
+day_count <- "153"
+day_count + 1
+```
+
+**A. For each error, copy the message and say what it means in your own words (the table on the lecture slide "Errors, and failures without one" will help).**
+
+Your answer:
+
+**B. Fix each line so it runs. Write the fixed lines here, and run them in the Console:**
+
+```{r}
+#| label: task-3-fixed
+#| eval: false
+```
+
+**C. Send the "Explain an error" request from the lecture, with the error messages copied from the HTML. In its last paragraph, use `analysis/ex-1-1.qmd` and the heading "Task 3". Compare the AI's explanation with yours. Did it say anything you missed?**
+
+Your answer:
+
+# Task 4: Installing versus loading
+
+1. In the Console, run `library(dplyr)`, then `glimpse(airquality)`. `library(dplyr)` prints a few lines about "masked" objects; that is normal. `glimpse()` should print one line per column.
+2. Now render this file. The chunk below holds the same `glimpse()` line.
+
+```{r}
+#| label: task-4
+#| error: true
+glimpse(airquality)
+```
+
+**A. What does the HTML show under this chunk? Why did the same line work in the Console but not in the render?**
+
+Your answer:
+
+**B. Add one line to the chunk so it works when rendered, and render again. Which line, and where did you put it?**
+
+Your answer:
+
+**C. Why should `install.packages()` never go into this file?**
+
+Your answer:
+
+# Task 5: Take apart code an AI wrote
+
+A student asked an AI for the average ozone on hot days, and got the code below. **Without running it**, answer A to E.
+
+```{r}
+#| label: task-5
+#| eval: false
+library(dplyr)
+hot_days <- filter(airquality, Temp > 90)
+n_hot <- nrow(hot_days)
+avg_ozone <- round(mean(hot_days$Ozone, na.rm = TRUE), digits = 1)
+```
+
+**A. Which objects does this code create? For each, what kind of object is it (a table, a single number)?**
+
+Your answer:
+
+**B. List every function used, and say whether it comes from dplyr or is built into R.**
+
+Your answer:
+
+**C. Read line 4 from the inside out, in plain words.**
+
+Your answer:
+
+**D. What does `na.rm = TRUE` hide here? What would you want printed next to the average?**
+
+Your answer:
+
+**E. Send this request, and compare the AI's answer with yours. What did it find that you missed, or miss that you found?**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. any line that could give a wrong result without an error, and what
+   check would reveal it
+
+library(dplyr)
+hot_days <- filter(airquality, Temp > 90)
+n_hot <- nrow(hot_days)
+avg_ozone <- round(mean(hot_days$Ozone, na.rm = TRUE), digits = 1)
+```
+
+Your answer:
+
+# Task 6: Ask for code, with checks
+
+You want the average ozone in June.
+
+**Prediction.** From the help page (Task 2) and the calendar: how many rows should June have? Do you expect any missing values?
+
+Your answer:
+
+**My request to the AI.** Fill in the blank, then send it:
+
+```text
+R comes with a table called airquality; its help page is ?airquality.
+For the days in June (Month is 6), compute the average of Ozone,
+leaving out missing values. I expect <number> days in June. I do not
+know how many Ozone values are missing; for that check and for the
+average, print only "got Y". Print the
+number of days in June, the number of those days with Ozone missing,
+the number of days the average uses, and the average.
+
+Put the code in my Quarto document analysis/ex-1-1.qmd, under the
+heading "Task 6", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-6
+```
+
+**Reading the HTML: did every check match your prediction? Is the average a fair summary of ozone in June? What would you say next to it if you reported it?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which of your predictions in Task 1 was wrong, and what did it teach you about how R works?**
+
+Your answer:
+
+**B. In Task 5, the code ran without an error. What did you have to know to judge whether its answer was useful?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known in Task 6 unless you told it.**
+
+Your answer:

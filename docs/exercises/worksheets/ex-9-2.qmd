@@ -1,0 +1,247 @@
+---
+title: "Ex-9-2 worksheet: Raster Data"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch9-practice/analysis/ex-9-2.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-9-2. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from lecture 02-1, "Working with AI on your own research"; today is practice for using it in your own projects.
+
+1. **Look** at the files and their documentation before anyone writes code.
+2. **Predict** what a correct result looks like, and write it down here.
+3. **Ask.** Start from the request in the task. Replace every `<...>` with what you found by looking. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the result there: does every "expected, got" line match, and does every map look right?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+# Task 1: Read the documentation, no AI
+
+Open `data/9-2-README.txt` in a plain text editor.
+
+**A. What variable does the raster hold, and what is each layer?**
+
+Your answer:
+
+**B. In what units and scale are the values stored?**
+
+Your answer:
+
+**C. Which value means "no data"?**
+
+Your answer:
+
+**D. What is the CRS, and in what units will the extent be?**
+
+Your answer:
+
+**E. What range of temperatures, in °C, would you believe for daytime highs in Colorado in early June? What range of stored values does that mean?**
+
+Your answer:
+
+# Task 2: Look at the raster
+
+**Prediction** (from Task 1): number of layers and their names, the units of the extent, the smallest and largest stored value, the number of missing cells before anything is declared.
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Without changing any value, read data/9-2-tmax-colorado.tif and print
+what R reports about it: rows, columns, layers, resolution, extent, CRS,
+the name of each layer, and the smallest and largest value of each
+layer. Also print the number of missing cells in each layer.
+
+Put the code in my Quarto document analysis/ex-9-2.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Reading the HTML: which numbers agree with the README, and which show that something still has to be done before the values can be used?**
+
+Your answer:
+
+# Task 3: Declare the no-data value and convert
+
+**Prediction:** after the fix, the smallest and largest value of each layer in °C, and roughly what share of cells will be missing.
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>` from Task 1:
+
+```text
+In my R project, data/9-2-tmax-colorado.tif is a GeoTIFF file of <...>
+for Colorado, 1 to 3 June 2023, with <...> layers, one per <...>. Its
+documentation says: values are <...>, <...> means no data, and the CRS
+is <...>.
+
+Read it into a raster called tmax, mark <...> as missing, and convert
+the values to <...>. Keep the layer names.
+
+Check: the CRS (I expect EPSG <...>), the extent (I expect it to cover
+Colorado; transform a copy to EPSG 4269 to print it in longitude and
+latitude), the name of each layer, the smallest and largest value of
+each layer (I expect <...> to <...> °C), and the number of missing
+cells. Draw a quick map of each layer.
+
+Put the code in my Quarto document analysis/ex-9-2.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: did every check match? In which order did the AI mark -9999 as missing and divide by 10, and does the order matter?**
+
+Your answer:
+
+# Task 4: A map with the counties
+
+**Prediction.** Are the raster and `data/9-2-co-counties.gpkg` in the same CRS? Will that stop a map that draws both? Would it stop a calculation that combines them?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Read data/9-2-co-counties.gpkg into a layer called counties. Print the
+CRS of counties and of tmax, and say whether they are the same.
+
+Then draw one map per day of tmax, side by side with one shared colour
+scale in °C, with the county boundaries drawn on top as thin lines and
+no fill.
+
+Put the code in my Quarto document analysis/ex-9-2.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: do the county lines sit on the raster's state outline? Where are the coldest cells, and does that make sense?**
+
+Your answer:
+
+# Task 5: A check from knowing the place
+
+Think of one thing that must be true of daytime temperatures across Colorado, which no range check would test. (Hint: where are the mountains?)
+
+**The check, and why it should hold:**
+
+Your answer:
+
+**My request for it:**
+
+```text
+Using the raster tmax, check whether <...>. Print the answer for each
+day as one plain-English line, with the numbers it is based on.
+
+Put the code in my Quarto document analysis/ex-9-2.qmd, under the
+heading "Task 5", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**Reading the HTML: did the check hold on all three days?**
+
+Your answer:
+
+# Task 6: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Maria asked an AI for "the average temperature in Colorado on each day, in degrees C", and kept this:
+
+```{r}
+#| label: task-6
+#| eval: false
+tmax <- rast("C:/Users/maria/Downloads/9-2-tmax-colorado.tif") / 10
+global(tmax, "mean", na.rm = TRUE)
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. Which problem stops this code from running on your computer?**
+
+Your answer:
+
+**C. Which problem gives wrong averages without an error? Roughly what will they be?**
+
+Your answer:
+
+**D. Which checks would have caught it?**
+
+Your answer:
+
+**E. Now send this request, and compare the AI's answer with yours. What did it find that you missed, or miss that you found?**
+
+```text
+Explain this R code to me. For each line, write one plain-English
+sentence. Then list:
+1. any line that would only work on the computer it was written on
+2. which value is treated as "no data", and in which units the values
+   end up
+3. any line that could give a wrong result without an error, and which
+   check would reveal it
+
+tmax <- rast("C:/Users/maria/Downloads/9-2-tmax-colorado.tif") / 10
+global(tmax, "mean", na.rm = TRUE)
+```
+
+Your answer:
+
+# Wrap-up
+
+**A. Which facts about the raster did you need that only the README held?**
+
+Your answer:
+
+**B. In Task 2, which line of the printout told you the values could not be used yet?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

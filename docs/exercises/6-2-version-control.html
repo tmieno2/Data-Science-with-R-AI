@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.32">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Ex-6-2: Version Control, with an AI Assistant – Data Science with R (AECN 896-05)</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-c1fac2584b48ed01fb6e278e36375074.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="floating nav-fixed quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">Data Science with R (AECN 896-05)</span>
+    </a>
+  </div>
+            <div id="quarto-search" class="" title="Search"></div>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" role="menu" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../lectures/index.html"> 
+<span class="menu-text">Lecture Notes</span></a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../exercises/index.html"> 
+<span class="menu-text">Exercises</span></a>
+  </li>  
+</ul>
+          </div> <!-- /navcollapse -->
+            <div class="quarto-navbar-tools">
+</div>
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#sec-before-class" id="toc-sec-before-class" class="nav-link active" data-scroll-target="#sec-before-class">Before class</a></li>
+  <li><a href="#sec-setup" id="toc-sec-setup" class="nav-link" data-scroll-target="#sec-setup">Setup</a></li>
+  <li><a href="#sec-answers" id="toc-sec-answers" class="nav-link" data-scroll-target="#sec-answers">Answers</a>
+  <ul class="collapse">
+  <li><a href="#task-1-look-and-decide" id="toc-task-1-look-and-decide" class="nav-link" data-scroll-target="#task-1-look-and-decide">Task 1: Look and decide</a></li>
+  <li><a href="#task-2-start-the-repository" id="toc-task-2-start-the-repository" class="nav-link" data-scroll-target="#task-2-start-the-repository">Task 2: Start the repository</a></li>
+  <li><a href="#task-3-two-changes-two-commits" id="toc-task-3-two-changes-two-commits" class="nav-link" data-scroll-target="#task-3-two-changes-two-commits">Task 3: Two changes, two commits</a></li>
+  <li><a href="#task-4-read-the-history" id="toc-task-4-read-the-history" class="nav-link" data-scroll-target="#task-4-read-the-history">Task 4: Read the history</a></li>
+  <li><a href="#task-5-a-branch-and-a-merge-conflict" id="toc-task-5-a-branch-and-a-merge-conflict" class="nav-link" data-scroll-target="#task-5-a-branch-and-a-merge-conflict">Task 5: A branch and a merge conflict</a></li>
+  <li><a href="#task-6-put-it-on-github" id="toc-task-6-put-it-on-github" class="nav-link" data-scroll-target="#task-6-put-it-on-github">Task 6: Put it on GitHub</a></li>
+  <li><a href="#task-7-a-pull-request-if-time-allows" id="toc-task-7-a-pull-request-if-time-allows" class="nav-link" data-scroll-target="#task-7-a-pull-request-if-time-allows">Task 7: A pull request (if time allows)</a></li>
+  <li><a href="#wrap-up" id="toc-wrap-up" class="nav-link" data-scroll-target="#wrap-up">Wrap-up</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
+    </div>
+<!-- main -->
+<main class="content column-page-right" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Ex-6-2: Version Control, with an AI Assistant</h1>
+</div>
+
+
+
+<div class="quarto-title-meta column-page-right">
+
+    
+  
+    
+  </div>
+  
+<div>
+  <div class="abstract">
+    <div class="block-title">Abstract</div>
+    Organising Research
+  </div>
+</div>
+
+
+</header>
+
+
+<p>This is an in-class exercise. Before class, work through the lecture <strong>06-2: Version Control: Keeping a History of Your Project</strong>. In class, you work through the worksheet with an AI assistant running git. Your job is everything the AI cannot do: deciding what is tracked and what goes into each commit, saying why, choosing a side in a conflict, and checking before anything is pushed.</p>
+<section id="sec-before-class" class="level1">
+<h1>Before class</h1>
+<p>Do this once, at home, before class. An AI assistant can help with each step; the check after each one tells you it worked. Type the commands in RStudio’s <strong>Terminal</strong> tab (next to the Console).</p>
+<ol type="1">
+<li><p><strong>Git.</strong> Check: <code>git --version</code> prints a version number, such as <code>git version 2.47.1</code>. If it says the command is not found, ask your AI assistant how to install git on your system. On a Mac, a window offering to install the “command line developer tools” is the installer; click Install.</p></li>
+<li><p><strong>Your name and email</strong>, which git writes into every commit:</p>
+<pre class="text"><code>git config --global user.name "Your Name"
+git config --global user.email "you@example.com"</code></pre>
+<p>Check: <code>git config --global user.name</code> and <code>git config --global user.email</code> print yours. Use an email you will keep after you graduate, and add it to your GitHub account.</p></li>
+<li><p><strong>What a pull does when both sides have new commits.</strong> Without this one-time setting, <code>git pull</code> stops with “Need to specify how to reconcile divergent branches”:</p>
+<pre class="text"><code>git config --global pull.rebase false</code></pre>
+<p>Check: <code>git config --global pull.rebase</code> prints <code>false</code>.</p></li>
+<li><p><strong>The text editor git opens when it needs a message</strong> (for example, for a merge). Saving and closing it finishes that step; in nano, press Ctrl+O, then Enter, then Ctrl+X:</p>
+<pre class="text"><code>git config --global core.editor "nano"</code></pre>
+<p>Check: <code>git config --global core.editor</code> prints <code>nano</code>.</p></li>
+<li><p><strong>A GitHub account</strong>, free, at <a href="https://github.com">github.com</a>, with two-factor sign-in turned on.</p></li>
+<li><p><strong>Signing in to GitHub from your computer.</strong> The simplest way is GitHub’s own program, <code>gh</code> (install it from <a href="https://cli.github.com">cli.github.com</a>, then reopen the Terminal tab), and <code>gh auth login</code>, answering:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Question</th>
+<th>Answer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Where do you use GitHub?</td>
+<td>GitHub.com</td>
+</tr>
+<tr class="even">
+<td>Preferred protocol for Git operations</td>
+<td>HTTPS</td>
+</tr>
+<tr class="odd">
+<td>Authenticate Git with your GitHub credentials?</td>
+<td><strong>Yes</strong></td>
+</tr>
+<tr class="even">
+<td>How would you like to authenticate?</td>
+<td>Login with a web browser</td>
+</tr>
+</tbody>
+</table>
+<p>Check: <code>gh auth status</code> says “Logged in to github.com”. Answering <strong>No</strong> to the third question gives no error now, and the first push fails later.</p>
+<p>If you do not use <code>gh</code>, ask your AI assistant how to let git sign in to GitHub on your system. Then make the repository in Task 6 by hand on github.com (the worksheet says how); the push in Task 6 is the check.</p></li>
+</ol>
+</section>
+<section id="sec-setup" class="level1">
+<h1>Setup</h1>
+<ol type="1">
+<li>Download the worksheet, <a href="worksheets/ex-6-2.qmd">ex-6-2.qmd</a>, and the project, <a href="data/6-2-starter-project.zip">6-2-starter-project.zip</a>.</li>
+<li>Unzip the project anywhere on your computer’s own disk, <strong>not</strong> inside Dropbox, Google Drive or OneDrive. You get a folder <code>ch6-git</code>.</li>
+<li>Open <code>ch6-git/ch6-git.Rproj</code> in RStudio, and put the worksheet into <code>ch6-git/analysis</code>.</li>
+<li>Open the worksheet and start at Task 1.</li>
+</ol>
+<div class="callout callout-style-default callout-important callout-titled" title="It worked if">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+It worked if
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>Typing <code>here::here()</code> in the Console prints the path to <code>ch6-git</code> and nothing longer, and RStudio’s title bar shows <code>ch6-git</code>.</p>
+<p>The Files pane hides names that start with a dot. To see <code>.Renviron</code> there, click the gear icon in the Files pane and choose <strong>Show Hidden Files</strong>.</p>
+</div>
+</div>
+</section>
+<section id="sec-answers" class="level1">
+<h1>Answers</h1>
+<p>Open each one only after you have tried the task.</p>
+<section id="task-1-look-and-decide" class="level2">
+<h2 class="anchored" data-anchor-id="task-1-look-and-decide">Task 1: Look and decide</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A. One reasonable set of decisions:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File or folder</th>
+<th>Decision</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>ch6-git.Rproj</code></td>
+<td>track</td>
+<td>Marks the project root; <code>here</code> needs it</td>
+</tr>
+<tr class="even">
+<td><code>README.md</code></td>
+<td>track</td>
+<td>Written by you</td>
+</tr>
+<tr class="odd">
+<td><code>.Renviron</code></td>
+<td><strong>keep out, always</strong></td>
+<td>Holds an API key</td>
+</tr>
+<tr class="even">
+<td><code>.Rhistory</code></td>
+<td>keep out</td>
+<td>Written by RStudio</td>
+</tr>
+<tr class="odd">
+<td><code>.Rproj.user/</code></td>
+<td>keep out</td>
+<td>RStudio’s settings for your computer</td>
+</tr>
+<tr class="even">
+<td><code>analysis/01-clean.qmd</code>, <code>02-summary.qmd</code></td>
+<td>track</td>
+<td>The steps</td>
+</tr>
+<tr class="odd">
+<td><code>analysis/ex-6-2.qmd</code></td>
+<td>track</td>
+<td>Your own work</td>
+</tr>
+<tr class="even">
+<td><code>analysis/01-clean.html</code>, <code>01-clean_files/</code></td>
+<td>keep out</td>
+<td>Rendering <code>01-clean.qmd</code> rebuilds them</td>
+</tr>
+<tr class="odd">
+<td><code>data/raw/corn_yields.csv</code></td>
+<td>track</td>
+<td>Raw, small (15 KB) and public. It could not be rebuilt by code.</td>
+</tr>
+<tr class="even">
+<td><code>data/processed/corn_clean.rds</code></td>
+<td>keep out</td>
+<td><code>01-clean.qmd</code> rebuilds it</td>
+</tr>
+</tbody>
+</table>
+<p>B. A <code>.gitignore</code> that does it:</p>
+<pre class="text"><code># files RStudio writes
+.Rhistory
+.RData
+.Rproj.user/
+.DS_Store
+
+# secrets
+.Renviron
+
+# rendered output and files the steps rebuild
+*.html
+*_files/
+data/processed/</code></pre>
+<p>C. <code>.Renviron</code> holds <code>NASS_API_KEY=</code> and a key (a fake one here). R reads this file when the project opens, so code can use the key without it being written in the code. Committed and pushed, the key would be in the history for anyone who can see the repository, even after you deleted the file in a later commit. The fix would be a new key.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-2-start-the-repository" class="level2">
+<h2 class="anchored" data-anchor-id="task-2-start-the-repository">Task 2: Start the repository</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-3-contents" aria-controls="callout-3" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-3" class="callout-3-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>With that <code>.gitignore</code>, <code>git status</code> lists 7 files to be committed:</p>
+<pre class="text"><code>?? .gitignore
+?? README.md
+?? analysis/01-clean.qmd
+?? analysis/02-summary.qmd
+?? analysis/ex-6-2.qmd
+?? ch6-git.Rproj
+?? data/raw/corn_yields.csv</code></pre>
+<p><code>??</code> means untracked: git has not stored the file yet. <code>.Renviron</code>, <code>.Rhistory</code>, the rendered HTML and <code>data/processed/</code> are not listed, so they will not be committed.</p>
+<p>If <code>analysis/01-clean.html</code> or a file under <code>.Rproj.user/</code> is listed, a line of the <code>.gitignore</code> is missing or misspelled. If <code>data/processed/corn_clean.rds</code> is listed and you did not mean it to be, add <code>data/processed/</code>. Fix the <code>.gitignore</code> before the first commit: once a file is committed, adding it to <code>.gitignore</code> does not take it out of the history.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-3-two-changes-two-commits" class="level2">
+<h2 class="anchored" data-anchor-id="task-3-two-changes-two-commits">Task 3: Two changes, two commits</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-4-contents" aria-controls="callout-4" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-4" class="callout-4-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>Two commits, because the two changes are unrelated: one changes the analysis, one documents the data. The worksheet is in neither. For example:</p>
+<pre class="text"><code>Drop yields of 100 bu/ac or less
+
+In this data, a yield of 100 or less would be a data entry error, not a harvest.</code></pre>
+<p>The second commit, for the README:</p>
+<pre class="text"><code>Say where the data comes from</code></pre>
+<p>The second needs no reason: what it does is the reason.</p>
+<p>Before the first commit, <code>git diff --staged</code> shows only the cutoff line:</p>
+<pre class="text"><code>diff --git a/analysis/01-clean.qmd b/analysis/01-clean.qmd
+index f43e415..9caffee 100644
+--- a/analysis/01-clean.qmd
++++ b/analysis/01-clean.qmd
+@@ -14,7 +14,7 @@ corn &lt;- readr::read_csv(
+ Drop fields with a yield at or below the cutoff.
+ 
+ ```{r}
+-corn &lt;- dplyr::filter(corn, Yield &gt; 0)
++corn &lt;- dplyr::filter(corn, Yield &gt; 100)
+ ```
+ 
+ Save the cleaned table for the next step.</code></pre>
+<p><code>git log --oneline</code> then shows 3 commits (your identifiers will differ, because they depend on your name and the time):</p>
+<pre class="text"><code>29e9698 Say where the data comes from
+d2cdb26 Drop yields of 100 bu/ac or less
+b068512 Start the project</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="task-4-read-the-history" class="level2">
+<h2 class="anchored" data-anchor-id="task-4-read-the-history">Task 4: Read the history</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-5-contents" aria-controls="callout-5" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-5" class="callout-5-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A. The AI can only report the “why” that you wrote. For “Start the project” and the README commit it can say what changed and little else. For the cutoff commit it should repeat your reason, because the message holds it. A commit whose message was “update” would leave it guessing, and it may guess without saying so.</p>
+<p>B. One line, the cutoff:</p>
+<pre class="text"><code>diff --git a/analysis/01-clean.qmd b/analysis/01-clean.qmd
+index f43e415..9caffee 100644
+--- a/analysis/01-clean.qmd
++++ b/analysis/01-clean.qmd
+@@ -14,7 +14,7 @@ corn &lt;- readr::read_csv(
+ Drop fields with a yield at or below the cutoff.
+ 
+ ```{r}
+-corn &lt;- dplyr::filter(corn, Yield &gt; 0)
++corn &lt;- dplyr::filter(corn, Yield &gt; 100)
+ ```
+ 
+ Save the cleaned table for the next step.</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="task-5-a-branch-and-a-merge-conflict" class="level2">
+<h2 class="anchored" data-anchor-id="task-5-a-branch-and-a-merge-conflict">Task 5: A branch and a merge conflict</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-6-contents" aria-controls="callout-6" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-6" class="callout-6-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The merge stops, because both branches changed the same line in different ways:</p>
+<pre class="text"><code>Auto-merging analysis/01-clean.qmd
+CONFLICT (content): Merge conflict in analysis/01-clean.qmd
+Automatic merge failed; fix conflicts and then commit the result.</code></pre>
+<p>The conflicting lines in the file look like this:</p>
+<pre class="text"><code>```{r}
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+corn &lt;- dplyr::filter(corn, Yield &gt; 120)
+=======
+corn &lt;- dplyr::filter(corn, Yield &gt; 150)
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; try-cutoff-150</code></pre>
+<p>The line between <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD</code> and <code>=======</code> is on <code>main</code>, the branch you are on (120). The line between <code>=======</code> and <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt; try-cutoff-150</code> is on the branch you are merging in (150).</p>
+<p>Which to keep is a research decision. In this data, a cutoff of 100 keeps 161 of 161 rows, 120 keeps 158, and 150 keeps 134. The two sides of the conflict are 120 and 150, but you may also write a third version, such as going back to 100. Nothing in the data says any of these yields is an error, and the lowest non-irrigated yield is 103. So the cutoff that drops nothing, 100, is the easiest to defend; any higher cutoff needs a documented reason. Either way, the commit message records the reason.</p>
+<p>After you keep one and commit, <code>git log --oneline --graph</code> shows the two lines of work joining. The answers here kept 120, to show the merge; your identifiers, messages and choice may differ:</p>
+<pre class="text"><code>*   9a9dd0f Keep the 120 bu/ac cutoff
+|\  
+| * f77fd3e Try a cutoff of 150 bu/ac
+* | a9713bb Use a cutoff of 120 bu/ac
+|/  
+* ebd66e8 Answer Tasks 1 to 4
+* 29e9698 Say where the data comes from
+* d2cdb26 Drop yields of 100 bu/ac or less
+* b068512 Start the project</code></pre>
+</div>
+</div>
+</div>
+</section>
+<section id="task-6-put-it-on-github" class="level2">
+<h2 class="anchored" data-anchor-id="task-6-put-it-on-github">Task 6: Put it on GitHub</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-7-contents" aria-controls="callout-7" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-7" class="callout-7-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>The checks: branch <code>main</code>; no uncommitted changes to tracked files, except this worksheet if you kept typing; <code>git ls-files .Renviron</code> prints nothing; the GitHub page says <strong>Private</strong> next to the name.</p>
+<p>GitHub then holds exactly the files <code>git ls-files</code> listed, 7 of them:</p>
+<pre class="text"><code>.gitignore
+README.md
+analysis/01-clean.qmd
+analysis/02-summary.qmd
+analysis/ex-6-2.qmd
+ch6-git.Rproj
+data/raw/corn_yields.csv</code></pre>
+<p><code>.Renviron</code>, <code>.Rhistory</code>, the rendered HTML and <code>data/processed/</code> are not there. If one of them is, it was committed: do not push again until you have asked why. If it is <code>.Renviron</code>, treat the key as public, and replace it.</p>
+<p>If you made the repository by hand on github.com, the result is the same once the push succeeds. If the push asks for a password, signing in (Before class, step 6) is not finished.</p>
+<p>If the push is refused with a message about “rejected” or “fetch first”, someone (or you, on GitHub’s website) changed the repository on GitHub. Pull, read what came in, then push. Never force it.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="task-7-a-pull-request-if-time-allows" class="level2">
+<h2 class="anchored" data-anchor-id="task-7-a-pull-request-if-time-allows">Task 7: A pull request (if time allows)</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-8-contents" aria-controls="callout-8" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-8" class="callout-8-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>A. <strong>Files changed</strong> shows <code>README.md</code> only, with the new section as green lines starting with <code>+</code>. If any other file is listed, the branch carries a change you did not ask for: ask about it before merging.</p>
+<p>B. The pull brings in two commits: the one that added “How to run” (made on your computer, on the branch), and a merge commit whose message starts <code>Merge pull request #1</code>. GitHub made the merge commit when you clicked <strong>Merge pull request</strong>, which is why it existed on GitHub and not on your computer until you pulled.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="wrap-up" class="level2">
+<h2 class="anchored" data-anchor-id="wrap-up">Wrap-up</h2>
+<div class="callout callout-style-default callout-note callout-titled" title="What you should find">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-9-contents" aria-controls="callout-9" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+What you should find
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-9" class="callout-9-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>B. With no <code>.gitignore</code>, <code>git add .</code> would have taken every file in the folder:</p>
+<pre class="text"><code>.Renviron
+.Rhistory
+.Rproj.user/ (RStudio's own files)
+analysis/01-clean_files/ (12 files)
+analysis/01-clean.html
+analysis/01-clean.qmd
+analysis/02-summary.qmd
+analysis/ex-6-2.qmd
+ch6-git.Rproj
+data/processed/corn_clean.rds
+data/raw/corn_yields.csv
+README.md</code></pre>
+<p><code>.Renviron</code> (the key), <code>.Rhistory</code>, the rendered HTML and its <code>_files</code> folder, <code>data/processed/corn_clean.rds</code>, and RStudio’s own <code>.Rproj.user/</code> files would all be in the first commit, and so in the history for good.</p>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+</div> <!-- /content -->
+<footer class="footer">
+  <div class="nav-footer">
+    <div class="nav-footer-left">
+      &nbsp;
+    </div>   
+    <div class="nav-footer-center">
+<p>Made with Quarto</p>
+</div>
+    <div class="nav-footer-right">
+      &nbsp;
+    </div>
+  </div>
+</footer>
+
+
+
+
+</body></html>

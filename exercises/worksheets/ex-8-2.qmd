@@ -1,0 +1,279 @@
+---
+title: "Ex-8-2 worksheet: Regression Tables"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch8-practice/analysis/ex-8-2.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-8-2. Try each task before you look.
+
+**Every task follows the way of working with AI from the lectures:**
+
+1. **Look** at the data before anyone writes code.
+2. **Predict** what a correct table looks like, and write it down here.
+3. **Ask.** Start from the recommended request in the task. Replace every `<...>` with what you found. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the table there: does every "expected, got" line match?
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. Do not keep a line of code you cannot explain. The sentence the AI writes above each chunk should tell you; if it does not, ask.
+
+D. You judge the work by reading the rendered HTML, not the chat window.
+
+# The data
+
+The same file as in Ex-8-1. `data/8-1-county-crops.csv` has one row per county and year, for counties in Colorado, Kansas and Nebraska, 2000 to 2018. Source: USDA NASS county yields and the US Drought Monitor.
+
+| Column | What it is |
+|---|---|
+| `state_name`, `county_code`, `county_name` | The county |
+| `year` | The year |
+| `corn_yield` | Corn yield (bushels per acre) |
+| `soy_yield` | Soybean yield (bushels per acre) |
+| `weeks_severe` | Weeks from May to September in severe drought (US Drought Monitor category D2) |
+| `weeks_extreme` | Weeks from May to September in extreme or exceptional drought (categories D3 and D4) |
+
+The question: how much lower are corn and soybean yields for each additional week of drought? The models, one per column of the table:
+
+1. corn yield on weeks of severe drought and weeks of extreme drought
+2. soybean yield on weeks of severe drought and weeks of extreme drought
+
+# Task 1: Look, no AI
+
+Open `data/8-1-county-crops.csv` in a plain text editor or a spreadsheet program.
+
+**A. How many data rows does the file have?**
+
+Your answer:
+
+**B. Which column has missing values, and how are they written? Scroll through the file: in which state do they appear on every row?**
+
+Your answer:
+
+# Task 2: Count before you predict
+
+**My request to the AI:**
+
+```text
+In my R project, data/8-1-county-crops.csv is a csv file with one row
+per county and year. Read it into a table called crops using the
+tidyverse. Then print the number of rows, and the number of missing
+values in each column, overall and for each state.
+
+Put the code in my Quarto document analysis/ex-8-2.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**Prediction.** How many observations will each of the two models use? Explain each number from what you just printed.
+
+Your answer:
+
+# Task 3: The regression table
+
+**My request to the AI.** Fill in every `<...>` from Task 2:
+
+```text
+In my R project, the table crops has one row per county and year. The
+columns used: corn_yield and soy_yield (bushels per acre; soy_yield is
+missing on <...> rows), weeks_severe and weeks_extreme (weeks from May
+to September in severe drought and in extreme or exceptional drought).
+
+Estimate linear regressions, one per column, in this order: (1)
+corn_yield on weeks_severe and weeks_extreme; (2) soy_yield on
+weeks_severe and weeks_extreme. The
+message is about the weeks_extreme estimate, and how it differs between
+corn and soybeans. Use robust standard errors (HC1). Show the rows
+weeks_extreme, weeks_severe and the constant, in that order, and at the
+bottom only the number of observations. Use modelsummary.
+
+Check: each column's header next to its model's formula; the number of
+observations of each model (I expect <...> and <...>); and every
+coefficient of each model against the rows of the table.
+
+Every table must meet this standard:
+1. Column headers and row labels in plain words with units, such as
+   "Corn yield (bushels per acre)", never a column name such as
+   corn_yield.
+2. Categories in words, such as "Irrigated", never a code such as 1.
+3. Numbers rounded to what the message needs, with the same number of
+   decimals down each column.
+4. Thousands separators in large numbers, except in years.
+5. Percentages shown as percentages.
+6. Numbers right-aligned so that the digits line up; text left-aligned.
+7. Text no smaller than the document's body text.
+8. Fits the page width where it will appear, without scrolling.
+9. Rows in an order that serves the message (by value, or in time
+   order), not alphabetical unless the reader will search a long table.
+10. A title that says what the numbers are.
+11. A note giving the source of the data.
+12. A note saying how any computed column was computed.
+13. The number of observations behind each value, when it varies.
+14. Nothing the message does not need: no extra columns, no row
+    numbers, no heavy borders, no colours that only decorate.
+For regression tables, also:
+15. One column per model, with headers or a title saying what each
+    model explains.
+16. Standard errors in parentheses below each estimate, with their kind
+    stated in a note.
+17. Significance stars left out, or defined in a note and used the same
+    way in every table.
+18. The number of observations for every model.
+
+Put the code in my Quarto document analysis/ex-8-2.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML.** Did every check match? Go through the checklist from the lecture (the slide "The checklist" under "Judging a regression table"): which answers are "no"?
+
+Your answer:
+
+**From the table, write the message as one sentence: how does one more week of extreme drought relate to corn yields, and to soybean yields?**
+
+Your answer:
+
+# Task 4: Are columns (1) and (2) about the same counties?
+
+**A. Without the AI: from Task 2, which county-years are in column (1) but not in column (2)? Which state is missing from column (2) entirely?**
+
+Your answer:
+
+**B. First without regression.** Ask for the plain difference in average corn yield between county-years with and without extreme drought (at least 1 week of `weeks_extreme`), on all rows and on only the rows that have a soybean yield. Predict first: will the two differences be about the same?
+
+Your answer:
+
+```text
+Using the table crops, compute the average corn_yield in county-years
+with at least 1 week of weeks_extreme and in county-years without, and
+the difference between the two. Do it twice: on all rows, and on only
+the rows that have a soy_yield value. Print the two differences and
+the number of rows each uses.
+
+Put the code in my Quarto document analysis/ex-8-2.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4-difference
+```
+
+**Reading the HTML: how different are the two differences? What does that say about comparing column (1) with column (2)?**
+
+Your answer:
+
+**C. Now the same comparison in the regression table.** Predict: if you estimate model (1) again, using only the rows that column (2) uses, will the weeks_extreme estimate for corn stay about the same?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Add a third column to the table: corn_yield on weeks_severe and
+weeks_extreme, estimated only on the rows that have a soy_yield value.
+Put it last, with a header that says it uses those rows, and add a note
+to the table saying so. Check the number of observations of the new
+model (I expect <...>).
+
+Put the code in my Quarto document analysis/ex-8-2.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check on
+its own line as "name of check: expected X, got Y". Render the document
+to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML. Compare the weeks_extreme estimate for corn in columns (1) and (3). Was your prediction right? Does your message from Task 3 still hold?**
+
+Your answer:
+
+**D. Which table would you show your advisor, and what would the notes say?**
+
+Your answer:
+
+# Task 5: Read someone else's AI code
+
+First, with a neighbour and **without** the AI or running anything. Alex asked an AI to "compare the effect of drought on corn and soybeans, with robust standard errors" and kept this:
+
+```{r}
+#| label: task-5
+#| eval: false
+crops <- read_csv(here::here("data", "8-1-county-crops.csv")) |>
+  na.omit()
+corn <- lm(corn_yield ~ weeks_severe + weeks_extreme, data = crops)
+soy <- lm(soy_yield ~ weeks_severe + weeks_extreme, data = crops)
+modelsummary(
+  list("Corn" = corn, "Soybeans" = soy),
+  vcov = "HC1",
+  coef_map = c("weeks_extreme" = "Weeks of extreme drought")
+)
+```
+
+**A. In plain words, what does each line do? (`na.omit()` removes every row that has a missing value in any column.)**
+
+Your answer:
+
+**B. How many observations does the corn model use? How many would Alex expect if asked?**
+
+Your answer:
+
+**C. What does the table leave out without saying so?**
+
+Your answer:
+
+**D. Is `na.omit()` a mistake here? When would using only these rows be the right choice, and what must the table then say?**
+
+Your answer:
+
+**E. Which checks from the lecture would have shown Alex each problem?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Which check caught something today that the table alone would not have shown?**
+
+Your answer:
+
+**B. Before your next regression table, what will you count in the data first?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

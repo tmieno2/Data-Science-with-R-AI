@@ -1,0 +1,1850 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-html/tabby.min.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/light-border.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles"><meta charset="utf-8">
+  <meta name="generator" content="quarto-1.7.32">
+
+  <title>Data Science with R (AECN 896-05) – 02-1: Quarto Documents and Rendering</title>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reset.css">
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/reveal.css">
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+      vertical-align: middle;
+    }
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      { color: #003b4f; background-color: #f1f3f5; }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span { color: #003b4f; } /* Normal */
+    code span.al { color: #ad0000; } /* Alert */
+    code span.an { color: #5e5e5e; } /* Annotation */
+    code span.at { color: #657422; } /* Attribute */
+    code span.bn { color: #ad0000; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #003b4f; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #20794d; } /* Char */
+    code span.cn { color: #8f5902; } /* Constant */
+    code span.co { color: #5e5e5e; } /* Comment */
+    code span.cv { color: #5e5e5e; font-style: italic; } /* CommentVar */
+    code span.do { color: #5e5e5e; font-style: italic; } /* Documentation */
+    code span.dt { color: #ad0000; } /* DataType */
+    code span.dv { color: #ad0000; } /* DecVal */
+    code span.er { color: #ad0000; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #ad0000; } /* Float */
+    code span.fu { color: #4758ab; } /* Function */
+    code span.im { color: #00769e; } /* Import */
+    code span.in { color: #5e5e5e; } /* Information */
+    code span.kw { color: #003b4f; font-weight: bold; } /* Keyword */
+    code span.op { color: #5e5e5e; } /* Operator */
+    code span.ot { color: #003b4f; } /* Other */
+    code span.pp { color: #ad0000; } /* Preprocessor */
+    code span.sc { color: #5e5e5e; } /* SpecialChar */
+    code span.ss { color: #20794d; } /* SpecialString */
+    code span.st { color: #20794d; } /* String */
+    code span.va { color: #111111; } /* Variable */
+    code span.vs { color: #20794d; } /* VerbatimString */
+    code span.wa { color: #5e5e5e; font-style: italic; } /* Warning */
+  </style>
+  <link rel="stylesheet" href="../../site_libs/revealjs/dist/theme/quarto-5cbf9ce0bec82c5b0c7629bb4ee56cc4.css">
+  <link href="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.css" rel="stylesheet">
+  <link href="../../site_libs/revealjs/plugin/quarto-support/footer.css" rel="stylesheet">
+  <style type="text/css">
+    .reveal div.sourceCode {
+      margin: 0;
+      overflow: auto;
+    }
+    .reveal div.hanging-indent {
+      margin-left: 1em;
+      text-indent: -1em;
+    }
+    .reveal .slide:not(.center) {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide.scrollable {
+      overflow-y: auto;
+    }
+    .reveal .footnotes {
+      height: 100%;
+      overflow-y: auto;
+    }
+    .reveal .slide .absolute {
+      position: absolute;
+      display: block;
+    }
+    .reveal .footnotes ol {
+      counter-reset: ol;
+      list-style-type: none; 
+      margin-left: 0;
+    }
+    .reveal .footnotes ol li:before {
+      counter-increment: ol;
+      content: counter(ol) ". "; 
+    }
+    .reveal .footnotes ol li > p:first-child {
+      display: inline-block;
+    }
+    .reveal .slide ul,
+    .reveal .slide ol {
+      margin-bottom: 0.5em;
+    }
+    .reveal .slide ul li,
+    .reveal .slide ol li {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide ul[role="tablist"] li {
+      margin-bottom: 0;
+    }
+    .reveal .slide ul li > *:first-child,
+    .reveal .slide ol li > *:first-child {
+      margin-block-start: 0;
+    }
+    .reveal .slide ul li > *:last-child,
+    .reveal .slide ol li > *:last-child {
+      margin-block-end: 0;
+    }
+    .reveal .slide .columns:nth-child(3) {
+      margin-block-start: 0.8em;
+    }
+    .reveal blockquote {
+      box-shadow: none;
+    }
+    .reveal .tippy-content>* {
+      margin-top: 0.2em;
+      margin-bottom: 0.7em;
+    }
+    .reveal .tippy-content>*:last-child {
+      margin-bottom: 0.2em;
+    }
+    .reveal .slide > img.stretch.quarto-figure-center,
+    .reveal .slide > img.r-stretch.quarto-figure-center {
+      display: block;
+      margin-left: auto;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-left,
+    .reveal .slide > img.r-stretch.quarto-figure-left  {
+      display: block;
+      margin-left: 0;
+      margin-right: auto; 
+    }
+    .reveal .slide > img.stretch.quarto-figure-right,
+    .reveal .slide > img.r-stretch.quarto-figure-right  {
+      display: block;
+      margin-left: auto;
+      margin-right: 0; 
+    }
+  </style>
+  <!--
+    Support for collapsible "Transcript" panels in revealjs decks.
+
+    Include it from a deck's YAML header, with the path relative to the qmd:
+
+        format:
+          revealjs:
+            include-in-header: ../transcript-support.html
+
+    Then add a transcript anywhere inside a slide (or inside a single tab of a
+    tabset, which is the usual case):
+
+        <details class="transcript">
+        <summary>Transcript</summary>
+
+        What the lecturer says about this tab.
+
+        </details>
+
+    On a tab whose figure fills the whole slide there is no free rectangle to
+    overlay, so add "inline" and the panel joins the flow when opened, pushing the
+    figure down instead of covering it:
+
+        <details class="transcript inline">
+
+    Use it only where it is needed. Measure rather than guess: an open panel must
+    not overlap a ".cell-output-display". The collapsed pill still costs 0px in
+    both variants, which is the property the whole design exists to preserve.
+
+    It must live in the header rather than the body of a qmd: raw HTML placed
+    above the first "##" heading becomes its own untitled slide.
+
+    <details> is a native HTML element, so the collapse/expand works with no
+    JavaScript at all, including in a self-contained (embed-resources) file. The
+    script at the bottom adds one behaviour on top: collapsing an open panel when
+    the reader moves on. Without it everything still works, panels just keep their
+    open state.
+
+    Audience: students reviewing after class. These are not presenter notes -
+    reveal's own ".notes" blocks are the presenter-only mechanism.
+  -->
+  <style>
+  /* The panel is positioned against the slide rather than sitting in its normal
+     flow. That is the whole point: collapsed it costs the slide no vertical
+     space, and opened it overlays the content instead of pushing it off the
+     bottom edge. Each panel lives inside its own tab, and hidden tabs do not
+     render, so only the visible tab's transcript is ever shown. */
+  .reveal details.transcript {
+    position: absolute;
+    top: 0;
+    right: 0;
+    z-index: 20;
+    width: auto;
+    font-size: 0.55em;
+    line-height: 1.45;
+    text-align: left;
+    border-radius: 6px;
+    /* custom.scss styles every bare <details> as an "answer box" (grey border
+       plus padding) for Quarto's folded-code blocks. Opt out of both here so the
+       collapsed pill is not sitting inside a grey rectangle. */
+    border: none;
+    padding: 0;
+  }
+
+  /* Collapsed: a small pill that hugs the top-right corner. */
+  .reveal details.transcript > summary {
+    display: inline-block;
+    cursor: pointer;
+    list-style: none;
+    outline: none;
+    /* custom.scss pulls every bare <summary> with a negative margin; undo it. */
+    margin: 0;
+    padding: 0.15em 0.7em;
+    border: 1px solid #06a666;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #06a666;
+    font-weight: 600;
+    white-space: nowrap;
+    -webkit-user-select: none;
+    user-select: none;
+  }
+  .reveal details.transcript > summary::-webkit-details-marker { display: none; }
+  .reveal details.transcript > summary::before { content: "\25B8\00A0"; }
+  .reveal details.transcript[open] > summary::before { content: "\25BE\00A0"; }
+
+  /* Opened: a tall, narrow panel down the right-hand side, where slide content
+     rarely reaches. It starts below the tab bar so tab names stay clickable
+     while a transcript is open, and runs down to just above the footer.
+
+     Measured as a share of the 700px logical slide. A top-level tab bar ends at
+     12.4-13%, so 21% clears it everywhere.
+
+     A tab bar that sits lower on the slide is cleared HORIZONTALLY instead: the
+     panel occupies x 62-100%, and no tab row measured so far reaches past x 66%.
+     Cases seen, all fine:
+       00-1  nested tabset          18.9%, names reach x 15%
+       00-1  tabset below prose     40.8%, names reach x 59%
+       01-2  nested tabset          29.6%, names reach x 46%
+     So the rule to preserve is not "top clears every tab bar" but "no tab NAME
+     overlaps the panel's rectangle". Re-check that if a deck grows a long tab row
+     sitting low on the slide. */
+  .reveal details.transcript[open] {
+    top: 21%;
+    width: 36%;
+    max-height: 75%;
+    overflow-y: auto;
+    padding: 0.55em 0.85em 0.7em;
+    background: #f4fbf8;
+    border: 1px solid #06a666;
+    box-shadow: 0 6px 22px rgba(0, 0, 0, 0.16);
+  }
+  .reveal details.transcript[open] > summary {
+    display: block;
+    padding: 0 0 0.4em 0;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+  .reveal details.transcript p { margin: 0.35em 0; }
+
+  /* Opt-out, applied per tab as class="transcript inline".
+     Some figures are rendered at out-width 80% and span x 1.4-98.6% of the slide,
+     running from just under the tab bar down to y ~95%. There is no rectangle
+     left to overlay, so on those tabs the panel joins the normal flow when opened
+     and pushes the figure down; the slide is "scrollable: true", so the figure
+     stays reachable. Note this rule only touches [open]: collapsed, the pill is
+     still absolutely positioned at the top-right corner and still costs 0px. */
+  .reveal details.transcript.inline[open] {
+    position: static;
+    width: auto;
+    max-height: none;
+    overflow-y: visible;
+    margin: 0 0 0.9em 0;
+  }
+
+  /* No .slide-logo rule here: no deck in this course sets a "logo:" in its YAML,
+     so the bottom-right corner the panel would collide with is already free. If
+     a logo is ever added, move it out of the way with
+     .reveal .slide-logo { right: auto !important; left: 56px !important; }
+     where 56px clears reveal's menu button at x 8-43px. */
+  </style>
+
+  <script>
+  // Collapse any open transcript when the reader moves to another slide or
+  // another tab, so a panel left open never reappears over unrelated content.
+  (function () {
+    function closeAll() {
+      document.querySelectorAll("details.transcript[open]")
+        .forEach(function (d) { d.open = false; });
+    }
+
+    // Slide changes come from reveal, which is not ready when this runs.
+    function hookReveal() {
+      if (window.Reveal && typeof Reveal.on === "function") {
+        Reveal.on("slidechanged", closeAll);
+        Reveal.on("overviewshown", closeAll);
+        return true;
+      }
+      return false;
+    }
+    if (!hookReveal()) {
+      var tries = 0;
+      var timer = setInterval(function () {
+        if (hookReveal() || ++tries > 100) clearInterval(timer);
+      }, 100);
+    }
+
+    // Tab changes are plain clicks; capture so this runs before the tab switches.
+    document.addEventListener("click", function (e) {
+      var el = e.target;
+      if (el && el.closest && el.closest('.panel-tabset [role="tab"]')) closeAll();
+    }, true);
+  })();
+  </script>
+</head>
+<body class="quarto-light">
+  <div class="reveal">
+    <div class="slides">
+
+<section id="title-slide" class="quarto-title-block center">
+  <h1 class="title">02-1: Quarto Documents and Rendering</h1>
+
+<div class="quarto-title-authors">
+</div>
+
+</section>
+<section>
+<section id="how-this-lecture-works" class="title-slide slide level1 center">
+<h1>How this lecture works</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-will-and-will-not-learn-today" class="slide level2 scrollable">
+<h2>What you will and will not learn today</h2>
+<div class="panel-tabset">
+<ul id="tabset-1" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-1-1">The plan</a></li><li><a href="#tabset-1-2">Directions</a></li></ul>
+<div class="tab-content">
+<div id="tabset-1-1">
+<p>In this course, and in your own research, an AI assistant writes most of the R code. Where that code lives, and how you judge it, is what this lecture is about: the code goes into a <strong>Quarto document</strong> (a file ending in <code>.qmd</code>), and you judge the work by reading the HTML page that the document produces.</p>
+<p>The AI can write a Quarto document. What it cannot do is:</p>
+<ul>
+<li>decide what your reader should see and what can stay out of view</li>
+<li>know whether the document still works outside the AI’s own session</li>
+<li>tell whether the sentences in the document match the results under them</li>
+</ul>
+<p>Those three are your job. So today is about:</p>
+<ol type="1">
+<li><strong>The concept</strong>: what a <code>.qmd</code> file is, and what rendering does to it</li>
+<li><strong>Reading code</strong>: recognising the parts of a <code>.qmd</code> file (header, chunks, chunk options, numbers written into sentences) without memorising them</li>
+<li><strong>Asking AI</strong>: what to put in a request so the AI’s work arrives as a document you can judge</li>
+<li><strong>Checking</strong>: what to look at in the HTML, and what the HTML can hide</li>
+</ol>
+</div>
+<div id="tabset-1-2">
+<ul>
+<li>Open RStudio. It comes with Quarto, so there is nothing else to install. If RStudio asks to install the <code>rmarkdown</code> or <code>knitr</code> packages the first time you render, say yes.</li>
+<li>Ask your AI assistant to install the <code>tidyverse</code> and <code>here</code> packages if you have not already (see the packages slide in Chapter 1).</li>
+<li>To follow along, make a new document: <strong>File, New File, Quarto Document</strong>, then click <strong>Create</strong>.</li>
+</ul>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="the-concept" class="title-slide slide level1 center">
+<h1>The concept</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="why-research-is-written-in-a-quarto-document" class="slide level2">
+<h2>Why research is written in a Quarto document</h2>
+<div class="panel-tabset">
+<ul id="tabset-2" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-2-1">The problem</a></li><li><a href="#tabset-2-2">What Quarto does</a></li></ul>
+<div class="tab-content">
+<div id="tabset-2-1">
+<p>The usual way of reporting an analysis is to run code in one place and copy the results into another: a Word file, an email, a chat window. Three things go wrong:</p>
+<ul>
+<li><strong>Numbers drift.</strong> The data changes, the code is rerun, and the number typed into the report is not updated.</li>
+<li><strong>Nobody can see how a number was made.</strong> The report shows the result, not the steps that led to it.</li>
+<li><strong>The steps get lost.</strong> Code typed at the Console and never saved cannot be run again, by you or anyone else.</li>
+</ul>
+</div>
+<div id="tabset-2-2">
+<p>A Quarto document is one plain-text file that holds both the sentences and the code. <strong>Rendering</strong> it (clicking the <strong>Render</strong> button in RStudio) runs the code and writes an HTML page in which each piece of code sits next to its result and the sentence that explains it.</p>
+<ul>
+<li>The <code>.qmd</code> file is the <strong>source</strong>: you, or the AI, edit it.</li>
+<li>The <code>.html</code> file is the <strong>output</strong>: you read it, and you send it to whoever needs to see the work.</li>
+</ul>
+<p>These slides are themselves a Quarto document, rendered to a slide format instead of a page.</p>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Quarto can also render to slides, websites, Word files and PDF articles. Lectures 02-2 to 02-4 cover those. This lecture uses HTML pages throughout.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="how-a-.qmd-file-is-written" class="slide level2">
+<h2>How a .qmd file is written</h2>
+<p>Every <code>.qmd</code> file, short or long, written by you or by an AI, follows the same pattern.</p>
+<div class="panel-tabset">
+<ul id="tabset-3" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-3-1">The pattern</a></li><li><a href="#tabset-3-2">The text part</a></li><li><a href="#tabset-3-3">A real file</a></li><li><a href="#tabset-3-4">What the HTML shows</a></li></ul>
+<div class="tab-content">
+<div id="tabset-3-1">
+<div class="sourceCode" id="cb1"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a></a>---</span>
+<span id="cb1-2"><a></a>title: "Report title"</span>
+<span id="cb1-3"><a></a>format: html</span>
+<span id="cb1-4"><a></a>---</span>
+<span id="cb1-5"><a></a></span>
+<span id="cb1-6"><a></a>Text written in Markdown, with a `r expression` inside a sentence.</span>
+<span id="cb1-7"><a></a></span>
+<span id="cb1-8"><a></a>```{r}</span>
+<span id="cb1-9"><a></a>#| option: value</span>
+<span id="cb1-10"><a></a>R code</span>
+<span id="cb1-11"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>The <strong>YAML header</strong>, between the two <code>---</code> lines</td>
+<td>Settings for the whole document: title, output format, and so on</td>
+<td>Yes, at the very top</td>
+</tr>
+<tr class="even">
+<td><strong>Text</strong></td>
+<td>Ordinary sentences and headings, written in <strong>Markdown</strong> (plain text with a few marks for formatting, next tab)</td>
+<td>No, but a report without it explains nothing</td>
+</tr>
+<tr class="odd">
+<td><strong>Code chunks</strong>, from <code>```{r}</code> to <code>```</code></td>
+<td>R code that runs when the document is rendered</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><code>#|</code> lines at the top of a chunk</td>
+<td><strong>Chunk options</strong>: settings for that one chunk</td>
+<td>No; each has a default</td>
+</tr>
+<tr class="odd">
+<td><code>`r `</code> inside a sentence</td>
+<td><strong>Inline R</strong>: a short piece of R whose result is written into the sentence</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-3-2">
+<p>The text is written in <strong>Markdown</strong>. You only need to recognise a few marks:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th style="text-align: left;">What you type</th>
+<th style="text-align: left;">What you get</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><code># Heading</code></td>
+<td style="text-align: left;">a first-level heading</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>## Smaller heading</code></td>
+<td style="text-align: left;">a second-level heading</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>+ item</code> or <code>- item</code></td>
+<td style="text-align: left;">a bullet list item</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>1. item</code></td>
+<td style="text-align: left;">a numbered list item</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>**text**</code></td>
+<td style="text-align: left;"><strong>bold</strong></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>*text*</code></td>
+<td style="text-align: left;"><em>italic</em></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><code>`text`</code></td>
+<td style="text-align: left;"><code>code style</code>, inside a sentence</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><code>[UNL](https://www.unl.edu)</code></td>
+<td style="text-align: left;">a link: <a href="https://www.unl.edu">UNL</a></td>
+</tr>
+</tbody>
+</table>
+<p>The headings matter beyond looks: they are how you tell the AI where to put its code (“under the heading …”).</p>
+</div>
+<div id="tabset-3-3">
+<p>A short report that follows the pattern. The next tab shows what rendering makes of it.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb2-1"><a></a>---</span>
+<span id="cb2-2"><a></a>title: "Field yields"</span>
+<span id="cb2-3"><a></a>format: html</span>
+<span id="cb2-4"><a></a>---</span>
+<span id="cb2-5"><a></a></span>
+<span id="cb2-6"><a></a>## Average yield</span>
+<span id="cb2-7"><a></a></span>
+<span id="cb2-8"><a></a>Make a table of four fields, written straight into the code.</span>
+<span id="cb2-9"><a></a></span>
+<span id="cb2-10"><a></a>```{r}</span>
+<span id="cb2-11"><a></a>#| label: make-fields</span>
+<span id="cb2-12"><a></a>fields &lt;- data.frame(</span>
+<span id="cb2-13"><a></a>  field = c("North", "South", "East", "West"),</span>
+<span id="cb2-14"><a></a>  acres = c(40, 80, 35, 120),</span>
+<span id="cb2-15"><a></a>  yield = c(182, 201, 175, 196)</span>
+<span id="cb2-16"><a></a>)</span>
+<span id="cb2-17"><a></a>```</span>
+<span id="cb2-18"><a></a></span>
+<span id="cb2-19"><a></a>Compute the average yield across the four fields.</span>
+<span id="cb2-20"><a></a></span>
+<span id="cb2-21"><a></a>```{r}</span>
+<span id="cb2-22"><a></a>#| label: average-yield</span>
+<span id="cb2-23"><a></a>mean(fields$yield)</span>
+<span id="cb2-24"><a></a>```</span>
+<span id="cb2-25"><a></a></span>
+<span id="cb2-26"><a></a>The average yield is `r mean(fields$yield)` bushels per acre.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-3-4">
+<p>Below the title and the heading “Average yield”, the reader sees each sentence, then the code under it, then its result:</p>
+<p>Compute the average yield across the four fields.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a></a><span class="fu">mean</span>(fields<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 188.5</code></pre>
+</div>
+</div>
+<p>The average yield is 188.5 bushels per acre.</p>
+<p>The first chunk made a table and printed nothing, so the reader sees only its code (not repeated on this slide). In the last sentence, the number was computed when the document was rendered, not typed.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-rendering-does" class="slide level2 scrollable">
+<h2>What rendering does</h2>
+<div class="panel-tabset">
+<ul id="tabset-4" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-4-1">The four steps</a></li><li><a href="#tabset-4-2">Only what is in the document exists</a></li><li><a href="#tabset-4-3">Order matters</a></li><li><a href="#tabset-4-4">The folder</a></li></ul>
+<div class="tab-content">
+<div id="tabset-4-1">
+<p>When you click <strong>Render</strong>, Quarto:</p>
+<ol type="1">
+<li><strong>Starts a new R session</strong> (a fresh, empty R, separate from the one at your RStudio Console)</li>
+<li><strong>Runs every chunk, in order, from the top</strong>, with the folder that holds the <code>.qmd</code> as the working directory (the folder R treats as “here”)</li>
+<li><strong>Puts the text, the code and the results together</strong></li>
+<li><strong>Writes the HTML file</strong> next to the <code>.qmd</code>, and opens it</li>
+</ol>
+<p>If any chunk stops with an error, the render stops there and no new HTML is written. The HTML from the last successful render stays where it was, so after a failed render the page you open is out of date. Check the render’s message before reading the page.</p>
+</div>
+<div id="tabset-4-2">
+<p>The new R session in step 1 knows nothing about your Console. A table you made by typing at the Console, or a package you loaded there, does not exist for the render.</p>
+<p>Suppose you typed <code>farms &lt;- read_csv("farms.csv")</code> at the Console, and the document has a chunk labelled <code>count-farms</code> with <code>nrow(farms)</code> in it. Clicking the chunk’s green run button works, because that button runs the chunk at your Console. Rendering stops with:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb5-1"><a></a>Error:</span>
+<span id="cb5-2"><a></a>! object 'farms' not found</span>
+<span id="cb5-3"><a></a>Quitting from report.qmd:6-9 [count-farms]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The fix is never to type more at the Console. It is to put the line that makes <code>farms</code> into a chunk above <code>count-farms</code>.</p>
+</div>
+<div id="tabset-4-3">
+<p>Step 2 runs the chunks once, from top to bottom. A chunk can use only what the chunks <strong>above</strong> it made.</p>
+<p>While you work, you can run chunks by hand in any order, so a document can seem to work when it does not: a chunk near the top that uses a table made further down works if you happened to run the lower chunk first. The render does not; it stops at the first chunk that needs something not yet made.</p>
+</div>
+<div id="tabset-4-4">
+<p>During the render, R’s working directory is the folder the <code>.qmd</code> is saved in, not necessarily your project folder (the folder RStudio opens as an R Project, marked by a <code>.Rproj</code> file; lecture 03-1). A path such as <code>"data/farms.csv"</code> is looked up starting from that folder.</p>
+<p>So a path that works at the Console can fail inside a <code>.qmd</code> saved in a subfolder. The fix is <code>here::here()</code>, which builds a path starting from the project folder wherever the <code>.qmd</code> is. Lecture 03-1 explains paths in full; for now, recognise <code>here::here("data", "farms.csv")</code> as “the file <code>farms.csv</code> in the <code>data</code> folder of this project”.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="why-a-document-that-renders-is-reproducible" class="slide level2">
+<h2>Why a document that renders is reproducible</h2>
+<p><strong>Reproducible</strong> means that someone else, or you a year from now, can run the same steps on the same data and get the same results.</p>
+<p>Rendering tests that every time: it starts from nothing and builds every result from the document alone. So if a document renders:</p>
+<ul>
+<li>every step is written down in it, in the order it runs</li>
+<li>nothing depends on something typed at the Console and forgotten</li>
+<li>every number computed in it comes from the data, through the code you can read</li>
+</ul>
+<div title="What rendering does not tell you">
+<div class="callout callout-important no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>What rendering does not tell you</strong></p>
+</div>
+<div class="callout-content">
+<p>A document that renders is complete, not necessarily <strong>right</strong>. The code can run and still do the wrong thing, a sentence can describe something the code does not do, and a chunk option can keep a step out of view. That is why you read the HTML (see “Checking the result”).</p>
+<p>If a chunk has <code>cache: true</code>, a render reuses its result from an earlier render even when the data has changed. Before the final render, delete the folder ending in <code>_cache</code> next to the <code>.qmd</code>.</p>
+</div>
+</div>
+</div>
+</div>
+<div title="A habit before you render">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>A habit before you render</strong></p>
+</div>
+<div class="callout-content">
+<p><strong>Session, Restart R</strong>, then <strong>Run, Run All</strong> (the menu of the Run button above the editor). This runs every chunk at your Console as a render would, so you find a missing step before rendering.</p>
+</div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="reading-a-.qmd-file" class="title-slide slide level1 center">
+<h1>Reading a .qmd file</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="how-the-yaml-header-is-written" class="slide level2">
+<h2>How the YAML header is written</h2>
+<div class="panel-tabset">
+<ul id="tabset-5" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-5-1">The pattern</a></li><li><a href="#tabset-5-2">Settings you will see</a></li><li><a href="#tabset-5-3">When the indentation is wrong</a></li></ul>
+<div class="tab-content">
+<div id="tabset-5-1">
+<p>Every line of the header is a setting, written as a name, a colon and a value:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb6-1"><a></a>---</span>
+<span id="cb6-2"><a></a>name: value</span>
+<span id="cb6-3"><a></a>group:</span>
+<span id="cb6-4"><a></a>  name: value</span>
+<span id="cb6-5"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>name: value</code></td>
+<td>One setting. Text values with spaces or colons go in quotes: <code>title: "Yield: a first look"</code></td>
+</tr>
+<tr class="even">
+<td>A name with nothing after the colon</td>
+<td>A group. The settings that belong to it are on the lines below, indented further</td>
+</tr>
+<tr class="odd">
+<td>Indentation</td>
+<td>Spaces, never tabs. How far a line is indented says which group it belongs to</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-5-2">
+<div class="sourceCode" id="cb7"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb7-1"><a></a>---</span>
+<span id="cb7-2"><a></a>title: "Field yields"</span>
+<span id="cb7-3"><a></a>author: "Your Name"</span>
+<span id="cb7-4"><a></a>date: today</span>
+<span id="cb7-5"><a></a>format:</span>
+<span id="cb7-6"><a></a>  html:</span>
+<span id="cb7-7"><a></a>    toc: true</span>
+<span id="cb7-8"><a></a>    embed-resources: true</span>
+<span id="cb7-9"><a></a>    code-fold: true</span>
+<span id="cb7-10"><a></a>execute:</span>
+<span id="cb7-11"><a></a>  warning: false</span>
+<span id="cb7-12"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Setting</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>title</code>, <code>author</code></td>
+<td>Printed at the top of the page</td>
+</tr>
+<tr class="even">
+<td><code>date: today</code></td>
+<td>Prints the date of the render</td>
+</tr>
+<tr class="odd">
+<td><code>format: html</code></td>
+<td>Produce an HTML page. Settings for that format go in the group under <code>html:</code></td>
+</tr>
+<tr class="even">
+<td><code>toc: true</code></td>
+<td>Add a table of contents built from the headings</td>
+</tr>
+<tr class="odd">
+<td><code>embed-resources: true</code></td>
+<td>Pack figures and styling into the one HTML file, so it can be sent on its own (see “Checking the result”)</td>
+</tr>
+<tr class="even">
+<td><code>code-fold: true</code></td>
+<td>Hide each chunk’s code behind a “Code” button the reader can click</td>
+</tr>
+<tr class="odd">
+<td><code>execute:</code></td>
+<td>Chunk options that apply to every chunk; here, hide warnings everywhere</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-5-3">
+<p><code>toc</code> belongs to <code>html</code>, so it must be indented further than <code>html:</code>. Here it is not:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb8-1"><a></a>---</span>
+<span id="cb8-2"><a></a>title: "Field yields"</span>
+<span id="cb8-3"><a></a>format:</span>
+<span id="cb8-4"><a></a>  html:</span>
+<span id="cb8-5"><a></a>  toc: true</span>
+<span id="cb8-6"><a></a>---</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Quarto refuses to render, names the line, and prints <code>Render failed due to invalid YAML</code>. When the AI changes a header and the render then fails at once, the header is the first place to look.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="how-a-code-chunk-is-written" class="slide level2">
+<h2>How a code chunk is written</h2>
+<div class="panel-tabset">
+<ul id="tabset-6" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-6-1">The pattern</a></li><li><a href="#tabset-6-2">Options you will see</a></li><li><a href="#tabset-6-3">What the reader sees</a></li><li><a href="#tabset-6-4">Variations you will see</a></li></ul>
+<div class="tab-content">
+<div id="tabset-6-1">
+<div class="sourceCode" id="cb9"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb9-1"><a></a>```{r}</span>
+<span id="cb9-2"><a></a>#| label: name-of-chunk</span>
+<span id="cb9-3"><a></a>#| option: value</span>
+<span id="cb9-4"><a></a>R code</span>
+<span id="cb9-5"><a></a>```</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Part</th>
+<th>What it is</th>
+<th>Required?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>```{r}</code> and <code>```</code></td>
+<td>The start and end of the chunk; <code>r</code> says the code is R</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>#| label: ...</code></td>
+<td>A name for the chunk: unique in the document, no spaces</td>
+<td>No, but an error message then names the chunk by its label</td>
+</tr>
+<tr class="odd">
+<td><code>#| option: value</code></td>
+<td>One chunk option per line, right below the first line, with no blank line in between</td>
+<td>No; each has a default</td>
+</tr>
+<tr class="even">
+<td>R code</td>
+<td>Runs when the document is rendered</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-6-2">
+<table class="caption-top">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Option</th>
+<th>What it controls</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>echo</code></td>
+<td>Whether the code is <strong>shown</strong> in the HTML</td>
+<td><code>true</code></td>
+</tr>
+<tr class="even">
+<td><code>eval</code></td>
+<td>Whether the code is <strong>run</strong> at all</td>
+<td><code>true</code></td>
+</tr>
+<tr class="odd">
+<td><code>include: false</code></td>
+<td>Runs the code but shows <strong>nothing</strong>: no code, no result</td>
+<td>shows everything</td>
+</tr>
+<tr class="even">
+<td><code>message</code>, <code>warning</code></td>
+<td>Whether messages and warnings from the code are shown</td>
+<td><code>true</code></td>
+</tr>
+<tr class="odd">
+<td><code>code-fold: true</code></td>
+<td>Hides the code behind a button the reader can click</td>
+<td>not folded</td>
+</tr>
+<tr class="even">
+<td><code>fig-cap</code></td>
+<td>A caption under a figure</td>
+<td>none</td>
+</tr>
+<tr class="odd">
+<td><code>error: true</code></td>
+<td>Lets the render continue past an error, printing the error in the page</td>
+<td><code>false</code>: stop</td>
+</tr>
+</tbody>
+</table>
+<p>The same options can be set for every chunk at once under <code>execute:</code> in the YAML header. An option written in a chunk overrides the one in the header.</p>
+</div>
+<div id="tabset-6-3">
+<p>The options that matter most for judging a document are the ones that decide what the reader can see:</p>
+<table class="caption-top">
+<thead>
+<tr class="header">
+<th>Chunk options</th>
+<th>Code runs?</th>
+<th>Code shown?</th>
+<th>Result shown?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>none</td>
+<td>yes</td>
+<td>yes</td>
+<td>yes</td>
+</tr>
+<tr class="even">
+<td><code>code-fold: true</code></td>
+<td>yes</td>
+<td>behind a button</td>
+<td>yes</td>
+</tr>
+<tr class="odd">
+<td><code>echo: false</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td>yes</td>
+</tr>
+<tr class="even">
+<td><code>include: false</code></td>
+<td>yes</td>
+<td><strong>no</strong></td>
+<td><strong>no</strong></td>
+</tr>
+<tr class="odd">
+<td><code>eval: false</code></td>
+<td><strong>no</strong></td>
+<td>yes</td>
+<td>nothing to show</td>
+</tr>
+</tbody>
+</table>
+<p>The rows marked <strong>no</strong> are the ones to notice. A chunk with <code>include: false</code> can still change the data; the reader of the HTML sees no trace of it.</p>
+</div>
+<div id="tabset-6-4">
+<ul>
+<li><code>#| echo: false</code> and <code>{r, echo = FALSE}</code> (options inside the braces): the second is an older way of writing the same thing. Both work.</li>
+<li><code>#| label: fig-yield</code> with <code>#| fig-cap: "..."</code>: a label that starts with <code>fig-</code> makes a numbered figure that the text can refer to (lecture 02-4).</li>
+<li>A chunk with only <code>library(...)</code> lines and <code>include: false</code> at the top of the document: a <strong>setup chunk</strong>. It loads packages without filling the page with them.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="how-inline-r-is-written" class="slide level2">
+<h2>How inline R is written</h2>
+<div class="panel-tabset">
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The pattern</a></li><li><a href="#tabset-7-2">Why it matters</a></li><li><a href="#tabset-7-3">Variations you will see</a></li></ul>
+<div class="tab-content">
+<div id="tabset-7-1">
+<p>Inside a sentence, a backtick, the letter <code>r</code>, a space, an R expression and a closing backtick:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb10-1"><a></a>The average yield is `r mean(fields$yield)` bushels per acre.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>When the document is rendered, the expression is run and its result replaces it. The reader of the HTML sees only the number:</p>
+<blockquote>
+<p>The average yield is 188.5 bushels per acre.</p>
+</blockquote>
+<p>It runs in the same R session as the chunks, so it can use anything made by a chunk above it.</p>
+</div>
+<div id="tabset-7-2">
+<p>A number typed into a sentence is a copy, made once. A number written with inline R is computed at every render, so it always matches the data and the code.</p>
+<p>If someone adds a fifth field to <code>fields</code> and renders again, the sentence changes by itself:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a></a>fields_5 <span class="ot">&lt;-</span> <span class="fu">rbind</span>(fields, <span class="fu">data.frame</span>(<span class="at">field =</span> <span class="st">"Creek"</span>, <span class="at">acres =</span> <span class="dv">25</span>, <span class="at">yield =</span> <span class="dv">150</span>))</span>
+<span id="cb11-2"><a></a><span class="fu">mean</span>(fields_5<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 180.8</code></pre>
+</div>
+</div>
+<p>A typed “188.5 bushels per acre” would now be wrong, and nothing would say so.</p>
+</div>
+<div id="tabset-7-3">
+<ul>
+<li><code>`r round(mean(fields$yield), 1)`</code>: rounded inside the sentence</li>
+<li>A value computed in a chunk, given a name, and only the name used inline: <code>`r avg_yield`</code>. Long calculations belong in a chunk, not in a sentence.</li>
+<li><code>`{r} mean(fields$yield)`</code>: a newer way of writing the same thing. Both work.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+<section id="when-a-render-fails" class="slide level2 scrollable">
+<h2>When a render fails</h2>
+<div class="panel-tabset">
+<ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Read the message</a></li><li><a href="#tabset-8-2">Errors you will meet</a></li><li><a href="#tabset-8-3">What to send the AI</a></li></ul>
+<div class="tab-content">
+<div id="tabset-8-1">
+<p>Quarto prints the error in the <strong>Background Jobs</strong> tab of RStudio. Read the last lines first:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb13-1"><a></a>Error:</span>
+<span id="cb13-2"><a></a>! object 'farms' not found</span>
+<span id="cb13-3"><a></a>Quitting from report.qmd:6-9 [count-farms]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ul>
+<li>The line starting with <code>!</code> is R’s own error.</li>
+<li><code>Quitting from</code> names the file, the lines, and the chunk’s label in square brackets.</li>
+</ul>
+</div>
+<div id="tabset-8-2">
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>The error says</th>
+<th>What it usually means</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>object '...' not found</code></td>
+<td>The table or value is made at your Console or further down the document, not in a chunk above this one</td>
+</tr>
+<tr class="even">
+<td><code>could not find function "..."</code></td>
+<td>The package is loaded at your Console but not in the document, or the name is misspelled</td>
+</tr>
+<tr class="odd">
+<td><code>cannot open file '...'</code> or <code>does not exist</code></td>
+<td>The path is wrong from the <code>.qmd</code>’s folder (Lecture 03-1)</td>
+</tr>
+<tr class="even">
+<td><code>Render failed due to invalid YAML</code></td>
+<td>A mistake in the header: usually indentation, or a missing colon</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-8-3">
+<p>The AI did not see your render. Send it:</p>
+<ol type="1">
+<li>the error lines, copied exactly</li>
+<li>the chunk the error names</li>
+<li>the folder the <code>.qmd</code> is in, if the error is about a file</li>
+</ol>
+<p>Then render again yourself. “Fixed” means the document renders, not that the AI says it is fixed.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="asking-ai" class="title-slide slide level1 center">
+<h1>Asking AI</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="working-with-ai-on-your-own-research" class="slide level2 scrollable">
+<h2>Working with AI on your own research</h2>
+<p>This is the way of working with AI that you should take into your own research. Every exercise in this course uses it, so that it is a habit by the time your thesis needs it.</p>
+<ol type="1">
+<li><strong>You ask.</strong> Your request says what you want, what you know about the data, and which checks to print.</li>
+<li><strong>The AI writes into a Quarto document</strong> (<code>.qmd</code>). Code goes into code chunks, with one plain-English sentence above each chunk saying what it does and why.</li>
+<li><strong>You render</strong> the <code>.qmd</code> to HTML.</li>
+<li><strong>You read the HTML</strong> and decide whether the work is right: the sentences, the code, and the check results side by side.</li>
+</ol>
+<p>Why this matters for research, and why you judge the HTML rather than the chat window:</p>
+<ul>
+<li>Rendering runs every chunk from the top in a fresh R session. If the HTML is right, the analysis is reproducible; nothing depends on something typed into the Console and forgotten.</li>
+<li>The HTML is a record of what was done to the data and why, with each explanation next to its code and its result. You can reread it months later, and your advisor or a coauthor can review your analysis by reading it, without running anything.</li>
+<li>The chat disappears; the <code>.qmd</code> and its HTML stay with your project.</li>
+</ul>
+<div class="callout callout-note no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Note</strong></p>
+</div>
+<div class="callout-content">
+<p>Every request that asks for code ends with the same few lines telling the AI to work this way. This deck calls them the <strong>closing instructions</strong>; the full text is under <strong>Recommended requests</strong> near the end.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="what-to-put-in-your-request" class="slide level2 scrollable">
+<h2>What to put in your request</h2>
+<p>The AI can write any chunk and any header. What it cannot know is how your document is organised and who reads it. Your request supplies:</p>
+<ol type="1">
+<li><strong>Where the code goes</strong>: which <code>.qmd</code>, and under which heading</li>
+<li><strong>What the reader should see</strong>: code shown, code folded behind a button, or only the result. Only setup chunks (loading packages) should be hidden completely.</li>
+<li><strong>Which numbers go into sentences</strong>: ask for them as inline R, never typed</li>
+<li><strong>The checks</strong>: what to print so the HTML shows whether the step worked</li>
+<li><strong>The closing instructions</strong>: which <code>.qmd</code> and heading, a sentence above each chunk, paths built with <code>here::here()</code>, checks printed as expected and got, and render to HTML</li>
+</ol>
+<div title="Chat assistant or agent?">
+<div class="callout callout-tip no-icon callout-titled callout-style-default">
+<div class="callout-body">
+<div class="callout-title">
+<p><strong>Chat assistant or agent?</strong></p>
+</div>
+<div class="callout-content">
+<p>A chat assistant cannot open or render your files: paste its chunks into your <code>.qmd</code> under the right heading and render yourself. An agent in your editor or terminal, such as Claude Code, can edit and render the file itself. Either way, you read the HTML.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<section id="a-weak-request-and-a-strong-one" class="slide level2">
+<h2>A weak request and a strong one</h2>
+<div class="panel-tabset">
+<ul id="tabset-9" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-9-1">Weak</a></li><li><a href="#tabset-9-2">Strong</a></li><li><a href="#tabset-9-3">What came back</a></li></ul>
+<div class="tab-content">
+<div id="tabset-9-1">
+<div class="sourceCode" id="cb14"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb14-1"><a></a>What is the average yield of my fields?</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A typical reply is a number in the chat window, or a chunk of code you run at the Console. Either way, the number is not in your document, no one can see how it was made, and the next time the data changes, nothing updates it.</p>
+</div>
+<div id="tabset-9-2">
+<div class="sourceCode" id="cb15"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb15-1"><a></a>My table fields has one row per field, with columns field, acres and</span>
+<span id="cb15-2"><a></a>yield (bushels per acre). Compute the average yield across all fields,</span>
+<span id="cb15-3"><a></a>and write one sentence reporting it, with the number written as inline</span>
+<span id="cb15-4"><a></a>R rounded to one decimal, not typed. Show the code; do not hide any</span>
+<span id="cb15-5"><a></a>chunk. Check the number of fields (I expect 4).</span>
+<span id="cb15-6"><a></a></span>
+<span id="cb15-7"><a></a>Put the code in my Quarto document analysis/report.qmd, under the</span>
+<span id="cb15-8"><a></a>heading "Average yield", as R code chunks. Above each chunk, write one</span>
+<span id="cb15-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb15-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb15-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb15-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-9-3">
+<p>What the AI’s answer looks like in the rendered HTML: a sentence, then the chunk it describes, then the sentence with the number.</p>
+<p>Check that the table has the four fields expected, then compute the average yield.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a></a><span class="fu">cat</span>(<span class="st">"number of fields: expected 4, got"</span>, <span class="fu">nrow</span>(fields), <span class="st">"</span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>number of fields: expected 4, got 4 </code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a></a>avg_yield <span class="ot">&lt;-</span> <span class="fu">round</span>(<span class="fu">mean</span>(fields<span class="sc">$</span>yield), <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The average yield across the fields is 188.5 bushels per acre.</p>
+<p>In the <code>.qmd</code>, that last sentence reads <code>`r avg_yield`</code>, not a typed number. Opening the <code>.qmd</code> to confirm it is part of checking: the HTML looks the same either way.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="checking-the-result" class="title-slide slide level1 center">
+<h1>Checking the result</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-to-check-in-the-html-and-why" class="slide level2">
+<h2>What to check in the HTML, and why</h2>
+<div class="panel-tabset">
+<ul id="tabset-10" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-10-1">The checks</a></li><li><a href="#tabset-10-2">What the HTML can hide</a></li><li><a href="#tabset-10-3">Sending the HTML</a></li></ul>
+<div class="tab-content">
+<div id="tabset-10-1">
+<p>The AI cannot see the rendered page the way your reader does. Check these every time:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Check</th>
+<th>Why</th>
+<th>What only you can supply</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>It renders</td>
+<td>A render starts from nothing, so it proves nothing depends on your Console</td>
+<td>Doing it, and reading the render’s message</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>Every chunk has a sentence above it, and the code does what the sentence says</td>
+<td>The sentence is what a reader trusts; a wrong one misleads</td>
+<td>Reading both</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>Every “expected X, got Y” line matches</td>
+<td>The checks are where a silent mistake shows up</td>
+<td>The expected values, from knowing your data</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>No step that changes the data is hidden</td>
+<td>A hidden chunk changes the results without a trace in the HTML</td>
+<td>Opening the <code>.qmd</code> and looking at the chunk options</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>Every number in a sentence agrees with the result above it, and is inline R in the <code>.qmd</code></td>
+<td>A typed number goes stale without warning</td>
+<td>Comparing them</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-10-2">
+<p>The HTML shows what the chunk options let it show. Here, a chunk with <code>include: false</code> dropped the smallest field before the average was computed. The reader sees only this:</p>
+<p>Compute the average yield across the fields.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">mean</span>(fields_shown<span class="sc">$</span>yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 193</code></pre>
+</div>
+</div>
+<p>Nothing on the page says that a field was dropped. Only the <code>.qmd</code> does, or a check of the number of fields printed in the HTML (expected 4, got 3). This is why check 4 means opening the <code>.qmd</code>, and why every chunk except the setup chunk should be shown or folded, never hidden (an article may also hide a chunk that only prints checks, lecture 02-4).</p>
+</div>
+<div id="tabset-10-3">
+<p>By default, rendering <code>report.qmd</code> writes <code>report.html</code> <strong>and</strong> a folder <code>report_files/</code> holding its figures and styling. The HTML only points at that folder.</p>
+<ul>
+<li>Send <code>report.html</code> on its own, and the reader sees it without its figures and styling.</li>
+<li>With <code>embed-resources: true</code> under <code>html:</code> in the header, everything is packed into the one HTML file.</li>
+</ul>
+<p>To check: move only the <code>.html</code> file to another folder, open it there, and confirm the figures are still in it.</p>
+</div>
+</div>
+</div>
+</section>
+<section id="your-turn-read-a-.qmd-before-rendering-it" class="slide level2">
+<h2>Your turn: read a .qmd before rendering it</h2>
+<p>An AI added this to a student’s report:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode numberSource default number-lines code-with-copy"><code class="sourceCode default"><span id="cb21-1"><a></a>```{r}</span>
+<span id="cb21-2"><a></a>#| label: setup</span>
+<span id="cb21-3"><a></a>#| include: false</span>
+<span id="cb21-4"><a></a>library(dplyr)</span>
+<span id="cb21-5"><a></a>```</span>
+<span id="cb21-6"><a></a></span>
+<span id="cb21-7"><a></a>```{r}</span>
+<span id="cb21-8"><a></a>#| label: clean</span>
+<span id="cb21-9"><a></a>#| echo: false</span>
+<span id="cb21-10"><a></a>fields &lt;- filter(fields, yield &gt; 0)</span>
+<span id="cb21-11"><a></a>```</span>
+<span id="cb21-12"><a></a></span>
+<span id="cb21-13"><a></a>Compute the total acres.</span>
+<span id="cb21-14"><a></a></span>
+<span id="cb21-15"><a></a>```{r}</span>
+<span id="cb21-16"><a></a>#| label: total-acres</span>
+<span id="cb21-17"><a></a>#| eval: false</span>
+<span id="cb21-18"><a></a>sum(fields$acres)</span>
+<span id="cb21-19"><a></a>```</span>
+<span id="cb21-20"><a></a></span>
+<span id="cb21-21"><a></a>The fields cover 275 acres in total.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="panel-tabset">
+<ul id="tabset-11" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-11-1">Questions</a></li><li><a href="#tabset-11-2">Answers</a></li></ul>
+<div class="tab-content">
+<div id="tabset-11-1">
+<p>A. For each of the three chunks: does it run, is its code shown, is its result shown?</p>
+<p>B. What happens to the data that the reader of the HTML cannot see?</p>
+<p>C. Is “275 acres” computed? How would you tell from the HTML alone, and from the <code>.qmd</code>?</p>
+<p>D. What would you ask the AI to change?</p>
+</div>
+<div id="tabset-11-2">
+<p>A. <code>setup</code>: runs, nothing shown. <code>clean</code>: runs, code hidden (it prints nothing, so the reader sees nothing). <code>total-acres</code>: code shown, but <strong>not run</strong>, so no total is printed.</p>
+<p>B. The <code>clean</code> chunk drops every field with a yield of 0 or less, with no sentence and no code on the page.</p>
+<p>C. No.&nbsp;It is typed, and the chunk that would compute it never ran. From the HTML you cannot tell a typed number from a computed one; from the <code>.qmd</code> you can: no <code>`r `</code> in the sentence.</p>
+<p>D. Show the <code>clean</code> chunk with a sentence saying why fields are dropped, and print how many were dropped; remove <code>eval: false</code>; write the total as inline R.</p>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="recommended-requests" class="title-slide slide level1 center">
+<h1>Recommended requests</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="requests-you-can-copy" class="slide level2">
+<h2>Requests you can copy</h2>
+<p>Copy one, then replace every <code>&lt;...&gt;</code> with what only <strong>you</strong> know. Every request for code ends with the closing instructions. When a request changes a whole document, put the heading where new chunks go, or the document’s first heading.</p>
+<div class="panel-tabset">
+<ul id="tabset-12" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-12-1">Closing instructions</a></li><li><a href="#tabset-12-2">Start a document</a></li><li><a href="#tabset-12-3">Report a number in a sentence</a></li><li><a href="#tabset-12-4">Show every step</a></li><li><a href="#tabset-12-5">Fix a failed render</a></li><li><a href="#tabset-12-6">Explain a document</a></li></ul>
+<div class="tab-content">
+<div id="tabset-12-1">
+<p>The lines that end every request for code. Replace the two blanks; leave “expected X, got Y” as it is, because it tells the AI how to print each check:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb22-1"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb22-2"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb22-3"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb22-4"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb22-5"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb22-6"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A chat assistant cannot render: paste its chunks into your <code>.qmd</code> and render it yourself. An agent in your editor or terminal can do every step.</p>
+</div>
+<div id="tabset-12-2">
+<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a></a>Create a Quarto document at &lt;path to the new .qmd&gt; with the title</span>
+<span id="cb23-2"><a></a>"&lt;title&gt;" and my name, &lt;your name&gt;, as author. It renders to a single</span>
+<span id="cb23-3"><a></a>HTML file with embedded resources and a table of contents. Add a setup</span>
+<span id="cb23-4"><a></a>chunk, hidden, that loads &lt;packages&gt;, and these headings, with no code</span>
+<span id="cb23-5"><a></a>under them yet: &lt;headings, in order&gt;.</span>
+<span id="cb23-6"><a></a></span>
+<span id="cb23-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb23-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb23-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb23-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb23-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb23-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-3">
+<div class="sourceCode" id="cb24"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb24-1"><a></a>Using the table &lt;table name&gt;, compute &lt;what to compute&gt;. Write one</span>
+<span id="cb24-2"><a></a>sentence reporting it, with the number written as inline R rounded to</span>
+<span id="cb24-3"><a></a>&lt;number&gt; decimals, never typed. Check &lt;a check you know the answer to&gt;.</span>
+<span id="cb24-4"><a></a></span>
+<span id="cb24-5"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb24-6"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb24-7"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb24-8"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb24-9"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb24-10"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-4">
+<div class="sourceCode" id="cb25"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb25-1"><a></a>Go through &lt;path to your .qmd&gt;. For every chunk with include: false or</span>
+<span id="cb25-2"><a></a>echo: false, except the setup chunk that loads packages, tell me what it</span>
+<span id="cb25-3"><a></a>does. If it changes any table, make its code visible with code-fold:</span>
+<span id="cb25-4"><a></a>true and put a sentence above it. List every number typed into a</span>
+<span id="cb25-5"><a></a>sentence, and replace each with inline R.</span>
+<span id="cb25-6"><a></a></span>
+<span id="cb25-7"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb25-8"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb25-9"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb25-10"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb25-11"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb25-12"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-5">
+<div class="sourceCode" id="cb26"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb26-1"><a></a>My Quarto document &lt;path to your .qmd&gt; fails to render. The error is:</span>
+<span id="cb26-2"><a></a></span>
+<span id="cb26-3"><a></a>&lt;paste the error lines exactly&gt;</span>
+<span id="cb26-4"><a></a></span>
+<span id="cb26-5"><a></a>The chunk it names is:</span>
+<span id="cb26-6"><a></a></span>
+<span id="cb26-7"><a></a>&lt;paste the chunk&gt;</span>
+<span id="cb26-8"><a></a></span>
+<span id="cb26-9"><a></a>Explain in one plain-English sentence why it fails when rendered, then</span>
+<span id="cb26-10"><a></a>fix it inside the document, not at the Console.</span>
+<span id="cb26-11"><a></a></span>
+<span id="cb26-12"><a></a>Put the code in my Quarto document &lt;path to your .qmd&gt;, under the</span>
+<span id="cb26-13"><a></a>heading "&lt;heading&gt;", as R code chunks. Above each chunk, write one</span>
+<span id="cb26-14"><a></a>plain-English sentence saying what it does and why. Build every path</span>
+<span id="cb26-15"><a></a>with here::here(); no setwd(), no absolute paths. Print each check on</span>
+<span id="cb26-16"><a></a>its own line as "name of check: expected X, got Y". Render the document</span>
+<span id="cb26-17"><a></a>to HTML.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div id="tabset-12-6">
+<p>For a <code>.qmd</code> you did not write:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb27-1"><a></a>Explain this Quarto document to me. For each chunk, say in one</span>
+<span id="cb27-2"><a></a>plain-English sentence what it does, whether it runs, and whether its</span>
+<span id="cb27-3"><a></a>code and its result appear in the HTML. Then list:</span>
+<span id="cb27-4"><a></a>1. any chunk that changes the data without being visible in the HTML</span>
+<span id="cb27-5"><a></a>2. any number in a sentence that is typed rather than computed</span>
+<span id="cb27-6"><a></a></span>
+<span id="cb27-7"><a></a>&lt;paste the document here&gt;</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</div>
+</div>
+</section></section>
+<section>
+<section id="summary" class="title-slide slide level1 center">
+<h1>Summary</h1>
+
+<div style="float:left">
+
+</div>
+<hr color="#EB811B" size="1px" width="796px">
+
+</section>
+<section id="what-you-must-understand-and-what-the-ai-can-write" class="slide level2">
+<h2>What you must understand, and what the AI can write</h2>
+<table class="caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>You need to understand</th>
+<th>The AI can write</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What rendering does: a new R session, every chunk from the top, in the <code>.qmd</code>’s folder</td>
+<td>The chunks</td>
+</tr>
+<tr class="even">
+<td>Why a document that renders is reproducible, and why that does not make it right</td>
+<td>The YAML header</td>
+</tr>
+<tr class="odd">
+<td>What the reader sees under each chunk option, and which steps must stay visible</td>
+<td>The chunk options</td>
+</tr>
+<tr class="even">
+<td>Which numbers belong in sentences, and that they must be computed</td>
+<td>The inline R</td>
+</tr>
+<tr class="odd">
+<td>How to read a render error and what to send back</td>
+<td>The fix</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Every document:</strong> ask for the code to go into your <code>.qmd</code>, with a sentence above each chunk and checks printed as expected and got. Render, and judge the HTML: the sentences, the code, the checks, and the numbers in the text. Open the <code>.qmd</code> to see what the HTML does not show.</p>
+
+
+</section></section>
+    </div>
+  <div class="quarto-auto-generated-content" style="display: none;">
+<div class="footer footer-default">
+<p><a href="../index.html">back to the lecture slides</a></p>
+</div>
+</div></div>
+
+  <script>window.backupDefine = window.define; window.define = undefined;</script>
+  <script src="../../site_libs/revealjs/dist/reveal.js"></script>
+  <!-- reveal.js plugins -->
+  <script src="../../site_libs/revealjs/plugin/quarto-line-highlight/line-highlight.js"></script>
+  <script src="../../site_libs/revealjs/plugin/pdf-export/pdfexport.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/reveal-menu/quarto-menu.js"></script>
+  <script src="../../site_libs/revealjs/plugin/quarto-support/support.js"></script>
+  
+
+  <script src="../../site_libs/revealjs/plugin/notes/notes.js"></script>
+  <script src="../../site_libs/revealjs/plugin/search/search.js"></script>
+  <script src="../../site_libs/revealjs/plugin/zoom/zoom.js"></script>
+  <script src="../../site_libs/revealjs/plugin/math/math.js"></script>
+  <script>window.define = window.backupDefine; window.backupDefine = undefined;</script>
+
+  <script>
+
+      // Full list of configuration options available at:
+      // https://revealjs.com/config/
+      Reveal.initialize({
+'controlsAuto': true,
+'previewLinksAuto': false,
+'pdfSeparateFragments': false,
+'autoAnimateEasing': "ease",
+'autoAnimateDuration': 1,
+'autoAnimateUnmatched': true,
+'jumpToSlide': true,
+'menu': {"side":"left","useTextContentForMissingTitles":true,"markers":false,"loadIcons":false,"custom":[{"title":"Tools","icon":"<i class=\"fas fa-gear\"></i>","content":"<ul class=\"slide-menu-items\">\n<li class=\"slide-tool-item active\" data-item=\"0\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.fullscreen(event)\"><kbd>f</kbd> Fullscreen</a></li>\n<li class=\"slide-tool-item\" data-item=\"1\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.speakerMode(event)\"><kbd>s</kbd> Speaker View</a></li>\n<li class=\"slide-tool-item\" data-item=\"2\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.overview(event)\"><kbd>o</kbd> Slide Overview</a></li>\n<li class=\"slide-tool-item\" data-item=\"3\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.togglePdfExport(event)\"><kbd>e</kbd> PDF Export Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"4\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.toggleScrollView(event)\"><kbd>r</kbd> Scroll View Mode</a></li>\n<li class=\"slide-tool-item\" data-item=\"5\"><a href=\"#\" onclick=\"RevealMenuToolHandlers.keyboardHelp(event)\"><kbd>?</kbd> Keyboard Help</a></li>\n</ul>"}],"openButton":true},
+'smaller': false,
+ 
+        // Display controls in the bottom right corner
+        controls: false,
+
+        // Help the user learn the controls by providing hints, for example by
+        // bouncing the down arrow when they first encounter a vertical slide
+        controlsTutorial: false,
+
+        // Determines where controls appear, "edges" or "bottom-right"
+        controlsLayout: 'edges',
+
+        // Visibility rule for backwards navigation arrows; "faded", "hidden"
+        // or "visible"
+        controlsBackArrows: 'faded',
+
+        // Display a presentation progress bar
+        progress: true,
+
+        // Display the page number of the current slide
+        slideNumber: false,
+
+        // 'all', 'print', or 'speaker'
+        showSlideNumber: 'all',
+
+        // Add the current slide number to the URL hash so that reloading the
+        // page/copying the URL will return you to the same slide
+        hash: true,
+
+        // Start with 1 for the hash rather than 0
+        hashOneBasedIndex: false,
+
+        // Flags if we should monitor the hash and change slides accordingly
+        respondToHashChanges: true,
+
+        // Push each slide change to the browser history
+        history: true,
+
+        // Enable keyboard shortcuts for navigation
+        keyboard: true,
+
+        // Enable the slide overview mode
+        overview: true,
+
+        // Disables the default reveal.js slide layout (scaling and centering)
+        // so that you can use custom CSS layout
+        disableLayout: false,
+
+        // Vertical centering of slides
+        center: false,
+
+        // Enables touch navigation on devices with touch input
+        touch: true,
+
+        // Loop the presentation
+        loop: false,
+
+        // Change the presentation direction to be RTL
+        rtl: false,
+
+        // see https://revealjs.com/vertical-slides/#navigation-mode
+        navigationMode: 'linear',
+
+        // Randomizes the order of slides each time the presentation loads
+        shuffle: false,
+
+        // Turns fragments on and off globally
+        fragments: true,
+
+        // Flags whether to include the current fragment in the URL,
+        // so that reloading brings you to the same fragment position
+        fragmentInURL: false,
+
+        // Flags if the presentation is running in an embedded mode,
+        // i.e. contained within a limited portion of the screen
+        embedded: false,
+
+        // Flags if we should show a help overlay when the questionmark
+        // key is pressed
+        help: true,
+
+        // Flags if it should be possible to pause the presentation (blackout)
+        pause: true,
+
+        // Flags if speaker notes should be visible to all viewers
+        showNotes: false,
+
+        // Global override for autoplaying embedded media (null/true/false)
+        autoPlayMedia: null,
+
+        // Global override for preloading lazy-loaded iframes (null/true/false)
+        preloadIframes: null,
+
+        // Number of milliseconds between automatically proceeding to the
+        // next slide, disabled when set to 0, this value can be overwritten
+        // by using a data-autoslide attribute on your slides
+        autoSlide: 0,
+
+        // Stop auto-sliding after user input
+        autoSlideStoppable: true,
+
+        // Use this method for navigation when auto-sliding
+        autoSlideMethod: null,
+
+        // Specify the average time in seconds that you think you will spend
+        // presenting each slide. This is used to show a pacing timer in the
+        // speaker view
+        defaultTiming: null,
+
+        // Enable slide navigation via mouse wheel
+        mouseWheel: false,
+
+        // The display mode that will be used to show slides
+        display: 'block',
+
+        // Hide cursor if inactive
+        hideInactiveCursor: true,
+
+        // Time before the cursor is hidden (in ms)
+        hideCursorTime: 5000,
+
+        // Opens links in an iframe preview overlay
+        previewLinks: false,
+
+        // Transition style (none/fade/slide/convex/concave/zoom)
+        transition: 'none',
+
+        // Transition speed (default/fast/slow)
+        transitionSpeed: 'default',
+
+        // Transition style for full page slide backgrounds
+        // (none/fade/slide/convex/concave/zoom)
+        backgroundTransition: 'none',
+
+        // Number of slides away from the current that are visible
+        viewDistance: 3,
+
+        // Number of slides away from the current that are visible on mobile
+        // devices. It is advisable to set this to a lower number than
+        // viewDistance in order to save resources.
+        mobileViewDistance: 2,
+
+        // The "normal" size of the presentation, aspect ratio will be preserved
+        // when the presentation is scaled to fit different resolutions. Can be
+        // specified using percentage units.
+        width: 1050,
+
+        height: 700,
+
+        // Factor of the display size that should remain empty around the content
+        margin: 0.1,
+
+        math: {
+          mathjax: 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.9/MathJax.js',
+          config: 'TeX-AMS_HTML-full',
+          tex2jax: {
+            inlineMath: [['\\(','\\)']],
+            displayMath: [['\\[','\\]']],
+            balanceBraces: true,
+            processEscapes: false,
+            processRefs: true,
+            processEnvironments: true,
+            preview: 'TeX',
+            skipTags: ['script','noscript','style','textarea','pre','code'],
+            ignoreClass: 'tex2jax_ignore',
+            processClass: 'tex2jax_process'
+          },
+        },
+
+        // reveal.js plugins
+        plugins: [QuartoLineHighlight, PdfExport, RevealMenu, QuartoSupport,
+
+          RevealMath,
+          RevealNotes,
+          RevealSearch,
+          RevealZoom
+        ]
+      });
+    </script>
+    
+    <script>
+      // htmlwidgets need to know to resize themselves when slides are shown/hidden.
+      // Fire the "slideenter" event (handled by htmlwidgets.js) when the current
+      // slide changes (different for each slide format).
+      (function () {
+        // dispatch for htmlwidgets
+        function fireSlideEnter() {
+          const event = window.document.createEvent("Event");
+          event.initEvent("slideenter", true, true);
+          window.document.dispatchEvent(event);
+        }
+
+        function fireSlideChanged(previousSlide, currentSlide) {
+          fireSlideEnter();
+
+          // dispatch for shiny
+          if (window.jQuery) {
+            if (previousSlide) {
+              window.jQuery(previousSlide).trigger("hidden");
+            }
+            if (currentSlide) {
+              window.jQuery(currentSlide).trigger("shown");
+            }
+          }
+        }
+
+        // hookup for slidy
+        if (window.w3c_slidy) {
+          window.w3c_slidy.add_observer(function (slide_num) {
+            // slide_num starts at position 1
+            fireSlideChanged(null, w3c_slidy.slides[slide_num - 1]);
+          });
+        }
+
+      })();
+    </script>
+
+    <script id="quarto-html-after-body" type="application/javascript">
+      window.document.addEventListener("DOMContentLoaded", function (event) {
+        const tabsets =  window.document.querySelectorAll(".panel-tabset-tabby")
+        tabsets.forEach(function(tabset) {
+          const tabby = new Tabby('#' + tabset.id);
+        });
+        const isCodeAnnotation = (el) => {
+          for (const clz of el.classList) {
+            if (clz.startsWith('code-annotation-')) {                     
+              return true;
+            }
+          }
+          return false;
+        }
+        const onCopySuccess = function(e) {
+          // button target
+          const button = e.trigger;
+          // don't keep focus
+          button.blur();
+          // flash "checked"
+          button.classList.add('code-copy-button-checked');
+          var currentTitle = button.getAttribute("title");
+          button.setAttribute("title", "Copied!");
+          let tooltip;
+          if (window.bootstrap) {
+            button.setAttribute("data-bs-toggle", "tooltip");
+            button.setAttribute("data-bs-placement", "left");
+            button.setAttribute("data-bs-title", "Copied!");
+            tooltip = new bootstrap.Tooltip(button, 
+              { trigger: "manual", 
+                customClass: "code-copy-button-tooltip",
+                offset: [0, -8]});
+            tooltip.show();    
+          }
+          setTimeout(function() {
+            if (tooltip) {
+              tooltip.hide();
+              button.removeAttribute("data-bs-title");
+              button.removeAttribute("data-bs-toggle");
+              button.removeAttribute("data-bs-placement");
+            }
+            button.setAttribute("title", currentTitle);
+            button.classList.remove('code-copy-button-checked');
+          }, 1000);
+          // clear code selection
+          e.clearSelection();
+        }
+        const getTextToCopy = function(trigger) {
+            const codeEl = trigger.previousElementSibling.cloneNode(true);
+            for (const childEl of codeEl.children) {
+              if (isCodeAnnotation(childEl)) {
+                childEl.remove();
+              }
+            }
+            return codeEl.innerText;
+        }
+        const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+          text: getTextToCopy
+        });
+        clipboard.on('success', onCopySuccess);
+        if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+          const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+            text: getTextToCopy,
+            container: window.document.getElementById('quarto-embedded-source-code-modal')
+          });
+          clipboardModal.on('success', onCopySuccess);
+        }
+          var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+          var mailtoRegex = new RegExp(/^mailto:/);
+            var filterRegex = new RegExp('/' + window.location.host + '/');
+          var isInternal = (href) => {
+              return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+          }
+          // Inspect non-navigation links and adorn them if external
+         var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+          for (var i=0; i<links.length; i++) {
+            const link = links[i];
+            if (!isInternal(link.href)) {
+              // undo the damage that might have been done by quarto-nav.js in the case of
+              // links that we want to consider external
+              if (link.dataset.originalHref !== undefined) {
+                link.href = link.dataset.originalHref;
+              }
+            }
+          }
+        function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+          const config = {
+            allowHTML: true,
+            maxWidth: 500,
+            delay: 100,
+            arrow: false,
+            appendTo: function(el) {
+                return el.closest('section.slide') || el.parentElement;
+            },
+            interactive: true,
+            interactiveBorder: 10,
+            theme: 'light-border',
+            placement: 'bottom-start',
+          };
+          if (contentFn) {
+            config.content = contentFn;
+          }
+          if (onTriggerFn) {
+            config.onTrigger = onTriggerFn;
+          }
+          if (onUntriggerFn) {
+            config.onUntrigger = onUntriggerFn;
+          }
+            config['offset'] = [0,0];
+            config['maxWidth'] = 700;
+          window.tippy(el, config); 
+        }
+        const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+        for (var i=0; i<noterefs.length; i++) {
+          const ref = noterefs[i];
+          tippyHover(ref, function() {
+            // use id or data attribute instead here
+            let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+            try { href = new URL(href).hash; } catch {}
+            const id = href.replace(/^#\/?/, "");
+            const note = window.document.getElementById(id);
+            if (note) {
+              return note.innerHTML;
+            } else {
+              return "";
+            }
+          });
+        }
+        const findCites = (el) => {
+          const parentEl = el.parentElement;
+          if (parentEl) {
+            const cites = parentEl.dataset.cites;
+            if (cites) {
+              return {
+                el,
+                cites: cites.split(' ')
+              };
+            } else {
+              return findCites(el.parentElement)
+            }
+          } else {
+            return undefined;
+          }
+        };
+        var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+        for (var i=0; i<bibliorefs.length; i++) {
+          const ref = bibliorefs[i];
+          const citeInfo = findCites(ref);
+          if (citeInfo) {
+            tippyHover(citeInfo.el, function() {
+              var popup = window.document.createElement('div');
+              citeInfo.cites.forEach(function(cite) {
+                var citeDiv = window.document.createElement('div');
+                citeDiv.classList.add('hanging-indent');
+                citeDiv.classList.add('csl-entry');
+                var biblioDiv = window.document.getElementById('ref-' + cite);
+                if (biblioDiv) {
+                  citeDiv.innerHTML = biblioDiv.innerHTML;
+                }
+                popup.appendChild(citeDiv);
+              });
+              return popup.innerHTML;
+            });
+          }
+        }
+      });
+      </script>
+    
+
+</body></html>
