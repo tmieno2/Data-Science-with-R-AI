@@ -18,7 +18,7 @@ I am overhauling my Data Science with R course (AECN 896-05) for 2027 and teachi
    - Deck: `~/Teaching/Data-Science-with-R-AI/lectures/Chapter-3-DataWrangling/03-1-input-output.qmd`
    - Exercise web page: `~/Teaching/Data-Science-with-R-AI/exercises/3-1-input-output.qmd`
    - Worksheet: `~/Teaching/Data-Science-with-R-AI/exercises/worksheets/ex-3-1.qmd`
-3. The deck to redesign: `~/Teaching/Data-Science-with-R-Quarto/lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.qmd`. Read it in full. Also skim `04-2-more-information.qmd` and `04-3-fine-tuning.qmd` in the same folder, so 04-1 does not take over their topics.
+3. The deck to redesign: `~/Teaching/Data-Science-with-R-Quarto/lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.qmd`. Read it in full. Also skim `04-2-more-information.qmd` and `04-3-fine-tuning.qmd` in the same folder. They cover colour, labels and other design choices as code. With communication now the subject of the chapter, the split between the three decks will change: in your outline, propose what 04-1 covers and what is left for later decks in Chapter 4.
 4. `~/Teaching/Data-Science-with-R-Quarto/CLAUDE.md`, section "Traps that have already cost time". Those traps apply to the new repo too.
 
 The old course repo is read-only for this task. All writing happens in `~/Teaching/Data-Science-with-R-AI/`.
