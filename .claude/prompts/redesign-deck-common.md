@@ -27,7 +27,7 @@ The Data Science with R course (AECN 896-05) is being overhauled for 2027 and ta
 
 ## What to produce, per deck
 
-1. The rewritten deck at the same relative path under `~/Teaching/Data-Science-with-R-AI/lectures/` (keep the file name). Keep 03-1's fixed parts (How this lecture works, Asking AI, Recommended requests, Summary) and order the middle to suit the topic.
+1. The rewritten deck at the same relative path under `~/Teaching/Data-Science-with-R-AI/lectures/` (keep the file name). Keep 03-1's "How this lecture works" and "Summary", and order the middle to suit the topic. Include an Asking AI part and Recommended requests only where they teach something: what the student must tell the AI that it cannot know (the data, the purpose, the checks). Never add a request for something the AI already knows how to do, such as installing a package; teach the concept instead, so the student understands what the AI says.
 2. An exercise web page `exercises/N-N-topic.qmd` and worksheet `exercises/worksheets/ex-N-N.qmd`, following 03-1's pattern exactly (resources in YAML, a hidden answers chunk, collapsed answer boxes with numbers computed at render). Use the deck's number for N-N. If a deck is pure setup (installing software) and an exercise would be only "install it", say so in your report and write a short setup checklist page instead of a worksheet.
 3. Data files the deck or exercise needs, copied or constructed inside the new repo. Name exercise data files with the deck number prefix (for example `exercises/data/5-1-...csv`), since other agents write into `exercises/data/` at the same time. If you construct one, keep the script that made it in `exercises/data-prep/`.
 
