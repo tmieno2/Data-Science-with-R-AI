@@ -836,37 +836,31 @@
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">dim</span>(corn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">list</span>(</span>
+<span id="cb21-2"><a></a>  <span class="at">rows_and_columns  =</span> <span class="fu">dim</span>(corn),</span>
+<span id="cb21-3"><a></a>  <span class="at">column_types      =</span> <span class="fu">sapply</span>(corn, class),</span>
+<span id="cb21-4"><a></a>  <span class="at">missing_per_column =</span> <span class="fu">colSums</span>(<span class="fu">is.na</span>(corn)),</span>
+<span id="cb21-5"><a></a>  <span class="at">yield_range       =</span> <span class="fu">range</span>(corn<span class="sc">$</span>Yield)</span>
+<span id="cb21-6"><a></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 161   9</code></pre>
-</div>
-<details class="code-fold">
-<summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">sapply</span>(corn, class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>       Year       State        FIPS County_name  State_name   Commodity 
+<pre><code>$rows_and_columns
+[1] 161   9
+
+$column_types
+       Year       State        FIPS County_name  State_name   Commodity 
   "numeric"   "numeric"   "numeric" "character" "character" "character" 
   Data item   Irrigated       Yield 
-"character"   "numeric"   "numeric" </code></pre>
-</div>
-<details class="code-fold">
-<summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(corn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>       Year       State        FIPS County_name  State_name   Commodity 
+"character"   "numeric"   "numeric" 
+
+$missing_per_column
+       Year       State        FIPS County_name  State_name   Commodity 
           0           0           0           0           0           0 
   Data item   Irrigated       Yield 
-          0           0           0 </code></pre>
-</div>
-<details class="code-fold">
-<summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="fu">range</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>[1] 103 204</code></pre>
+          0           0           0 
+
+$yield_range
+[1] 103 204</code></pre>
 </div>
 </div>
 <ul>
@@ -882,15 +876,15 @@
 <h2>Checks that come from knowing the data</h2>
 <p>The five checks apply to any file. The most useful checks come from what you know about <strong>this</strong> data, and no AI will think of them for you.</p>
 <p>The two sheets of <code>corn_yields.xls</code> are labelled 2008 and 2009. Yields change from year to year, because the weather does. So ask:</p>
-<div class="sourceCode" id="cb29"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb29-1"><a></a>Read both sheets of corn_yields.xls and tell me whether each county's</span>
-<span id="cb29-2"><a></a>yield is the same in both years.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb23-1"><a></a>Read both sheets of corn_yields.xls and tell me whether each county's</span>
+<span id="cb23-2"><a></a>yield is the same in both years.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a>yield_08 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_08"</span>)</span>
-<span id="cb30-2"><a></a>yield_09 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_09"</span>)</span>
-<span id="cb30-3"><a></a></span>
-<span id="cb30-4"><a></a><span class="fu">identical</span>(yield_08<span class="sc">$</span>Yield, yield_09<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a></a>yield_08 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_08"</span>)</span>
+<span id="cb24-2"><a></a>yield_09 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_09"</span>)</span>
+<span id="cb24-3"><a></a></span>
+<span id="cb24-4"><a></a><span class="fu">identical</span>(yield_08<span class="sc">$</span>Yield, yield_09<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
@@ -902,10 +896,10 @@
 <h2>Your turn: read the AI’s code</h2>
 <p>A student asked an AI to “load corn_yields.xls and compute the average yield”, and got this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="fu">setwd</span>(<span class="st">"C:/Users/jsmith/Desktop/class"</span>)</span>
-<span id="cb32-2"><a></a><span class="fu">library</span>(readxl)</span>
-<span id="cb32-3"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>)</span>
-<span id="cb32-4"><a></a><span class="fu">mean</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a></a><span class="fu">setwd</span>(<span class="st">"C:/Users/jsmith/Desktop/class"</span>)</span>
+<span id="cb26-2"><a></a><span class="fu">library</span>(readxl)</span>
+<span id="cb26-3"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>)</span>
+<span id="cb26-4"><a></a><span class="fu">mean</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="panel-tabset">
 <ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Questions</a></li><li><a href="#tabset-8-2">Answers</a></li></ul>
@@ -939,7 +933,7 @@
 <h2>What exporting is</h2>
 <p>Exporting is importing in reverse: a function writes a table from R into a file. The line has the same parts, in the order object first, then path:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a><span class="fu">write_csv</span>(corn, <span class="st">"corn_clean.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="fu">write_csv</span>(corn, <span class="st">"corn_clean.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The decision that is yours is the <strong>format</strong>, and it depends on who reads the file next and what has to survive:</p>
 <table class="caption-top">
@@ -993,21 +987,21 @@
 <div class="cell">
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a>corn_f <span class="ot">&lt;-</span> <span class="fu">mutate</span>(corn, <span class="at">Irrigated =</span> <span class="fu">factor</span>(Irrigated, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"no"</span>, <span class="st">"yes"</span>)))</span>
-<span id="cb34-2"><a></a></span>
-<span id="cb34-3"><a></a>csv_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.csv"</span>)</span>
-<span id="cb34-4"><a></a>rds_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.rds"</span>)</span>
-<span id="cb34-5"><a></a><span class="fu">write_csv</span>(corn_f, csv_file)</span>
-<span id="cb34-6"><a></a><span class="fu">saveRDS</span>(corn_f, rds_file)</span>
-<span id="cb34-7"><a></a></span>
-<span id="cb34-8"><a></a><span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a></a>corn_f <span class="ot">&lt;-</span> <span class="fu">mutate</span>(corn, <span class="at">Irrigated =</span> <span class="fu">factor</span>(Irrigated, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"no"</span>, <span class="st">"yes"</span>)))</span>
+<span id="cb28-2"><a></a></span>
+<span id="cb28-3"><a></a>csv_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.csv"</span>)</span>
+<span id="cb28-4"><a></a>rds_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.rds"</span>)</span>
+<span id="cb28-5"><a></a><span class="fu">write_csv</span>(corn_f, csv_file)</span>
+<span id="cb28-6"><a></a><span class="fu">saveRDS</span>(corn_f, rds_file)</span>
+<span id="cb28-7"><a></a></span>
+<span id="cb28-8"><a></a><span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "character"</code></pre>
 </div>
 <details class="code-fold">
 <summary>Code the AI wrote</summary>
-<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a></a><span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a><span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "factor"</code></pre>

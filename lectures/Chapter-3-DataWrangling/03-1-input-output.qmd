@@ -356,10 +356,12 @@ The AI writes the code. You read what it prints and compare it with what you exp
 #| label: chk-all
 #| code-fold: true
 #| code-summary: "Code the AI wrote"
-dim(corn)
-sapply(corn, class)
-colSums(is.na(corn))
-range(corn$Yield)
+list(
+  rows_and_columns  = dim(corn),
+  column_types      = sapply(corn, class),
+  missing_per_column = colSums(is.na(corn)),
+  yield_range       = range(corn$Yield)
+)
 ```
 
 + `r nrow(corn)` rows: the file has `r length(readLines("corn_yields.csv"))` lines, one of them column names. Matches.
