@@ -25,7 +25,7 @@ The old course repo is read-only for this task. All writing happens in `~/Teachi
 
 ## What to produce
 
-1. `lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.qmd`, a rewritten deck with the same section shape as 03-1: How this lecture works, The concept, Asking AI, Checking the result, Recommended requests, Summary.
+1. `lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.qmd`, a rewritten deck. Keep the parts 03-1 has (How this lecture works, Asking AI, Recommended requests, Summary), but order and name the middle sections to suit a deck about communication.
 2. `exercises/4-1-data-visualization-basics.qmd`, the exercise web page: setup, download links, and collapsed answer boxes whose numbers are computed from the data at render time.
 3. `exercises/worksheets/ex-4-1.qmd`, the fill-in worksheet, where every task runs Look, Predict, Ask (from a recommended request with `<...>` blanks), Render and read the HTML.
 4. Any data file the exercise needs, plus the short script that made it if you construct one.
