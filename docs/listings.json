@@ -2,13 +2,15 @@
   {
     "listing": "/lectures/index.html",
     "items": [
-      "/lectures/Chapter-3-DataWrangling/03-1-input-output.html"
+      "/lectures/Chapter-3-DataWrangling/03-1-input-output.html",
+      "/lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html"
     ]
   },
   {
     "listing": "/exercises/index.html",
     "items": [
-      "/exercises/3-1-input-output.html"
+      "/exercises/3-1-input-output.html",
+      "/exercises/4-1-data-visualization-basics.html"
     ]
   }
 ]

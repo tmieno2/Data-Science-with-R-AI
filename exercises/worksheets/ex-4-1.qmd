@@ -1,0 +1,357 @@
+---
+title: "Ex-4-1 worksheet: Communicating with Figures"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch4-practice/analysis/ex-4-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-4-1. Try each task before you look.
+
+**Every task has four steps, in this order.** They are the way of working with AI from lecture 03-1, "Working with AI on your own research"; today you use it for figures.
+
+1. **Look** at the data, or at the figure, before anyone writes code.
+2. **Predict.** Write down the message the figure must convey, who reads it, and what a figure that conveys it would show.
+3. **Ask.** Start from the recommended request in the task. Replace every `<...>` with what only you know. Send it to your AI assistant.
+4. **Render and read.** The AI's code goes into this file under the task's heading. Render this file to HTML, open the HTML, and judge the figure there, at the size a reader will see it.
+
+A chat assistant cannot edit or render this file: paste its chunks into the task's code chunk and render yourself. An agent in your editor or terminal can do every step.
+
+**Rules:**
+
+A. Write the message and the reader **before** you ask the AI.
+
+B. Keep the request you actually sent in this file, with the blanks filled in.
+
+C. When the AI offers several designs, choose one and write why, in terms of the message.
+
+D. You judge a figure by reading the rendered HTML, not the chat window.
+
+# The figure standard
+
+Every figure request in this worksheet ends with this block, pasted just before the closing instructions. Copy it from here each time. Keep your own copy for later work, and add to it whenever you find something the AI keeps getting wrong.
+
+```text
+Every figure must meet this standard:
+1. Axis titles, legend titles and category labels in plain words with
+   units, such as "Corn yield (bushels per acre)", never a column name;
+   categories in words, such as "Irrigated", never a code such as 1.
+2. Tick labels, axis titles and legend text no smaller than the
+   document's body text, at the size the figure appears in the HTML.
+3. No legend when lines or points can be labelled directly or there is
+   only one group. Otherwise, the legend inside an empty corner of the
+   plot, or above or below a wide figure, in the same order as the lines
+   or bars it describes.
+4. Numbers formatted for reading: thousands separators, no more decimals
+   than the message needs, percentages shown as percentages.
+5. No overlapping tick labels; for long category names, put the
+   categories on the vertical axis rather than rotating the text.
+6. Light or no gridlines and no heavy borders, so the data is the
+   darkest thing in the figure.
+7. A shape that suits the content: wide for a change over time, close
+   to square for a relationship between two variables.
+8. Colours readable by colour-blind readers (such as the Okabe-Ito
+   palette), and no more colours than the message needs.
+```
+
+# Task 1: Look and predict
+
+Open `data/county_yield.csv` in a plain text editor (not Excel).
+
+**A. How many data rows and columns are there? What does one row represent?**
+
+Your answer:
+
+**B. Which states and which years does it cover?**
+
+Your answer:
+
+**C. What range do `corn_yield` and `drought_weeks` cover? Is any value odd?**
+
+Your answer:
+
+**D. You cannot see from the raw file whether every state has every year. Send this request:**
+
+```text
+In my R project, data/county_yield.csv has one row per county and year.
+Without drawing anything, print a table with one row per year and one
+column per state, giving the number of counties with data.
+
+Put the code in my Quarto document analysis/ex-4-1.qmd, under the
+heading "Task 1", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-1
+```
+
+**Reading the HTML: is any state missing a year? How does the number of counties change over time?**
+
+Your answer:
+
+# Task 2: Write the message
+
+The question: **have corn yields risen between 2000 and 2018, and in all three states?**
+
+**A. Predict the answer and write it down. Then check it against the data:**
+
+```text
+Using data/county_yield.csv, print the average corn yield per state for
+the years 2000 to 2002 and for 2016 to 2018, and the number of
+county-years behind each average.
+
+Put the code in my Quarto document analysis/ex-4-1.qmd, under the
+heading "Task 2", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+My prediction:
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-2
+```
+
+**B. The message: one sentence, with a direction and, if you can, a size.**
+
+Your answer:
+
+**C. The reader: who will see this figure, and what do they already know?**
+
+Your answer:
+
+# Task 3: Ask for designs, and choose
+
+**My request to the AI.** Fill in every `<...>`, then paste the figure standard where shown:
+
+```text
+In my R project, data/county_yield.csv has one row per county and year.
+The figure uses the columns <...>, which mean <...> and are measured in
+<...>.
+
+The message: <your sentence from Task 2>.
+The reader: <your reader from Task 2>.
+The group the message is about: <...>.
+
+Draw three different designs of a figure for this message, one after
+another. Under each, write one sentence saying what that design makes
+easy to see and what it hides. Do not choose one for me.
+
+<paste the figure standard here>
+
+Put the code in my Quarto document analysis/ex-4-1.qmd, under the
+heading "Task 3", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-3
+```
+
+**Reading the HTML: which design do you choose, and why? Name what your message needs and what the chosen design makes easy to see. Say what each of the other two hides.**
+
+Your answer:
+
+# Task 4: Meet the figure standard
+
+**Predict.** Look at your chosen design in the HTML. Which items of the figure standard does it already meet, and which does it miss?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+Take the design I chose in Task 3, <name or describe it>, and redraw it
+as a finished figure. Use the colours Colorado #E69F00, Kansas #0072B2,
+Nebraska #009E73. Give it a title that states the message: <...>.
+
+<paste the figure standard here>
+
+Put the code in my Quarto document analysis/ex-4-1.qmd, under the
+heading "Task 4", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-4
+```
+
+**Reading the HTML: go through the eight items of the standard. For each, yes or no. For every "no", what did you ask the AI to change?**
+
+1.
+2.
+3.
+4.
+5.
+6.
+7.
+8.
+
+# Task 5: Critique and improve a weak figure
+
+The message this figure is meant to convey: **"Long extreme droughts cut corn yields in all three states, by roughly 20 bushels per acre."**
+
+```{r}
+#| label: task-5-weak
+#| message: false
+library(ggplot2)
+county_yield <- readr::read_csv(here::here("data", "county_yield.csv"), show_col_types = FALSE)
+
+ggplot(county_yield, aes(drought_weeks, corn_yield, colour = state_name)) +
+  geom_point()
+```
+
+**A. First without the AI, and with a neighbour: apply the checklist from the lecture. Answer each with yes or no and a reason.**
+
+1. Could someone who has not seen the data state the message within a few seconds?
+2. Does every colour carry information?
+3. Would the message survive printing in black and white?
+4. Is everything in the figure needed for the message, and is everything the message needs there?
+5. Does it meet the figure standard? Which items fail?
+
+Your answer:
+
+**B. My request to the AI.** Paste the code of the weak figure where shown:
+
+```text
+The code below draws a figure. Its message should be: <...>.
+The reader is <...>. The group the message is about is <...>; the
+others are context.
+
+Change the figure so that the message is the first thing a reader
+sees. Keep the original figure, and put the new one below it. Above the
+new one, list each change and why, in plain English.
+
+<paste the figure standard here>
+
+Put the code in my Quarto document analysis/ex-4-1.qmd, under the
+heading "Task 5", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+
+<paste the code here>
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-5
+```
+
+**C. Reading the HTML: compare the AI's changes with your answer to A. Did it fix everything you found? Did it change anything the message did not need? Is the message the first thing you see?**
+
+Your answer:
+
+# Task 6: Is the message true?
+
+A classmate's draft message: **"The 2012 drought cut corn yields in all three states."**
+
+**A. Predict.** Before any figure, what would the data have to show for this to be true?
+
+Your answer:
+
+**B. Check it against the data.** Send:
+
+```text
+Using data/county_yield.csv, print a table with the average corn yield
+per state in 2011, 2012 and 2013, the number of counties behind each
+average, and the average drought_weeks per state in 2012.
+
+Put the code in my Quarto document analysis/ex-4-1.qmd, under the
+heading "Task 6", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-6
+```
+
+**C. Reading the HTML: is the draft message true? If not, write a message the data supports.**
+
+Your answer:
+
+**D. Your message is about one year and how it differs from normal, not about a trend. Send the "Ask for designs" request from Task 3 again with your new message and the heading "Task 6", and choose one design.**
+
+```{r}
+#| label: task-6-designs
+```
+
+**Which design did you choose, and how does it differ from your choice in Task 3? Why does the new message need a different figure?**
+
+Your answer:
+
+# Task 7: Check the figure against its data
+
+Go back to your finished figure from Task 4.
+
+**Predict.** If the figure draws one value per state and year, how many values should there be? How many counties do you expect behind each value?
+
+Your answer:
+
+**My request to the AI.** Fill in every `<...>`:
+
+```text
+Draw my finished figure from Task 4 again, and next to it print the
+table the figure is drawn from: one row per <...>, with the columns that set its
+position and colour, and the number of rows of the original data
+behind each one.
+
+Then check:
+- the number of <...>: expected <...>
+- the column used for colour holds <categories / amounts>, and is
+  stored as such
+- the smallest number of counties behind any value: <...>
+
+Put the code in my Quarto document analysis/ex-4-1.qmd, under the
+heading "Task 7", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+**The AI's code goes here:**
+
+```{r}
+#| label: task-7
+```
+
+**A. Reading the HTML: what did the table show that the figure did not?**
+
+Your answer:
+
+**B. What will you do about it, and how will the reader of the figure know? Write the request you would send.**
+
+Your answer:
+
+# Wrap-up
+
+**A. In Task 3, what did the design you rejected hide that your message needed?**
+
+Your answer:
+
+**B. Which item of the figure standard did the AI miss even though your request asked for it? Add a line to your own copy of the standard that would prevent it next time.**
+
+Your answer:
+
+**C. Name one thing about a figure that the AI could not have known unless you told it.**
+
+Your answer:

@@ -1,0 +1,1115 @@
+---
+title: "04-1: Communicating with Figures"
+abstract: "Chapter 4: Data Visualization"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+source(here::here("lectures/_lecture-theme.R"))
+
+# Every figure on this deck meets the figure standard unless it is a "before"
+# example, which names theme_grey() to show ggplot's own defaults.
+theme_set(
+  lecture_theme() +
+    theme(panel.border = element_blank(), panel.grid.minor = element_blank())
+)
+
+cy <- read_csv(here::here("exercises/data/county_yield.csv"), show_col_types = FALSE)
+
+# One colour per state, the same in every figure (Okabe-Ito palette)
+state_colours <- c(Colorado = "#E69F00", Kansas = "#0072B2", Nebraska = "#009E73")
+
+band_labels <- c("None", "0 to 2", "2 to 5", "5 to 10", "Over 10")
+cy <- cy |>
+  mutate(band = cut(drought_weeks, c(-Inf, 0, 2, 5, 10, Inf), labels = band_labels))
+
+band_means <- cy |>
+  group_by(band) |>
+  summarise(corn_yield = mean(corn_yield), rows = n())
+gap <- round(band_means$corn_yield[1] - band_means$corn_yield[5])
+
+drought_by_year <- cy |>
+  group_by(year) |>
+  summarise(drought_weeks = mean(drought_weeks))
+worst_years <- drought_by_year |> arrange(desc(drought_weeks)) |> pull(year) |> head(2) |> sort()
+
+# Averages per state and year, as the data has them (no row where a state has
+# no counties), and with those gaps filled by NA so lines break there
+state_year_raw <- cy |>
+  group_by(state_name, year) |>
+  summarise(
+    corn_yield = mean(corn_yield),
+    drought_weeks = mean(drought_weeks),
+    counties = n(),
+    .groups = "drop"
+  )
+state_year <- complete(state_year_raw, state_name, year)
+
+# Each county's yield minus its own 2000-2018 average, then averaged per state
+# and year, so a year's value does not depend on which counties report
+dev_state_year <- cy |>
+  group_by(state_name, county_name) |>
+  mutate(dev = corn_yield - mean(corn_yield)) |>
+  group_by(state_name, year) |>
+  summarise(dev = mean(dev), .groups = "drop")
+
+state_stats <- cy |>
+  group_by(state_name) |>
+  summarise(median = median(corn_yield), mean = mean(corn_yield), rows = n())
+med <- setNames(state_stats$median, state_stats$state_name)
+avg <- setNames(state_stats$mean, state_stats$state_name)
+
+q <- quantile(cy$corn_yield, c(0.25, 0.75))
+share_no_drought <- round(100 * mean(cy$drought_weeks == 0))
+dw <- function(st, yr) round(state_year_raw$drought_weeks[state_year_raw$state_name == st & state_year_raw$year == yr], 1)
+
+# The 12 counties with data in all 19 years
+full_counties <- cy |>
+  count(county_name, state_name) |>
+  filter(n == n_distinct(cy$year))
+full_avg <- cy |>
+  semi_join(full_counties, by = c("county_name", "state_name")) |>
+  group_by(county_name) |>
+  summarise(corn_yield = mean(corn_yield))
+top_county <- full_avg$county_name[which.max(full_avg$corn_yield)]
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+An AI assistant can draw any figure in seconds. It knows every function and every option. What it cannot know is:
+
++ what the figure is supposed to tell the reader
++ who the reader is, and what they already know
++ which group or which year the message is about
++ whether the finished figure gets the message across
+
+Those four are your job. So today is about:
+
+1. **The concept**: a figure exists to convey one fact or idea, and every design choice is judged against it
+2. **Reading code**: recognising which line of figure code does what, without memorising it
+3. **Asking AI**: what to put in a figure request
+4. **Checking**: how to judge whether a figure is correct and whether it conveys its message
+
+### Directions
+
++ Ask your AI assistant to install the `tidyverse` package if you have not already. It includes `ggplot2`, the package that draws every figure in this course.
++ The figures use `county_yield.csv`, which you can download from the page of exercise 4-1. One row is one county in one year: corn yield and weeks of drought for `r nrow(distinct(cy, state_name, county_name))` counties in Colorado, Kansas and Nebraska, `r min(cy$year)` to `r max(cy$year)`.
+
+:::
+
+# Start from the message
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## One sentence and one reader
+
+::: {.panel-tabset}
+
+### What you need
+
+Before you ask for any figure, write down two things:
+
+1. **The message**: the one sentence the reader should take away. A finding, with a direction and if possible a size: "County-years with more than 10 weeks of extreme drought yielded about `r gap` bushels per acre less than county-years with none."
+2. **The reader**: who will look at the figure, and what they already know. A farm audience knows what a bushel per acre is; a general audience may not.
+
+**How to tell it is done:** someone who sees only the figure, without your text, can say your sentence back to you.
+
+### Why the AI cannot do this
+
+The same table supports many sentences. Asked for "a figure of this data", the AI has to choose a message without knowing yours, and it usually picks the figure that suits the types of the columns, not the point you want to make.
+
+Every design decision in this lecture (type of figure, colour, order, axis range, title) is judged against your sentence. Without the sentence, there is nothing to judge against.
+
+:::
+
+## The message decides the figure
+
+Both figures are drawn from the same `r format(nrow(cy), big.mark = ",")` rows. Each serves a different sentence.
+
+::: {.panel-tabset}
+
+### Message A
+
+"County-years with more than 10 weeks of extreme drought yielded about `r gap` bushels per acre less than county-years with none."
+
+```{r}
+#| label: msg-a
+ggplot(band_means, aes(band, corn_yield)) +
+  geom_point(size = 4) +
+  labs(
+    x = "Weeks of extreme drought, May to September",
+    y = "Average corn yield\n(bushels per acre)"
+  )
+```
+
+### Message B
+
+"Extreme drought came in a few bad years, above all `r worst_years[1]` and `r worst_years[2]`."
+
+```{r}
+#| label: msg-b
+#| fig-height: 5
+ggplot(drought_by_year, aes(year, drought_weeks)) +
+  geom_line(linewidth = 1) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = "Weeks of extreme drought,\naverage per county")
+```
+
+:::
+
+# Choosing the type of figure
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Five kinds of message
+
+::: {.panel-tabset}
+
+### The table
+
+The kind of sentence you wrote tells you the kind of figure to start from. The last column is the part of the code that names the figure type, so you can recognise it in what the AI writes.
+
+| Kind of message | A sentence from this data | A figure that suits it | In the code |
+|---|---|---|---|
+| A distribution | "Half of all county-years yielded between `r q[1]` and `r round(q[2])` bushels per acre." | histogram | `geom_histogram()` |
+| A relationship between two variables | "Yields fall as drought lasts longer." | points, or averages per range | `geom_point()` |
+| A comparison across groups | "Nebraska counties typically yield more than Kansas or Colorado counties." | box plots, points, bars | `geom_boxplot()`, `geom_col()` |
+| A change over time | "Extreme drought came in `r worst_years[1]` and `r worst_years[2]`." | line | `geom_line()` |
+| A part of a whole | "Nebraska makes up `r round(100 * state_stats$rows[3] / nrow(cy))`% of the county-years." | one bar split into parts | `geom_col()` |
+
+The next two slides take a comparison and a relationship and show how much the choice matters.
+
+### Distribution
+
+"Half of all county-years yielded between `r q[1]` and `r round(q[2])` bushels per acre."
+
+```{r}
+#| label: type-hist
+#| fig-height: 5
+ggplot(cy, aes(corn_yield)) +
+  geom_histogram(binwidth = 5, fill = "grey40") +
+  annotate("rect", xmin = q[1], xmax = q[2], ymin = -Inf, ymax = Inf,
+           fill = "#0072B2", alpha = 0.15) +
+  labs(x = "Corn yield (bushels per acre)", y = "Number of county-years")
+```
+
+The shaded band is the middle half. The handful of yields near zero are real rows; the exercise asks what they are.
+
+### Part of a whole
+
+"Nebraska makes up `r round(100 * state_stats$rows[3] / nrow(cy))`% of the county-years."
+
+```{r}
+#| label: type-part
+#| fig-height: 2.4
+shares <- state_stats |>
+  arrange(desc(rows)) |>
+  mutate(
+    share = rows / sum(rows),
+    state_name = factor(state_name, rev(state_name)),
+    # a segment too narrow for its label gets the label to its right
+    mid = cumsum(share) - share / 2,
+    label_x = ifelse(share < 0.15, 1.01, mid),
+    label_hjust = ifelse(share < 0.15, 0, 0.5)
+  )
+ggplot(shares, aes(share, "", fill = state_name)) +
+  geom_col(colour = "white") +
+  geom_text(aes(x = label_x, hjust = label_hjust,
+                label = paste0(state_name, "\n", scales::percent(share, 1))),
+            size = 5) +
+  scale_fill_manual(values = state_colours, guide = "none") +
+  scale_x_continuous(labels = scales::percent, breaks = seq(0, 1, 0.25),
+                     expand = expansion(mult = c(0.01, 0.15))) +
+  labs(x = "Share of county-years in the data", y = NULL) +
+  theme(axis.ticks.y = element_blank(), panel.grid.major.y = element_blank())
+```
+
+:::
+
+## One message, three figures
+
+Message: "Nebraska counties typically yield more corn than Kansas or Colorado counties."
+
+::: {.panel-tabset}
+
+### A. Overlapping histograms
+
+```{r}
+#| label: three-hist
+#| fig-height: 5
+ggplot(cy, aes(corn_yield, fill = state_name)) +
+  geom_histogram(binwidth = 5, position = "identity", alpha = 0.5) +
+  scale_fill_manual(values = state_colours) +
+  labs(x = "Corn yield (bushels per acre)", y = "Number of county-years", fill = NULL) +
+  theme(legend.position = "inside", legend.position.inside = c(0.15, 0.75))
+```
+
+Nebraska has the most rows, so its histogram covers the other two. The reader sees "Nebraska is big", which is a fact about the data, not about yields.
+
+### B. Box plots
+
+```{r}
+#| label: three-box
+#| fig-height: 5
+ggplot(cy, aes(corn_yield, reorder(state_name, corn_yield, FUN = median))) +
+  geom_boxplot() +
+  labs(x = "Corn yield (bushels per acre)", y = NULL)
+```
+
+The thick line in each box is the median (half the counties yield more, half less), and the box holds the middle half. Nebraska's median is `r med["Nebraska"]`, against `r med["Kansas"]` for Kansas and `r round(med["Colorado"])` for Colorado, and the boxes show how much the states overlap.
+
+### C. Bars of the average
+
+```{r}
+#| label: three-bar
+#| fig-height: 5
+ggplot(state_stats, aes(mean, reorder(state_name, mean))) +
+  geom_col(fill = "grey40") +
+  labs(x = "Average corn yield (bushels per acre)", y = NULL)
+```
+
+The bars are correct, but they make the states look alike: Nebraska's average (`r round(avg["Nebraska"])`) is only `r round(100 * (avg["Nebraska"] / avg["Colorado"] - 1))`% above Colorado's (`r round(avg["Colorado"])`), so the difference is a sliver at the end of a long bar.
+
+### Which one?
+
+B serves this message. "Typically" is a statement about the middle of each state's yields, and box plots put the middle and the spread side by side.
+
++ A hides the comparison under the difference in the number of rows.
++ C shows the averages but no spread, so the reader cannot tell whether the gap is large compared with the variation inside each state.
+
+For another message, say "Colorado has the most variable yields", B still works, while C would not show it at all.
+
+:::
+
+## Too many points
+
+Message: "Yields fall when drought lasts longer."
+
+::: {.panel-tabset}
+
+### A. Every county-year
+
+```{r}
+#| label: scatter-all
+#| fig-height: 5
+ggplot(cy, aes(drought_weeks, corn_yield)) +
+  geom_point() +
+  labs(x = "Weeks of extreme drought, May to September", y = "Corn yield\n(bushels per acre)")
+```
+
+`r share_no_drought`% of the county-years had no extreme drought, so most points sit on top of each other in one column at zero. The fall is there, but the eye cannot find it.
+
+### B. Box plots per drought range
+
+```{r}
+#| label: scatter-binned
+#| fig-height: 5
+ggplot(cy, aes(band, corn_yield)) +
+  geom_boxplot() +
+  labs(x = "Weeks of extreme drought, May to September", y = "Corn yield\n(bushels per acre)")
+```
+
+Grouping the drought weeks into ranges shows the drop at once. It also shows that the fall is not steady: the "2 to 5" group does better than the "0 to 2" group. Your sentence should not claim more than the figure shows; "yields are lowest after more than 10 weeks of drought" is what this figure supports.
+
+:::
+
+# Colour
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## When colour should carry information
+
+::: {.panel-tabset}
+
+### The rule
+
+Use colour only for a variable the reader needs and that the position of the marks does not already show. **How to tell:** remove the colour in your head. If the reader loses nothing, the colour is decoration, and decoration makes the reader look for a meaning that is not there.
+
+### Decoration
+
+```{r}
+#| label: colour-decor
+#| fig-height: 4.5
+ggplot(state_stats, aes(state_name, median, fill = state_name)) +
+  geom_col() +
+  scale_fill_manual(values = state_colours) +
+  labs(x = NULL, y = "Median corn yield\n(bushels per acre)", fill = "State")
+```
+
+Each state already has its own place on the horizontal axis. The colours and the legend repeat the axis labels.
+
+### Information
+
+```{r}
+#| label: colour-info
+#| fig-height: 5
+#| warning: false
+ggplot(state_year, aes(year, drought_weeks, colour = state_name)) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = state_colours) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = "Weeks of extreme drought,\naverage per county", colour = NULL) +
+  theme(legend.position = "top")
+```
+
+Three lines share one pair of axes. Colour is the only thing that says which line is which state.
+
+:::
+
+## Three kinds of colour scale
+
+::: {.panel-tabset}
+
+### Categories
+
+**Groups with no order** (states, crops) get clearly different hues, as in the line figure on the previous slide. Use as few as the message needs.
+
+### Amounts
+
+**Amounts** (weeks of drought, yield) get one hue, from light for small to dark for large, so "darker means more" reads without a legend.
+
+```{r}
+#| label: scale-seq
+#| fig-height: 3.6
+ggplot(state_year_raw, aes(year, state_name, fill = drought_weeks)) +
+  geom_tile(colour = "white") +
+  scale_fill_distiller(palette = "Reds", direction = 1) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = NULL, fill = "Weeks of\nextreme\ndrought")
+```
+
+### Above or below a midpoint
+
+**A value above or below a meaningful middle** (a change, a difference from normal) gets two hues that grow darker away from a neutral middle. Here, each county's yield minus its own `r min(cy$year)` to `r max(cy$year)` average, averaged over the counties of each state:
+
+```{r}
+#| label: scale-div
+#| fig-height: 3.6
+ggplot(dev_state_year, aes(year, state_name, fill = dev)) +
+  geom_tile(colour = "white") +
+  scale_fill_gradient2(low = "#B35806", mid = "grey95", high = "#542788", midpoint = 0) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = NULL, fill = "Yield vs.\ncounty's\naverage\n(bu/ac)")
+```
+
+Orange is below normal, purple above, and pale means close to normal. The neutral middle must sit at the value that means "no difference", here zero.
+
+:::
+
+## Highlight the group the message is about
+
+::: {.panel-tabset}
+
+### Highlight
+
+Message: "Colorado's 2002 drought lasted about twice as long as Kansas's or Nebraska's."
+
+```{r}
+#| label: highlight
+#| fig-height: 5
+#| warning: false
+ggplot(state_year, aes(year, drought_weeks, group = state_name)) +
+  geom_line(data = filter(state_year, state_name != "Colorado"), colour = "grey70", linewidth = 1) +
+  geom_line(data = filter(state_year, state_name == "Colorado"), colour = state_colours[["Colorado"]], linewidth = 1.5) +
+  annotate("text", x = 2002.4, y = dw("Colorado", 2002), label = "Colorado", hjust = 0,
+           colour = state_colours[["Colorado"]], size = 5.5) +
+  annotate("text", x = 2014.4, y = 9, label = "Kansas and\nNebraska", hjust = 0, colour = "grey45", size = 5.5) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = "Weeks of extreme drought,\naverage per county")
+```
+
+In 2002: Colorado `r dw("Colorado", 2002)` weeks, Kansas `r dw("Kansas", 2002)`, Nebraska `r dw("Nebraska", 2002)`. The other states stay in the figure, in grey, because the message is a comparison with them.
+
+### Same colour, same thing
+
+Every figure on this deck draws Colorado in orange, Kansas in blue and Nebraska in green, including the highlight, where Colorado keeps its orange. A reader who learns the colours on one figure can read the next one without the legend.
+
+Left to its defaults, ggplot hands out colours to whichever groups are in each figure, in alphabetical order. A figure without Colorado gives Kansas the colour Colorado had in the figure before. Name the colours in your request: "Colorado #E69F00, Kansas #0072B2, Nebraska #009E73 in every figure".
+
+:::
+
+## Colours every reader can tell apart
+
+::: {.panel-tabset}
+
+### ggplot's default
+
+A **deliberately bad example.** ggplot's default colours for three groups put a red and a green of about the same lightness next to each other:
+
+```{r}
+#| label: cb-default
+#| fig-height: 4.5
+#| warning: false
+ggplot(state_year, aes(year, drought_weeks, colour = state_name)) +
+  geom_line(linewidth = 1) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = "Weeks of extreme drought", colour = NULL)
+```
+
+### As a red-green colour-blind reader sees it
+
+Roughly 1 man in 12 of European ancestry has some form of red-green colour blindness. The same figure, with its colours converted to what such a reader sees (simulated with the `colorspace` package):
+
+```{r}
+#| label: cb-simulated
+#| fig-height: 4.5
+#| warning: false
+ggplot(state_year, aes(year, drought_weeks, colour = state_name)) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = colorspace::deutan(scales::hue_pal()(3))) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = "Weeks of extreme drought", colour = NULL)
+```
+
+Colorado and Kansas now look nearly the same.
+
+### Okabe-Ito, as the same reader sees it
+
+The **Okabe-Ito** palette is a set of eight colours chosen to stay distinct for colour-blind readers. The colours used for the states on this deck come from it:
+
+```{r}
+#| label: cb-okabe
+#| fig-height: 4.5
+#| warning: false
+ggplot(state_year, aes(year, drought_weeks, colour = state_name)) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = colorspace::deutan(state_colours)) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = "Weeks of extreme drought", colour = NULL)
+```
+
+### How many colours
+
+A reader has to match each colour to the legend, and that gets unreliable well before a palette runs out. With more groups than you can give clearly different colours:
+
++ colour only the groups the message is about and grey the rest, or
++ draw one small panel per group (next section), or
++ combine the small groups into "Other".
+
+**Check:** would the message survive printing in black and white? If colour is the only thing separating two lines, label them directly too.
+
+:::
+
+# Other choices that decide whether the message lands
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Order categories by value
+
+The `r nrow(full_counties)` counties with data in every year, all in Nebraska. Message: "`r top_county` had the highest average yield."
+
+::: {.panel-tabset}
+
+### Alphabetical, names along the bottom
+
+```{r}
+#| label: order-alpha
+#| fig-height: 5
+ggplot(full_avg, aes(county_name, corn_yield)) +
+  geom_point(size = 3.5) +
+  labs(x = NULL, y = "Average corn yield\n(bushels per acre)")
+```
+
+The names crowd together until they almost touch, and finding the highest county means comparing every point with every other.
+
+### By value, names down the side
+
+```{r}
+#| label: order-value
+#| fig-height: 5
+ggplot(full_avg, aes(corn_yield, reorder(county_name, corn_yield))) +
+  geom_point(size = 3.5) +
+  labs(x = "Average corn yield, 2000 to 2018 (bushels per acre)", y = NULL)
+```
+
+Ordered by value, the ranking is the figure. With the names on the vertical axis they read horizontally and never overlap. Rotating the names by 45 or 90 degrees would also stop the overlap, but makes them harder to read.
+
+Keep the natural order when the categories have one: years, months, drought ranges from none to most.
+
+:::
+
+## One panel or several
+
+Message: "Nebraska's yields sit higher than the other two states'."
+
+::: {.panel-tabset}
+
+### Several small panels
+
+```{r}
+#| label: facets
+#| fig-height: 5.5
+ggplot(cy, aes(corn_yield, fill = state_name)) +
+  geom_histogram(binwidth = 5) +
+  facet_wrap(~state_name, ncol = 1, scales = "free_y") +
+  scale_fill_manual(values = state_colours, guide = "none") +
+  labs(x = "Corn yield (bushels per acre)", y = "County-years")
+```
+
+The overlapping histograms from "One message, three figures", split into one panel per state. Stacked one above the other on the **same horizontal axis**, the shift of Nebraska's yields to the right is visible.
+
+### When to use which
+
++ **One panel** when the reader must compare values at the same point, for example three lines in the same year. Up to about three or four groups.
++ **Several small panels** when the groups overlap so much that one panel becomes a tangle, or there are too many groups to colour.
++ Panels must share the axis the comparison is made on. Here the horizontal axis (yield) is shared; the vertical axis (counts) differs on purpose, because Nebraska has far more rows and the message is about where the yields sit, not how many rows each state has. Say so when you ask, or the AI decides for you.
+
+:::
+
+## Axis ranges
+
+::: {.panel-tabset}
+
+### Bars that do not start at zero
+
+```{r}
+#| label: axis-cut
+#| fig-height: 4.5
+cut_lo <- 165
+ggplot(state_stats, aes(state_name, mean)) +
+  geom_col(fill = "grey40") +
+  coord_cartesian(ylim = c(cut_lo, 185), expand = FALSE) +
+  labs(x = NULL, y = "Average corn yield\n(bushels per acre)")
+```
+
+A **deliberately bad example.** A bar's length is read as its value. With the axis starting at `r cut_lo`, Nebraska's bar is `r round((avg["Nebraska"] - cut_lo) / (avg["Colorado"] - cut_lo))` times as tall as Colorado's, although its average is only `r round(100 * (avg["Nebraska"] / avg["Colorado"] - 1))`% higher.
+
+### Bars from zero
+
+```{r}
+#| label: axis-zero
+#| fig-height: 4.5
+ggplot(state_stats, aes(state_name, mean)) +
+  geom_col(fill = "grey40") +
+  labs(x = NULL, y = "Average corn yield\n(bushels per acre)")
+```
+
+Honest, and it shows the differences are small. If the message is about those small differences, bars are the wrong choice; use points, which need no zero.
+
+### Points and lines
+
+For points and lines the reader reads position, not length, so the axis should cover the range where the variation that matters lies. The dot plot of county averages on the "Order categories by value" slide runs from about `r floor(min(full_avg$corn_yield))` to `r ceiling(max(full_avg$corn_yield))`. Forced to start at zero, all `r nrow(full_counties)` points would crowd into the right `r ceiling(100 * (1 - min(full_avg$corn_yield) / max(full_avg$corn_yield)))`% of the panel's width and the ranking would be hard to see.
+
+The opposite mistake: an axis so narrow that a change too small to matter fills the whole figure. The range should match what the message calls large.
+
+:::
+
+## Titles, labels, and what to leave out
+
+::: {.panel-tabset}
+
+### A title that states the finding
+
+```{r}
+#| label: title-finding
+#| fig-height: 5
+ggplot(cy, aes(band, corn_yield)) +
+  geom_boxplot() +
+  labs(
+    title = "Corn yields were lowest after more than 10 weeks of extreme drought",
+    x = "Weeks of extreme drought, May to September",
+    y = "Corn yield\n(bushels per acre)"
+  )
+```
+
+A title such as "corn_yield by drought band" names the variables, which the axes already do. A title that states the finding tells the reader what to look for. In a report where the figure has a caption, the caption can carry the finding instead.
+
+### Labels on the lines
+
+A legend makes the reader look away from the data, find the colour, read the name, and look back, once for every line. A label at the end of each line removes that trip. The "Highlight" figure in the colour section labels its lines directly; the before-and-after slide below does the same for three lines.
+
+When there is only one group, there is nothing for a legend to explain. Remove it.
+
+### Remove what the message does not need
+
+Look at each element and ask whether the message would suffer without it:
+
++ a legend that repeats the axis labels
++ colour that repeats position
++ heavy gridlines, a dark background, a box around the panel
++ numbers printed on every bar when the message is the ranking
++ a third dimension
+
+What remains should be the data, the axes, and the words needed to read them.
+
+:::
+
+# What a finished figure looks like
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The figure standard
+
+Every figure you hand in must meet this standard, whatever its message. Each item has a yes or no answer.
+
+1. **Plain-word labels.** Axis titles and legend titles in plain words with units: "Corn yield (bushels per acre)", never `corn_yield`. Category labels in words: "Irrigated", not `1`.
+2. **Readable text.** Tick labels, axis titles and legend text no smaller than the document's body text, at the size the figure appears in the HTML.
+3. **The legend where it costs least.** In an empty corner of the plot, or above or below a wide figure, or removed when lines or points are labelled directly or there is only one group. Its order matches the order of the lines or bars.
+4. **Numbers formatted for reading.** Thousands separators, no more decimals than the message needs, percentages shown as percentages.
+5. **No overlapping tick labels.** For long category names, put the categories on the vertical axis.
+6. **The data is the darkest thing.** Light or no gridlines, no heavy borders.
+7. **A shape that suits the content.** Wide for a change over time, close to square for a relationship between two variables.
+8. **Colours every reader can tell apart.** A palette readable by colour-blind readers, and no more colours than the message needs.
+
+The copyable version, to add to every figure request, is in **Recommended requests** at the end of this deck.
+
+## Before and after
+
+Message: "Extreme drought hit all three states in 2002, and again in 2012 and 2013."
+
+::: {.panel-tabset}
+
+### Before
+
+```{r}
+#| label: before
+#| fig-height: 5
+#| warning: false
+ggplot(state_year, aes(year, drought_weeks, colour = state_name)) +
+  geom_line() +
+  theme_grey()
+```
+
+A **deliberately bad example**: ggplot's defaults, which is what comes back when a request says nothing about how the figure should look.
+
+### After
+
+```{r}
+#| label: after
+#| echo: true
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+#| fig-height: 5
+#| warning: false
+last_points <- filter(state_year, year == max(year))
+
+ggplot(state_year, aes(year, drought_weeks, colour = state_name)) +
+  geom_line(linewidth = 1) +
+  ggrepel::geom_text_repel(
+    data = last_points, aes(label = state_name),
+    direction = "y", hjust = 0, nudge_x = 0.4, size = 5.5, seed = 1
+  ) +
+  scale_colour_manual(values = state_colours, guide = "none") +
+  scale_x_continuous(
+    breaks = seq(2000, 2018, 2),
+    expand = expansion(mult = c(0.02, 0.12))
+  ) +
+  labs(
+    title = "Extreme drought hit all three states in 2002, and again in 2012 and 2013",
+    x = NULL,
+    y = "Weeks of extreme drought,\nMay to September"
+  )
+```
+
+### What changed
+
+| | Standard item | Before | After |
+|---|---|---|---|
+| 1 | Plain-word labels | `drought_weeks`, `year`, `state_name` | "Weeks of extreme drought, May to September"; no axis title for years, which need none |
+| 2 | Readable text | far smaller than this slide's text | the same size as this slide's text |
+| 3 | Legend | a legend to the right, which narrows the plot | removed; each line is labelled at its end |
+| 6 | The data is darkest | grey background, white gridlines | no background, light gridlines |
+| 7 | Shape | wide | wide, which suits a change over time |
+| 8 | Colours | ggplot's red, green and blue | the deck's Okabe-Ito colours for each state |
+
+The title now states the finding. Items 4 and 5 needed no change here.
+
+:::
+
+# A figure must be correct before it can communicate
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What must be true of the data
+
+::: {.panel-tabset}
+
+### The conditions
+
+1. **One row per thing drawn.** One row per point, per bar, or per point on a line. If the table has one row per county and the line is meant to show one value per state and year, the averaging must happen first.
+2. **The right type per column.** A category the colour should separate (a year, an ID, a 0/1 code) must be stored as a category. Stored as a number, it gets a scale for amounts.
+3. **Nothing missing that the figure hides.** A line joins whatever rows it is given, whether or not a year is missing between them.
+
+None of these failures gives an error. The figure is drawn, and it is wrong.
+
+### A year stored as a number
+
+```{r}
+#| label: fail-year
+#| fig-height: 4.5
+ggplot(filter(cy, year %in% c(2002, 2012, 2016)), aes(drought_weeks, corn_yield, colour = year)) +
+  geom_point(size = 2.5)
+```
+
+The request was "colour the points by year" for three years. `year` is stored as a number, so ggplot drew a scale for an amount: a legend with shades for years that are not in the figure, and three shades of one blue that are hard to tell apart.
+
+### A year that is not there
+
+```{r}
+#| label: fail-gap
+#| fig-height: 4.5
+ggplot(state_year_raw, aes(year, corn_yield, colour = state_name)) +
+  geom_line(linewidth = 1) +
+  scale_colour_manual(values = state_colours) +
+  scale_x_continuous(breaks = seq(2000, 2018, 2)) +
+  labs(x = NULL, y = "Average corn yield\n(bushels per acre)", colour = NULL) +
+  theme(legend.position = "top")
+```
+
+The data has no Colorado row for 2009. The orange line runs straight from 2008 to 2010 and nothing on the figure says a year is missing.
+
+### The check
+
+Ask the AI to print, next to the figure in the HTML, the table the figure is drawn from, with the number of original rows behind each value. Here, the rows around 2009:
+
+```{r}
+#| label: fail-check
+#| echo: true
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
+state_year_raw |>
+  filter(year %in% 2008:2010) |>
+  arrange(year, state_name) |>
+  mutate(across(c(corn_yield, drought_weeks), \(x) round(x, 1)))
+```
+
+Two problems show at once. Colorado has no 2009 row. And Kansas's 2008 average comes from `r state_year_raw$counties[state_year_raw$state_name == "Kansas" & state_year_raw$year == 2008]` counties, against `r state_year_raw$counties[state_year_raw$state_name == "Kansas" & state_year_raw$year == 2010]` in 2010: a point on that line can rest on very few counties. Neither is visible in the figure.
+
+:::
+
+# Judging a figure
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The checklist
+
+Apply it to any figure, yours or the AI's, by looking at it **in the rendered HTML**, at the size a reader will see it. Each question has a yes or no answer.
+
+1. Can someone who has not seen the data state the message within a few seconds?
+2. Does every colour carry information? (No colour that only decorates.)
+3. Would the message survive printing in black and white?
+4. Is everything in the figure needed for the message?
+5. Does it meet every item of the figure standard?
+6. Does the table printed next to the figure have one row per thing drawn, with nothing missing that the figure hides?
+
+A "no" to any question is something to fix or a reason to choose a different design.
+
+## Your turn: judge a figure
+
+The message is meant to be: "Extreme drought came in a few bad years, above all `r worst_years[1]` and `r worst_years[2]`."
+
+```{r}
+#| label: your-turn
+#| fig-height: 4.5
+ggplot(drought_by_year, aes(year, drought_weeks, fill = year)) +
+  geom_col() +
+  theme_grey()
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. Apply questions 1 to 5 of the checklist. Which answers are "no"?
+
+B. What does the colour show that the position of the bars does not?
+
+C. List the changes you would ask for, in the order that matters most for the message.
+
+### Answers
+
+A. Question 1 is close to "yes": the tall bars are visible. Question 2 is "no", question 4 is "no" (the colour and its legend), and question 5 is "no": raw column names as axis titles, text far smaller than the slide's, a grey background.
+
+B. Nothing. The colour repeats the year, which the horizontal axis already shows, and its legend narrows the plot.
+
+C. Remove the colour and the legend; put the finding in the title; plain-word axis title with units ("Weeks of extreme drought, May to September"); larger text; no grey background. Bars are a reasonable choice here, since the values are counts of weeks and start at zero; a line would also do.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Working with AI on your own research
+
+Figures follow the same way of working as everything else (lecture 03-1, "Working with AI on your own research"): you ask, the AI writes into a Quarto document, you render, and you judge the HTML.
+
+For figures, judging the HTML matters even more:
+
++ A figure's text size, shape and legend only exist at the size it is shown. The chat window shows it at a different size, or not at all.
++ The figure sits next to the sentence that says what it shows, so you can check that the two agree.
++ The table the figure is drawn from can be printed right next to it.
+
+Every figure request ends with the **figure standard** and then the **closing instructions**. Both are under **Recommended requests**.
+
+## What to put in a figure request
+
+The AI already knows how to draw any figure. Your request supplies what it cannot know:
+
+1. **The data**: the file, what one row is, and which columns the figure uses, with their units
+2. **The message**: the one sentence the reader should take away
+3. **The reader**: who will see it, and what they already know
+4. **What matters**: which group or which years the message is about, and colours that must stay fixed across figures
+5. **Alternatives, not one answer**: two or three designs to choose from (next slide)
+6. **The figure standard**, then the **closing instructions**
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the data and look for itself. It still cannot know your message or your reader. Write those down **before** it runs.
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Make a plot of my corn data.
+```
+
+The AI has to guess which columns, which message, which reader and which type of figure. Whatever it draws is a figure of the data, not of a message, and you have no sentence to judge it against.
+
+### Strong
+
+```text
+In my R project, data/county_yield.csv has one row per county and year,
+2000 to 2018, for Colorado, Kansas and Nebraska. drought_weeks is the
+number of weeks from May to September the county spent in extreme
+drought.
+
+The message: extreme drought hit all three states in 2002, and again in
+2012 and 2013. The reader: an extension audience who knows the states
+but has not seen this data.
+
+Average drought_weeks by state and year, and draw one line per state
+over time. Colorado #E69F00, Kansas #0072B2, Nebraska #009E73. Print
+the table the figure is drawn from, with the number of counties behind
+each value.
+```
+
+followed by the figure standard and the closing instructions.
+
+### What came back
+
+A version of what an AI returns, the code behind the "After" figure. You should be able to say which part does what:
+
+```{r}
+#| ref.label: after
+#| echo: true
+#| eval: false
+```
+
++ `ggplot(...)` with `aes(...)`: which column goes on which axis, and which column sets the colour
++ `geom_line()`: draw lines; `geom_text_repel()`: the labels at the line ends
++ `scale_colour_manual()`: the fixed colours, and `guide = "none"` removes the legend
++ `labs()`: the title and the axis titles
+
+:::
+
+# Recommended requests
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Requests you can copy
+
+Copy one, then replace every `<...>` with what **you** know: the message, the reader, the group that matters, what you found in the data. Every figure request ends with the figure standard and then the closing instructions.
+
+::: {.panel-tabset}
+
+### Closing instructions
+
+The lines that end every request:
+
+```text
+Put the code in my Quarto document <analysis/ex-3-1.qmd>, under the
+heading "<Task 2>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+A chat assistant cannot render: paste its chunks into your `.qmd` and render it yourself. An agent in your editor or terminal can do every step.
+
+### The figure standard
+
+Paste this into every figure request, just before the closing instructions:
+
+```text
+Every figure must meet this standard:
+1. Axis titles, legend titles and category labels in plain words with
+   units, such as "Corn yield (bushels per acre)", never a column name;
+   categories in words, such as "Irrigated", never a code such as 1.
+2. Tick labels, axis titles and legend text no smaller than the
+   document's body text, at the size the figure appears in the HTML.
+3. No legend when lines or points can be labelled directly or there is
+   only one group. Otherwise, the legend inside an empty corner of the
+   plot, or above or below a wide figure, in the same order as the lines
+   or bars it describes.
+4. Numbers formatted for reading: thousands separators, no more decimals
+   than the message needs, percentages shown as percentages.
+5. No overlapping tick labels; for long category names, put the
+   categories on the vertical axis rather than rotating the text.
+6. Light or no gridlines and no heavy borders, so the data is the
+   darkest thing in the figure.
+7. A shape that suits the content: wide for a change over time, close
+   to square for a relationship between two variables.
+8. Colours readable by colour-blind readers (such as the Okabe-Ito
+   palette), and no more colours than the message needs.
+```
+
+Keep your own copy of this block, and add to it each time you find something the AI keeps getting wrong.
+
+### Ask for designs
+
+The central request: the AI makes alternatives cheaply, and choosing among them is your job.
+
+```text
+In my R project, <data/county_yield.csv> has one row per <county and
+year>. The figure uses the columns <...>, which mean <...> and are
+measured in <units>.
+
+The message: <the one sentence the reader should take away>.
+The reader: <who will see it, and what they already know>.
+The group the message is about: <...>.
+
+Draw <three> different designs of a figure for this message, one after
+another. Under each, write one sentence saying what that design makes
+easy to see and what it hides. Do not choose one for me.
+
+<the figure standard>
+
+Put the code in my Quarto document <analysis/ex-4-1.qmd>, under the
+heading "<Task 3>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+Then choose one, and write in your document which one and why, in terms of the message.
+
+### Improve a figure
+
+```text
+The code below draws a figure. Its message should be: <one sentence>.
+The reader is <who>. The group the message is about is <...>; the
+others are context.
+
+Change the figure so that the message is the first thing a reader
+sees. Keep the original figure, and put the new one below it. Above the
+new one, list each change and why, in plain English.
+
+<the figure standard>
+
+Put the code in my Quarto document <analysis/ex-4-1.qmd>, under the
+heading "<Task 5>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+
+<paste the code here>
+```
+
+### Critique a figure
+
+```text
+The code below draws a figure. Its intended message is: <one sentence>.
+The reader is <who>.
+
+Draw it unchanged. Below it, answer each question with yes or no and
+one sentence of reason:
+1. Could someone who has not seen the data state the message within a
+   few seconds?
+2. Does every colour carry information?
+3. Would the message survive printing in black and white?
+4. Is everything in the figure needed for the message?
+5. Does it meet each item of the figure standard below? Answer per item.
+
+<the figure standard>
+
+Put the code in my Quarto document <analysis/ex-4-1.qmd>, under the
+heading "<Task 5>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+
+<paste the code here>
+```
+
+Compare its answers with your own before you change anything.
+
+### Check against the data
+
+```text
+Draw my figure from <Task 4> again, and next to it print the table
+the figure is drawn from: one row per <point / bar / point on a line>, with
+the columns that set its position and colour, and the number of rows of
+the original data behind each one.
+
+Then check:
+- the number of <points / bars / lines>: expected <...>
+- the column used for colour holds <categories / amounts>, and is
+  stored as such
+- <a gap or a small group you know of>: <...>
+
+Put the code in my Quarto document <analysis/ex-4-1.qmd>, under the
+heading "<Task 7>", as R code chunks. Above each chunk, write one
+plain-English sentence saying what it does and why. Build every path
+with here::here(); no setwd(), no absolute paths. Print each check as
+"<check>: expected <X>, got <Y>". Render the document to HTML.
+```
+
+### Explain code
+
+For figure code you did not write, or are not sure about:
+
+```text
+Explain this ggplot2 code to me. For each line, write one plain-English
+sentence. Then list:
+1. which column sets the horizontal axis, the vertical axis, and the
+   colour, and whether each is stored as a number or as a category
+2. any step that could make the figure misleading without an error,
+   and what printed check would reveal it
+
+<paste the code here>
+```
+
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What is yours, and what you can hand off
+
+| You need to decide or judge | The AI can write |
+|---|---|
+| The message, in one sentence, and who the reader is | The code for any type of figure |
+| Which type of figure makes that message obvious, chosen from alternatives | Two or three alternatives, side by side |
+| Whether colour carries information, and which group to highlight | The colour scales and the highlighting |
+| The order, the panels, the axis ranges, the title that states the finding | The code for each of them |
+| Whether the figure meets the figure standard | The labels, sizes and legend placement, when you append the standard |
+| Whether the data behind the figure is right: one row per thing drawn, the right types, nothing hidden | The table printed next to the figure |
+
+**Every figure:** write the message and the reader first. Ask for alternatives, choose one and write why. Append the figure standard and the closing instructions. Render, and judge the figure in the HTML with the checklist.

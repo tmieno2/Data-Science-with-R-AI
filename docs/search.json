@@ -4,77 +4,7 @@
     "href": "lectures/index.html",
     "title": "Lecture Slides",
     "section": "",
-    "text": "Title\n\n\n\nTopic\n\n\n\n\n\n\n\n\n03-1: Getting Data In and Out of R\n\n\nChapter 3: Data Wrangling\n\n\n\n\n\n\nNo matching items"
-  },
-  {
-    "objectID": "index.html",
-    "href": "index.html",
-    "title": "Data Science with R for Environmental, Agricultural, and Social Scientists",
-    "section": "",
-    "text": "Course materials for Data Science with R (AECN 896-05) at UNL, redesigned for working alongside AI. The lectures teach what each step of a data project is, what has to be true for it to succeed, what to ask an AI assistant to do, and how to check what comes back."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html",
-    "href": "exercises/3-1-input-output.html",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "",
-    "text": "This is an in-class exercise. Before class, work through the lecture 03-1: Getting Data In and Out of R. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what the files contain, asking for the right thing and the right checks, and judging whether the result is right."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html#task-1-look-and-predict",
-    "href": "exercises/3-1-input-output.html#task-1-look-and-predict",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "Task 1: Look and predict",
-    "text": "Task 1: Look and predict\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nA. 162 lines: one line of column names and 161 data rows.\nB. 9 columns: Year, State, FIPS, County_name, State_name, Commodity, Data item, Irrigated, Yield. County_name, State_name, Commodity and Data item are text; the rest are numbers. Data item has a space in its name.\nC. One county, one year, and one irrigation status (Irrigated is 0 or 1), so most counties appear twice.\nD. Two sheets, corn_yields_08 and corn_yields_09."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html#task-2-read-the-csv",
-    "href": "exercises/3-1-input-output.html#task-2-read-the-csv",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "Task 2: Read the csv",
-    "text": "Task 2: Read the csv\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\n161 rows and 9 columns, no missing values, and yields from 103 to 204 bushels per acre.\nThe checks, and why. The five from the lecture, each tied to a way this import could go wrong:\n\nRows and columns: a title line read as data, or the reader stopping early, changes the count from the 161 you counted.\nType of every column: Yield read as text would make every later calculation fail or mislead.\nMissing values per column: a column that failed to read shows up as all missing.\nRange of Yield: a code such as -999, or a number in the wrong units, shows up as an impossible value.\nThe first row: shifted columns show up when compared with the first data line of the file.\n\nThe blanks of the recommended request, filled in:\n- above the column names there is nothing\n- there are 161 data rows and 9 columns\n- one row is one county, one year, and one irrigation status\n- missing values are written as: none expected\n- ID columns that must stay text: FIPS\n- a believable range for Yield is 100 to 250\nIn the HTML, every “expected, got” line should match."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html#task-3-both-sheets-of-the-excel-file",
-    "href": "exercises/3-1-input-output.html#task-3-both-sheets-of-the-excel-file",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "Task 3: Both sheets of the Excel file",
-    "text": "Task 3: Both sheets of the Excel file\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\n161 + 161 = 322 rows. Year is 2008 in one sheet and 2009 in the other.\nThe check from knowing the data. Yields change from year to year, because the weather does, so each county’s yield should differ between the two years. Asking “is each county’s yield the same in both years?” gives TRUE: every county has exactly the same yield.\nThat cannot be real data. The code is fine; the file is wrong, and no change to the code fixes it. The right move is to stop and ask whoever produced the file, and not to analyse year-to-year changes until you have an answer.\nThis is the point of the task: the row count and the types all passed. Only a check you thought of, because you know something about corn, caught the problem."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html#task-4-a-messy-file",
-    "href": "exercises/3-1-input-output.html#task-4-a-messy-file",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "Task 4: A messy file",
-    "text": "Task 4: A messy file\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\n4a, the short request. Plain read_csv() treats the first description line as the column names, so you get 94 rows and only 3 columns with sentence fragments for names, plus a warning about parsing problems. Base R’s read.csv() stops with an error instead. Either way the problem is visible, which is the good case.\n4b, the file. Two lines of description sit above the column names. Missing yields are written two ways, -999 and ., and the second description line says so. county_fips holds 5-digit county codes, and the 5 Colorado codes start with 08. There are 95 lines, so 92 data rows.\n4c, a correct result. 92 rows, 5 columns, county_fips is text with the leading zeros kept, yield is a number, 5 yields are missing, and the rest run from 102 to 199. Average yield: 157.7.\nThe checks, and the problem each one catches in this file:\n\nRows: the description lines read as data.\nType of county_fips: the leading 0 of the Colorado codes lost.\nType of the yield column: text instead of a number, because of the . entries.\nNumber of missing yields: should be 5. Fewer means a missing-value code was kept as a value.\nRange of yields: a minimum of -999 means the -999 code was not recognised.\n\nThe silent trap. If your request mentioned . but not -999, the yield column is a number, nothing errors, and the average comes out at 119.2. Checks 4 and 5 both catch it."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html#task-5-marias-code",
-    "href": "exercises/3-1-input-output.html#task-5-marias-code",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "Task 5: Maria’s code",
-    "text": "Task 5: Maria’s code\n\n\n\n\n\n\nAnswers\n\n\n\n\n\nA. Read the file, skipping the two description lines and treating . as missing; rename the fifth column to yield; average the yields, ignoring missing ones.\nB. The path. C:/Users/maria/Downloads exists only on Maria’s computer.\nC. First, -999 is not treated as missing, so the average is 119.2 instead of 157.7. Second, read.csv() reads county_fips as a number, so 08125 becomes 8125. Nothing uses that column here, but the first time Maria joins this table to another one by county code, the Colorado counties will quietly fail to match.\nD. “Print the smallest and largest yield”: a minimum of -999 is impossible. “Print the type of every column”: county_fips should be text, because it is an ID, not a quantity.\nE. The AI usually spots the path and often the -999. It can only spot the -999 because the code itself is visible to it; it has not seen the file. Whether it notices the lost leading zero varies. Either way, compare its list with yours, and treat its answer like any other: something to check, not something to accept."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html#task-6-save-and-read-back",
-    "href": "exercises/3-1-input-output.html#task-6-save-and-read-back",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "Task 6: Save and read back",
-    "text": "Task 6: Save and read back\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nThe rds file comes back identical. The csv file comes back with state_name as plain text rather than a factor, because a csv stores only text and the reader has to guess types again. This is why the lecture recommends rds for results you will read back into R.\nIf the AI compares with all.equal(), the csv comparison prints several lines starting with Attributes: before the one that matters, Component \"state_name\": 'current' is not a factor. The Attributes lines are about hidden bookkeeping that read_csv() attaches to every table it reads, not about your data. Ask the AI which lines are about the data itself if this is unclear."
-  },
-  {
-    "objectID": "exercises/3-1-input-output.html#task-7-does-it-run-anywhere",
-    "href": "exercises/3-1-input-output.html#task-7-does-it-run-anywhere",
-    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
-    "section": "Task 7: Does it run anywhere?",
-    "text": "Task 7: Does it run anywhere?\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nIf it fails on your neighbour’s computer, the error names the line that depended on your machine, almost always a path. Ask the AI to fix that line, explaining what failed, and try again. A worksheet that renders on someone else’s computer unchanged is the final check that every path in it is relative to the project."
-  },
-  {
-    "objectID": "exercises/index.html",
-    "href": "exercises/index.html",
-    "title": "Exercises",
-    "section": "",
-    "text": "Title\n\n\n\nTopic\n\n\n\n\n\n\n\n\nEx-3-1: Getting Data In and Out, with an AI Assistant\n\n\nData Wrangling\n\n\n\n\n\n\nNo matching items"
+    "text": "Title\n\n\n\nTopic\n\n\n\n\n\n\n\n\n03-1: Getting Data In and Out of R\n\n\nChapter 3: Data Wrangling\n\n\n\n\n\n\n04-1: Communicating with Figures\n\n\nChapter 4: Data Visualization\n\n\n\n\n\n\nNo matching items"
   },
   {
     "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-you-will-and-will-not-learn-today",
@@ -194,5 +124,299 @@
     "title": "03-1: Getting Data In and Out of R",
     "section": "What is yours, and what you can hand off",
     "text": "What is yours, and what you can hand off\n\n\n\n\n\n\n\nYou need to understand\nThe AI can write\n\n\n\n\nWhat a path is, and why absolute paths and setwd() break\nThe here::here() call\n\n\nWhich format a file is in, and what that format keeps\nWhich reader to use and its arguments\n\n\nWhat the file holds: layout, sheets, missing-value codes, ID columns\ncol_types, na, sheet and so on\n\n\nWhat a correct result looks like: rows, types, ranges\nThe checking code\n\n\nWhich format to save in, given who reads it next\nThe writer function\n\n\n\nEvery import: look at the file first and write down what you expect. Ask the AI to write the code and the five checks into your .qmd, plus any check your knowledge of the data suggests. Render it, and judge the HTML against what you wrote down."
+  },
+  {
+    "objectID": "exercises/index.html",
+    "href": "exercises/index.html",
+    "title": "Exercises",
+    "section": "",
+    "text": "Title\n\n\n\nTopic\n\n\n\n\n\n\n\n\nEx-3-1: Getting Data In and Out, with an AI Assistant\n\n\nData Wrangling\n\n\n\n\n\n\nEx-4-1: Communicating with Figures, with an AI Assistant\n\n\nData Visualization\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html",
+    "href": "exercises/3-1-input-output.html",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "",
+    "text": "This is an in-class exercise. Before class, work through the lecture 03-1: Getting Data In and Out of R. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: knowing what the files contain, asking for the right thing and the right checks, and judging whether the result is right."
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html#task-1-look-and-predict",
+    "href": "exercises/3-1-input-output.html#task-1-look-and-predict",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "Task 1: Look and predict",
+    "text": "Task 1: Look and predict\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nA. 162 lines: one line of column names and 161 data rows.\nB. 9 columns: Year, State, FIPS, County_name, State_name, Commodity, Data item, Irrigated, Yield. County_name, State_name, Commodity and Data item are text; the rest are numbers. Data item has a space in its name.\nC. One county, one year, and one irrigation status (Irrigated is 0 or 1), so most counties appear twice.\nD. Two sheets, corn_yields_08 and corn_yields_09."
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html#task-2-read-the-csv",
+    "href": "exercises/3-1-input-output.html#task-2-read-the-csv",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "Task 2: Read the csv",
+    "text": "Task 2: Read the csv\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\n161 rows and 9 columns, no missing values, and yields from 103 to 204 bushels per acre.\nThe checks, and why. The five from the lecture, each tied to a way this import could go wrong:\n\nRows and columns: a title line read as data, or the reader stopping early, changes the count from the 161 you counted.\nType of every column: Yield read as text would make every later calculation fail or mislead.\nMissing values per column: a column that failed to read shows up as all missing.\nRange of Yield: a code such as -999, or a number in the wrong units, shows up as an impossible value.\nThe first row: shifted columns show up when compared with the first data line of the file.\n\nThe blanks of the recommended request, filled in:\n- above the column names there is nothing\n- there are 161 data rows and 9 columns\n- one row is one county, one year, and one irrigation status\n- missing values are written as: none expected\n- ID columns that must stay text: FIPS\n- a believable range for Yield is 100 to 250\nIn the HTML, every “expected, got” line should match."
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html#task-3-both-sheets-of-the-excel-file",
+    "href": "exercises/3-1-input-output.html#task-3-both-sheets-of-the-excel-file",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "Task 3: Both sheets of the Excel file",
+    "text": "Task 3: Both sheets of the Excel file\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\n161 + 161 = 322 rows. Year is 2008 in one sheet and 2009 in the other.\nThe check from knowing the data. Yields change from year to year, because the weather does, so each county’s yield should differ between the two years. Asking “is each county’s yield the same in both years?” gives TRUE: every county has exactly the same yield.\nThat cannot be real data. The code is fine; the file is wrong, and no change to the code fixes it. The right move is to stop and ask whoever produced the file, and not to analyse year-to-year changes until you have an answer.\nThis is the point of the task: the row count and the types all passed. Only a check you thought of, because you know something about corn, caught the problem."
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html#task-4-a-messy-file",
+    "href": "exercises/3-1-input-output.html#task-4-a-messy-file",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "Task 4: A messy file",
+    "text": "Task 4: A messy file\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\n4a, the short request. Plain read_csv() treats the first description line as the column names, so you get 94 rows and only 3 columns with sentence fragments for names, plus a warning about parsing problems. Base R’s read.csv() stops with an error instead. Either way the problem is visible, which is the good case.\n4b, the file. Two lines of description sit above the column names. Missing yields are written two ways, -999 and ., and the second description line says so. county_fips holds 5-digit county codes, and the 5 Colorado codes start with 08. There are 95 lines, so 92 data rows.\n4c, a correct result. 92 rows, 5 columns, county_fips is text with the leading zeros kept, yield is a number, 5 yields are missing, and the rest run from 102 to 199. Average yield: 157.7.\nThe checks, and the problem each one catches in this file:\n\nRows: the description lines read as data.\nType of county_fips: the leading 0 of the Colorado codes lost.\nType of the yield column: text instead of a number, because of the . entries.\nNumber of missing yields: should be 5. Fewer means a missing-value code was kept as a value.\nRange of yields: a minimum of -999 means the -999 code was not recognised.\n\nThe silent trap. If your request mentioned . but not -999, the yield column is a number, nothing errors, and the average comes out at 119.2. Checks 4 and 5 both catch it."
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html#task-5-marias-code",
+    "href": "exercises/3-1-input-output.html#task-5-marias-code",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "Task 5: Maria’s code",
+    "text": "Task 5: Maria’s code\n\n\n\n\n\n\nAnswers\n\n\n\n\n\nA. Read the file, skipping the two description lines and treating . as missing; rename the fifth column to yield; average the yields, ignoring missing ones.\nB. The path. C:/Users/maria/Downloads exists only on Maria’s computer.\nC. First, -999 is not treated as missing, so the average is 119.2 instead of 157.7. Second, read.csv() reads county_fips as a number, so 08125 becomes 8125. Nothing uses that column here, but the first time Maria joins this table to another one by county code, the Colorado counties will quietly fail to match.\nD. “Print the smallest and largest yield”: a minimum of -999 is impossible. “Print the type of every column”: county_fips should be text, because it is an ID, not a quantity.\nE. The AI usually spots the path and often the -999. It can only spot the -999 because the code itself is visible to it; it has not seen the file. Whether it notices the lost leading zero varies. Either way, compare its list with yours, and treat its answer like any other: something to check, not something to accept."
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html#task-6-save-and-read-back",
+    "href": "exercises/3-1-input-output.html#task-6-save-and-read-back",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "Task 6: Save and read back",
+    "text": "Task 6: Save and read back\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nThe rds file comes back identical. The csv file comes back with state_name as plain text rather than a factor, because a csv stores only text and the reader has to guess types again. This is why the lecture recommends rds for results you will read back into R.\nIf the AI compares with all.equal(), the csv comparison prints several lines starting with Attributes: before the one that matters, Component \"state_name\": 'current' is not a factor. The Attributes lines are about hidden bookkeeping that read_csv() attaches to every table it reads, not about your data. Ask the AI which lines are about the data itself if this is unclear."
+  },
+  {
+    "objectID": "exercises/3-1-input-output.html#task-7-does-it-run-anywhere",
+    "href": "exercises/3-1-input-output.html#task-7-does-it-run-anywhere",
+    "title": "Ex-3-1: Getting Data In and Out, with an AI Assistant",
+    "section": "Task 7: Does it run anywhere?",
+    "text": "Task 7: Does it run anywhere?\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nIf it fails on your neighbour’s computer, the error names the line that depended on your machine, almost always a path. Ask the AI to fix that line, explaining what failed, and try again. A worksheet that renders on someone else’s computer unchanged is the final check that every path in it is relative to the project."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html",
+    "href": "exercises/4-1-data-visualization-basics.html",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "",
+    "text": "This is an in-class exercise. Before class, work through the lecture 04-1: Communicating with Figures. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: deciding what each figure must say and to whom, choosing among the designs the AI offers, and judging the result in the rendered HTML."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html#task-1-look-and-predict",
+    "href": "exercises/4-1-data-visualization-basics.html#task-1-look-and-predict",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "Task 1: Look and predict",
+    "text": "Task 1: Look and predict\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nA. 1,957 lines: one line of column names and 1,956 data rows, 6 columns. One row is one county in one year.\nB. 3 states (Colorado, Kansas, Nebraska), 154 counties (some county names, such as Lincoln, occur in more than one state, so a county is identified by its state and its name), years 2000 to 2018.\nC. corn_yield runs from 0 to 234.3 bushels per acre. The 2 zeros are odd: both are in Colorado (Bent 2003 and Elbert 2002), and the next lowest yield anywhere is 80. A zero could be a crop that failed completely, or a missing value written as 0. The file cannot tell you which. Note it, and keep it in mind for any figure of yields. drought_weeks runs from 0 to 22.\nD. The table of counties per state and year shows two things:\n\nColorado has no rows at all for 2009.\nThe number of counties falls over time. Kansas has 56 counties in 2000 and 2 in 2008. Colorado has 5 or fewer counties in 7 of its years.\n\nAny average per state and year is therefore an average over a different, sometimes very small, set of counties. Task 7 comes back to this."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html#task-2-write-the-message",
+    "href": "exercises/4-1-data-visualization-basics.html#task-2-write-the-message",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "Task 2: Write the message",
+    "text": "Task 2: Write the message\n\n\n\n\n\n\nWhat a good answer looks like\n\n\n\n\n\nAverage yields in 2000 to 2002 and in 2016 to 2018:\n\n\n\nState\n2000 to 2002\n2016 to 2018\n\n\n\n\nColorado\n152\n178\n\n\nKansas\n159\n191\n\n\nNebraska\n158\n205\n\n\n\nSo yields rose in all three states, most in Nebraska. A good sentence states the direction, the scope and if possible a size: “Corn yields rose in all three states between 2000 and 2018, by about 26 to 47 bushels per acre.” A sentence such as “Yields changed over time” is not a message; nothing in a figure could show it to be wrong.\nThe reader matters for the wording and the labels: an extension audience knows bushels per acre; a general audience needs it spelled out once."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html#task-3-ask-for-designs-and-choose",
+    "href": "exercises/4-1-data-visualization-basics.html#task-3-ask-for-designs-and-choose",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "Task 3: Ask for designs and choose",
+    "text": "Task 3: Ask for designs and choose\n\n\n\n\n\n\nWhat a good answer looks like\n\n\n\n\n\nDesigns you may get back include:\n\nOne line per state, yearly average. Makes the rise and the comparison between states easy to see. Hides how much counties vary within a year, and each point is an average over a changing set of counties (Task 7).\nSmall panels per state, every county-year as a point, with a trend line. Shows the rise and the spread, and how few Colorado points there are. Harder to compare the states’ levels at a glance.\nBox plots per year. Shows the spread each year, but mixes the states, so it cannot show “in all three states”.\n\nFor the sentence in Task 2, one line per state, or panels per state with a trend line, serve the message; box plots per year do not, because the message is about each state. A good written reason names what the message needs (“each state separately, over time”) and what the chosen design makes easy to see."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html#task-4-meet-the-figure-standard",
+    "href": "exercises/4-1-data-visualization-basics.html#task-4-meet-the-figure-standard",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "Task 4: Meet the figure standard",
+    "text": "Task 4: Meet the figure standard\n\n\n\n\n\n\nWhat to check in the HTML\n\n\n\n\n\nGo through the eight items one at a time, in the HTML, not in the code:\n\nAxis titles in words with units: “Corn yield (bushels per acre)”. The years need no axis title. Nothing like corn_yield or state_name anywhere.\nTick labels and axis titles at least as large as the worksheet’s text.\nLines labelled at their ends, or a legend in an empty corner in the order of the lines at the right edge.\nNumbers: years printed as 2000, not 2,000 or 2000.0.\nNo overlapping years along the bottom; every second or fifth year is fine.\nLight or no gridlines.\nWider than tall, since this is a change over time.\nColourblind-safe colours, one per state. If you kept colours from earlier figures, the same state has the same colour.\n\nCheck every item even though your request listed them all. A request says what you asked for, not what you got."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html#task-5-critique-and-improve-a-weak-figure",
+    "href": "exercises/4-1-data-visualization-basics.html#task-5-critique-and-improve-a-weak-figure",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "Task 5: Critique and improve a weak figure",
+    "text": "Task 5: Critique and improve a weak figure\n\n\n\n\n\n\nWhat a good answer looks like\n\n\n\n\n\nThe numbers behind the message. County-years with more than 10 weeks of extreme drought, compared with county-years with none:\n\n\n\n\n\n\n\n\nState\nYield lower by (bushels per acre)\nCounty-years with over 10 weeks\n\n\n\n\nColorado\n22\n22\n\n\nKansas\n17\n60\n\n\nNebraska\n23\n69\n\n\n\nThe message is true for all three states.\nThe checklist, applied to the weak figure:\n\nMessage in a few seconds: no. 1,956 points pile up, and most of them sit in one column at zero weeks.\nColour carries information (the state), but the three states’ points are mixed together in one cloud, and where they overlap, Nebraska’s, drawn last, hide the others. The reader cannot compare the states.\nIn black and white: no, the states become indistinguishable.\nEverything shown is needed, but the comparison the message needs, yields with and without long drought in each state, is not shown.\nFigure standard: raw column names, small text, ggplot’s default red and green, a legend to the right.\n\nA good improvement puts the comparison the message needs in front of the reader. Two that work: one small panel per state showing yields per drought range (box plots or averages); or one point per state for “no drought” and one for “over 10 weeks”, joined by a line, so the drop is the length of the line. The first shows the spread too; the second makes the size of the drop easiest to read. Either, with a reason, is a good answer."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html#task-6-is-the-message-true",
+    "href": "exercises/4-1-data-visualization-basics.html#task-6-is-the-message-true",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "Task 6: Is the message true?",
+    "text": "Task 6: Is the message true?\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\n2012 was a drought year everywhere: on average 12.4 weeks of extreme drought per county in Colorado, 11.5 in Kansas and 9.1 in Nebraska. But the yields did not all fall:\n\n\n\nState\n2011\n2012\n2013\nCounties in 2012\n\n\n\n\nColorado\n186\n160\n184\n4\n\n\nKansas\n161\n161\n175\n27\n\n\nNebraska\n178\n186\n192\n64\n\n\n\nNebraska’s average yield was higher in 2012 than in 2011, and Kansas’s did not change, because 2011 was already a poor year in Kansas (8.4 bushels per acre below its counties’ own averages). The draft message is false for Nebraska, and no design can fix a false message. The data does not say why; it has no information on irrigation, for example.\nBecause the set of counties changes from year to year, a careful check compares each county with its own average over all years. That gives the same picture: in 2012, Colorado counties were 15.6 bushels per acre below their own average, Kansas counties 12.6 below, and Nebraska counties 2.6 above.\nA true message, for example: “In the 2012 drought, yields were below normal in Colorado and Kansas but not in Nebraska.” It is about one year and a difference from normal, so a good design is different from Task 3’s: for example, a bar per state showing 2012’s yield minus normal, coloured on two hues either side of zero, or the Task 3 lines with 2012 marked. Colorado’s 2012 value rests on only 4 counties, which belongs in a note under the figure."
+  },
+  {
+    "objectID": "exercises/4-1-data-visualization-basics.html#task-7-check-the-figure-against-its-data",
+    "href": "exercises/4-1-data-visualization-basics.html#task-7-check-the-figure-against-its-data",
+    "title": "Ex-4-1: Communicating with Figures, with an AI Assistant",
+    "section": "Task 7: Check the figure against its data",
+    "text": "Task 7: Check the figure against its data\n\n\n\n\n\n\nWhat you should find\n\n\n\n\n\nFor one line per state, the expected table has 3 states × 19 years = 57 rows. It has 56: Colorado 2009 is missing, and a line drawn from this table joins 2008 straight to 2010 without showing it.\nThe counties behind each point range from 2 to 82. Colorado’s points rest on 5 or fewer counties in 7 of its years.\nWhat to do about it is your decision, and several answers are good, as long as the figure or its note tells the reader:\n\nbreak the line at the missing year, so the gap is visible;\nshow the number of counties, for example as the size of each point, or in a note under the figure;\ncompare each county with its own average, so a point does not depend on which counties report that year.\n\nDoing nothing and saying nothing is the one answer that is not good."
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Data Science with R for Environmental, Agricultural, and Social Scientists",
+    "section": "",
+    "text": "Course materials for Data Science with R (AECN 896-05) at UNL, redesigned for working alongside AI. The lectures teach what each step of a data project is, what has to be true for it to succeed, what to ask an AI assistant to do, and how to check what comes back."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-you-will-and-will-not-learn-today",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-you-will-and-will-not-learn-today",
+    "title": "04-1: Communicating with Figures",
+    "section": "What you will and will not learn today",
+    "text": "What you will and will not learn today\n\nThe planDirections\n\n\nAn AI assistant can draw any figure in seconds. It knows every function and every option. What it cannot know is:\n\nwhat the figure is supposed to tell the reader\nwho the reader is, and what they already know\nwhich group or which year the message is about\nwhether the finished figure gets the message across\n\nThose four are your job. So today is about:\n\nThe concept: a figure exists to convey one fact or idea, and every design choice is judged against it\nReading code: recognising which line of figure code does what, without memorising it\nAsking AI: what to put in a figure request\nChecking: how to judge whether a figure is correct and whether it conveys its message\n\n\n\n\nAsk your AI assistant to install the tidyverse package if you have not already. It includes ggplot2, the package that draws every figure in this course.\nThe figures use county_yield.csv, which you can download from the page of exercise 4-1. One row is one county in one year: corn yield and weeks of drought for 154 counties in Colorado, Kansas and Nebraska, 2000 to 2018."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#one-sentence-and-one-reader",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#one-sentence-and-one-reader",
+    "title": "04-1: Communicating with Figures",
+    "section": "One sentence and one reader",
+    "text": "One sentence and one reader\n\nWhat you needWhy the AI cannot do this\n\n\nBefore you ask for any figure, write down two things:\n\nThe message: the one sentence the reader should take away. A finding, with a direction and if possible a size: “County-years with more than 10 weeks of extreme drought yielded about 22 bushels per acre less than county-years with none.”\nThe reader: who will look at the figure, and what they already know. A farm audience knows what a bushel per acre is; a general audience may not.\n\nHow to tell it is done: someone who sees only the figure, without your text, can say your sentence back to you.\n\n\nThe same table supports many sentences. Asked for “a figure of this data”, the AI has to choose a message without knowing yours, and it usually picks the figure that suits the types of the columns, not the point you want to make.\nEvery design decision in this lecture (type of figure, colour, order, axis range, title) is judged against your sentence. Without the sentence, there is nothing to judge against."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#the-message-decides-the-figure",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#the-message-decides-the-figure",
+    "title": "04-1: Communicating with Figures",
+    "section": "The message decides the figure",
+    "text": "The message decides the figure\nBoth figures are drawn from the same 1,956 rows. Each serves a different sentence.\n\nMessage AMessage B\n\n\n“County-years with more than 10 weeks of extreme drought yielded about 22 bushels per acre less than county-years with none.”\n\n\n\n\n\n\n\n\n\n\n\n“Extreme drought came in a few bad years, above all 2012 and 2013.”"
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#five-kinds-of-message",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#five-kinds-of-message",
+    "title": "04-1: Communicating with Figures",
+    "section": "Five kinds of message",
+    "text": "Five kinds of message\n\nThe tableDistributionPart of a whole\n\n\nThe kind of sentence you wrote tells you the kind of figure to start from. The last column is the part of the code that names the figure type, so you can recognise it in what the AI writes.\n\n\n\n\n\n\n\n\n\nKind of message\nA sentence from this data\nA figure that suits it\nIn the code\n\n\n\n\nA distribution\n“Half of all county-years yielded between 164 and 195 bushels per acre.”\nhistogram\ngeom_histogram()\n\n\nA relationship between two variables\n“Yields fall as drought lasts longer.”\npoints, or averages per range\ngeom_point()\n\n\nA comparison across groups\n“Nebraska counties typically yield more than Kansas or Colorado counties.”\nbox plots, points, bars\ngeom_boxplot(), geom_col()\n\n\nA change over time\n“Extreme drought came in 2012 and 2013.”\nline\ngeom_line()\n\n\nA part of a whole\n“Nebraska makes up 65% of the county-years.”\none bar split into parts\ngeom_col()\n\n\n\nThe next two slides take a comparison and a relationship and show how much the choice matters.\n\n\n“Half of all county-years yielded between 164 and 195 bushels per acre.”\n\n\n\n\n\n\n\n\n\nThe shaded band is the middle half. The handful of yields near zero are real rows; the exercise asks what they are.\n\n\n“Nebraska makes up 65% of the county-years.”"
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#one-message-three-figures",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#one-message-three-figures",
+    "title": "04-1: Communicating with Figures",
+    "section": "One message, three figures",
+    "text": "One message, three figures\nMessage: “Nebraska counties typically yield more corn than Kansas or Colorado counties.”\n\nA. Overlapping histogramsB. Box plotsC. Bars of the averageWhich one?\n\n\n\n\n\n\n\n\n\n\n\nNebraska has the most rows, so its histogram covers the other two. The reader sees “Nebraska is big”, which is a fact about the data, not about yields.\n\n\n\n\n\n\n\n\n\n\n\nThe thick line in each box is the median (half the counties yield more, half less), and the box holds the middle half. Nebraska’s median is 184, against 174 for Kansas and 172 for Colorado, and the boxes show how much the states overlap.\n\n\n\n\n\n\n\n\n\n\n\nThe bars are correct, but they make the states look alike: Nebraska’s average (182) is only 8% above Colorado’s (168), so the difference is a sliver at the end of a long bar.\n\n\nB serves this message. “Typically” is a statement about the middle of each state’s yields, and box plots put the middle and the spread side by side.\n\nA hides the comparison under the difference in the number of rows.\nC shows the averages but no spread, so the reader cannot tell whether the gap is large compared with the variation inside each state.\n\nFor another message, say “Colorado has the most variable yields”, B still works, while C would not show it at all."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#too-many-points",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#too-many-points",
+    "title": "04-1: Communicating with Figures",
+    "section": "Too many points",
+    "text": "Too many points\nMessage: “Yields fall when drought lasts longer.”\n\nA. Every county-yearB. Box plots per drought range\n\n\n\n\n\n\n\n\n\n\n\n73% of the county-years had no extreme drought, so most points sit on top of each other in one column at zero. The fall is there, but the eye cannot find it.\n\n\n\n\n\n\n\n\n\n\n\nGrouping the drought weeks into ranges shows the drop at once. It also shows that the fall is not steady: the “2 to 5” group does better than the “0 to 2” group. Your sentence should not claim more than the figure shows; “yields are lowest after more than 10 weeks of drought” is what this figure supports."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#when-colour-should-carry-information",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#when-colour-should-carry-information",
+    "title": "04-1: Communicating with Figures",
+    "section": "When colour should carry information",
+    "text": "When colour should carry information\n\nThe ruleDecorationInformation\n\n\nUse colour only for a variable the reader needs and that the position of the marks does not already show. How to tell: remove the colour in your head. If the reader loses nothing, the colour is decoration, and decoration makes the reader look for a meaning that is not there.\n\n\n\n\n\n\n\n\n\n\n\nEach state already has its own place on the horizontal axis. The colours and the legend repeat the axis labels.\n\n\n\n\n\n\n\n\n\n\n\nThree lines share one pair of axes. Colour is the only thing that says which line is which state."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#three-kinds-of-colour-scale",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#three-kinds-of-colour-scale",
+    "title": "04-1: Communicating with Figures",
+    "section": "Three kinds of colour scale",
+    "text": "Three kinds of colour scale\n\nCategoriesAmountsAbove or below a midpoint\n\n\nGroups with no order (states, crops) get clearly different hues, as in the line figure on the previous slide. Use as few as the message needs.\n\n\nAmounts (weeks of drought, yield) get one hue, from light for small to dark for large, so “darker means more” reads without a legend.\n\n\n\n\n\n\n\n\n\n\n\nA value above or below a meaningful middle (a change, a difference from normal) gets two hues that grow darker away from a neutral middle. Here, each county’s yield minus its own 2000 to 2018 average, averaged over the counties of each state:\n\n\n\n\n\n\n\n\n\nOrange is below normal, purple above, and pale means close to normal. The neutral middle must sit at the value that means “no difference”, here zero."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#highlight-the-group-the-message-is-about",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#highlight-the-group-the-message-is-about",
+    "title": "04-1: Communicating with Figures",
+    "section": "Highlight the group the message is about",
+    "text": "Highlight the group the message is about\n\nHighlightSame colour, same thing\n\n\nMessage: “Colorado’s 2002 drought lasted about twice as long as Kansas’s or Nebraska’s.”\n\n\n\n\n\n\n\n\n\nIn 2002: Colorado 15.3 weeks, Kansas 6.5, Nebraska 7.3. The other states stay in the figure, in grey, because the message is a comparison with them.\n\n\nEvery figure on this deck draws Colorado in orange, Kansas in blue and Nebraska in green, including the highlight, where Colorado keeps its orange. A reader who learns the colours on one figure can read the next one without the legend.\nLeft to its defaults, ggplot hands out colours to whichever groups are in each figure, in alphabetical order. A figure without Colorado gives Kansas the colour Colorado had in the figure before. Name the colours in your request: “Colorado #E69F00, Kansas #0072B2, Nebraska #009E73 in every figure”."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#colours-every-reader-can-tell-apart",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#colours-every-reader-can-tell-apart",
+    "title": "04-1: Communicating with Figures",
+    "section": "Colours every reader can tell apart",
+    "text": "Colours every reader can tell apart\n\nggplot’s defaultAs a red-green colour-blind reader sees itOkabe-Ito, as the same reader sees itHow many colours\n\n\nA deliberately bad example. ggplot’s default colours for three groups put a red and a green of about the same lightness next to each other:\n\n\n\n\n\n\n\n\n\n\n\nRoughly 1 man in 12 of European ancestry has some form of red-green colour blindness. The same figure, with its colours converted to what such a reader sees (simulated with the colorspace package):\n\n\n\n\n\n\n\n\n\nColorado and Kansas now look nearly the same.\n\n\nThe Okabe-Ito palette is a set of eight colours chosen to stay distinct for colour-blind readers. The colours used for the states on this deck come from it:\n\n\n\n\n\n\n\n\n\n\n\nA reader has to match each colour to the legend, and that gets unreliable well before a palette runs out. With more groups than you can give clearly different colours:\n\ncolour only the groups the message is about and grey the rest, or\ndraw one small panel per group (next section), or\ncombine the small groups into “Other”.\n\nCheck: would the message survive printing in black and white? If colour is the only thing separating two lines, label them directly too."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#order-categories-by-value",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#order-categories-by-value",
+    "title": "04-1: Communicating with Figures",
+    "section": "Order categories by value",
+    "text": "Order categories by value\nThe 12 counties with data in every year, all in Nebraska. Message: “Buffalo had the highest average yield.”\n\nAlphabetical, names along the bottomBy value, names down the side\n\n\n\n\n\n\n\n\n\n\n\nThe names crowd together until they almost touch, and finding the highest county means comparing every point with every other.\n\n\n\n\n\n\n\n\n\n\n\nOrdered by value, the ranking is the figure. With the names on the vertical axis they read horizontally and never overlap. Rotating the names by 45 or 90 degrees would also stop the overlap, but makes them harder to read.\nKeep the natural order when the categories have one: years, months, drought ranges from none to most."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#one-panel-or-several",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#one-panel-or-several",
+    "title": "04-1: Communicating with Figures",
+    "section": "One panel or several",
+    "text": "One panel or several\nMessage: “Nebraska’s yields sit higher than the other two states’.”\n\nSeveral small panelsWhen to use which\n\n\n\n\n\n\n\n\n\n\n\nThe overlapping histograms from “One message, three figures”, split into one panel per state. Stacked one above the other on the same horizontal axis, the shift of Nebraska’s yields to the right is visible.\n\n\n\nOne panel when the reader must compare values at the same point, for example three lines in the same year. Up to about three or four groups.\nSeveral small panels when the groups overlap so much that one panel becomes a tangle, or there are too many groups to colour.\nPanels must share the axis the comparison is made on. Here the horizontal axis (yield) is shared; the vertical axis (counts) differs on purpose, because Nebraska has far more rows and the message is about where the yields sit, not how many rows each state has. Say so when you ask, or the AI decides for you."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#axis-ranges",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#axis-ranges",
+    "title": "04-1: Communicating with Figures",
+    "section": "Axis ranges",
+    "text": "Axis ranges\n\nBars that do not start at zeroBars from zeroPoints and lines\n\n\n\n\n\n\n\n\n\n\n\nA deliberately bad example. A bar’s length is read as its value. With the axis starting at 165, Nebraska’s bar is 5 times as tall as Colorado’s, although its average is only 8% higher.\n\n\n\n\n\n\n\n\n\n\n\nHonest, and it shows the differences are small. If the message is about those small differences, bars are the wrong choice; use points, which need no zero.\n\n\nFor points and lines the reader reads position, not length, so the axis should cover the range where the variation that matters lies. The dot plot of county averages on the “Order categories by value” slide runs from about 183 to 197. Forced to start at zero, all 12 points would crowd into the right 7% of the panel’s width and the ranking would be hard to see.\nThe opposite mistake: an axis so narrow that a change too small to matter fills the whole figure. The range should match what the message calls large."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#titles-labels-and-what-to-leave-out",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#titles-labels-and-what-to-leave-out",
+    "title": "04-1: Communicating with Figures",
+    "section": "Titles, labels, and what to leave out",
+    "text": "Titles, labels, and what to leave out\n\nA title that states the findingLabels on the linesRemove what the message does not need\n\n\n\n\n\n\n\n\n\n\n\nA title such as “corn_yield by drought band” names the variables, which the axes already do. A title that states the finding tells the reader what to look for. In a report where the figure has a caption, the caption can carry the finding instead.\n\n\nA legend makes the reader look away from the data, find the colour, read the name, and look back, once for every line. A label at the end of each line removes that trip. The “Highlight” figure in the colour section labels its lines directly; the before-and-after slide below does the same for three lines.\nWhen there is only one group, there is nothing for a legend to explain. Remove it.\n\n\nLook at each element and ask whether the message would suffer without it:\n\na legend that repeats the axis labels\ncolour that repeats position\nheavy gridlines, a dark background, a box around the panel\nnumbers printed on every bar when the message is the ranking\na third dimension\n\nWhat remains should be the data, the axes, and the words needed to read them."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#the-figure-standard",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#the-figure-standard",
+    "title": "04-1: Communicating with Figures",
+    "section": "The figure standard",
+    "text": "The figure standard\nEvery figure you hand in must meet this standard, whatever its message. Each item has a yes or no answer.\n\nPlain-word labels. Axis titles and legend titles in plain words with units: “Corn yield (bushels per acre)”, never corn_yield. Category labels in words: “Irrigated”, not 1.\nReadable text. Tick labels, axis titles and legend text no smaller than the document’s body text, at the size the figure appears in the HTML.\nThe legend where it costs least. In an empty corner of the plot, or above or below a wide figure, or removed when lines or points are labelled directly or there is only one group. Its order matches the order of the lines or bars.\nNumbers formatted for reading. Thousands separators, no more decimals than the message needs, percentages shown as percentages.\nNo overlapping tick labels. For long category names, put the categories on the vertical axis.\nThe data is the darkest thing. Light or no gridlines, no heavy borders.\nA shape that suits the content. Wide for a change over time, close to square for a relationship between two variables.\nColours every reader can tell apart. A palette readable by colour-blind readers, and no more colours than the message needs.\n\nThe copyable version, to add to every figure request, is in Recommended requests at the end of this deck."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#before-and-after",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#before-and-after",
+    "title": "04-1: Communicating with Figures",
+    "section": "Before and after",
+    "text": "Before and after\nMessage: “Extreme drought hit all three states in 2002, and again in 2012 and 2013.”\n\nBeforeAfterWhat changed\n\n\n\n\n\n\n\n\n\n\n\nA deliberately bad example: ggplot’s defaults, which is what comes back when a request says nothing about how the figure should look.\n\n\n\n\nCode the AI wrote\nlast_points &lt;- filter(state_year, year == max(year))\n\nggplot(state_year, aes(year, drought_weeks, colour = state_name)) +\n  geom_line(linewidth = 1) +\n  ggrepel::geom_text_repel(\n    data = last_points, aes(label = state_name),\n    direction = \"y\", hjust = 0, nudge_x = 0.4, size = 5.5, seed = 1\n  ) +\n  scale_colour_manual(values = state_colours, guide = \"none\") +\n  scale_x_continuous(\n    breaks = seq(2000, 2018, 2),\n    expand = expansion(mult = c(0.02, 0.12))\n  ) +\n  labs(\n    title = \"Extreme drought hit all three states in 2002, and again in 2012 and 2013\",\n    x = NULL,\n    y = \"Weeks of extreme drought,\\nMay to September\"\n  )\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nStandard item\nBefore\nAfter\n\n\n\n\n1\nPlain-word labels\ndrought_weeks, year, state_name\n“Weeks of extreme drought, May to September”; no axis title for years, which need none\n\n\n2\nReadable text\nfar smaller than this slide’s text\nthe same size as this slide’s text\n\n\n3\nLegend\na legend to the right, which narrows the plot\nremoved; each line is labelled at its end\n\n\n6\nThe data is darkest\ngrey background, white gridlines\nno background, light gridlines\n\n\n7\nShape\nwide\nwide, which suits a change over time\n\n\n8\nColours\nggplot’s red, green and blue\nthe deck’s Okabe-Ito colours for each state\n\n\n\nThe title now states the finding. Items 4 and 5 needed no change here."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-must-be-true-of-the-data",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-must-be-true-of-the-data",
+    "title": "04-1: Communicating with Figures",
+    "section": "What must be true of the data",
+    "text": "What must be true of the data\n\nThe conditionsA year stored as a numberA year that is not thereThe check\n\n\n\nOne row per thing drawn. One row per point, per bar, or per point on a line. If the table has one row per county and the line is meant to show one value per state and year, the averaging must happen first.\nThe right type per column. A category the colour should separate (a year, an ID, a 0/1 code) must be stored as a category. Stored as a number, it gets a scale for amounts.\nNothing missing that the figure hides. A line joins whatever rows it is given, whether or not a year is missing between them.\n\nNone of these failures gives an error. The figure is drawn, and it is wrong.\n\n\n\n\n\n\n\n\n\n\n\nThe request was “colour the points by year” for three years. year is stored as a number, so ggplot drew a scale for an amount: a legend with shades for years that are not in the figure, and three shades of one blue that are hard to tell apart.\n\n\n\n\n\n\n\n\n\n\n\nThe data has no Colorado row for 2009. The orange line runs straight from 2008 to 2010 and nothing on the figure says a year is missing.\n\n\nAsk the AI to print, next to the figure in the HTML, the table the figure is drawn from, with the number of original rows behind each value. Here, the rows around 2009:\n\n\nCode the AI wrote\nstate_year_raw |&gt;\n  filter(year %in% 2008:2010) |&gt;\n  arrange(year, state_name) |&gt;\n  mutate(across(c(corn_yield, drought_weeks), \\(x) round(x, 1)))\n\n\n# A tibble: 8 × 5\n  state_name  year corn_yield drought_weeks counties\n  &lt;chr&gt;      &lt;dbl&gt;      &lt;dbl&gt;         &lt;dbl&gt;    &lt;int&gt;\n1 Colorado    2008       164.             0        5\n2 Kansas      2008       161              0        2\n3 Nebraska    2008       184.             0       63\n4 Kansas      2009       202.             0       18\n5 Nebraska    2009       198.             0       67\n6 Colorado    2010       196.             0       10\n7 Kansas      2010       182.             0       26\n8 Nebraska    2010       182.             0       73\n\n\nTwo problems show at once. Colorado has no 2009 row. And Kansas’s 2008 average comes from 2 counties, against 26 in 2010: a point on that line can rest on very few counties. Neither is visible in the figure."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#the-checklist",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#the-checklist",
+    "title": "04-1: Communicating with Figures",
+    "section": "The checklist",
+    "text": "The checklist\nApply it to any figure, yours or the AI’s, by looking at it in the rendered HTML, at the size a reader will see it. Each question has a yes or no answer.\n\nCan someone who has not seen the data state the message within a few seconds?\nDoes every colour carry information? (No colour that only decorates.)\nWould the message survive printing in black and white?\nIs everything in the figure needed for the message?\nDoes it meet every item of the figure standard?\nDoes the table printed next to the figure have one row per thing drawn, with nothing missing that the figure hides?\n\nA “no” to any question is something to fix or a reason to choose a different design."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#your-turn-judge-a-figure",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#your-turn-judge-a-figure",
+    "title": "04-1: Communicating with Figures",
+    "section": "Your turn: judge a figure",
+    "text": "Your turn: judge a figure\nThe message is meant to be: “Extreme drought came in a few bad years, above all 2012 and 2013.”\n\n\nQuestionsAnswers\n\n\nA. Apply questions 1 to 5 of the checklist. Which answers are “no”?\nB. What does the colour show that the position of the bars does not?\nC. List the changes you would ask for, in the order that matters most for the message.\n\n\nA. Question 1 is close to “yes”: the tall bars are visible. Question 2 is “no”, question 4 is “no” (the colour and its legend), and question 5 is “no”: raw column names as axis titles, text far smaller than the slide’s, a grey background.\nB. Nothing. The colour repeats the year, which the horizontal axis already shows, and its legend narrows the plot.\nC. Remove the colour and the legend; put the finding in the title; plain-word axis title with units (“Weeks of extreme drought, May to September”); larger text; no grey background. Bars are a reasonable choice here, since the values are counts of weeks and start at zero; a line would also do."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#working-with-ai-on-your-own-research",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#working-with-ai-on-your-own-research",
+    "title": "04-1: Communicating with Figures",
+    "section": "Working with AI on your own research",
+    "text": "Working with AI on your own research\nFigures follow the same way of working as everything else (lecture 03-1, “Working with AI on your own research”): you ask, the AI writes into a Quarto document, you render, and you judge the HTML.\nFor figures, judging the HTML matters even more:\n\nA figure’s text size, shape and legend only exist at the size it is shown. The chat window shows it at a different size, or not at all.\nThe figure sits next to the sentence that says what it shows, so you can check that the two agree.\nThe table the figure is drawn from can be printed right next to it.\n\nEvery figure request ends with the figure standard and then the closing instructions. Both are under Recommended requests."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-to-put-in-a-figure-request",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-to-put-in-a-figure-request",
+    "title": "04-1: Communicating with Figures",
+    "section": "What to put in a figure request",
+    "text": "What to put in a figure request\nThe AI already knows how to draw any figure. Your request supplies what it cannot know:\n\nThe data: the file, what one row is, and which columns the figure uses, with their units\nThe message: the one sentence the reader should take away\nThe reader: who will see it, and what they already know\nWhat matters: which group or which years the message is about, and colours that must stay fixed across figures\nAlternatives, not one answer: two or three designs to choose from (next slide)\nThe figure standard, then the closing instructions\n\n\n\n\n\nUsing an agent in your editor or terminal?\n\n\nAn agent such as Claude Code can open the data and look for itself. It still cannot know your message or your reader. Write those down before it runs."
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#a-weak-request-and-a-strong-one",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#a-weak-request-and-a-strong-one",
+    "title": "04-1: Communicating with Figures",
+    "section": "A weak request and a strong one",
+    "text": "A weak request and a strong one\n\nWeakStrongWhat came back\n\n\nMake a plot of my corn data.\nThe AI has to guess which columns, which message, which reader and which type of figure. Whatever it draws is a figure of the data, not of a message, and you have no sentence to judge it against.\n\n\nIn my R project, data/county_yield.csv has one row per county and year,\n2000 to 2018, for Colorado, Kansas and Nebraska. drought_weeks is the\nnumber of weeks from May to September the county spent in extreme\ndrought.\n\nThe message: extreme drought hit all three states in 2002, and again in\n2012 and 2013. The reader: an extension audience who knows the states\nbut has not seen this data.\n\nAverage drought_weeks by state and year, and draw one line per state\nover time. Colorado #E69F00, Kansas #0072B2, Nebraska #009E73. Print\nthe table the figure is drawn from, with the number of counties behind\neach value.\nfollowed by the figure standard and the closing instructions.\n\n\nA version of what an AI returns, the code behind the “After” figure. You should be able to say which part does what:\n\nlast_points &lt;- filter(state_year, year == max(year))\n\nggplot(state_year, aes(year, drought_weeks, colour = state_name)) +\n  geom_line(linewidth = 1) +\n  ggrepel::geom_text_repel(\n    data = last_points, aes(label = state_name),\n    direction = \"y\", hjust = 0, nudge_x = 0.4, size = 5.5, seed = 1\n  ) +\n  scale_colour_manual(values = state_colours, guide = \"none\") +\n  scale_x_continuous(\n    breaks = seq(2000, 2018, 2),\n    expand = expansion(mult = c(0.02, 0.12))\n  ) +\n  labs(\n    title = \"Extreme drought hit all three states in 2002, and again in 2012 and 2013\",\n    x = NULL,\n    y = \"Weeks of extreme drought,\\nMay to September\"\n  )\n\n\nggplot(...) with aes(...): which column goes on which axis, and which column sets the colour\ngeom_line(): draw lines; geom_text_repel(): the labels at the line ends\nscale_colour_manual(): the fixed colours, and guide = \"none\" removes the legend\nlabs(): the title and the axis titles"
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#requests-you-can-copy",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#requests-you-can-copy",
+    "title": "04-1: Communicating with Figures",
+    "section": "Requests you can copy",
+    "text": "Requests you can copy\nCopy one, then replace every &lt;...&gt; with what you know: the message, the reader, the group that matters, what you found in the data. Every figure request ends with the figure standard and then the closing instructions.\n\nClosing instructionsThe figure standardAsk for designsImprove a figureCritique a figureCheck against the dataExplain code\n\n\nThe lines that end every request:\nPut the code in my Quarto document &lt;analysis/ex-3-1.qmd&gt;, under the\nheading \"&lt;Task 2&gt;\", as R code chunks. Above each chunk, write one\nplain-English sentence saying what it does and why. Build every path\nwith here::here(); no setwd(), no absolute paths. Print each check as\n\"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;\". Render the document to HTML.\nA chat assistant cannot render: paste its chunks into your .qmd and render it yourself. An agent in your editor or terminal can do every step.\n\n\nPaste this into every figure request, just before the closing instructions:\nEvery figure must meet this standard:\n1. Axis titles, legend titles and category labels in plain words with\n   units, such as \"Corn yield (bushels per acre)\", never a column name;\n   categories in words, such as \"Irrigated\", never a code such as 1.\n2. Tick labels, axis titles and legend text no smaller than the\n   document's body text, at the size the figure appears in the HTML.\n3. No legend when lines or points can be labelled directly or there is\n   only one group. Otherwise, the legend inside an empty corner of the\n   plot, or above or below a wide figure, in the same order as the lines\n   or bars it describes.\n4. Numbers formatted for reading: thousands separators, no more decimals\n   than the message needs, percentages shown as percentages.\n5. No overlapping tick labels; for long category names, put the\n   categories on the vertical axis rather than rotating the text.\n6. Light or no gridlines and no heavy borders, so the data is the\n   darkest thing in the figure.\n7. A shape that suits the content: wide for a change over time, close\n   to square for a relationship between two variables.\n8. Colours readable by colour-blind readers (such as the Okabe-Ito\n   palette), and no more colours than the message needs.\nKeep your own copy of this block, and add to it each time you find something the AI keeps getting wrong.\n\n\nThe central request: the AI makes alternatives cheaply, and choosing among them is your job.\nIn my R project, &lt;data/county_yield.csv&gt; has one row per &lt;county and\nyear&gt;. The figure uses the columns &lt;...&gt;, which mean &lt;...&gt; and are\nmeasured in &lt;units&gt;.\n\nThe message: &lt;the one sentence the reader should take away&gt;.\nThe reader: &lt;who will see it, and what they already know&gt;.\nThe group the message is about: &lt;...&gt;.\n\nDraw &lt;three&gt; different designs of a figure for this message, one after\nanother. Under each, write one sentence saying what that design makes\neasy to see and what it hides. Do not choose one for me.\n\n&lt;the figure standard&gt;\n\nPut the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the\nheading \"&lt;Task 3&gt;\", as R code chunks. Above each chunk, write one\nplain-English sentence saying what it does and why. Build every path\nwith here::here(); no setwd(), no absolute paths. Print each check as\n\"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;\". Render the document to HTML.\nThen choose one, and write in your document which one and why, in terms of the message.\n\n\nThe code below draws a figure. Its message should be: &lt;one sentence&gt;.\nThe reader is &lt;who&gt;. The group the message is about is &lt;...&gt;; the\nothers are context.\n\nChange the figure so that the message is the first thing a reader\nsees. Keep the original figure, and put the new one below it. Above the\nnew one, list each change and why, in plain English.\n\n&lt;the figure standard&gt;\n\nPut the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the\nheading \"&lt;Task 5&gt;\", as R code chunks. Above each chunk, write one\nplain-English sentence saying what it does and why. Build every path\nwith here::here(); no setwd(), no absolute paths. Print each check as\n\"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;\". Render the document to HTML.\n\n&lt;paste the code here&gt;\n\n\nThe code below draws a figure. Its intended message is: &lt;one sentence&gt;.\nThe reader is &lt;who&gt;.\n\nDraw it unchanged. Below it, answer each question with yes or no and\none sentence of reason:\n1. Could someone who has not seen the data state the message within a\n   few seconds?\n2. Does every colour carry information?\n3. Would the message survive printing in black and white?\n4. Is everything in the figure needed for the message?\n5. Does it meet each item of the figure standard below? Answer per item.\n\n&lt;the figure standard&gt;\n\nPut the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the\nheading \"&lt;Task 5&gt;\", as R code chunks. Above each chunk, write one\nplain-English sentence saying what it does and why. Build every path\nwith here::here(); no setwd(), no absolute paths. Print each check as\n\"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;\". Render the document to HTML.\n\n&lt;paste the code here&gt;\nCompare its answers with your own before you change anything.\n\n\nDraw my figure from &lt;Task 4&gt; again, and next to it print the table\nthe figure is drawn from: one row per &lt;point / bar / point on a line&gt;, with\nthe columns that set its position and colour, and the number of rows of\nthe original data behind each one.\n\nThen check:\n- the number of &lt;points / bars / lines&gt;: expected &lt;...&gt;\n- the column used for colour holds &lt;categories / amounts&gt;, and is\n  stored as such\n- &lt;a gap or a small group you know of&gt;: &lt;...&gt;\n\nPut the code in my Quarto document &lt;analysis/ex-4-1.qmd&gt;, under the\nheading \"&lt;Task 7&gt;\", as R code chunks. Above each chunk, write one\nplain-English sentence saying what it does and why. Build every path\nwith here::here(); no setwd(), no absolute paths. Print each check as\n\"&lt;check&gt;: expected &lt;X&gt;, got &lt;Y&gt;\". Render the document to HTML.\n\n\nFor figure code you did not write, or are not sure about:\nExplain this ggplot2 code to me. For each line, write one plain-English\nsentence. Then list:\n1. which column sets the horizontal axis, the vertical axis, and the\n   colour, and whether each is stored as a number or as a category\n2. any step that could make the figure misleading without an error,\n   and what printed check would reveal it\n\n&lt;paste the code here&gt;"
+  },
+  {
+    "objectID": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-is-yours-and-what-you-can-hand-off",
+    "href": "lectures/Chapter-4-Data-Visualization/04-1-data-visualization-basics.html#what-is-yours-and-what-you-can-hand-off",
+    "title": "04-1: Communicating with Figures",
+    "section": "What is yours, and what you can hand off",
+    "text": "What is yours, and what you can hand off\n\n\n\n\n\n\n\nYou need to decide or judge\nThe AI can write\n\n\n\n\nThe message, in one sentence, and who the reader is\nThe code for any type of figure\n\n\nWhich type of figure makes that message obvious, chosen from alternatives\nTwo or three alternatives, side by side\n\n\nWhether colour carries information, and which group to highlight\nThe colour scales and the highlighting\n\n\nThe order, the panels, the axis ranges, the title that states the finding\nThe code for each of them\n\n\nWhether the figure meets the figure standard\nThe labels, sizes and legend placement, when you append the standard\n\n\nWhether the data behind the figure is right: one row per thing drawn, the right types, nothing hidden\nThe table printed next to the figure\n\n\n\nEvery figure: write the message and the reader first. Ask for alternatives, choose one and write why. Append the figure standard and the closing instructions. Render, and judge the figure in the HTML with the checklist."
   }
 ]

@@ -1,0 +1,207 @@
+---
+title: "Ex-4-1: Communicating with Figures, with an AI Assistant"
+abstract: "Data Visualization"
+format:
+  html:
+    toc: true
+    toc-location: left
+resources:
+  - data/county_yield.csv
+  - worksheets/ex-4-1.qmd
+---
+
+```{r}
+#| label: answers
+#| include: false
+# Computes every number quoted in the answer boxes, so they always match the
+# data. Students never see this chunk.
+library(readr)
+library(dplyr)
+library(tidyr)
+csv <- "data/county_yield.csv"
+
+csv_lines <- length(readLines(csv))
+cy <- read_csv(csv, show_col_types = FALSE)
+n_years <- n_distinct(cy$year)
+zeros <- filter(cy, corn_yield == 0)
+second_low <- min(cy$corn_yield[cy$corn_yield > 0])
+
+counts <- count(cy, state_name, year)
+missing <- anti_join(expand(counts, state_name, year), counts, by = c("state_name", "year"))
+cnt <- function(st, yr) counts$n[counts$state_name == st & counts$year == yr]
+co_small <- sum(counts$n[counts$state_name == "Colorado"] <= 5)
+
+# Task 2: change over time
+period <- cy |>
+  mutate(period = case_when(year <= 2002 ~ "early", year >= 2016 ~ "late")) |>
+  filter(!is.na(period)) |>
+  group_by(state_name, period) |>
+  summarise(y = round(mean(corn_yield)), .groups = "drop") |>
+  pivot_wider(names_from = period, values_from = y)
+early <- setNames(period$early, period$state_name)
+late  <- setNames(period$late, period$state_name)
+
+# Task 5: drought, by state
+drought_gap <- cy |>
+  mutate(g = case_when(drought_weeks == 0 ~ "none", drought_weeks > 10 ~ "long")) |>
+  filter(!is.na(g)) |>
+  group_by(state_name, g) |>
+  summarise(y = mean(corn_yield), n = n(), .groups = "drop") |>
+  pivot_wider(names_from = g, values_from = c(y, n)) |>
+  mutate(gap = round(y_none - y_long))
+gap <- setNames(drought_gap$gap, drought_gap$state_name)
+n_long <- setNames(drought_gap$n_long, drought_gap$state_name)
+
+# Task 6: 2011 to 2013
+around_2012 <- cy |>
+  group_by(state_name, county_name) |>
+  mutate(dev = corn_yield - mean(corn_yield)) |>
+  filter(year %in% 2011:2013) |>
+  group_by(state_name, year) |>
+  summarise(avg = round(mean(corn_yield)), dev = round(mean(dev), 1), counties = n(), .groups = "drop")
+a12 <- function(st, yr, col) around_2012[[col]][around_2012$state_name == st & around_2012$year == yr]
+dw12 <- cy |> filter(year == 2012) |> group_by(state_name) |> summarise(w = round(mean(drought_weeks), 1))
+dw12 <- setNames(dw12$w, dw12$state_name)
+
+# Task 7: the table behind the state-year lines
+state_year <- cy |> group_by(state_name, year) |> summarise(counties = n(), .groups = "drop")
+```
+
+This is an in-class exercise. Before class, work through the lecture **04-1: Communicating with Figures**. In class, you work through the worksheet with an AI assistant writing the code. Your job is everything the AI cannot do: deciding what each figure must say and to whom, choosing among the designs the AI offers, and judging the result in the rendered HTML.
+
+# Setup {#sec-setup}
+
+1. Download the worksheet, [ex-4-1.qmd](worksheets/ex-4-1.qmd), and the data file [county_yield.csv](data/county_yield.csv).
+2. Make an R Project folder called `ch4-practice`, with two subfolders, `data` and `analysis`. You may ask the AI how to do this.
+3. Copy `county_yield.csv` into `ch4-practice/data`, and the worksheet into `ch4-practice/analysis`.
+4. Open the worksheet and start at Task 1.
+
+::: {.callout-important title="It worked if"}
+Typing `here::here()` in the Console prints the path to `ch4-practice` and nothing longer, and rendering the blank worksheet produces an HTML file with one figure in it, under Task 5.
+
+If `here::here()` prints a path ending in `analysis`, the `.Rproj` file was not recognised. `here` only accepts a `.Rproj` file whose first line starts with `Version:`, which every project created in RStudio (File, New Project) has. An empty `.Rproj` file made any other way does not count.
+:::
+
+# Answers {#sec-answers}
+
+Open each one only after you have tried the task. For the design questions there is rarely one right answer. The boxes explain which choices serve the stated message and why; a different choice with a good reason is a good answer.
+
+## Task 1: Look and predict
+
+::: {.callout-note collapse="true" title="What you should find"}
+A. `r format(csv_lines, big.mark = ",")` lines: one line of column names and `r format(csv_lines - 1, big.mark = ",")` data rows, `r ncol(cy)` columns. One row is one county in one year.
+
+B. `r n_distinct(cy$state_name)` states (`r paste(sort(unique(cy$state_name)), collapse = ", ")`), `r nrow(distinct(cy, state_name, county_name))` counties (some county names, such as Lincoln, occur in more than one state, so a county is identified by its state and its name), years `r min(cy$year)` to `r max(cy$year)`.
+
+C. `corn_yield` runs from `r min(cy$corn_yield)` to `r max(cy$corn_yield)` bushels per acre. The `r nrow(zeros)` zeros are odd: both are in Colorado (`r paste0(zeros$county_name, " ", zeros$year, collapse = " and ")`), and the next lowest yield anywhere is `r second_low`. A zero could be a crop that failed completely, or a missing value written as 0. The file cannot tell you which. Note it, and keep it in mind for any figure of yields. `drought_weeks` runs from `r min(cy$drought_weeks)` to `r max(cy$drought_weeks)`.
+
+D. The table of counties per state and year shows two things:
+
++ `r if (nrow(missing) == 1) paste(missing$state_name, "has no rows at all for", missing$year) else "some state-years have no rows"`.
++ The number of counties falls over time. Kansas has `r cnt("Kansas", 2000)` counties in 2000 and `r cnt("Kansas", 2008)` in 2008. Colorado has 5 or fewer counties in `r co_small` of its years.
+
+Any average per state and year is therefore an average over a different, sometimes very small, set of counties. Task 7 comes back to this.
+:::
+
+## Task 2: Write the message
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+Average yields in `r min(cy$year)` to 2002 and in 2016 to `r max(cy$year)`:
+
+| State | 2000 to 2002 | 2016 to 2018 |
+|---|---|---|
+| Colorado | `r early["Colorado"]` | `r late["Colorado"]` |
+| Kansas | `r early["Kansas"]` | `r late["Kansas"]` |
+| Nebraska | `r early["Nebraska"]` | `r late["Nebraska"]` |
+
+So yields rose in all three states, most in Nebraska. A good sentence states the direction, the scope and if possible a size: "Corn yields rose in all three states between 2000 and 2018, by about `r min(late - early)` to `r max(late - early)` bushels per acre." A sentence such as "Yields changed over time" is not a message; nothing in a figure could show it to be wrong.
+
+The reader matters for the wording and the labels: an extension audience knows bushels per acre; a general audience needs it spelled out once.
+:::
+
+## Task 3: Ask for designs and choose
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+Designs you may get back include:
+
++ **One line per state, yearly average.** Makes the rise and the comparison between states easy to see. Hides how much counties vary within a year, and each point is an average over a changing set of counties (Task 7).
++ **Small panels per state, every county-year as a point, with a trend line.** Shows the rise and the spread, and how few Colorado points there are. Harder to compare the states' levels at a glance.
++ **Box plots per year.** Shows the spread each year, but mixes the states, so it cannot show "in all three states".
+
+For the sentence in Task 2, one line per state, or panels per state with a trend line, serve the message; box plots per year do not, because the message is about each state. A good written reason names what the message needs ("each state separately, over time") and what the chosen design makes easy to see.
+:::
+
+## Task 4: Meet the figure standard
+
+::: {.callout-note collapse="true" title="What to check in the HTML"}
+Go through the eight items one at a time, in the HTML, not in the code:
+
+1. Axis titles in words with units: "Corn yield (bushels per acre)". The years need no axis title. Nothing like `corn_yield` or `state_name` anywhere.
+2. Tick labels and axis titles at least as large as the worksheet's text.
+3. Lines labelled at their ends, or a legend in an empty corner in the order of the lines at the right edge.
+4. Numbers: years printed as 2000, not 2,000 or 2000.0.
+5. No overlapping years along the bottom; every second or fifth year is fine.
+6. Light or no gridlines.
+7. Wider than tall, since this is a change over time.
+8. Colourblind-safe colours, one per state. If you kept colours from earlier figures, the same state has the same colour.
+
+Check every item even though your request listed them all. A request says what you asked for, not what you got.
+:::
+
+## Task 5: Critique and improve a weak figure
+
+::: {.callout-note collapse="true" title="What a good answer looks like"}
+**The numbers behind the message.** County-years with more than 10 weeks of extreme drought, compared with county-years with none:
+
+| State | Yield lower by (bushels per acre) | County-years with over 10 weeks |
+|---|---|---|
+| Colorado | `r gap["Colorado"]` | `r n_long["Colorado"]` |
+| Kansas | `r gap["Kansas"]` | `r n_long["Kansas"]` |
+| Nebraska | `r gap["Nebraska"]` | `r n_long["Nebraska"]` |
+
+The message is true for all three states.
+
+**The checklist, applied to the weak figure:**
+
+1. Message in a few seconds: no. `r format(nrow(cy), big.mark = ",")` points pile up, and most of them sit in one column at zero weeks.
+2. Colour carries information (the state), but the three states' points are mixed together in one cloud, and where they overlap, Nebraska's, drawn last, hide the others. The reader cannot compare the states.
+3. In black and white: no, the states become indistinguishable.
+4. Everything shown is needed, but the comparison the message needs, yields with and without long drought in each state, is not shown.
+5. Figure standard: raw column names, small text, ggplot's default red and green, a legend to the right.
+
+**A good improvement** puts the comparison the message needs in front of the reader. Two that work: one small panel per state showing yields per drought range (box plots or averages); or one point per state for "no drought" and one for "over 10 weeks", joined by a line, so the drop is the length of the line. The first shows the spread too; the second makes the size of the drop easiest to read. Either, with a reason, is a good answer.
+:::
+
+## Task 6: Is the message true?
+
+::: {.callout-note collapse="true" title="What you should find"}
+2012 was a drought year everywhere: on average `r dw12["Colorado"]` weeks of extreme drought per county in Colorado, `r dw12["Kansas"]` in Kansas and `r dw12["Nebraska"]` in Nebraska. But the yields did not all fall:
+
+| State | 2011 | 2012 | 2013 | Counties in 2012 |
+|---|---|---|---|---|
+| Colorado | `r a12("Colorado", 2011, "avg")` | `r a12("Colorado", 2012, "avg")` | `r a12("Colorado", 2013, "avg")` | `r a12("Colorado", 2012, "counties")` |
+| Kansas | `r a12("Kansas", 2011, "avg")` | `r a12("Kansas", 2012, "avg")` | `r a12("Kansas", 2013, "avg")` | `r a12("Kansas", 2012, "counties")` |
+| Nebraska | `r a12("Nebraska", 2011, "avg")` | `r a12("Nebraska", 2012, "avg")` | `r a12("Nebraska", 2013, "avg")` | `r a12("Nebraska", 2012, "counties")` |
+
+Nebraska's average yield was **higher** in 2012 than in 2011, and Kansas's did not change, because 2011 was already a poor year in Kansas (`r abs(a12("Kansas", 2011, "dev"))` bushels per acre below its counties' own averages). The draft message is false for Nebraska, and no design can fix a false message. The data does not say why; it has no information on irrigation, for example.
+
+Because the set of counties changes from year to year, a careful check compares each county with its own average over all years. That gives the same picture: in 2012, Colorado counties were `r abs(a12("Colorado", 2012, "dev"))` bushels per acre below their own average, Kansas counties `r abs(a12("Kansas", 2012, "dev"))` below, and Nebraska counties `r a12("Nebraska", 2012, "dev")` **above**.
+
+**A true message**, for example: "In the 2012 drought, yields were below normal in Colorado and Kansas but not in Nebraska." It is about one year and a difference from normal, so a good design is different from Task 3's: for example, a bar per state showing 2012's yield minus normal, coloured on two hues either side of zero, or the Task 3 lines with 2012 marked. Colorado's 2012 value rests on only `r a12("Colorado", 2012, "counties")` counties, which belongs in a note under the figure.
+:::
+
+## Task 7: Check the figure against its data
+
+::: {.callout-note collapse="true" title="What you should find"}
+For one line per state, the expected table has 3 states × `r n_years` years = `r 3 * n_years` rows. It has `r nrow(state_year)`: `r if (nrow(missing) == 1) paste(missing$state_name, missing$year)` is missing, and a line drawn from this table joins `r missing$year - 1` straight to `r missing$year + 1` without showing it.
+
+The counties behind each point range from `r min(state_year$counties)` to `r max(state_year$counties)`. Colorado's points rest on 5 or fewer counties in `r co_small` of its years.
+
+What to do about it is your decision, and several answers are good, as long as the figure or its note tells the reader:
+
++ break the line at the missing year, so the gap is visible;
++ show the number of counties, for example as the size of each point, or in a note under the figure;
++ compare each county with its own average, so a point does not depend on which counties report that year.
+
+Doing nothing and saying nothing is the one answer that is not good.
+:::
