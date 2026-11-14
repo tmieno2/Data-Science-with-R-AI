@@ -14,8 +14,7 @@ format:
     scrollable: true
     echo: true
 webr:
-  # dplyr is installed when the page loads but not attached, so the slide
-  # "When it goes wrong" still shows `as_tibble()` failing until a cell loads it.
+  # Installed when the page loads; the cells that use it load it themselves.
   packages: ['dplyr']
   autoload-packages: false
   cell-options:
@@ -68,10 +67,6 @@ yield_data <- data.frame(
   state = c("Kansas", "Nebraska", "Iowa")
 )
 a_list <- list(numbers = c(10, 20), state = "Iowa", data = yield_data)
-# WebR's own library() tries to download a package that is not installed, and
-# then only warns. The slide "When it goes wrong" shows R's real error, so use
-# base R's library().
-if ("webr_shims" %in% search()) detach("webr_shims")
 ```
 
 ::: {.panel-tabset}
@@ -135,7 +130,7 @@ Every lecture in this course is organised around those four parts.
 
 By the end, you should be able to carry out your own research in R with an AI assistant writing the code: get data in, reshape it, make figures and tables, report the results, and work with maps.
 
-The AI will write that code into a **Quarto document** (a `.qmd` file: plain text with R code in it). **Rendering** the document runs its code from the top and makes a web page showing the code and its results. Chapter 2 teaches Quarto.
+In this course the AI writes that code into a **Quarto document**, a way of working we recommend for your own research too (a `.qmd` file: plain text with R code in it). **Rendering** the document runs its code from the top and makes a web page showing the code and its results. Chapter 2 teaches Quarto.
 
 :::
 
@@ -534,7 +529,7 @@ You can also paste a line into an AI assistant and ask what each input does (see
 
 :::
 
-## Packages: installing and loading
+## Packages
 
 ::: {.panel-tabset}
 
@@ -553,59 +548,20 @@ A package is a drawer in your workspace (the R environment) holding specialized 
 
 **tidyverse** is a package that installs and loads a set of others at once, including dplyr, ggplot2 and readr.
 
-### Installing versus loading
+### What you will see
 
-Two separate steps:
+Two lines about packages appear in AI-written code and AI messages:
 
-+ **Install**: before you can use the tools (functions) in a drawer (package), you have to obtain the drawer. Installing downloads the package onto your computer. The name goes in quotation marks:
-
-```{r}
-#| eval: false
-install.packages("ggplot2")
-```
-
-+ **Load**: you then bring the drawer into your workspace with `library()`. The name goes without quotation marks:
-
-```{r}
-#| eval: false
-library(ggplot2)
-```
-
-You can now use the tools (functions) that drawer contains.
-
-These two lines are shown here, not run: installing puts a package on your own computer, not in this web page.
-
-:::{.callout-note title="Install once, load every time"}
-You install a package **once per computer**, at the Console. You load it with `library()` in **every new R session** (R from the moment it starts until it is closed or restarted), and that includes every time a Quarto document is rendered, because rendering starts a fresh R session. So `library()` lines belong at the top of your document, and `install.packages()` lines do not belong in it at all: they would download the package again at every render.
-:::
-
-### When it goes wrong
-
-The two steps fail with two different errors, and the error tells you which step is missing:
-
-```{webr-r}
-#| label: no-package
-library(notapkg)
-```
-
-"There is no package called ...": the package is **not installed** (or the name is misspelled).
-
-```{webr-r}
-#| label: no-function
-tidy_table <- as_tibble(yield_data)
-```
-
-"Could not find function ...": the package that has the function is **not loaded** (here, `as_tibble()` comes from the tibble package, which also comes with dplyr and tidyverse), or the function name is misspelled.
++ `library(ggplot2)`, at the top of a document: the code **loads** the package ggplot2, so that its functions can be used further down. A document loads its packages every time it runs.
++ `install.packages("ggplot2")`: the AI **installs** the package, that is, downloads it onto your computer. This is a one-time step that sets up the computer, which the AI runs for you. It should never be inside a document.
 
 ### Which package is a function from?
 
-A line does not say which package its function comes from, unless it is written as `package::function()`:
+`dplyr::filter()` reads "the function `filter` from the package `dplyr`":
 
 ```{webr-r}
 dplyr::filter(yield_data, yield > 225)
 ```
-
-`dplyr::filter` means "the `filter()` function from dplyr". It uses the function without loading the whole package, and it tells the reader where the function comes from. When you cannot tell, ask the AI, or run `?filter` after the package is loaded: if several packages have a function of that name, the help pane lists them all, each with the package it comes from. Each help page also names its package at the top left, as in `filter {dplyr}`.
 
 :::
 
@@ -630,13 +586,11 @@ sum("a")
 
 ### Errors you will see
 
-Four errors you will see often:
+Two errors you will see often:
 
 | The error says | What it means | Usual cause |
 |---|---|---|
 | `object 'x' not found` | No object has that name | A typo (R treats `Yield` and `yield` as different names), or the line that creates it was never run, or it was made in the Console but not in the document |
-| `could not find function "f"` | No loaded function has that name | The package was not loaded, or a typo |
-| `there is no package called 'p'` | The package is not installed | Not installed on this computer, or a typo |
 | `non-numeric argument to binary operator` | Arithmetic on something that is not a number | A number stored as text |
 
 When you ask an AI about an error, send the **whole** error message, the code that produced it, and what you expected. The AI cannot see your screen.
@@ -919,8 +873,8 @@ avg
 | The pattern of a function call: name, inputs by position, options by name, defaults | Which function to use and which options to set |
 | What a default does, especially `na.rm = TRUE` | The options themselves |
 | That a help page lists each input and its default | Which inputs to set |
-| Installing (once, at the Console) versus loading (every session, at the top of the document) | The `install.packages()` and `library()` lines |
-| What the four common errors mean | The fix, once you have told it the code, the error and what you expected |
+| That `library()` at the top of a document loads a package, and that installing is a one-time setup of the computer that never goes in a document | The `library()` lines, and installing the packages |
+| What the two common errors mean | The fix, once you have told it the code, the error and what you expected |
 | What a correct result looks like | The checking code |
 
 **Every time AI hands you code:** read it line by line, and name the objects, functions, inputs and packages in it. If you cannot say what a line does, ask before you keep it. Then judge the result by checks whose answer you knew beforehand.
