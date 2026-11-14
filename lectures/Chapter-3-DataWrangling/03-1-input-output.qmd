@@ -1,0 +1,489 @@
+---
+title: "03-1: Getting Data In and Out of R"
+abstract: "Chapter 3: Data Wrangling"
+format:
+  revealjs:
+    include-in-header: ../transcript-support.html
+    footer: "[back to the lecture slides](../index.html)"
+    theme: [default, ../custom.scss, ../notebook.scss]
+    fontsize: 1.2em
+    callout-icon: false
+    scrollable: true
+    echo: true
+---
+
+```{r}
+#| label: setup
+#| include: false
+library(readr)
+library(dplyr)
+```
+
+# How this lecture works
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What you will and will not learn today
+
+::: {.panel-tabset}
+
+### The plan
+
+An AI assistant can write the code that reads a file into R. It knows every function and every argument. What it cannot do is:
+
++ see the files on your computer
++ know what is inside them
++ know what the data is for
++ tell whether the result is right
+
+Those four are your job. So today is about:
+
+1. **The concept**: what importing and exporting are, and what has to be true for them to work
+2. **Reading code**: recognising what a line of import code does, without memorising it
+3. **Asking AI**: what to put in your request
+4. **Checking**: how to tell whether the code the AI wrote did the right thing
+
+### Directions
+
++ Clone [this repository](https://github.com/tmieno2/data-science-course-supplementary-datasets), which holds the datasets used here
++ Ask your AI assistant to install the `tidyverse` and `haven` packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1).
+
+:::
+
+# The concept
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What importing is
+
+A data file is a table saved on disk in some **format**. Importing means a function reads that file and builds a table inside R (a **data frame**) that you give a name to.
+
+Every import line you will see has the same three parts:
+
+```{r}
+#| label: first-import
+corn <- read_csv("corn_yields.csv")
+```
+
+| Part | Here | What it is |
+|---|---|---|
+| Name | `corn` | What you will call the table inside R. `<-` stores the result under that name. |
+| Reader | `read_csv` | The function that understands this file's format |
+| Path | `"corn_yields.csv"` | Where the file is |
+
+The AI will pick the reader and fill in the details. You need to be able to look at a line like this and say which part is which.
+
+## What has to be true for an import to work
+
+::: {.panel-tabset}
+
+### The four conditions
+
+1. **R can find the file.** The path points at a file that exists.
+2. **The reader matches the format.** A csv reader for a csv file, an Excel reader for an Excel file.
+3. **The reader understands the layout.** Where the column names are, which sheet to read, what marks a missing value.
+4. **Each column gets the right type.** Numbers as numbers, text as text, IDs kept exactly as written.
+
+### Loud and silent failures
+
++ If condition 1 or 2 fails, R stops with an **error**. Annoying, but you know something is wrong.
++ If condition 3 or 4 fails, R gives you a data frame with **no error**, and the data frame is wrong.
+
+:::{.callout-important}
+The silent failures are why checking matters. Code that runs is not the same as code that is right.
+:::
+
+:::
+
+## Condition 1: R can find the file
+
+::: {.panel-tabset}
+
+### Paths
+
+A **path** is the address of a file. There are two kinds:
+
++ **Absolute path**: starts at the top of the disk, for example `"/Users/taro/Documents/class/corn_yields.csv"`. It works only on the computer it was written on, because nobody else has those folders.
++ **Relative path**: starts from the folder R is currently in (the **working directory**), for example `"data/corn_yields.csv"`. It works on any computer that has the same project folder.
+
+What R treats as the working directory:
+
++ At the Console: your project folder (if you opened an R Project)
++ Inside a `.qmd` file: the folder the `.qmd` is saved in
+
+### The project root and `here()`
+
+The safest path is one measured from the top of your project folder (the **project root**). The `here` package does that. Recognise it when you see it:
+
+```{r}
+#| eval: false
+corn <- read_csv(here::here("data", "corn_yields.csv"))
+```
+
+This reads `data/corn_yields.csv` inside your project, whichever subfolder your code is in and whoever's computer it runs on.
+
+### Why AI gets this wrong
+
+The AI cannot see your folders, so it **guesses** the path. Its guesses tend to be one of these:
+
++ just the file name, assuming the file is in the working directory
++ an absolute path copied from an example, such as `"C:/Users/yourname/..."`
++ `setwd(...)` to change the working directory first
+
+All three break as soon as the code runs somewhere else. Tell it where the file is (see "Asking AI" below).
+
+:::
+
+## Condition 2: the reader matches the format
+
+The file extension (the part after the last dot) tells you the format. You do not need to memorise the reader; tell the AI the extension and it will pick one. You do need to recognise them:
+
+| Extension | Format | Reader you will see | What the file remembers |
+|---|---|---|---|
+| `.csv` | plain text, any software opens it | `read_csv()` (readr) | Only text. Types are guessed on reading. |
+| `.xls`, `.xlsx` | Excel workbook | `read_excel()` (readxl) | Several **sheets** per file |
+| `.dta` | STATA | `read_dta()` (haven) | Types and variable labels |
+| `.rds` | R's own format | `readRDS()` (built in) | The exact R object, nothing guessed |
+
+:::{.callout-note}
+A csv file stores everything as text, so the reader has to **guess** each column's type. That guessing is where conditions 3 and 4 go wrong.
+:::
+
+## Conditions 3 and 4: the silent failures
+
+::: {.panel-tabset}
+
+### Lost leading zeros
+
+County codes (FIPS) for Alabama start with 0. Here is a tiny csv, written straight into the code, and what the reader makes of it:
+
+```{r}
+#| label: zeros
+small_csv <- "fips,county,yield
+01001,Autauga,150
+01003,Baldwin,-999
+31019,Buffalo,173"
+
+small <- read_csv(I(small_csv), show_col_types = FALSE)
+small$fips
+
+read.csv(text = small_csv)$fips
+```
+
+The two readers guessed differently about the same file. `read_csv()` kept `01001` as text. `read.csv()`, the built-in reader that AI assistants often write, decided the column was a number and turned `01001` into `1001`. No error either way. Later, joining that table to another one by `fips` would quietly fail to match these counties.
+
+### Codes for missing values
+
+The same file uses `-999` to mean "no data", a common convention. The reader does not know that:
+
+```{r}
+#| label: missing-code
+mean(small$yield)
+```
+
+An average yield of `r round(mean(small$yield), 1)` bushels per acre. Again no error. The reader has to be told that `-999` means missing.
+
+### The wrong sheet
+
+`corn_yields.xls` has two sheets:
+
+```{r}
+#| label: sheets
+readxl::excel_sheets("corn_yields.xls")
+```
+
+A reader told nothing about sheets reads the **first** one only. If you wanted both years, you now have half the data, with no error.
+
+:::
+
+# Asking AI
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What to put in your request
+
+The AI already knows the functions. Your request supplies what it cannot know:
+
+1. **The file**: its name, its format, and where it sits inside your project
+2. **What is inside**: the first few lines, the sheet names, and anything unusual (IDs with leading zeros, codes for missing values)
+3. **What you want back**: the name of the table, what one row is, and which type each key column should be
+4. **Your project's rules**: for example, use the tidyverse, build paths with `here::here()`, never `setwd()` or absolute paths
+5. **Ask for checks**: have it print the numbers you will check against (next section)
+
+:::{.callout-tip title="Using an agent in your editor or terminal?"}
+An agent such as Claude Code can open the file and look for itself. Still write down what you expect (number of rows, types of key columns) **before** it runs, so you have something to compare against.
+:::
+
+## Look at the file before you ask
+
+::: {.panel-tabset}
+
+### Why
+
+You cannot describe a file you have not looked at, and you cannot check an import without knowing what the file holds. Two ways to look:
+
++ Open it: a csv in a text editor, an Excel file in Excel
++ Ask R to show the raw first lines, before any reader has guessed anything
+
+### Raw first lines of a csv
+
+```{r}
+#| label: peek
+readLines("corn_yields.csv", n = 3)
+```
+
+From this you learn: the first line is column names, values are separated by commas, `FIPS` is a 5-digit code, one column name (`Data item`) has a space in it.
+
+### Counting lines
+
+```{r}
+#| label: count-lines
+length(readLines("corn_yields.csv"))
+```
+
+`r length(readLines("corn_yields.csv"))` lines, one of which is the column names. So a correct import has `r length(readLines("corn_yields.csv")) - 1` rows. Write that number down **before** you import.
+
+:::
+
+## A weak request and a strong one
+
+::: {.panel-tabset}
+
+### Weak
+
+```text
+Read my corn data into R.
+```
+
+The AI has to guess the file name, its location, its format, its layout and what you want. A typical reply:
+
+```{r}
+#| eval: false
+setwd("C:/Users/yourname/Documents")
+corn <- read.csv("corn.csv")
+```
+
+It runs on nobody's computer as written, and if you fix the path, it still guesses every type.
+
+### Strong
+
+```text
+In my R project, the file data/corn_yields.xls is an Excel workbook with
+two sheets, corn_yields_08 and corn_yields_09 (one per year). Each row is
+one county, one year, and one irrigation status.
+
+Write R code (tidyverse) that:
+- reads BOTH sheets and stacks them into one table called corn
+- keeps FIPS as text so leading zeros survive
+- builds the path with here::here(), no setwd() and no absolute paths
+
+Then print: the number of rows from each sheet, the number of rows in
+corn, the type of every column, and the number of missing values in
+each column. Explain each line in one sentence.
+```
+
+### What came back
+
+A version of what an AI returns for the strong request. Read it line by line; you should be able to say what each line does:
+
+```{r}
+#| label: ai-answer
+#| eval: false
+library(readxl)
+library(dplyr)
+
+path <- here::here("data", "corn_yields.xls")
+
+corn_08 <- read_excel(path, sheet = "corn_yields_08", col_types = "text")
+corn_09 <- read_excel(path, sheet = "corn_yields_09", col_types = "text")
+
+corn <- bind_rows(corn_08, corn_09) |>
+  mutate(Year = as.integer(Year), Yield = as.numeric(Yield))
+
+c(nrow(corn_08), nrow(corn_09), nrow(corn))
+glimpse(corn)
+colSums(is.na(corn))
+```
+
+`bind_rows()` stacks one table on top of another; you will meet it properly later in this chapter.
+
+:::
+
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## The checks to run after every import
+
+The AI can write these checks for you. Only you know what the right answer is.
+
+::: {.panel-tabset}
+
+### 1. Size
+
+Does the number of rows match what you wrote down when you looked at the file?
+
+```{r}
+#| label: chk-size
+dim(corn)
+```
+
+`r nrow(corn)` rows, matching the `r length(readLines("corn_yields.csv")) - 1` we counted. `r ncol(corn)` columns, matching the header line.
+
+### 2. Names and types
+
+Is each column the type it should be?
+
+```{r}
+#| label: chk-types
+glimpse(corn)
+```
+
+`Yield` is a number (`dbl`), good. `FIPS` is also a number. Nebraska codes start with 31, so nothing was lost here, but this is the column to watch in any national dataset.
+
+### 3. Missing values
+
+Are there missing values where you did not expect them, or none where you did?
+
+```{r}
+#| label: chk-na
+colSums(is.na(corn))
+```
+
+### 4. Values make sense
+
+Are the numbers in a believable range? Nebraska corn yields are roughly 100 to 250 bushels per acre.
+
+```{r}
+#| label: chk-range
+summary(corn$Yield)
+```
+
+A `-999` or a yield of 2 would show up here.
+
+### 5. One row by eye
+
+Pick one row and compare it with the raw file:
+
+```{r}
+#| label: chk-row
+corn[1, ]
+```
+
+The first raw line we printed earlier was `2008,31,31019,BUFFALO,...,0,173`. Same values.
+
+:::
+
+## These checks catch real problems
+
+The two sheets of `corn_yields.xls` are labelled 2008 and 2009. Read both, then check whether the yields differ between years:
+
+```{r}
+#| label: chk-sheets
+yield_08 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_08")
+yield_09 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_09")
+
+identical(yield_08$Yield, yield_09$Yield)
+```
+
+Every county has exactly the same yield in both years. The code ran without error, the row counts are fine, and the types are fine. Only a check based on knowing what real data looks like (yields change from year to year) catches it. Here the problem is in the file itself, and finding that out before running any analysis is exactly what checking is for.
+
+## Your turn: read the AI's code
+
+A student asked an AI to "load corn_yields.xls and compute the average yield", and got this:
+
+```{r}
+#| eval: false
+setwd("C:/Users/jsmith/Desktop/class")
+library(readxl)
+corn <- read_excel("corn_yields.xls")
+mean(corn$Yield)
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each of the four lines do?
+
+B. Which line will fail on your computer, and why?
+
+C. Which problem would give a wrong answer **without** an error?
+
+D. Rewrite the request so the AI could not make these mistakes.
+
+### Answers
+
+A. Changes the working directory; loads readxl; reads the workbook into `corn`; averages the `Yield` column.
+
+B. Line 1. The folder `C:/Users/jsmith/...` exists only on jsmith's computer.
+
+C. Line 3 reads only the **first** sheet, so the average covers 2008 only. Nothing says so.
+
+D. Name both sheets, say whether you want both years or one, ask for `here::here()` and no `setwd()`, and ask it to print the row count per sheet.
+
+:::
+
+# Exporting
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What exporting is
+
+Exporting is importing in reverse: a function writes a table from R into a file. The line has the same parts, in the order object first, then path:
+
+```{r}
+#| eval: false
+write_csv(corn, "corn_clean.csv")
+```
+
+The decision that is yours is the **format**, and it depends on who reads the file next and what has to survive:
+
+| Format | Choose it when | What is lost |
+|---|---|---|
+| csv | anyone, in any software, must be able to read it | every type: dates, factors and text IDs come back as guesses |
+| rds | you, in R, will read it in the next step of the project | nothing, but only R can open it |
+| dta | a collaborator uses STATA | some R-only types |
+
+:::{.callout-note title="A reasonable default"}
+Keep **raw** data as you received it. Save **intermediate** results as rds, so types survive from one script to the next.
+:::
+
+## Checking an export: the round trip
+
+Write the file, read it back, and compare with what you started with. Here `Irrigated` is turned into a factor (a column of categories), then saved both ways:
+
+```{r}
+#| label: round-trip
+corn_f <- mutate(corn, Irrigated = factor(Irrigated, labels = c("no", "yes")))
+
+csv_file <- file.path(tempdir(), "corn.csv")
+rds_file <- file.path(tempdir(), "corn.rds")
+write_csv(corn_f, csv_file)
+saveRDS(corn_f, rds_file)
+
+class(read_csv(csv_file, show_col_types = FALSE)$Irrigated)
+class(readRDS(rds_file)$Irrigated)
+```
+
+The csv gave back text: the factor was lost. The rds gave back the factor. The check is cheap, and it is the only way to know what your file actually keeps.
+
+:::{.callout-tip title="What to ask the AI for"}
+"Save `corn` as `data/corn_clean.rds` using `here::here()`, then read it back and confirm with `all.equal()` that it matches the original."
+:::
+
+# Summary
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## What is yours, and what you can hand off
+
+| You need to understand | The AI can write |
+|---|---|
+| What a path is, and why absolute paths and `setwd()` break | The `here::here()` call |
+| Which format a file is in, and what that format keeps | Which reader to use and its arguments |
+| What the file holds: layout, sheets, missing-value codes, ID columns | `col_types`, `na`, `sheet` and so on |
+| What a correct result looks like: rows, types, ranges | The checking code |
+| Which format to save in, given who reads it next | The writer function |
+
+**Every import:** look at the file first, write down what you expect, then check size, types, missing values, ranges, and one row by eye.

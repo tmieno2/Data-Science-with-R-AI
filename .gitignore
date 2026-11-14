@@ -1,0 +1,10 @@
+# docs/ is the published site and is tracked.
+/.quarto/
+/lectures/**/*_files/
+/lectures/**/*_cache/
+*.rmarkdown
+.Rproj.user/
+.Rhistory
+.RData
+.DS_Store
+.Renviron

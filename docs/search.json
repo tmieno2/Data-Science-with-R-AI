@@ -1,0 +1,121 @@
+[
+  {
+    "objectID": "lectures/index.html",
+    "href": "lectures/index.html",
+    "title": "Lecture Slides",
+    "section": "",
+    "text": "Title\n\n\n\nTopic\n\n\n\n\n\n\n\n\n03-1: Getting Data In and Out of R\n\n\nChapter 3: Data Wrangling\n\n\n\n\n\n\nNo matching items"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "Data Science with R for Environmental, Agricultural, and Social Scientists",
+    "section": "",
+    "text": "Course materials for Data Science with R (AECN 896-05) at UNL, redesigned for working alongside AI. The lectures teach what each step of a data project is, what has to be true for it to succeed, what to ask an AI assistant to do, and how to check what comes back."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-you-will-and-will-not-learn-today",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-you-will-and-will-not-learn-today",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "What you will and will not learn today",
+    "text": "What you will and will not learn today\n\nThe planDirections\n\n\nAn AI assistant can write the code that reads a file into R. It knows every function and every argument. What it cannot do is:\n\nsee the files on your computer\nknow what is inside them\nknow what the data is for\ntell whether the result is right\n\nThose four are your job. So today is about:\n\nThe concept: what importing and exporting are, and what has to be true for them to work\nReading code: recognising what a line of import code does, without memorising it\nAsking AI: what to put in your request\nChecking: how to tell whether the code the AI wrote did the right thing\n\n\n\n\nClone this repository, which holds the datasets used here\nAsk your AI assistant to install the tidyverse and haven packages if you have not already. Installing is a one-time step per computer (see the packages slide in Chapter 1)."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-importing-is",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-importing-is",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "What importing is",
+    "text": "What importing is\nA data file is a table saved on disk in some format. Importing means a function reads that file and builds a table inside R (a data frame) that you give a name to.\nEvery import line you will see has the same three parts:\n\ncorn &lt;- read_csv(\"corn_yields.csv\")\n\n\n\n\n\n\n\n\n\nPart\nHere\nWhat it is\n\n\n\n\nName\ncorn\nWhat you will call the table inside R. &lt;- stores the result under that name.\n\n\nReader\nread_csv\nThe function that understands this file’s format\n\n\nPath\n\"corn_yields.csv\"\nWhere the file is\n\n\n\nThe AI will pick the reader and fill in the details. You need to be able to look at a line like this and say which part is which."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-has-to-be-true-for-an-import-to-work",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-has-to-be-true-for-an-import-to-work",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "What has to be true for an import to work",
+    "text": "What has to be true for an import to work\n\nThe four conditionsLoud and silent failures\n\n\n\nR can find the file. The path points at a file that exists.\nThe reader matches the format. A csv reader for a csv file, an Excel reader for an Excel file.\nThe reader understands the layout. Where the column names are, which sheet to read, what marks a missing value.\nEach column gets the right type. Numbers as numbers, text as text, IDs kept exactly as written.\n\n\n\n\nIf condition 1 or 2 fails, R stops with an error. Annoying, but you know something is wrong.\nIf condition 3 or 4 fails, R gives you a data frame with no error, and the data frame is wrong.\n\n\n\n\nImportant\n\n\nThe silent failures are why checking matters. Code that runs is not the same as code that is right."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#condition-1-r-can-find-the-file",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#condition-1-r-can-find-the-file",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "Condition 1: R can find the file",
+    "text": "Condition 1: R can find the file\n\nPathsThe project root and here()Why AI gets this wrong\n\n\nA path is the address of a file. There are two kinds:\n\nAbsolute path: starts at the top of the disk, for example \"/Users/taro/Documents/class/corn_yields.csv\". It works only on the computer it was written on, because nobody else has those folders.\nRelative path: starts from the folder R is currently in (the working directory), for example \"data/corn_yields.csv\". It works on any computer that has the same project folder.\n\nWhat R treats as the working directory:\n\nAt the Console: your project folder (if you opened an R Project)\nInside a .qmd file: the folder the .qmd is saved in\n\n\n\nThe safest path is one measured from the top of your project folder (the project root). The here package does that. Recognise it when you see it:\n\ncorn &lt;- read_csv(here::here(\"data\", \"corn_yields.csv\"))\n\nThis reads data/corn_yields.csv inside your project, whichever subfolder your code is in and whoever’s computer it runs on.\n\n\nThe AI cannot see your folders, so it guesses the path. Its guesses tend to be one of these:\n\njust the file name, assuming the file is in the working directory\nan absolute path copied from an example, such as \"C:/Users/yourname/...\"\nsetwd(...) to change the working directory first\n\nAll three break as soon as the code runs somewhere else. Tell it where the file is (see “Asking AI” below)."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#condition-2-the-reader-matches-the-format",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#condition-2-the-reader-matches-the-format",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "Condition 2: the reader matches the format",
+    "text": "Condition 2: the reader matches the format\nThe file extension (the part after the last dot) tells you the format. You do not need to memorise the reader; tell the AI the extension and it will pick one. You do need to recognise them:\n\n\n\n\n\n\n\n\n\nExtension\nFormat\nReader you will see\nWhat the file remembers\n\n\n\n\n.csv\nplain text, any software opens it\nread_csv() (readr)\nOnly text. Types are guessed on reading.\n\n\n.xls, .xlsx\nExcel workbook\nread_excel() (readxl)\nSeveral sheets per file\n\n\n.dta\nSTATA\nread_dta() (haven)\nTypes and variable labels\n\n\n.rds\nR’s own format\nreadRDS() (built in)\nThe exact R object, nothing guessed\n\n\n\n\n\n\nNote\n\n\nA csv file stores everything as text, so the reader has to guess each column’s type. That guessing is where conditions 3 and 4 go wrong."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#conditions-3-and-4-the-silent-failures",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#conditions-3-and-4-the-silent-failures",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "Conditions 3 and 4: the silent failures",
+    "text": "Conditions 3 and 4: the silent failures\n\nLost leading zerosCodes for missing valuesThe wrong sheet\n\n\nCounty codes (FIPS) for Alabama start with 0. Here is a tiny csv, written straight into the code, and what the reader makes of it:\n\nsmall_csv &lt;- \"fips,county,yield\n01001,Autauga,150\n01003,Baldwin,-999\n31019,Buffalo,173\"\n\nsmall &lt;- read_csv(I(small_csv), show_col_types = FALSE)\nsmall$fips\n\n[1] \"01001\" \"01003\" \"31019\"\n\nread.csv(text = small_csv)$fips\n\n[1]  1001  1003 31019\n\n\nThe two readers guessed differently about the same file. read_csv() kept 01001 as text. read.csv(), the built-in reader that AI assistants often write, decided the column was a number and turned 01001 into 1001. No error either way. Later, joining that table to another one by fips would quietly fail to match these counties.\n\n\nThe same file uses -999 to mean “no data”, a common convention. The reader does not know that:\n\nmean(small$yield)\n\n[1] -225.3333\n\n\nAn average yield of -225.3 bushels per acre. Again no error. The reader has to be told that -999 means missing.\n\n\ncorn_yields.xls has two sheets:\n\nreadxl::excel_sheets(\"corn_yields.xls\")\n\n[1] \"corn_yields_08\" \"corn_yields_09\"\n\n\nA reader told nothing about sheets reads the first one only. If you wanted both years, you now have half the data, with no error."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-to-put-in-your-request",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-to-put-in-your-request",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "What to put in your request",
+    "text": "What to put in your request\nThe AI already knows the functions. Your request supplies what it cannot know:\n\nThe file: its name, its format, and where it sits inside your project\nWhat is inside: the first few lines, the sheet names, and anything unusual (IDs with leading zeros, codes for missing values)\nWhat you want back: the name of the table, what one row is, and which type each key column should be\nYour project’s rules: for example, use the tidyverse, build paths with here::here(), never setwd() or absolute paths\nAsk for checks: have it print the numbers you will check against (next section)\n\n\n\n\n\nUsing an agent in your editor or terminal?\n\n\nAn agent such as Claude Code can open the file and look for itself. Still write down what you expect (number of rows, types of key columns) before it runs, so you have something to compare against."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#look-at-the-file-before-you-ask",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#look-at-the-file-before-you-ask",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "Look at the file before you ask",
+    "text": "Look at the file before you ask\n\nWhyRaw first lines of a csvCounting lines\n\n\nYou cannot describe a file you have not looked at, and you cannot check an import without knowing what the file holds. Two ways to look:\n\nOpen it: a csv in a text editor, an Excel file in Excel\nAsk R to show the raw first lines, before any reader has guessed anything\n\n\n\n\nreadLines(\"corn_yields.csv\", n = 3)\n\n[1] \"Year,State,FIPS,County_name,State_name,Commodity,Data item,Irrigated,Yield\"                         \n[2] \"2008,31,31019,BUFFALO,NEBRASKA,CORN,\\\"CORN, GRAIN - YIELD, MEASURED IN BU / ACRE\\\",0,173\"           \n[3] \"2008,31,31019,BUFFALO,NEBRASKA,CORN,\\\"CORN, GRAIN, IRRIGATED - YIELD, MEASURED IN BU / ACRE\\\",1,182\"\n\n\nFrom this you learn: the first line is column names, values are separated by commas, FIPS is a 5-digit code, one column name (Data item) has a space in it.\n\n\n\nlength(readLines(\"corn_yields.csv\"))\n\n[1] 162\n\n\n162 lines, one of which is the column names. So a correct import has 161 rows. Write that number down before you import."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#a-weak-request-and-a-strong-one",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#a-weak-request-and-a-strong-one",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "A weak request and a strong one",
+    "text": "A weak request and a strong one\n\nWeakStrongWhat came back\n\n\nRead my corn data into R.\nThe AI has to guess the file name, its location, its format, its layout and what you want. A typical reply:\n\nsetwd(\"C:/Users/yourname/Documents\")\ncorn &lt;- read.csv(\"corn.csv\")\n\nIt runs on nobody’s computer as written, and if you fix the path, it still guesses every type.\n\n\nIn my R project, the file data/corn_yields.xls is an Excel workbook with\ntwo sheets, corn_yields_08 and corn_yields_09 (one per year). Each row is\none county, one year, and one irrigation status.\n\nWrite R code (tidyverse) that:\n- reads BOTH sheets and stacks them into one table called corn\n- keeps FIPS as text so leading zeros survive\n- builds the path with here::here(), no setwd() and no absolute paths\n\nThen print: the number of rows from each sheet, the number of rows in\ncorn, the type of every column, and the number of missing values in\neach column. Explain each line in one sentence.\n\n\nA version of what an AI returns for the strong request. Read it line by line; you should be able to say what each line does:\n\nlibrary(readxl)\nlibrary(dplyr)\n\npath &lt;- here::here(\"data\", \"corn_yields.xls\")\n\ncorn_08 &lt;- read_excel(path, sheet = \"corn_yields_08\", col_types = \"text\")\ncorn_09 &lt;- read_excel(path, sheet = \"corn_yields_09\", col_types = \"text\")\n\ncorn &lt;- bind_rows(corn_08, corn_09) |&gt;\n  mutate(Year = as.integer(Year), Yield = as.numeric(Yield))\n\nc(nrow(corn_08), nrow(corn_09), nrow(corn))\nglimpse(corn)\ncolSums(is.na(corn))\n\nbind_rows() stacks one table on top of another; you will meet it properly later in this chapter."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#the-checks-to-run-after-every-import",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#the-checks-to-run-after-every-import",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "The checks to run after every import",
+    "text": "The checks to run after every import\nThe AI can write these checks for you. Only you know what the right answer is.\n\n1. Size2. Names and types3. Missing values4. Values make sense5. One row by eye\n\n\nDoes the number of rows match what you wrote down when you looked at the file?\n\ndim(corn)\n\n[1] 161   9\n\n\n161 rows, matching the 161 we counted. 9 columns, matching the header line.\n\n\nIs each column the type it should be?\n\nglimpse(corn)\n\nRows: 161\nColumns: 9\n$ Year        &lt;dbl&gt; 2008, 2008, 2008, 2008, 2008, 2008, 2008, 2008, 2008, 2008…\n$ State       &lt;dbl&gt; 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31…\n$ FIPS        &lt;dbl&gt; 31019, 31019, 31041, 31041, 31047, 31047, 31077, 31077, 31…\n$ County_name &lt;chr&gt; \"BUFFALO\", \"BUFFALO\", \"CUSTER\", \"CUSTER\", \"DAWSON\", \"DAWSO…\n$ State_name  &lt;chr&gt; \"NEBRASKA\", \"NEBRASKA\", \"NEBRASKA\", \"NEBRASKA\", \"NEBRASKA\"…\n$ Commodity   &lt;chr&gt; \"CORN\", \"CORN\", \"CORN\", \"CORN\", \"CORN\", \"CORN\", \"CORN\", \"C…\n$ `Data item` &lt;chr&gt; \"CORN, GRAIN - YIELD, MEASURED IN BU / ACRE\", \"CORN, GRAIN…\n$ Irrigated   &lt;dbl&gt; 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0…\n$ Yield       &lt;dbl&gt; 173, 182, 163, 182, 177, 180, 172, 184, 171, 175, 164, 175…\n\n\nYield is a number (dbl), good. FIPS is also a number. Nebraska codes start with 31, so nothing was lost here, but this is the column to watch in any national dataset.\n\n\nAre there missing values where you did not expect them, or none where you did?\n\ncolSums(is.na(corn))\n\n       Year       State        FIPS County_name  State_name   Commodity \n          0           0           0           0           0           0 \n  Data item   Irrigated       Yield \n          0           0           0 \n\n\n\n\nAre the numbers in a believable range? Nebraska corn yields are roughly 100 to 250 bushels per acre.\n\nsummary(corn$Yield)\n\n   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. \n    103     156     171     169     186     204 \n\n\nA -999 or a yield of 2 would show up here.\n\n\nPick one row and compare it with the raw file:\n\ncorn[1, ]\n\n# A tibble: 1 × 9\n   Year State  FIPS County_name State_name Commodity `Data item` Irrigated Yield\n  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt;\n1  2008    31 31019 BUFFALO     NEBRASKA   CORN      CORN, GRAI…         0   173\n\n\nThe first raw line we printed earlier was 2008,31,31019,BUFFALO,...,0,173. Same values."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#these-checks-catch-real-problems",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#these-checks-catch-real-problems",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "These checks catch real problems",
+    "text": "These checks catch real problems\nThe two sheets of corn_yields.xls are labelled 2008 and 2009. Read both, then check whether the yields differ between years:\n\nyield_08 &lt;- readxl::read_excel(\"corn_yields.xls\", sheet = \"corn_yields_08\")\nyield_09 &lt;- readxl::read_excel(\"corn_yields.xls\", sheet = \"corn_yields_09\")\n\nidentical(yield_08$Yield, yield_09$Yield)\n\n[1] TRUE\n\n\nEvery county has exactly the same yield in both years. The code ran without error, the row counts are fine, and the types are fine. Only a check based on knowing what real data looks like (yields change from year to year) catches it. Here the problem is in the file itself, and finding that out before running any analysis is exactly what checking is for."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#your-turn-read-the-ais-code",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#your-turn-read-the-ais-code",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "Your turn: read the AI’s code",
+    "text": "Your turn: read the AI’s code\nA student asked an AI to “load corn_yields.xls and compute the average yield”, and got this:\n\nsetwd(\"C:/Users/jsmith/Desktop/class\")\nlibrary(readxl)\ncorn &lt;- read_excel(\"corn_yields.xls\")\nmean(corn$Yield)\n\n\nQuestionsAnswers\n\n\nA. What does each of the four lines do?\nB. Which line will fail on your computer, and why?\nC. Which problem would give a wrong answer without an error?\nD. Rewrite the request so the AI could not make these mistakes.\n\n\nA. Changes the working directory; loads readxl; reads the workbook into corn; averages the Yield column.\nB. Line 1. The folder C:/Users/jsmith/... exists only on jsmith’s computer.\nC. Line 3 reads only the first sheet, so the average covers 2008 only. Nothing says so.\nD. Name both sheets, say whether you want both years or one, ask for here::here() and no setwd(), and ask it to print the row count per sheet."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-exporting-is",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-exporting-is",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "What exporting is",
+    "text": "What exporting is\nExporting is importing in reverse: a function writes a table from R into a file. The line has the same parts, in the order object first, then path:\n\nwrite_csv(corn, \"corn_clean.csv\")\n\nThe decision that is yours is the format, and it depends on who reads the file next and what has to survive:\n\n\n\n\n\n\n\n\nFormat\nChoose it when\nWhat is lost\n\n\n\n\ncsv\nanyone, in any software, must be able to read it\nevery type: dates, factors and text IDs come back as guesses\n\n\nrds\nyou, in R, will read it in the next step of the project\nnothing, but only R can open it\n\n\ndta\na collaborator uses STATA\nsome R-only types\n\n\n\n\n\n\n\nA reasonable default\n\n\nKeep raw data as you received it. Save intermediate results as rds, so types survive from one script to the next."
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#checking-an-export-the-round-trip",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#checking-an-export-the-round-trip",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "Checking an export: the round trip",
+    "text": "Checking an export: the round trip\nWrite the file, read it back, and compare with what you started with. Here Irrigated is turned into a factor (a column of categories), then saved both ways:\n\ncorn_f &lt;- mutate(corn, Irrigated = factor(Irrigated, labels = c(\"no\", \"yes\")))\n\ncsv_file &lt;- file.path(tempdir(), \"corn.csv\")\nrds_file &lt;- file.path(tempdir(), \"corn.rds\")\nwrite_csv(corn_f, csv_file)\nsaveRDS(corn_f, rds_file)\n\nclass(read_csv(csv_file, show_col_types = FALSE)$Irrigated)\n\n[1] \"character\"\n\nclass(readRDS(rds_file)$Irrigated)\n\n[1] \"factor\"\n\n\nThe csv gave back text: the factor was lost. The rds gave back the factor. The check is cheap, and it is the only way to know what your file actually keeps.\n\n\n\n\nWhat to ask the AI for\n\n\n“Save corn as data/corn_clean.rds using here::here(), then read it back and confirm with all.equal() that it matches the original.”"
+  },
+  {
+    "objectID": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-is-yours-and-what-you-can-hand-off",
+    "href": "lectures/Chapter-3-DataWrangling/03-1-input-output.html#what-is-yours-and-what-you-can-hand-off",
+    "title": "03-1: Getting Data In and Out of R",
+    "section": "What is yours, and what you can hand off",
+    "text": "What is yours, and what you can hand off\n\n\n\n\n\n\n\nYou need to understand\nThe AI can write\n\n\n\n\nWhat a path is, and why absolute paths and setwd() break\nThe here::here() call\n\n\nWhich format a file is in, and what that format keeps\nWhich reader to use and its arguments\n\n\nWhat the file holds: layout, sheets, missing-value codes, ID columns\ncol_types, na, sheet and so on\n\n\nWhat a correct result looks like: rows, types, ranges\nThe checking code\n\n\nWhich format to save in, given who reads it next\nThe writer function\n\n\n\nEvery import: look at the file first, write down what you expect, then check size, types, missing values, ranges, and one row by eye."
+  }
+]

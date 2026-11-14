@@ -1,0 +1,5 @@
+---
+title: "Data Science with R for Environmental, Agricultural, and Social Scientists"
+---
+
+Course materials for Data Science with R (AECN 896-05) at UNL, redesigned for working alongside AI. The lectures teach what each step of a data project is, what has to be true for it to succeed, what to ask an AI assistant to do, and how to check what comes back.

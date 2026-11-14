@@ -1,0 +1,18 @@
+project:
+  type: website
+  output-dir: docs
+  render:
+    - "*.qmd"
+
+website:
+  title: "Data Science with R (AECN 896-05)"
+  page-footer: "Made with Quarto"
+  navbar:
+    right:
+      - text: Lecture Notes
+        href: lectures/index.qmd
+
+format:
+  html:
+    page-layout: full
+    theme: cosmo
