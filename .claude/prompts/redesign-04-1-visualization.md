@@ -6,7 +6,7 @@ I am overhauling my Data Science with R course (AECN 896-05) for 2027 and teachi
 
 1. **The concept**: what the step is, and what has to be true for it to succeed.
 2. **Reading code**: enough to recognise what a line does, not to write it from memory.
-3. **Asking AI**: what the AI cannot know (what the data contains, what question the figure must answer, what the reader needs) and so must be told.
+3. **Asking AI**: what the AI cannot know (what the data contains, what fact or idea a figure must convey, and to whom) and so must be told.
 4. **Checking**: concrete checks whose correct answer the student knows in advance.
 
 **The core principle of the whole course:** work lives in a Quarto document (`.qmd`). The AI writes code into it, with one plain-English sentence above each chunk. The student renders it and judges the work by reading the HTML, not the chat window. Every recommended request ends with the same "closing instructions".
@@ -32,21 +32,25 @@ The old course repo is read-only for this task. All writing happens in `~/Teachi
 
 ## The content I want in the deck
 
-Concepts, not syntax. Function names appear as samples to recognise. Candidates (use your judgement after reading the old deck):
+**For this chapter, the subject is communication, not code.** A figure exists to convey one fact or idea to a reader. What students must learn is how to choose the design that conveys it best, and how to judge whether a figure does. The AI can produce any figure in seconds; it cannot know what the student is trying to say or who the reader is. Code appears only as a sample to recognise, and only where it helps a student read what the AI wrote.
 
-- What a figure is made of: the data, the **mapping** (which column is shown by which visual property: position, colour, size, shape), and the kind of mark (points, lines, bars). Name these once and use the same names throughout.
-- What must be true of the data before a figure can be right: one row per thing being drawn, a column for every variable you want to show, and the right type for each (a category stored as a number gets a colour gradient instead of distinct colours).
-- Which kind of figure answers which kind of question: distribution, relationship between two variables, comparison across groups, change over time.
-- What a reader needs: axis titles with units, a readable legend, a title that states the finding.
-- Silent failures, shown with real output. For example: a numeric code mapped to colour; bars that silently count rows instead of showing a value; data with several rows per group drawn as one jagged line; points hidden on top of each other; a figure built from the wrong filtered subset.
-- Checking a figure: ask the AI to print, next to the figure in the HTML, the data the figure is built from (or a summary of it), and compare it with what you expect: number of points or bars, axis ranges against the data's minimum and maximum, one known value found on the figure.
-- Recommended requests with `<...>` blanks for: making a figure that answers a stated question, checking that a figure matches its data, improving a figure for a reader, and explaining someone else's plotting code. Each request ends with the closing instructions **copied word for word** from the "Closing instructions" tab of the 03-1 deck.
+Candidates (use your judgement after reading the old deck, which is mostly about code and needs reshaping, not trimming):
+
+1. **Start from the message.** Before any figure, write the one sentence the reader should take away, and who the reader is. Every design decision below is judged against that sentence.
+2. **Choosing the type of figure** from the kind of message: a distribution, a relationship between two variables, a comparison across groups, a change over time, a part of a whole. Show the same data drawn two or three ways, and which one makes a given message obvious and which hides it.
+3. **Colour.** When colour should carry information at all; colour for categories (distinct hues) versus for amounts (one hue from light to dark) versus for a value above or below a midpoint (two hues diverging from a neutral middle); highlighting the one group the message is about and greying out the rest; keeping the same colour for the same thing across figures; palettes readable by colour-blind readers; not using more colours than a reader can tell apart.
+4. **Other design choices that decide whether the message lands:** ordering categories by value rather than alphabetically; one panel versus several small panels with shared axes; axis ranges (bars must start at zero; for points and lines, the range should show the variation that matters); axis titles with units; a title that states the finding rather than naming the variables; labelling lines or points directly instead of making the reader look up a legend; removing what does not serve the message.
+5. **A figure must be correct before it can communicate.** Keep this short: one slide on what must be true of the data (one row per thing drawn, the right type per column, so that a category stored as a number does not get a colour gradient), with one or two silent failures shown with real output, and the check of asking the AI to print the data the figure is built from next to the figure in the HTML.
+6. **Judging a figure by reading the HTML.** A short checklist the student applies to any figure, theirs or the AI's, written as questions with a clear yes or no: can someone who has not seen the data state the message within a few seconds? Does the colour carry information, or is it decoration? Would the message survive printing in black and white? Is anything there that the message does not need?
+7. **Using AI for design.** The AI makes alternatives cheaply, so the skill is choosing among them. A central request type: give the AI the message and the reader, ask for two or three different designs rendered side by side in the HTML, each with one sentence on what it makes easy to see; the student picks one and writes why. Other requests, each with `<...>` blanks for what only the student knows (the message, the reader, which group matters): improving a given figure for a stated message; critiquing a figure against the checklist; and checking that a figure matches its data. Each request ends with the closing instructions **copied word for word** from the "Closing instructions" tab of the 03-1 deck.
+
+For the exercise, favour tasks where students state a message, ask for alternatives, choose, and justify the choice in writing, and tasks where they critique and improve a weak figure, over tasks that only produce a figure. Answer boxes for design questions should explain which choice serves the stated message and why, not claim a single right answer where several would do.
 
 ## Rules (from me, for everything you write)
 
 1. Plain language: write as for a smart person who has not seen the code. Use a technical term only when the student needs it, and define it in parentheses where it first appears. Literal and exact, never metaphorical: no invented nicknames or images for mechanisms. One name per thing, used consistently.
 2. No em-dashes anywhere. Use a comma, a semicolon, or a new sentence.
-3. Every figure is ggplot2. Never base R plotting.
+3. Every figure is ggplot2. Never base R plotting. Palettes must be readable by colour-blind readers unless a slide is deliberately showing a bad example, and then it must say so.
 4. Never put two visible code blocks back to back; put a sentence or a heading between them.
 5. A short side point goes inside the tab it belongs to, never in a tab of its own.
 6. Lead each slide with what is needed and how to tell it is done, not with step-by-step how.
