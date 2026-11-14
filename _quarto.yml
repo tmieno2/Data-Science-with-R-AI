@@ -3,6 +3,9 @@ project:
   output-dir: docs
   render:
     - "*.qmd"
+    # Handed out as .qmd for students to fill in; copied as a resource by
+    # exercises/3-1-input-output.qmd, never rendered here.
+    - "!exercises/worksheets/"
 
 website:
   title: "Data Science with R (AECN 896-05)"

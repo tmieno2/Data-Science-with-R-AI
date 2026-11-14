@@ -1,0 +1,259 @@
+---
+title: "Ex-3-1 worksheet: Getting Data In and Out"
+author: "Your name"
+format: html
+---
+
+Save this file as `ch3-practice/analysis/ex-3-1.qmd` and fill it in during class. The answers are on the course website, under Exercises, Ex-3-1. Try each task before you look.
+
+**Every task has four steps, in this order:**
+
+1. **Look** at the file before anyone writes code.
+2. **Predict** what a correct result looks like.
+3. **Ask** the AI. Your request says what you want **and** which checks it should print.
+4. **Check**: compare what it printed with your prediction.
+
+**Rules:**
+
+A. Write your prediction **before** you ask the AI.
+
+B. Paste every request you send into this file, exactly as sent.
+
+C. Do not keep a line of code you cannot explain. Ask the AI to explain it first.
+
+D. The AI writes the checking code. You decide which checks to ask for, and you judge the results.
+
+# Task 1: Look and predict, no AI
+
+Open `data/corn_yields.csv` in a plain text editor (not Excel), and `data/corn_yields.xls` in a spreadsheet program.
+
+**A. How many lines does the csv file have? How many of them are data rows?**
+
+Your answer:
+
+**B. List the column names. For each, does it hold numbers or text?**
+
+Your answer:
+
+**C. What does one row represent?**
+
+Your answer:
+
+**D. How many sheets does the Excel file have, and what are they called?**
+
+Your answer:
+
+# Task 2: Read the csv
+
+Ask the AI to read `corn_yields.csv` into a table called `corn`. Your request must also ask for the checks you want printed.
+
+**Prediction** (copy from Task 1): rows, columns, type of each key column.
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+(paste the exact request you sent)
+```
+
+**Why I asked for each check.** One line per check: what could go wrong that this check would reveal?
+
+1.
+2.
+3.
+
+**Code I kept:**
+
+```{r}
+#| label: task-2
+# paste the code you kept here
+```
+
+**Did the output match my prediction? If not, which was wrong, the code or the prediction?**
+
+Your answer:
+
+# Task 3: Read both sheets of the Excel file
+
+**Prediction.** If both sheets are read and stacked into one table, how many rows should it have? Which column tells the two halves apart?
+
+Your answer:
+
+**My request to the AI** (include the checks):
+
+```text
+(paste the exact request you sent)
+```
+
+**A check from knowing the data.** Think of one thing that must be true of real corn yields across two years, which a row count or a type check would never test. Ask the AI to check it.
+
+The check, and why it should hold:
+
+Your answer:
+
+**My request for it:**
+
+```text
+(paste the exact request you sent)
+```
+
+**Code I kept:**
+
+```{r}
+#| label: task-3
+# paste the code you kept here
+```
+
+**What I found, and what I would do about it before using this data:**
+
+Your answer:
+
+# Task 4: A messy file
+
+## 4a. Ask badly, on purpose
+
+Skip the Look step for once. Send the AI only: `Read corn_messy.csv into R.`
+
+**Code it gave me** (this chunk does not run, so a broken answer does not stop your file from rendering):
+
+```{r}
+#| label: task-4a
+#| eval: false
+# paste the code it gave you here
+```
+
+**What went wrong when I ran it** (errors, warnings, odd column names, odd row counts):
+
+Your answer:
+
+## 4b. Look at the file
+
+Open `corn_messy.csv` in a text editor, or ask the AI for code that prints its first five raw lines without reading it as a table.
+
+**A. What is above the column names?**
+
+Your answer:
+
+**B. How are missing yields written?**
+
+Your answer:
+
+**C. Which column holds IDs? Do any of them start with 0?**
+
+Your answer:
+
+**D. How many data rows are there?**
+
+Your answer:
+
+## 4c. Ask properly
+
+Write a request that tells the AI everything you found in 4b, says what you want back (county codes as text, yield as a number, missing yields as `NA`), and asks for the checks you need.
+
+**Prediction:** rows, type of `county_fips`, type of the yield column, number of missing yields, believable range of yields.
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+(paste the exact request you sent)
+```
+
+**Why I asked for each check.** For each, name the problem in this file that it would catch.
+
+1.
+2.
+3.
+
+**Code I kept:**
+
+```{r}
+#| label: task-4c
+# paste the code you kept here
+```
+
+**Did the output match my prediction?**
+
+Your answer:
+
+# Task 5: Read someone else's AI code
+
+Do this with a neighbour, without running anything. Maria sent the AI the same short request as in 4a and kept this:
+
+```{r}
+#| label: task-5
+#| eval: false
+corn <- read.csv("C:/Users/maria/Downloads/corn_messy.csv", skip = 2, na.strings = ".")
+names(corn)[5] <- "yield"
+mean(corn$yield, na.rm = TRUE)
+```
+
+**A. In plain words, what does each line do?**
+
+Your answer:
+
+**B. Which problem stops this code from running on your computer?**
+
+Your answer:
+
+**C. Two problems give wrong results without an error. What are they?**
+
+Your answer:
+
+**D. For each problem, what should Maria have asked the AI to check, and why would that check have caught it?**
+
+Your answer:
+
+# Task 6: Save and read back
+
+Ask the AI to:
+
+1. add a column `state_name` to your table from Task 4c, holding "Colorado" or "Nebraska", stored as a factor (a column of categories with a fixed set of allowed values);
+2. save the table into `data/` twice, once as csv and once as rds;
+3. read both files back and tell you whether each matches the original exactly, and if not, which columns differ.
+
+**Prediction.** Which file gives back exactly what you saved? What will differ in the other one?
+
+Your answer:
+
+**My request to the AI:**
+
+```text
+(paste the exact request you sent)
+```
+
+**Code I kept:**
+
+```{r}
+#| label: task-6
+# paste the code you kept here
+```
+
+**Was my prediction right?**
+
+Your answer:
+
+# Task 7: Does it run anywhere?
+
+1. Restart R (Session, Restart R) and render this file.
+2. Zip your whole `ch3-practice` folder and give it to your neighbour. They open the project and render this file **without changing anything**.
+
+**Did it render on your computer? On your neighbour's? If not, what failed and why?**
+
+Your answer:
+
+# Wrap-up
+
+**A. Put your request from Task 2 next to your request from Task 4c. What did you include the second time that you did not include the first time?**
+
+Your answer:
+
+**B. Which check caught a real problem today? Would you have noticed the problem without it?**
+
+Your answer:
+
+**C. Name one thing the AI could not have known unless you told it.**
+
+Your answer:

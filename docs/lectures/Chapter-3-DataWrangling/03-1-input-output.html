@@ -765,103 +765,147 @@
 <hr color="#EB811B" size="1px" width="796px">
 
 </section>
-<section id="the-checks-to-run-after-every-import" class="slide level2">
-<h2>The checks to run after every import</h2>
-<p>The AI can write these checks for you. Only you know what the right answer is.</p>
+<section id="checking-what-to-ask-for-and-why" class="slide level2">
+<h2>Checking: what to ask for, and why</h2>
 <div class="panel-tabset">
-<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">1. Size</a></li><li><a href="#tabset-7-2">2. Names and types</a></li><li><a href="#tabset-7-3">3. Missing values</a></li><li><a href="#tabset-7-4">4. Values make sense</a></li><li><a href="#tabset-7-5">5. One row by eye</a></li></ul>
+<ul id="tabset-7" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-7-1">The five checks</a></li><li><a href="#tabset-7-2">Asking for them</a></li><li><a href="#tabset-7-3">Reading the answer</a></li></ul>
 <div class="tab-content">
 <div id="tabset-7-1">
-<p>Does the number of rows match what you wrote down when you looked at the file?</p>
+<p>The AI can write the checking code. It cannot decide which checks your file needs, and it cannot know the right answers. Ask for these after every import:</p>
+<table class="caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Ask the AI to print</th>
+<th>Why</th>
+<th>What only you can supply</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>the number of rows and columns</td>
+<td>Rows go missing or appear when the wrong sheet is read or a title line is read as data</td>
+<td>the row count from looking at the file</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>the type of every column</td>
+<td>A wrong guess (an ID read as a number, a number read as text) gives no error</td>
+<td>which type each key column should be</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>the number of missing values in each column</td>
+<td>A missing-value code the reader was not told about, such as <code>-999</code>, is kept as a real value</td>
+<td>how the file marks missing values</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>the smallest and largest value of each numeric column</td>
+<td>Impossible values expose those codes, and unit mistakes</td>
+<td>what range is believable</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>the first row</td>
+<td>Shifted or merged columns show up at once</td>
+<td>the same row in the raw file</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div id="tabset-7-2">
+<p>One sentence at the end of your request does it:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb19-1"><a></a>After reading the file, print: the number of rows and columns, the type of</span>
+<span id="cb19-2"><a></a>every column, the number of missing values in each column, the smallest and</span>
+<span id="cb19-3"><a></a>largest value of each numeric column, and the first row.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Better still, tell it what you expect, so the output says which checks failed:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb20-1"><a></a>I expect 161 rows, 9 columns, no missing values, and Yield between 100 and</span>
+<span id="cb20-2"><a></a>250. Print a clear message for every expectation that is not met.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The second version only works if you looked at the file first. That is the part you cannot hand off.</p>
+</div>
+<div id="tabset-7-3">
+<p>The AI writes the code. You read what it prints and compare it with what you expected:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a></a><span class="fu">dim</span>(corn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">dim</span>(corn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 161   9</code></pre>
 </div>
-</div>
-<p>161 rows, matching the 161 we counted. 9 columns, matching the header line.</p>
-</div>
-<div id="tabset-7-2">
-<p>Is each column the type it should be?</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a></a><span class="fu">glimpse</span>(corn)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">sapply</span>(corn, class)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 161
-Columns: 9
-$ Year        &lt;dbl&gt; 2008, 2008, 2008, 2008, 2008, 2008, 2008, 2008, 2008, 2008…
-$ State       &lt;dbl&gt; 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31, 31…
-$ FIPS        &lt;dbl&gt; 31019, 31019, 31041, 31041, 31047, 31047, 31077, 31077, 31…
-$ County_name &lt;chr&gt; "BUFFALO", "BUFFALO", "CUSTER", "CUSTER", "DAWSON", "DAWSO…
-$ State_name  &lt;chr&gt; "NEBRASKA", "NEBRASKA", "NEBRASKA", "NEBRASKA", "NEBRASKA"…
-$ Commodity   &lt;chr&gt; "CORN", "CORN", "CORN", "CORN", "CORN", "CORN", "CORN", "C…
-$ `Data item` &lt;chr&gt; "CORN, GRAIN - YIELD, MEASURED IN BU / ACRE", "CORN, GRAIN…
-$ Irrigated   &lt;dbl&gt; 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 0…
-$ Yield       &lt;dbl&gt; 173, 182, 163, 182, 177, 180, 172, 184, 171, 175, 164, 175…</code></pre>
+<pre><code>       Year       State        FIPS County_name  State_name   Commodity 
+  "numeric"   "numeric"   "numeric" "character" "character" "character" 
+  Data item   Irrigated       Yield 
+"character"   "numeric"   "numeric" </code></pre>
 </div>
-</div>
-<p><code>Yield</code> is a number (<code>dbl</code>), good. <code>FIPS</code> is also a number. Nebraska codes start with 31, so nothing was lost here, but this is the column to watch in any national dataset.</p>
-</div>
-<div id="tabset-7-3">
-<p>Are there missing values where you did not expect them, or none where you did?</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(corn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="fu">colSums</span>(<span class="fu">is.na</span>(corn))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>       Year       State        FIPS County_name  State_name   Commodity 
           0           0           0           0           0           0 
   Data item   Irrigated       Yield 
           0           0           0 </code></pre>
 </div>
-</div>
-</div>
-<div id="tabset-7-4">
-<p>Are the numbers in a believable range? Nebraska corn yields are roughly 100 to 250 bushels per acre.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a></a><span class="fu">summary</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a><span class="fu">range</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
-<pre><code>   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-    103     156     171     169     186     204 </code></pre>
+<pre><code>[1] 103 204</code></pre>
 </div>
 </div>
-<p>A <code>-999</code> or a yield of 2 would show up here.</p>
-</div>
-<div id="tabset-7-5">
-<p>Pick one row and compare it with the raw file:</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a></a>corn[<span class="dv">1</span>, ]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 1 × 9
-   Year State  FIPS County_name State_name Commodity `Data item` Irrigated Yield
-  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;       &lt;chr&gt;      &lt;chr&gt;     &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt;
-1  2008    31 31019 BUFFALO     NEBRASKA   CORN      CORN, GRAI…         0   173</code></pre>
-</div>
-</div>
-<p>The first raw line we printed earlier was <code>2008,31,31019,BUFFALO,...,0,173</code>. Same values.</p>
+<ul>
+<li>161 rows: the file has 162 lines, one of them column names. Matches.</li>
+<li><code>FIPS</code> is a number. Fine here, since every Nebraska code starts with 31, but in a national dataset this is the column that loses leading zeros.</li>
+<li>No missing values, and yields from 103 to 204 bushels per acre: believable.</li>
+</ul>
 </div>
 </div>
 </div>
 </section>
-<section id="these-checks-catch-real-problems" class="slide level2">
-<h2>These checks catch real problems</h2>
-<p>The two sheets of <code>corn_yields.xls</code> are labelled 2008 and 2009. Read both, then check whether the yields differ between years:</p>
+<section id="checks-that-come-from-knowing-the-data" class="slide level2">
+<h2>Checks that come from knowing the data</h2>
+<p>The five checks apply to any file. The most useful checks come from what you know about <strong>this</strong> data, and no AI will think of them for you.</p>
+<p>The two sheets of <code>corn_yields.xls</code> are labelled 2008 and 2009. Yields change from year to year, because the weather does. So ask:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode numberSource text number-lines code-with-copy"><code class="sourceCode"><span id="cb29-1"><a></a>Read both sheets of corn_yields.xls and tell me whether each county's</span>
+<span id="cb29-2"><a></a>yield is the same in both years.</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a></a>yield_08 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_08"</span>)</span>
-<span id="cb29-2"><a></a>yield_09 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_09"</span>)</span>
-<span id="cb29-3"><a></a></span>
-<span id="cb29-4"><a></a><span class="fu">identical</span>(yield_08<span class="sc">$</span>Yield, yield_09<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a></a>yield_08 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_08"</span>)</span>
+<span id="cb30-2"><a></a>yield_09 <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>, <span class="at">sheet =</span> <span class="st">"corn_yields_09"</span>)</span>
+<span id="cb30-3"><a></a></span>
+<span id="cb30-4"><a></a><span class="fu">identical</span>(yield_08<span class="sc">$</span>Yield, yield_09<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] TRUE</code></pre>
 </div>
 </div>
-<p>Every county has exactly the same yield in both years. The code ran without error, the row counts are fine, and the types are fine. Only a check based on knowing what real data looks like (yields change from year to year) catches it. Here the problem is in the file itself, and finding that out before running any analysis is exactly what checking is for.</p>
+<p><code>TRUE</code>: every county has exactly the same yield in both years. The code ran without error, and the row counts and types pass. The problem is in the file itself, and only a question based on what real yields look like found it.</p>
 </section>
 <section id="your-turn-read-the-ais-code" class="slide level2">
 <h2>Your turn: read the AI’s code</h2>
 <p>A student asked an AI to “load corn_yields.xls and compute the average yield”, and got this:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a></a><span class="fu">setwd</span>(<span class="st">"C:/Users/jsmith/Desktop/class"</span>)</span>
-<span id="cb31-2"><a></a><span class="fu">library</span>(readxl)</span>
-<span id="cb31-3"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>)</span>
-<span id="cb31-4"><a></a><span class="fu">mean</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="fu">setwd</span>(<span class="st">"C:/Users/jsmith/Desktop/class"</span>)</span>
+<span id="cb32-2"><a></a><span class="fu">library</span>(readxl)</span>
+<span id="cb32-3"><a></a>corn <span class="ot">&lt;-</span> <span class="fu">read_excel</span>(<span class="st">"corn_yields.xls"</span>)</span>
+<span id="cb32-4"><a></a><span class="fu">mean</span>(corn<span class="sc">$</span>Yield)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="panel-tabset">
 <ul id="tabset-8" class="panel-tabset-tabby"><li><a data-tabby-default="" href="#tabset-8-1">Questions</a></li><li><a href="#tabset-8-2">Answers</a></li></ul>
@@ -895,7 +939,7 @@ $ Yield       &lt;dbl&gt; 173, 182, 163, 182, 177, 180, 172, 184, 171, 175, 164,
 <h2>What exporting is</h2>
 <p>Exporting is importing in reverse: a function writes a table from R into a file. The line has the same parts, in the order object first, then path:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a></a><span class="fu">write_csv</span>(corn, <span class="st">"corn_clean.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a><span class="fu">write_csv</span>(corn, <span class="st">"corn_clean.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The decision that is yours is the <strong>format</strong>, and it depends on who reads the file next and what has to survive:</p>
 <table class="caption-top">
@@ -944,33 +988,40 @@ $ Yield       &lt;dbl&gt; 173, 182, 163, 182, 177, 180, 172, 184, 171, 175, 164,
 </section>
 <section id="checking-an-export-the-round-trip" class="slide level2">
 <h2>Checking an export: the round trip</h2>
-<p>Write the file, read it back, and compare with what you started with. Here <code>Irrigated</code> is turned into a factor (a column of categories), then saved both ways:</p>
+<p><strong>Why:</strong> a file can quietly keep less than you saved. The only way to know what it kept is to read it back.</p>
+<p><strong>What to ask:</strong> “Save the table, read it back, and compare it with the original.” Here <code>Irrigated</code> was first made a factor (a column of categories), then saved as csv and as rds:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb33"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a></a>corn_f <span class="ot">&lt;-</span> <span class="fu">mutate</span>(corn, <span class="at">Irrigated =</span> <span class="fu">factor</span>(Irrigated, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"no"</span>, <span class="st">"yes"</span>)))</span>
-<span id="cb33-2"><a></a></span>
-<span id="cb33-3"><a></a>csv_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.csv"</span>)</span>
-<span id="cb33-4"><a></a>rds_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.rds"</span>)</span>
-<span id="cb33-5"><a></a><span class="fu">write_csv</span>(corn_f, csv_file)</span>
-<span id="cb33-6"><a></a><span class="fu">saveRDS</span>(corn_f, rds_file)</span>
-<span id="cb33-7"><a></a></span>
-<span id="cb33-8"><a></a><span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb34"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a></a>corn_f <span class="ot">&lt;-</span> <span class="fu">mutate</span>(corn, <span class="at">Irrigated =</span> <span class="fu">factor</span>(Irrigated, <span class="at">labels =</span> <span class="fu">c</span>(<span class="st">"no"</span>, <span class="st">"yes"</span>)))</span>
+<span id="cb34-2"><a></a></span>
+<span id="cb34-3"><a></a>csv_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.csv"</span>)</span>
+<span id="cb34-4"><a></a>rds_file <span class="ot">&lt;-</span> <span class="fu">file.path</span>(<span class="fu">tempdir</span>(), <span class="st">"corn.rds"</span>)</span>
+<span id="cb34-5"><a></a><span class="fu">write_csv</span>(corn_f, csv_file)</span>
+<span id="cb34-6"><a></a><span class="fu">saveRDS</span>(corn_f, rds_file)</span>
+<span id="cb34-7"><a></a></span>
+<span id="cb34-8"><a></a><span class="fu">class</span>(<span class="fu">read_csv</span>(csv_file, <span class="at">show_col_types =</span> <span class="cn">FALSE</span>)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "character"</code></pre>
 </div>
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a></a><span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<details class="code-fold">
+<summary>Code the AI wrote</summary>
+<div class="sourceCode cell-code" id="cb36"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a></a><span class="fu">class</span>(<span class="fu">readRDS</span>(rds_file)<span class="sc">$</span>Irrigated)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] "factor"</code></pre>
 </div>
 </div>
-<p>The csv gave back text: the factor was lost. The rds gave back the factor. The check is cheap, and it is the only way to know what your file actually keeps.</p>
-<div title="What to ask the AI for">
+<p>The csv gave back text: the factor was lost. The rds gave back the factor.</p>
+<div title="A full request">
 <div class="callout callout-tip no-icon callout-titled callout-style-default">
 <div class="callout-body">
 <div class="callout-title">
-<p><strong>What to ask the AI for</strong></p>
+<p><strong>A full request</strong></p>
 </div>
 <div class="callout-content">
-<p>“Save <code>corn</code> as <code>data/corn_clean.rds</code> using <code>here::here()</code>, then read it back and confirm with <code>all.equal()</code> that it matches the original.”</p>
+<p>“Save <code>corn</code> as <code>data/corn_clean.rds</code> using <code>here::here()</code>, then read it back and tell me whether it matches the original exactly, and if not, which columns differ.”</p>
 </div>
 </div>
 </div>
@@ -1022,7 +1073,7 @@ $ Yield       &lt;dbl&gt; 173, 182, 163, 182, 177, 180, 172, 184, 171, 175, 164,
 </tr>
 </tbody>
 </table>
-<p><strong>Every import:</strong> look at the file first, write down what you expect, then check size, types, missing values, ranges, and one row by eye.</p>
+<p><strong>Every import:</strong> look at the file first and write down what you expect. Ask the AI to print the five checks, plus any check your knowledge of the data suggests. Then judge the output against what you wrote down.</p>
 
 
 </section></section>

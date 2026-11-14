@@ -313,80 +313,84 @@ colSums(is.na(corn))
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
-## The checks to run after every import
-
-The AI can write these checks for you. Only you know what the right answer is.
+## Checking: what to ask for, and why
 
 ::: {.panel-tabset}
 
-### 1. Size
+### The five checks
 
-Does the number of rows match what you wrote down when you looked at the file?
+The AI can write the checking code. It cannot decide which checks your file needs, and it cannot know the right answers. Ask for these after every import:
+
+| | Ask the AI to print | Why | What only you can supply |
+|---|---|---|---|
+| 1 | the number of rows and columns | Rows go missing or appear when the wrong sheet is read or a title line is read as data | the row count from looking at the file |
+| 2 | the type of every column | A wrong guess (an ID read as a number, a number read as text) gives no error | which type each key column should be |
+| 3 | the number of missing values in each column | A missing-value code the reader was not told about, such as `-999`, is kept as a real value | how the file marks missing values |
+| 4 | the smallest and largest value of each numeric column | Impossible values expose those codes, and unit mistakes | what range is believable |
+| 5 | the first row | Shifted or merged columns show up at once | the same row in the raw file |
+
+### Asking for them
+
+One sentence at the end of your request does it:
+
+```text
+After reading the file, print: the number of rows and columns, the type of
+every column, the number of missing values in each column, the smallest and
+largest value of each numeric column, and the first row.
+```
+
+Better still, tell it what you expect, so the output says which checks failed:
+
+```text
+I expect 161 rows, 9 columns, no missing values, and Yield between 100 and
+250. Print a clear message for every expectation that is not met.
+```
+
+The second version only works if you looked at the file first. That is the part you cannot hand off.
+
+### Reading the answer
+
+The AI writes the code. You read what it prints and compare it with what you expected:
 
 ```{r}
-#| label: chk-size
+#| label: chk-all
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
 dim(corn)
-```
-
-`r nrow(corn)` rows, matching the `r length(readLines("corn_yields.csv")) - 1` we counted. `r ncol(corn)` columns, matching the header line.
-
-### 2. Names and types
-
-Is each column the type it should be?
-
-```{r}
-#| label: chk-types
-glimpse(corn)
-```
-
-`Yield` is a number (`dbl`), good. `FIPS` is also a number. Nebraska codes start with 31, so nothing was lost here, but this is the column to watch in any national dataset.
-
-### 3. Missing values
-
-Are there missing values where you did not expect them, or none where you did?
-
-```{r}
-#| label: chk-na
+sapply(corn, class)
 colSums(is.na(corn))
+range(corn$Yield)
 ```
 
-### 4. Values make sense
-
-Are the numbers in a believable range? Nebraska corn yields are roughly 100 to 250 bushels per acre.
-
-```{r}
-#| label: chk-range
-summary(corn$Yield)
-```
-
-A `-999` or a yield of 2 would show up here.
-
-### 5. One row by eye
-
-Pick one row and compare it with the raw file:
-
-```{r}
-#| label: chk-row
-corn[1, ]
-```
-
-The first raw line we printed earlier was `2008,31,31019,BUFFALO,...,0,173`. Same values.
++ `r nrow(corn)` rows: the file has `r length(readLines("corn_yields.csv"))` lines, one of them column names. Matches.
++ `FIPS` is a number. Fine here, since every Nebraska code starts with 31, but in a national dataset this is the column that loses leading zeros.
++ No missing values, and yields from `r min(corn$Yield)` to `r max(corn$Yield)` bushels per acre: believable.
 
 :::
 
-## These checks catch real problems
 
-The two sheets of `corn_yields.xls` are labelled 2008 and 2009. Read both, then check whether the yields differ between years:
+## Checks that come from knowing the data
+
+The five checks apply to any file. The most useful checks come from what you know about **this** data, and no AI will think of them for you.
+
+The two sheets of `corn_yields.xls` are labelled 2008 and 2009. Yields change from year to year, because the weather does. So ask:
+
+```text
+Read both sheets of corn_yields.xls and tell me whether each county's
+yield is the same in both years.
+```
 
 ```{r}
 #| label: chk-sheets
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
 yield_08 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_08")
 yield_09 <- readxl::read_excel("corn_yields.xls", sheet = "corn_yields_09")
 
 identical(yield_08$Yield, yield_09$Yield)
 ```
 
-Every county has exactly the same yield in both years. The code ran without error, the row counts are fine, and the types are fine. Only a check based on knowing what real data looks like (yields change from year to year) catches it. Here the problem is in the file itself, and finding that out before running any analysis is exactly what checking is for.
+`TRUE`: every county has exactly the same yield in both years. The code ran without error, and the row counts and types pass. The problem is in the file itself, and only a question based on what real yields look like found it.
 
 ## Your turn: read the AI's code
 
@@ -451,10 +455,14 @@ Keep **raw** data as you received it. Save **intermediate** results as rds, so t
 
 ## Checking an export: the round trip
 
-Write the file, read it back, and compare with what you started with. Here `Irrigated` is turned into a factor (a column of categories), then saved both ways:
+**Why:** a file can quietly keep less than you saved. The only way to know what it kept is to read it back.
+
+**What to ask:** "Save the table, read it back, and compare it with the original." Here `Irrigated` was first made a factor (a column of categories), then saved as csv and as rds:
 
 ```{r}
 #| label: round-trip
+#| code-fold: true
+#| code-summary: "Code the AI wrote"
 corn_f <- mutate(corn, Irrigated = factor(Irrigated, labels = c("no", "yes")))
 
 csv_file <- file.path(tempdir(), "corn.csv")
@@ -466,10 +474,10 @@ class(read_csv(csv_file, show_col_types = FALSE)$Irrigated)
 class(readRDS(rds_file)$Irrigated)
 ```
 
-The csv gave back text: the factor was lost. The rds gave back the factor. The check is cheap, and it is the only way to know what your file actually keeps.
+The csv gave back text: the factor was lost. The rds gave back the factor.
 
-:::{.callout-tip title="What to ask the AI for"}
-"Save `corn` as `data/corn_clean.rds` using `here::here()`, then read it back and confirm with `all.equal()` that it matches the original."
+:::{.callout-tip title="A full request"}
+"Save `corn` as `data/corn_clean.rds` using `here::here()`, then read it back and tell me whether it matches the original exactly, and if not, which columns differ."
 :::
 
 # Summary
@@ -486,4 +494,4 @@ The csv gave back text: the factor was lost. The rds gave back the factor. The c
 | What a correct result looks like: rows, types, ranges | The checking code |
 | Which format to save in, given who reads it next | The writer function |
 
-**Every import:** look at the file first, write down what you expect, then check size, types, missing values, ranges, and one row by eye.
+**Every import:** look at the file first and write down what you expect. Ask the AI to print the five checks, plus any check your knowledge of the data suggests. Then judge the output against what you wrote down.
