@@ -54,8 +54,10 @@ In-class (flipped course). Each has two files:
 ## Styling
 
 Lecture styling comes from `../_lecture-shared/`, copied into `lectures/` by
-`../sync-lecture-shared.sh`. Do not edit the copies. This repo only uses plain
-`{r}` chunks so far, no WebR, so `_extensions/` is absent.
+`../sync-lecture-shared.sh`. Do not edit the copies. WebR (R running in the
+browser) is used by `01-Introduction.qmd` only so far; the other decks use plain
+`{r}` chunks. The patched WebR extension is vendored in `_extensions/coatless/webr/`,
+and its two patched files are copies from `../_lecture-shared/` like the rest.
 
 ## Rendering
 

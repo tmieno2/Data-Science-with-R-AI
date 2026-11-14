@@ -6,6 +6,16 @@ project:
     # Handed out as .qmd for students to fill in; copied as a resource by
     # exercises/3-1-input-output.qmd, never rendered here.
     - "!exercises/worksheets/"
+  # Measure what every WebR cell prints, before the render, so the side-by-side
+  # layout is decided from the real output. Decks with no {webr-r} cell are
+  # skipped, and a deck is re-measured only when its .qmd is newer than its .js.
+  pre-render:
+    - lectures/measure-webr-output.R
+  # The measurements, read at load by webr-layout.html. Only WebR decks have
+  # one. Without this entry they are not copied into docs/ and every cell falls
+  # back to judging its layout on the code alone.
+  resources:
+    - "lectures/**/*.webr-output.js"
 
 website:
   title: "Data Science with R (AECN 896-05)"

@@ -3,13 +3,29 @@ title: "01-1: Introduction to R"
 abstract: "Chapter 1: R Introduction"
 format:
   revealjs:
-    include-in-header: ../transcript-support.html
+    include-in-header:
+      - ../transcript-support.html
+      - ../webr-layout.html
+      - ../katex-amd-fix.html
     footer: "[back to the lecture slides](../index.html)"
     theme: [default, ../custom.scss, ../notebook.scss]
     fontsize: 1.2em
     callout-icon: false
     scrollable: true
     echo: true
+webr:
+  # dplyr is installed when the page loads but not attached, so the slide
+  # "When it goes wrong" still shows `as_tibble()` failing until a cell loads it.
+  packages: ['dplyr']
+  autoload-packages: false
+  cell-options:
+    editor-font-scale: 0.7
+    dpi: 216
+    fig-width: 10
+    fig-height: 6
+    out-width: 100%
+filters:
+  - webr
 ---
 
 ```{r}
@@ -18,6 +34,15 @@ format:
 yields <- c(150, 162, NA, 171)
 # Inline results printed the way R prints them, values separated by spaces
 out <- function(z) paste(z, collapse = " ")
+# The objects the inline results in the text refer to. The slides create them
+# in WebR cells, which run in the browser, not here.
+v <- c(4, 3, 5, 9, 1)
+yield_data <- data.frame(
+  nitrogen = c(200, 180, 300),
+  yield = c(240, 220, 230),
+  state = c("Kansas", "Nebraska", "Iowa")
+)
+a_list <- list(numbers = c(10, 20), state = "Iowa", data = yield_data)
 ```
 
 # How this lecture works
@@ -25,6 +50,29 @@ out <- function(z) paste(z, collapse = " ")
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
 ## What you will and will not learn today
+
+```{webr-r}
+#| context: setup
+# Every object a slide uses, created when the page loads, so each code area
+# runs on its own and in any order.
+yields <- c(150, 162, NA, 171)
+a <- 1
+b <- "R rocks"
+d <- 1 == 2
+average_yield <- mean(yields, na.rm = TRUE)
+v <- c(4, 3, 5, 9, 1)
+mixed <- c(4, 3, "5", 9, 1)
+yield_data <- data.frame(
+  nitrogen = c(200, 180, 300),
+  yield = c(240, 220, 230),
+  state = c("Kansas", "Nebraska", "Iowa")
+)
+a_list <- list(numbers = c(10, 20), state = "Iowa", data = yield_data)
+# WebR's own library() tries to download a package that is not installed, and
+# then only warns. The slide "When it goes wrong" shows R's real error, so use
+# base R's library().
+if ("webr_shims" %in% search()) detach("webr_shims")
+```
 
 ::: {.panel-tabset}
 
@@ -42,12 +90,21 @@ You will not learn to write these from memory. You will learn to recognise them,
 
 ### Directions
 
-+ Install R, then RStudio (see "Installing them" under "R and RStudio" below)
-+ Install the packages `tidyverse`, `rmarkdown` and `here`, at the Console: `install.packages(c("tidyverse", "rmarkdown", "here"))`. Do this before class; it can take several minutes. What packages are, and why installing happens once, is on the slide "Packages: installing and loading"
++ To study this deck you need only this web page. Every example runs inside the slides (next tab).
 + Have an AI assistant available: a chat assistant in your browser, or an agent such as Claude Code in your editor or terminal
 + To move around these slides: click the three stacked horizontal lines in the bottom-left corner for the table of contents, or press the `o` key to see every slide at once
 
-The code on these slides was run when the slides were made, and its output is shown under it. To try it yourself, copy it into RStudio.
+### Running the examples
+
+R runs inside this web page, so you can run every example on these slides yourself. The first time the page opens, R takes a little while to load; a code area works once the button reads "Run Code".
+
++ The box with the pale blue background is a **code area**. You can edit the code in it.
++ Click **Run Code** to run all the code in the code area. The result appears under it, or beside it.
++ To run only part of the code, select it and press **Command + Enter** (Mac) or **Ctrl + Enter** (Windows).
++ The reload button puts the original code back. The copy button copies the code.
++ The eye button hides the result, and a second click shows it again.
+
+The objects the slides use, such as `yields`, are created when the page loads, so each code area runs on its own, in any order. Changing a number and running the code again is the quickest way to see what a line does; nothing you type here can break anything.
 
 :::
 
@@ -82,15 +139,15 @@ The AI will write that code into a **Quarto document** (a `.qmd` file: plain tex
 
 :::
 
-# R and RStudio
+# R
 
 <html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
-## R and RStudio
+## What R is
 
 ::: {.panel-tabset}
 
-### What they are
+### The language
 
 **R** is a programming language for statistics and data, and the program that runs code written in it.
 
@@ -98,36 +155,11 @@ The AI will write that code into a **Quarto document** (a `.qmd` file: plain tex
 + Started as software for statistics, designed by statisticians
 + Grows through its users: new statistical methods often appear first as R packages written by the people who developed the method, and R also handles maps and large datasets
 
-**RStudio** is a separate program that you work in. It sends your code to R and shows you the results, your files, your figures and the help pages in one window. R's own window is very basic, so almost everyone uses R through RStudio.
-
-### Installing them
-
-Install both, **R first**, then RStudio, because RStudio looks for an existing R installation when it starts.
-
-+ [R](https://www.r-project.org/)
-+ [RStudio](https://posit.co/download/rstudio-desktop/)
-
-It worked if RStudio opens and the lower-left pane shows a line starting with `R version` followed by a `>`.
-
-### The four panes
-
-| Where | Pane | What it is for |
-|---|---|---|
-| Upper left | Script or document | Code you want to keep, saved in a file |
-| Lower left | **Console** | Where R runs code. Type a line after `>` and press Enter |
-| Upper right | **Environment** | Lists the objects R is currently holding |
-| Lower right | Files, Plots, Packages, Help | Your folders, figures, installed packages and help pages |
-
-Appearance and pane layout can be changed under Tools, Global Options.
-
-### Running code
-
-+ At the Console: type a line and press Enter. R prints the result.
-+ In a file: put the cursor on a line, or select several lines, and press **Command + Enter** (Mac) or **Ctrl + Enter** (Windows). RStudio sends them to the Console.
+### Comments and output
 
 Anything after `#` on a line is a **comment**: R ignores it. Comments explain the code to people.
 
-```{r}
+```{webr-r}
 #| label: comments
 # this whole line is a comment
 2 + 3 # a comment can follow code on the same line
@@ -145,7 +177,7 @@ The `[1]` at the start of the output is not part of the result. It says the line
 
 Here is a typical line of R, of the kind an AI writes all the time:
 
-```{r}
+```{webr-r}
 #| label: one-line
 average_yield <- mean(yields, na.rm = TRUE)
 ```
@@ -183,20 +215,20 @@ name <- value
 
 R works out the right-hand side **first**, then stores the result. So `d <- 1 == 2` stores `FALSE`, the answer to "is 1 equal to 2?", not the question.
 
-```{r}
+```{webr-r}
 #| label: assign
 a <- 1
 b <- "R rocks"
 d <- 1 == 2
 ```
 
-These three objects now appear in RStudio's Environment pane.
+Running this prints nothing: storing an object does not show it.
 
 ### Printing an object
 
 Running an object's name on its own prints what it holds. This is the simplest check there is: did the object get the value you expected?
 
-```{r}
+```{webr-r}
 #| label: print-object
 a
 b
@@ -207,7 +239,7 @@ d
 
 Storing under a name that already exists **replaces** the old object, without a warning:
 
-```{r}
+```{webr-r}
 #| label: overwrite
 a <- 3
 a <- 1
@@ -240,9 +272,8 @@ You will also see **integer** (a whole number written with an `L`, such as `3L`)
 
 Quotation marks matter: `"31001"` is text, `31001` is a number. You cannot do arithmetic on text:
 
-```{r}
+```{webr-r}
 #| label: text-arithmetic
-#| error: true
 "5" + 1
 ```
 
@@ -263,7 +294,7 @@ A comparison gives back a logical value. `==` (two equals signs) asks a question
 
 `NA` means "this value is missing". It is not zero, and it is not the text `"NA"`.
 
-```{r}
+```{webr-r}
 #| label: na
 yields
 is.na(yields)
@@ -273,7 +304,7 @@ is.na(yields)
 
 Most calculations that include a missing value give `NA`, because the true answer is unknown:
 
-```{r}
+```{webr-r}
 #| label: na-mean
 mean(yields)
 ```
@@ -290,7 +321,7 @@ How to get the average of the values that are there is on the slide "Functions a
 
 A **vector** is a sequence of values, all of the **same type**. `c()` (short for "combine") makes one:
 
-```{r}
+```{webr-r}
 #| label: vector
 v <- c(4, 3, 5, 9, 1)
 v
@@ -298,7 +329,7 @@ v
 
 Arithmetic on vectors works **element by element**: the first value with the first, the second with the second, and so on.
 
-```{r}
+```{webr-r}
 #| label: vector-arithmetic
 v * 2
 v + c(10, 20, 30, 40, 50)
@@ -310,7 +341,7 @@ R code rarely needs a loop to do the same thing to every value; this is why.
 
 A vector can hold only one type. Mix types, and R converts everything to the type that can hold all of them, **without an error**:
 
-```{r}
+```{webr-r}
 #| label: mixed
 mixed <- c(4, 3, "5", 9, 1)
 mixed
@@ -322,7 +353,7 @@ Every value is now text (note the quotation marks). One text value turned the wh
 
 A **table** holds data in rows and columns. Each column is a vector, so each column has one type, but different columns can have different types. All columns have the same length. R calls a table a **data frame**; this course says table.
 
-```{r}
+```{webr-r}
 #| label: table
 yield_data <- data.frame(
   nitrogen = c(200, 180, 300),
@@ -341,7 +372,7 @@ You will also see **tibble** and **data.table**. They are tables too, with some 
 + **list**: holds any mix of objects, each of any type and length. Results of a statistical model usually come back as a list.
 + **matrix**: values of one type in rows and columns, used for linear algebra. You will rarely meet one in this course.
 
-```{r}
+```{webr-r}
 #| label: list
 a_list <- list(numbers = c(10, 20), state = "Iowa", data = yield_data)
 names(a_list)
@@ -351,14 +382,14 @@ names(a_list)
 
 Many surprises in R come from an object not being what you thought: a column of text instead of numbers, a vector instead of a table. Three functions tell you:
 
-```{r}
+```{webr-r}
 #| label: class-str
 class(yield_data)
 class(mixed)
 str(yield_data)
 ```
 
-`class()` gives the kind of object; for a vector, the type of its values. `str()` (structure) gives the size and the type of every column: here `r nrow(yield_data)` rows ("obs.") and `r ncol(yield_data)` columns ("variables"), with `num` for numeric and `chr` for character. In RStudio, `View(yield_data)` opens a table in a spreadsheet-style viewer.
+`class()` gives the kind of object; for a vector, the type of its values. `str()` (structure) gives the size and the type of every column: here `r nrow(yield_data)` rows ("obs.") and `r ncol(yield_data)` columns ("variables"), with `num` for numeric and `chr` for character.
 
 :::
 
@@ -375,15 +406,12 @@ AI-written code constantly takes one column, some rows or one value out of an ob
 
 Positions count from 1, not 0. `table$column` is the one you will see most often: `mean(yield_data$yield)` reads "the average of the `yield` column of `yield_data`".
 
-```{r}
-#| label: extract
-mean(yield_data$yield)
-```
-
 The condition is itself a comparison that gives one `TRUE` or `FALSE` per row, and the rows marked `TRUE` are kept:
 
-```{r}
-#| label: extract-rows
+```{webr-r}
+#| label: extract
+#| code-track: 0.5
+mean(yield_data$yield)
 yield_data$yield > 225
 yield_data[yield_data$yield > 225, ]
 ```
@@ -411,7 +439,7 @@ result <- function_name(first_input, name = value, ...)
 
 A real call:
 
-```{r}
+```{webr-r}
 #| label: round
 round(3.14159, digits = 2)
 ```
@@ -437,7 +465,7 @@ All of these follow the pattern. You do not need to remember them; you need to r
 
 Every option has a **default**: the value it takes when you do not set it, chosen by whoever wrote the function. `mean()` has an option `na.rm` (remove `NA`s) whose default is `FALSE`. That is why the average above came back `NA`:
 
-```{r}
+```{webr-r}
 #| label: na-rm
 mean(yields)
 mean(yields, na.rm = TRUE)
@@ -458,7 +486,7 @@ AI-written code often arranges the same pattern differently. These change how th
 + **Inputs without names**: `round(3.14159, 2)` is the same as `round(3.14159, digits = 2)`, because `digits` is the second input. Named inputs are easier to read.
 + **The pipe**, `|>`: `yields |> mean(na.rm = TRUE)` means `mean(yields, na.rm = TRUE)`. The object on the left becomes the first input of the function on the right. You will see it in nearly every chapter from Chapter 3 on.
 
-```{r}
+```{webr-r}
 #| label: pipe
 yields |> mean(na.rm = TRUE)
 ```
@@ -467,7 +495,7 @@ yields |> mean(na.rm = TRUE)
 
 ## Reading a help page
 
-Every function has a help page. Put `?` in front of its name, at the Console, and the page opens in the Help pane: `?seq`. Three sections tell you most of what you need.
+Every function has a help page. Put `?` in front of its name, as in `?seq`, and R opens the page. The R inside these slides cannot show help pages, so this slide shows the parts of the `?seq` page that matter. Three sections tell you most of what you need.
 
 ::: {.panel-tabset}
 
@@ -494,7 +522,7 @@ You only supply the inputs whose defaults you want to change. That is why `seq(0
 
 **Arguments** says what each input means. For `seq()`, `by` is the step between values and `length.out` is how many values you want, so the same sequence can be described two ways:
 
-```{r}
+```{webr-r}
 #| label: seq-two-ways
 seq(0, 1, by = 0.25)
 seq(0, 1, length.out = 5)
@@ -502,7 +530,7 @@ seq(0, 1, length.out = 5)
 
 **Examples**, at the very bottom, is code you can copy and run. Running an example and then looking back at Usage is often the fastest way to understand a function.
 
-You can also paste a line into an AI assistant and ask what each input does (see "Recommended requests", tab "Explain code"). The help page is the reference to check its answer against: it describes the version of the function installed on your computer, which the AI cannot see.
+You can also paste a line into an AI assistant and ask what each input does (see the slide "Requests you can copy", tab "Explain code"). The help page is the reference to check its answer against: it describes the version of the function installed on your computer, which the AI cannot see.
 
 :::
 
@@ -545,6 +573,8 @@ library(ggplot2)
 
 You can now use the tools (functions) that drawer contains.
 
+These two lines are shown here, not run: installing puts a package on your own computer, not in this web page.
+
 :::{.callout-note title="Install once, load every time"}
 You install a package **once per computer**, at the Console. You load it with `library()` in **every new R session** (R from the moment it starts until it is closed or restarted), and that includes every time a Quarto document is rendered, because rendering starts a fresh R session. So `library()` lines belong at the top of your document, and `install.packages()` lines do not belong in it at all: they would download the package again at every render.
 :::
@@ -553,17 +583,15 @@ You install a package **once per computer**, at the Console. You load it with `l
 
 The two steps fail with two different errors, and the error tells you which step is missing:
 
-```{r}
+```{webr-r}
 #| label: no-package
-#| error: true
 library(notapkg)
 ```
 
 "There is no package called ...": the package is **not installed** (or the name is misspelled).
 
-```{r}
+```{webr-r}
 #| label: no-function
-#| error: true
 tidy_table <- as_tibble(yield_data)
 ```
 
@@ -573,8 +601,7 @@ tidy_table <- as_tibble(yield_data)
 
 A line does not say which package its function comes from, unless it is written as `package::function()`:
 
-```{r}
-#| eval: false
+```{webr-r}
 dplyr::filter(yield_data, yield > 225)
 ```
 
@@ -594,9 +621,8 @@ dplyr::filter(yield_data, yield > 225)
 
 When R cannot run a line, it stops and prints an error. Read it before anything else: it usually names the function that failed and what it objected to.
 
-```{r}
+```{webr-r}
 #| label: error-sum
-#| error: true
 sum("a")
 ```
 
@@ -624,7 +650,7 @@ An error is the good case: you know something went wrong. Worse are lines that r
 
 And one more. Text that looks like numbers is sorted as text, character by character:
 
-```{r}
+```{webr-r}
 #| label: sort-text
 sort(c("9", "10", "100"))
 ```
@@ -688,7 +714,7 @@ its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
-The last paragraph is the **closing instructions**: the same lines end every request that asks for code. They make the AI put its code into a Quarto document, with a sentence above each piece of code, so that the result is a web page you can read and keep. Chapter 2 teaches Quarto; the full text is under "Recommended requests".
+The last paragraph is the **closing instructions**: the same lines end every request that asks for code. They make the AI put its code into a Quarto document, with a sentence above each piece of code, so that the result is a web page you can read and keep. Chapter 2 teaches Quarto; the full text is on the slide "Requests you can copy".
 
 `here::here()` builds a file's path from the top folder of your project, so the path works on any computer. Chapter 3 explains it.
 
@@ -698,14 +724,14 @@ What the AI's answer looks like in the rendered page: a sentence, then the code 
 
 `mean()` gives `NA` when any value is missing, unless told to leave missing values out with `na.rm = TRUE`.
 
-```{r}
+```{webr-r}
 #| label: ai-answer-mean
 average_yield <- mean(yields, na.rm = TRUE)
 ```
 
 Print the checks: how many values there are, how many are missing, and the average of the rest.
 
-```{r}
+```{webr-r}
 #| label: ai-answer-check
 cat(
   paste("values: expected 4, got", length(yields)),
@@ -719,100 +745,6 @@ cat(
 Every check matches, and each line says what it is checking. Two functions that may be new: `cat()` prints text, and `paste()` joins pieces of text into one. `sum(!is.na(yields))` counts the values that are **not** missing (`!` means "not").
 
 :::
-
-# Checking the result
-
-<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
-
-## Checking: what to ask for, and why
-
-::: {.panel-tabset}
-
-### Checks you can know in advance
-
-A check is only useful if you know the right answer before you see the result. The AI can write the checking code; only you can supply the answer. Sources of answers you know in advance:
-
-| | Ask the AI to print | You know the answer from |
-|---|---|---|
-| 1 | how many values, rows or columns there are | counting, or the description of the data (a help page, a codebook) |
-| 2 | the type of each key value or column | knowing what it measures: a yield is a number, a state name is text |
-| 3 | how many values are missing | the data's description, or counting them yourself on a small case |
-| 4 | the smallest and largest value | what is believable: a corn yield is not negative |
-| 5 | the result on a small case | working it out by hand, as for the average of 150, 162 and 171 |
-
-### Asking for them
-
-Say what you expect, and ask for each check in one form, so the rendered page says which passed:
-
-```text
-I expect <number> values, <number> of them missing, and an average of
-<number>. Print each check on its own line as "name of check: expected
-X, got Y".
-```
-
-If you cannot fill in a blank, that is a sign to look at the data, or its description, before asking.
-
-### A check that fails
-
-A student expected the values to be numbers. The AI's code, and what it printed:
-
-```{r}
-#| label: chk-fail
-#| code-fold: true
-#| code-summary: "Code the AI wrote"
-cat("type of mixed: expected numeric, got", class(mixed), "\n")
-```
-
-The check fails: `mixed` holds text. Nothing errored, and any average of it would be wrong or `NA`. The right move is to find out where the text came from (here, the `"5"` written in quotation marks) before going on.
-
-:::
-
-## Your turn: read the AI's code
-
-A student asked an AI to "average my yields", and got this:
-
-```{r}
-#| eval: false
-library(dplyr)
-my_yields <- c(150, 162, "171", 140)
-avg = mean(my_yields)
-avg
-```
-
-::: {.panel-tabset}
-
-### Questions
-
-A. What does each of the four lines do?
-
-B. What will `avg` print, and why? Is there an error?
-
-C. Which check from the previous slide would have caught the problem, and what would it have printed?
-
-D. Is line 1 needed?
-
-### Answers
-
-```{r}
-#| label: your-turn
-#| include: false
-my_yields <- c(150, 162, "171", 140)
-avg <- suppressWarnings(mean(my_yields))
-```
-
-A. Loads the dplyr package; stores four yields under the name `my_yields`; computes their average and stores it as `avg` (`=` does the same as `<-` here); prints `avg`.
-
-B. `r avg`. Because `"171"` is in quotation marks, the whole vector is text, and the average of text is `NA`. There is no error, only a warning ("argument is not numeric or logical: returning NA"), which is easy to miss.
-
-C. Check 2, the type: "type of my_yields: expected numeric, got `r class(my_yields)`".
-
-D. No. None of the functions used (`c()`, `mean()`) comes from dplyr; both are built into R. It does no harm, but a line you cannot explain is worth asking about.
-
-:::
-
-# Recommended requests
-
-<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
 
 ## Requests you can copy
 
@@ -873,32 +805,102 @@ its own line as "name of check: expected X, got Y". Render the document
 to HTML.
 ```
 
-### Install packages
+:::
 
-Installing happens once, at the Console, so this request asks the AI to act rather than to write code into your document:
+# Checking the result
+
+<html><div style='float:left'></div><hr color='#EB811B' size=1px width=796px></html>
+
+## Checking: what to ask for, and why
+
+::: {.panel-tabset}
+
+### Checks you can know in advance
+
+A check is only useful if you know the right answer before you see the result. The AI can write the checking code; only you can supply the answer. Sources of answers you know in advance:
+
+| | Ask the AI to print | You know the answer from |
+|---|---|---|
+| 1 | how many values, rows or columns there are | counting, or the description of the data (a help page, a codebook) |
+| 2 | the type of each key value or column | knowing what it measures: a yield is a number, a state name is text |
+| 3 | how many values are missing | the data's description, or counting them yourself on a small case |
+| 4 | the smallest and largest value | what is believable: a corn yield is not negative |
+| 5 | the result on a small case | working it out by hand, as for the average of 150, 162 and 171 |
+
+### Asking for them
+
+Say what you expect, and ask for each check in one form, so the rendered page says which passed:
 
 ```text
-Install the R packages <package names> on my computer, at the R
-Console, not in any document. Then load each one with library() and
-tell me whether it loaded, and its version.
+I expect <number> values, <number> of them missing, and an average of
+<number>. Print each check on its own line as "name of check: expected
+X, got Y".
 ```
 
-A chat assistant cannot run anything: it will give you an `install.packages()` line to paste into the Console yourself.
+If you cannot fill in a blank, that is a sign to look at the data, or its description, before asking.
 
-### Compute something, with checks
+### A check that fails
 
-```text
-In my Quarto document <path to your .qmd>, the object <object name> is
-created earlier and holds <what it holds>. Compute <what you want>.
-I expect <number> values, <number> of them missing, and a result of
-about <number>.
+A student expected the values to be numbers. The AI's code, and what it printed:
 
-Put the code in my Quarto document <path to your .qmd>, under the
-heading "<heading>", as R code chunks. Above each chunk, write one
-plain-English sentence saying what it does and why. Build every path
-with here::here(); no setwd(), no absolute paths. Print each check on
-its own line as "name of check: expected X, got Y". Render the document
-to HTML.
+```{webr-r}
+#| label: chk-fail
+cat("type of mixed: expected numeric, got", class(mixed), "\n")
+```
+
+The check fails: `mixed` holds text. Nothing errored, and any average of it would be wrong or `NA`. The right move is to find out where the text came from (here, the `"5"` written in quotation marks) before going on.
+
+:::
+
+## Your turn: read the AI's code
+
+A student asked an AI to "average my yields", and got this:
+
+```{r}
+#| eval: false
+library(dplyr)
+my_yields <- c(150, 162, "171", 140)
+avg = mean(my_yields)
+avg
+```
+
+::: {.panel-tabset}
+
+### Questions
+
+A. What does each of the four lines do?
+
+B. What will `avg` print, and why? Is there an error?
+
+C. Which check from the previous slide would have caught the problem, and what would it have printed?
+
+D. Is line 1 needed?
+
+### Answers
+
+```{r}
+#| label: your-turn
+#| include: false
+my_yields <- c(150, 162, "171", 140)
+avg <- suppressWarnings(mean(my_yields))
+```
+
+A. Loads the dplyr package; stores four yields under the name `my_yields`; computes their average and stores it as `avg` (`=` does the same as `<-` here); prints `avg`.
+
+B. `r avg`. Because `"171"` is in quotation marks, the whole vector is text, and the average of text is `NA`. There is no error, only a warning ("argument is not numeric or logical: returning NA"), which is easy to miss.
+
+C. Check 2, the type: "type of my_yields: expected numeric, got `r class(my_yields)`".
+
+D. No. None of the functions used (`c()`, `mean()`) comes from dplyr; both are built into R. It does no harm, but a line you cannot explain is worth asking about.
+
+To see B for yourself, run the student's code:
+
+```{webr-r}
+#| message: false
+library(dplyr)
+my_yields <- c(150, 162, "171", 140)
+avg = mean(my_yields)
+avg
 ```
 
 :::
